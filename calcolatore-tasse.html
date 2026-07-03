@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta name="google-site-verification" content="0D9xVTcIzWZeSobQT0zp5xdG6rSIn4cXBrK1XTlb27c" />
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7N72HVRGRJ"></script>
+<script>
+  window.dataLayer=window.dataLayer||[];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js',new Date());
+  gtag('config','G-7N72HVRGRJ');
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('a[href*="contatt"],a[href^="mailto:"]').forEach(function(el){
+      el.addEventListener('click',function(){gtag('event','click_contattami');});
+    });
+    var f=document.querySelector('form[name="contatti"]');
+    if(f){f.addEventListener('submit',function(){gtag('event','invio_form');});}
+  });
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#fdf8ee">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light">
+<title>Calcolatore Tasse Partita IVA 2026 — Regime Forfettario, INPS e Netto</title>
+<meta name="description" content="Calcolatore gratuito per partita IVA in regime forfettario 2026: calcola imposta sostitutiva (5% o 15%), contributi INPS Gestione Separata e netto da fattura per qualsiasi attività. Online, senza registrazione.">
+<meta name="keywords" content="calcolatore forfettario, regime forfettario 2026, calcolo tasse partita iva, imposta sostitutiva 5%, imposta sostitutiva 15%, inps gestione separata, netto da fattura, calcolo coefficiente redditività, quanto resta da fatturato, tasse freelance">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://davidemorabito.com/calcolatore-tasse.html">
+<meta property="og:title" content="Calcolatore Tasse Partita IVA 2026 — Regime Forfettario, INPS e Netto">
+<meta property="og:description" content="Calcola in pochi secondi imposta sostitutiva, contributi INPS e netto da fattura per la tua partita IVA in regime forfettario. Gratuito, valido per i primi 5 anni di attività e oltre.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://davidemorabito.com/calcolatore-tasse.html">
+<meta property="og:site_name" content="Davide Morabito">
+<meta property="og:locale" content="it_IT">
+<meta property="og:image" content="https://davidemorabito.com/media/og-cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Calcolatore Regime Forfettario — calcola tasse, INPS e netto da fattura">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Calcolatore Regime Forfettario 2026">
+<meta name="twitter:description" content="Calcola imposta sostitutiva, INPS e netto da fattura nel regime forfettario. Gratuito e online.">
+<meta name="twitter:image" content="https://davidemorabito.com/media/og-cover.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  :root{
+    color-scheme: light only;
+    --navy:#2B4868;
+    --navy-deep:#1a2d42;
+    --navy-light:#3d6088;
+    --amber:#FFAD01;
+    --amber-glow:#ffc547;
+    --cream:#fdf8ee;
+    --ink:#0f1822;
+    --soft:rgba(255,173,1,0.08);
+    --line:rgba(43,72,104,0.12);
+  }
+  html{
+    color-scheme: light only;
+    background-color:#fdf8ee !important;
+  }
+  html,body{height:100%;overflow-x:hidden}
+  body{
+    font-family:'Jost',sans-serif;
+    background-color:#fdf8ee !important;
+    color:var(--navy);
+    min-height:100vh;
+    min-height:100dvh;
+    position:relative;
+    -webkit-font-smoothing:antialiased;
+    overflow-y:auto;
+  }
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(circle at 85% -10%, rgba(255,173,1,0.18) 0%, transparent 45%),
+      radial-gradient(circle at -10% 100%, rgba(43,72,104,0.12) 0%, transparent 50%);
+    pointer-events:none;
+    z-index:0;
+  }
+  body::after{
+    content:'';
+    position:fixed;
+    inset:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:32px 32px;
+    opacity:0.35;
+    pointer-events:none;
+    z-index:0;
+    mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  .tool-hero { position:relative; width:100%; min-height:30vh; display:flex; align-items:center; justify-content:center; text-align:center; overflow:hidden; background:radial-gradient(ellipse 70% 60% at 50% 35%, rgba(43,72,104,.4), transparent), #060606; padding:88px 6vw 36px; }
+  .tool-hero .cam-canvas { position:absolute; inset:0; width:100%; height:100%; z-index:0; opacity:.18; pointer-events:none; }
+  .tool-hero-inner { position:relative; z-index:2; }
+  .tool-hero-eyebrow { font-family:'Jost',sans-serif; font-size:11px; letter-spacing:5px; text-transform:uppercase; color:var(--amber); margin-bottom:16px; }
+  .tool-hero h1 { font-family:'Jost',sans-serif; font-weight:200; font-size:clamp(46px,9vw,92px); line-height:.96; color:#fff; letter-spacing:1px; margin:0; }
+  .tool-hero h1 b { font-weight:700; color:var(--amber); }
+  .tool-hero-tag { font-family:'Jost',sans-serif; font-size:12px; letter-spacing:3px; text-transform:uppercase; color:#a9a299; margin-top:18px; font-weight:300; }
+
+  .app{
+    position:relative;
+    z-index:1;
+    max-width:480px;
+    margin:0 auto;
+    padding:24px 20px 40px;
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:28px;
+  }
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo-mark{
+    width:36px;height:36px;
+    border-radius:50%;
+    background:var(--navy);
+    display:grid;
+    place-items:center;
+    position:relative;
+  }
+  .logo-mark::after{
+    content:'';
+    width:14px;height:14px;
+    border-radius:50%;
+    background:var(--amber);
+  }
+  .logo-text{font-weight:700;font-size:15px;letter-spacing:-0.01em}
+  .badge{
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--navy);
+    padding:6px 10px;
+    border:1px solid var(--line);
+    border-radius:100px;
+    background:rgba(255,255,255,0.5);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+  }
+
+  .site-nav-wrap{position:relative}
+  .site-nav-btn{
+    display:flex;align-items:center;gap:6px;
+    font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;
+    color:var(--navy);
+    padding:8px 12px;
+    border:1px solid var(--line);
+    border-radius:100px;
+    background:rgba(255,255,255,0.6);
+    backdrop-filter:blur(8px);
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .site-nav-btn svg{width:11px;height:11px;transition:transform .2s ease}
+  .site-nav-btn.open svg{transform:rotate(180deg)}
+  .site-nav-menu{
+    position:absolute;top:calc(100% + 8px);right:0;
+    min-width:200px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:0 12px 32px rgba(43,72,104,0.16);
+    padding:8px;
+    display:none;
+    z-index:50;
+  }
+  .site-nav-menu.open{display:block}
+  .site-nav-menu a{
+    display:block;
+    font-family:'Jost',sans-serif;
+    font-size:13px;
+    color:var(--navy);
+    text-decoration:none;
+    padding:9px 12px;
+    border-radius:9px;
+    transition:background .15s ease;
+  }
+  .site-nav-menu a:hover{background:rgba(43,72,104,0.06)}
+  .site-nav-menu a.current{color:var(--amber);font-weight:600}
+  .site-nav-divider{height:1px;background:var(--line);margin:6px 4px}
+
+  .hero{margin-bottom:28px}
+  .hero-eyebrow{
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:12px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .hero-eyebrow::before{
+    content:'';
+    width:24px;height:2px;
+    background:var(--amber);
+    display:inline-block;
+  }
+  .hero-title{
+    font-family:'Jost',sans-serif;
+    font-weight:600;
+    font-size:40px;
+    line-height:1;
+    letter-spacing:-0.035em;
+    color:var(--navy);
+  }
+  .hero-title em{
+    font-family:'Instrument Serif',serif;
+    font-style:italic;
+    font-weight:400;
+    color:var(--amber);
+    letter-spacing:-0.02em;
+  }
+  .hero-sub{
+    margin-top:14px;
+    font-size:14px;
+    line-height:1.45;
+    color:var(--navy-light);
+    max-width:320px;
+  }
+
+  /* Toggle Lordo/Netto */
+  .toggle-wrap{
+    display:flex;
+    background:rgba(43,72,104,0.06);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:4px;
+    margin-bottom:14px;
+    position:relative;
+  }
+  .toggle-btn{
+    flex:1;
+    padding:10px 12px;
+    background:transparent;
+    border:none;
+    font-family:'Jost',sans-serif;
+    font-weight:600;
+    font-size:12px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--navy-light);
+    cursor:pointer;
+    border-radius:10px;
+    position:relative;
+    z-index:2;
+    transition:color 0.25s ease;
+  }
+  .toggle-btn.active{color:#fff}
+  .toggle-wrap-regime{
+    display:flex;
+    background:rgba(255,173,1,0.07);
+    border:1px solid rgba(255,173,1,0.25);
+    border-radius:14px;
+    padding:4px;
+    margin-bottom:14px;
+    position:relative;
+  }
+  .toggle-slider-regime{
+    position:absolute;
+    top:4px;
+    left:4px;
+    width:calc(50% - 4px);
+    height:calc(100% - 8px);
+    background:linear-gradient(135deg, var(--amber) 0%, #e69500 100%);
+    border-radius:10px;
+    transition:transform 0.3s cubic-bezier(.4,0,.2,1);
+    z-index:1;
+  }
+  .toggle-btn-regime{
+    flex:1;
+    padding:10px 8px;
+    background:transparent;
+    border:none;
+    font-family:'Jost',sans-serif;
+    font-weight:600;
+    font-size:11.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--navy-light);
+    cursor:pointer;
+    border-radius:10px;
+    position:relative;
+    z-index:2;
+    transition:color 0.25s ease;
+    text-align:center;
+  }
+  .toggle-slider-regime.right{
+    transform:translateX(100%);
+  }
+  .regime-note{
+    font-family:'DM Sans',sans-serif;
+    font-size:12px;
+    color:var(--navy-light);
+    text-align:center;
+    margin-bottom:18px;
+    margin-top:-4px;
+  }
+  .regime-note strong{color:var(--amber-dark, var(--navy));}
+
+  /* Selettore coefficiente di redditività */
+  .coeff-wrap{
+    background:#fff;
+    border-radius:20px;
+    padding:16px 18px;
+    margin-bottom:14px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.9) inset,
+      0 20px 40px -24px rgba(43,72,104,0.2),
+      0 8px 16px -10px rgba(43,72,104,0.1);
+    border:1px solid rgba(255,255,255,0.7);
+  }
+  .coeff-wrap-label{
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--navy);
+    margin-bottom:10px;
+    display:block;
+  }
+  .coeff-select-box{ position:relative; }
+  .coeff-select-box select{
+    width:100%;
+    appearance:none;
+    -webkit-appearance:none;
+    background:rgba(43,72,104,0.05);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 40px 12px 14px;
+    font-family:'DM Sans',sans-serif;
+    font-size:14.5px;
+    font-weight:500;
+    color:var(--ink);
+    cursor:pointer;
+    outline:none;
+    transition:border-color 0.2s ease, background 0.2s ease;
+  }
+  .coeff-select-box select:focus{
+    border-color:var(--amber);
+    background:rgba(255,173,1,0.06);
+  }
+  .coeff-select-arrow{
+    position:absolute;
+    right:14px;
+    top:50%;
+    transform:translateY(-50%);
+    pointer-events:none;
+    width:16px;
+    height:16px;
+    color:var(--navy-light);
+  }
+  .coeff-custom-wrap{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-top:12px;
+    padding-top:12px;
+    border-top:1px dashed var(--line);
+  }
+  .coeff-custom-label{
+    font-size:12.5px;
+    color:var(--navy-light);
+    font-family:'DM Sans',sans-serif;
+  }
+  .coeff-custom-input-wrap{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    background:rgba(43,72,104,0.05);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:8px 12px;
+    flex:0 0 auto;
+  }
+  .coeff-custom-input-wrap input{
+    width:44px;
+    border:none;
+    outline:none;
+    background:transparent;
+    font-family:'Jost',sans-serif;
+    font-weight:700;
+    font-size:16px;
+    color:var(--navy);
+    text-align:right;
+  }
+  .coeff-custom-input-wrap input::-webkit-outer-spin-button,
+  .coeff-custom-input-wrap input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+  .coeff-custom-input-wrap span{
+    font-weight:600;
+    color:var(--navy-light);
+    font-size:14px;
+  }
+  .toggle-slider{
+    position:absolute;
+    top:4px;
+    left:4px;
+    width:calc(50% - 4px);
+    height:calc(100% - 8px);
+    background:linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+    border-radius:10px;
+    transition:transform 0.3s cubic-bezier(0.4,0,0.2,1), background 0.3s ease;
+    box-shadow:0 4px 12px rgba(43,72,104,0.25);
+    z-index:1;
+  }
+  .toggle-slider.right{
+    transform:translateX(100%);
+    background:linear-gradient(135deg, var(--amber) 0%, #e89a00 100%);
+    box-shadow:0 4px 12px rgba(255,173,1,0.35);
+  }
+
+  /* Card input - CHIARA */
+  .card{
+    background:#fff;
+    border-radius:24px;
+    padding:22px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.9) inset,
+      0 30px 60px -30px rgba(43,72,104,0.25),
+      0 12px 24px -12px rgba(43,72,104,0.12);
+    border:1px solid rgba(255,255,255,0.7);
+    margin-bottom:18px;
+  }
+
+  .input-label{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--navy);
+    margin-bottom:14px;
+  }
+  .input-label-text{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .input-mode-tag{
+    font-size:9px;
+    font-weight:700;
+    padding:3px 7px;
+    border-radius:100px;
+    background:var(--navy);
+    color:#fff;
+    letter-spacing:0.1em;
+    transition:background 0.25s ease, color 0.25s ease;
+  }
+  .input-mode-tag.netto{background:var(--amber);color:var(--navy-deep)}
+  .label-tag{
+    font-size:10px;
+    color:var(--navy-light);
+    font-weight:500;
+    letter-spacing:0.1em;
+  }
+
+  .input-wrap{
+    position:relative;
+    display:flex;
+    align-items:baseline;
+  }
+  .currency{
+    font-family:'Instrument Serif',serif;
+    font-weight:400;
+    font-size:38px;
+    color:var(--navy-light);
+    margin-right:8px;
+    line-height:1;
+  }
+  .input-amount{
+    flex:1;
+    font-family:'Jost',sans-serif;
+    font-weight:600;
+    font-size:48px;
+    color:var(--navy);
+    background:transparent;
+    border:none;
+    outline:none;
+    width:100%;
+    padding:0;
+    letter-spacing:-0.02em;
+    line-height:1;
+    -moz-appearance:textfield;
+    appearance:textfield;
+  }
+  .input-amount::-webkit-outer-spin-button,
+  .input-amount::-webkit-inner-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+  }
+  .input-amount::placeholder{
+    color:rgba(43,72,104,0.2);
+    font-weight:400;
+  }
+  .input-divider{
+    margin-top:18px;
+    height:1px;
+    background:linear-gradient(90deg, transparent, var(--line) 20%, var(--line) 80%, transparent);
+  }
+
+  .quick{
+    display:flex;
+    gap:8px;
+    margin-top:16px;
+    flex-wrap:wrap;
+  }
+  .quick-btn{
+    flex:1;
+    min-width:0;
+    padding:10px 6px;
+    border:1px solid var(--line);
+    background:rgba(43,72,104,0.03);
+    border-radius:12px;
+    font-family:'Jost',sans-serif;
+    font-weight:500;
+    font-size:13px;
+    color:var(--navy);
+    cursor:pointer;
+    transition:all 0.2s ease;
+  }
+  .quick-btn:active{
+    transform:scale(0.96);
+    background:var(--soft);
+    border-color:var(--amber);
+  }
+
+  /* Risultato card SCURA navy */
+  .result-card{
+    background:linear-gradient(160deg, var(--navy) 0%, var(--navy-deep) 100%);
+    border-radius:28px;
+    padding:26px 24px;
+    color:#fff;
+    position:relative;
+    overflow:hidden;
+    box-shadow:
+      0 30px 60px -25px rgba(43,72,104,0.55),
+      0 12px 28px -8px rgba(43,72,104,0.35);
+    margin-bottom:14px;
+  }
+  .result-card::before{
+    content:'';
+    position:absolute;
+    top:-60px;right:-60px;
+    width:200px;height:200px;
+    background:radial-gradient(circle, rgba(255,173,1,0.22), transparent 65%);
+    border-radius:50%;
+  }
+  .result-card::after{
+    content:'';
+    position:absolute;
+    bottom:-40px;left:-40px;
+    width:140px;height:140px;
+    background:radial-gradient(circle, rgba(255,173,1,0.08), transparent 70%);
+    border-radius:50%;
+  }
+  .result-label{
+    position:relative;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:6px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .result-label::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background:linear-gradient(90deg, rgba(255,173,1,0.4), transparent);
+  }
+  .result-sublabel{
+    position:relative;
+    font-size:13px;
+    color:rgba(255,255,255,0.55);
+    margin-bottom:14px;
+    font-weight:400;
+  }
+  .result-amount{
+    position:relative;
+    font-family:'Jost',sans-serif;
+    font-weight:600;
+    font-size:56px;
+    line-height:1;
+    letter-spacing:-0.035em;
+    display:flex;
+    align-items:baseline;
+    gap:6px;
+    margin-bottom:8px;
+    color:#fff;
+  }
+  .result-currency{
+    font-family:'Instrument Serif',serif;
+    font-size:36px;
+    color:var(--amber);
+    font-weight:400;
+  }
+  .result-decimal{
+    font-size:22px;
+    color:rgba(255,255,255,0.55);
+    font-weight:500;
+    letter-spacing:0;
+  }
+  .result-bar{
+    position:relative;
+    height:6px;
+    background:rgba(255,255,255,0.1);
+    border-radius:100px;
+    overflow:hidden;
+    margin-top:18px;
+  }
+  .result-bar-fill{
+    position:absolute;
+    inset:0;
+    width:0%;
+    background:linear-gradient(90deg, var(--amber), var(--amber-glow));
+    border-radius:100px;
+    transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow:0 0 12px rgba(255,173,1,0.5);
+  }
+  .result-bar-info{
+    position:relative;
+    display:flex;
+    justify-content:space-between;
+    margin-top:10px;
+    font-size:11px;
+    color:rgba(255,255,255,0.6);
+    letter-spacing:0.05em;
+  }
+
+  /* Breakdown 3 stats */
+  .breakdown{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .stat{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:14px;
+    position:relative;
+    overflow:hidden;
+  }
+  .stat-amber{
+    background:linear-gradient(140deg, #fff5dc 0%, #fff 60%);
+    border-color:rgba(255,173,1,0.3);
+  }
+  .stat-wide{grid-column:1 / -1}
+  .stat-label{
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--navy-light);
+    margin-bottom:6px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .stat-dot{
+    width:6px;height:6px;
+    border-radius:50%;
+    background:var(--navy);
+    display:inline-block;
+  }
+  .stat-amber .stat-dot{background:var(--amber)}
+  .stat-value{
+    font-family:'Jost',sans-serif;
+    font-weight:600;
+    font-size:19px;
+    color:var(--navy);
+    letter-spacing:-0.02em;
+    line-height:1.1;
+  }
+  .stat-percent{
+    font-size:11px;
+    color:var(--navy-light);
+    margin-top:2px;
+    font-weight:500;
+  }
+
+  /* Info parametri */
+  .params-info{
+    margin-top:14px;
+    padding:14px 16px;
+    background:rgba(43,72,104,0.04);
+    border:1px solid var(--line);
+    border-radius:14px;
+    font-size:11px;
+    color:var(--navy-light);
+    line-height:1.6;
+    letter-spacing:0.02em;
+  }
+  .params-info strong{
+    color:var(--navy);
+    font-weight:600;
+  }
+  .coeff-note{
+    margin-top:10px;
+    padding:14px 16px;
+    background:rgba(255,173,1,0.06);
+    border:1px solid rgba(255,173,1,0.25);
+    border-radius:14px;
+    font-size:11.5px;
+    color:var(--navy-light);
+    line-height:1.65;
+  }
+  .coeff-note strong{color:var(--navy);font-weight:600}
+  .seo-section{
+    max-width:420px;
+    margin:48px auto 0;
+    padding:0 0 8px;
+  }
+  .seo-section h2{
+    font-family:'Jost',sans-serif;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--navy);
+    margin-bottom:18px;
+  }
+  .seo-faq-item{
+    margin-bottom:18px;
+    padding-bottom:18px;
+    border-bottom:1px solid var(--line);
+  }
+  .seo-faq-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .seo-faq-item h3{
+    font-family:'DM Sans',sans-serif;
+    font-size:14.5px;
+    font-weight:600;
+    color:var(--navy);
+    margin-bottom:6px;
+    line-height:1.4;
+  }
+  .seo-faq-item p{
+    font-family:'DM Sans',sans-serif;
+    font-size:13px;
+    color:var(--navy-light);
+    line-height:1.65;
+  }
+
+  .foot{
+    margin-top:auto;
+    padding-top:24px;
+    text-align:center;
+    font-size:11px;
+    color:var(--navy-light);
+    letter-spacing:0.08em;
+    opacity:0.7;
+  }
+  .foot strong{color:var(--amber);font-weight:600}
+
+  /* Pulsante Esporta PDF */
+  .export-btn{
+    margin-top:16px;
+    width:100%;
+    padding:16px 20px;
+    background:linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+    color:#fff;
+    border:none;
+    border-radius:16px;
+    font-family:'Jost',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    box-shadow:
+      0 12px 24px -10px rgba(43,72,104,0.4),
+      0 4px 12px -4px rgba(43,72,104,0.25);
+    transition:all 0.2s ease;
+    position:relative;
+    overflow:hidden;
+  }
+  .export-btn:active{
+    transform:scale(0.98);
+    box-shadow:
+      0 6px 12px -6px rgba(43,72,104,0.4),
+      0 2px 6px -2px rgba(43,72,104,0.25);
+  }
+  .export-btn:disabled{
+    opacity:0.6;
+    cursor:not-allowed;
+    transform:none;
+  }
+  .export-btn-icon{
+    width:18px;height:18px;
+    stroke:var(--amber);
+    stroke-width:2.2;
+    fill:none;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+  .export-btn-spinner{
+    width:18px;height:18px;
+    border:2.2px solid rgba(255,255,255,0.25);
+    border-top-color:var(--amber);
+    border-radius:50%;
+    animation:spin 0.7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* Elementi nascosti durante export PDF */
+  body.is-exporting .no-pdf{display:none !important}
+  body.is-exporting .input-divider{display:none}
+  body.is-exporting .app{padding:30px 24px}
+  body.is-exporting .card{margin-bottom:14px}
+  body.is-exporting .hero{margin-bottom:20px}
+  /* Aggiungi titolo PDF + data nascosti normalmente */
+  .pdf-only{display:none}
+  body.is-exporting .pdf-only{display:block}
+  .pdf-meta{
+    margin-top:12px;
+    padding:10px 14px;
+    background:rgba(43,72,104,0.04);
+    border:1px solid var(--line);
+    border-radius:10px;
+    font-size:11px;
+    color:var(--navy-light);
+    text-align:center;
+    letter-spacing:0.08em;
+  }
+  .pdf-meta strong{color:var(--navy);font-weight:600}
+
+  @keyframes slideUp{
+    from{opacity:0;transform:translateY(20px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  .header{animation:slideUp 0.5s ease both}
+  .hero{animation:slideUp 0.6s 0.05s ease both}
+  .toggle-wrap{animation:slideUp 0.6s 0.08s ease both}
+  .card{animation:slideUp 0.6s 0.1s ease both}
+  .result-card{animation:slideUp 0.6s 0.15s ease both}
+  .breakdown{animation:slideUp 0.6s 0.2s ease both}
+  .params-info{animation:slideUp 0.6s 0.25s ease both}
+
+  @keyframes pulse{
+    0%{transform:scale(1)}
+    50%{transform:scale(1.015)}
+    100%{transform:scale(1)}
+  }
+  .pulse{animation:pulse 0.3s ease}
+
+  @media (min-width:520px){
+    .hero-title{font-size:48px}
+    .result-amount{font-size:64px}
+  }
+  @media (max-width:360px){
+    .app{padding:20px 16px 32px}
+    .hero-title{font-size:34px}
+    .input-amount{font-size:42px}
+    .result-amount{font-size:48px}
+    .currency{font-size:32px}
+    .result-currency{font-size:30px}
+  }
+  /* NAV standard (come le altre pagine) */
+  .nav { position:fixed; top:0; left:0; right:0; z-index:1000; padding:16px 4vw; display:flex; justify-content:space-between; align-items:center; gap:16px; transition:all .3s ease; }
+  .nav.scrolled { padding:10px 4vw; background:rgba(6,6,6,.85); backdrop-filter:blur(22px); border-bottom:1px solid rgba(255,255,255,.07); }
+  .nav-brand { font-family:'Jost',sans-serif; font-size:22px; font-weight:300; letter-spacing:1.5px; color:#fff; text-decoration:none; white-space:nowrap; flex:0 0 auto; }
+  .nav-brand b { font-weight:700; color:var(--amber); }
+  .nav-links { display:flex; gap:18px; list-style:none; align-items:center; flex-wrap:nowrap; margin:0; padding:0; }
+  .nav-links a { font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; color:#c9cfd6; text-decoration:none; font-weight:500; transition:color .3s; position:relative; white-space:nowrap; }
+  .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:1px; background:var(--amber); transition:width .3s; }
+  .nav-links a:hover { color:#fff; } .nav-links a:hover::after { width:100%; }
+  .nav-links a.active { color:var(--amber); }
+  @media (max-width:980px) { .nav-links { display:none; } }
+  .nav-toggle { display:none; width:42px; height:42px; border:none; background:transparent; cursor:pointer; flex-direction:column; justify-content:center; align-items:center; gap:5px; z-index:1101; padding:0; flex:0 0 auto; }
+  .nav-toggle span { width:24px; height:2px; background:#fff; border-radius:2px; transition:transform .3s ease, opacity .3s ease; }
+  .nav-toggle.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity:0; }
+  .nav-toggle.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+  @media (max-width:980px) { .nav-toggle { display:flex; } }
+  .mobile-menu { position:fixed; inset:0; z-index:1100; background:rgba(6,6,6,.97); backdrop-filter:blur(20px); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .35s ease; }
+  .mobile-menu.open { opacity:1; pointer-events:auto; }
+  .mobile-menu-inner { display:flex; flex-direction:column; align-items:center; gap:26px; }
+  .mobile-menu-inner a { font-family:'Jost',sans-serif; font-size:26px; font-weight:300; letter-spacing:2px; color:#fff; text-decoration:none; transition:color .3s ease; }
+  .mobile-menu-inner a:hover, .mobile-menu-inner a.active { color:var(--amber); }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Calcolatore Tasse Partita IVA — Regime Forfettario",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web",
+  "inLanguage": "it-IT",
+  "description": "Calcolatore gratuito per partita IVA in regime forfettario: imposta sostitutiva al 5% (primi 5 anni) o 15% (oltre 5 anni), contributi INPS Gestione Separata, netto da fattura.",
+  "url": "https://davidemorabito.com/calcolatore-tasse.html",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+  "featureList": [
+    "Calcolo imposta sostitutiva 5% (primi 5 anni di attività)",
+    "Calcolo imposta sostitutiva 15% (oltre 5 anni di attività)",
+    "Calcolo contributi INPS Gestione Separata",
+    "Coefficiente di redditività selezionabile per categoria ATECO o personalizzabile",
+    "Calcolo netto da fatturato lordo",
+    "Calcolo lordo da fatturare per ottenere un netto desiderato",
+    "Esportazione del calcolo in PDF"
+  ],
+  "creator": {
+    "@type": "ProfessionalService",
+    "name": "Davide Morabito — Videomaker",
+    "url": "https://davidemorabito.com"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Come si calcola l'imposta sostitutiva nel regime forfettario?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "L'imposta sostitutiva si calcola applicando l'aliquota (5% nei primi 5 anni di attività, 15% dal sesto anno in poi) sull'imponibile fiscale meno i contributi INPS già versati. L'imponibile si ottiene moltiplicando il fatturato lordo per il coefficiente di redditività previsto dal proprio codice ATECO."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Qual è la differenza tra l'aliquota al 5% e al 15%?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "L'aliquota al 5% si applica nei primi 5 anni di attività come regime di vantaggio per le nuove partite IVA, a determinate condizioni. Dopo il quinto anno, o se non si rispettano i requisiti, si applica l'aliquota ordinaria del 15% sul reddito imponibile."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Come si calcolano i contributi INPS nel regime forfettario?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Per i professionisti senza una cassa previdenziale di categoria, i contributi si versano alla Gestione Separata INPS con un'aliquota del 26,07% calcolata sull'imponibile fiscale, ovvero sul fatturato moltiplicato per il coefficiente di redditività."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Quanto resta netto da un fatturato nel regime forfettario?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Il netto si ottiene sottraendo dal fatturato lordo i contributi INPS Gestione Separata (26,07% sull'imponibile) e l'imposta sostitutiva (5% o 15% sull'imponibile meno l'INPS). La percentuale di netto varia in base al coefficiente di redditività del proprio codice ATECO e all'aliquota applicata."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Questo calcolatore va bene per qualsiasi partita IVA in regime forfettario?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sì. La logica di calcolo di INPS e imposta sostitutiva è identica per tutte le partite IVA in regime forfettario. Cambia solo il coefficiente di redditività, che dipende dal codice ATECO e varia dal 40% all'86% a seconda dell'attività svolta."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Quando conviene aprire la partita IVA in regime forfettario?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Il regime forfettario conviene a chi ha ricavi o compensi entro la soglia annua prevista dalla normativa vigente e spese deducibili limitate: al posto dei costi reali si applica un coefficiente di redditività forfettario, quindi meno spese si hanno e più il regime risulta vantaggioso rispetto al regime ordinario."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<nav class="nav" id="nav">
+  <a href="index.html" class="nav-brand">davide<b>morabito</b></a>
+  <ul class="nav-links">
+    <li><a href="aziende.html">Aziende</a></li>
+    <li><a href="matrimoni.html">Matrimoni</a></li>
+    <li><a href="contenuti-verticali.html">Social</a></li>
+    <li><a href="teatro.html">Eventi</a></li>
+    <li><a href="fotografia.html">Fotografia</a></li>
+    <li><a href="chi-sono.html">Chi sono</a></li>
+    <li><a href="strumenti.html" class="active">Strumenti</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle" aria-label="Apri il menu" aria-expanded="false" aria-controls="mobileMenu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <nav class="mobile-menu-inner" aria-label="Menu principale">
+    <a href="aziende.html">Aziende</a>
+    <a href="matrimoni.html">Matrimoni</a>
+    <a href="contenuti-verticali.html">Social</a>
+    <a href="teatro.html">Eventi</a>
+    <a href="fotografia.html">Fotografia</a>
+    <a href="chi-sono.html">Chi sono</a>
+    <a href="strumenti.html" class="active">Strumenti</a>
+  </nav>
+</div>
+<div class="tool-hero no-pdf">
+  <canvas class="cam-canvas" id="heroCams" aria-hidden="true"></canvas>
+  <div class="tool-hero-inner">
+    <div class="tool-hero-eyebrow">Strumento gratuito</div>
+    <h1>Calcolatore tasse <b>Partita IVA</b></h1>
+    <div class="tool-hero-tag">Regime forfettario · 2026</div>
+  </div>
+</div>
+<div class="app">
+
+  <header class="header">
+    <div class="badge">Forfettario · 2026</div>
+  </header>
+
+  <div class="toggle-wrap-regime no-pdf" role="tablist">
+    <div class="toggle-slider-regime" id="sliderRegime"></div>
+    <button class="toggle-btn-regime active" id="regimeStartup" role="tab">Primi 5 anni</button>
+    <button class="toggle-btn-regime" id="regimeStandard" role="tab">Oltre 5 anni</button>
+  </div>
+  <div class="regime-note" id="regimeNote">Imposta sostitutiva al <strong>5%</strong> — regime di vantaggio startup</div>
+
+  <div class="toggle-wrap no-pdf" role="tablist">
+    <div class="toggle-slider" id="slider"></div>
+    <button class="toggle-btn active" id="modeLordo" role="tab">Inserisci Lordo</button>
+    <button class="toggle-btn" id="modeNetto" role="tab">Inserisci Netto</button>
+  </div>
+
+  <div class="card">
+    <div class="input-label">
+      <span class="input-label-text">
+        <span id="inputLabelText">Fatturato lordo</span>
+        <span class="input-mode-tag" id="modeTag">LORDO</span>
+      </span>
+      <span class="label-tag">EUR</span>
+    </div>
+    <div class="input-wrap">
+      <span class="currency">€</span>
+      <input
+        type="number"
+        inputmode="decimal"
+        class="input-amount"
+        id="amount"
+        placeholder="0"
+        autocomplete="off"
+        step="0.01"
+        min="0">
+    </div>
+    <div class="input-divider"></div>
+    <div class="quick no-pdf">
+      <button class="quick-btn" data-val="500">500</button>
+      <button class="quick-btn" data-val="1000">1.000</button>
+      <button class="quick-btn" data-val="2500">2.500</button>
+      <button class="quick-btn" data-val="5000">5.000</button>
+    </div>
+  </div>
+
+  <div class="result-card" id="resultCard">
+    <div class="result-label" id="resultLabel">Netto in tasca</div>
+    <div class="result-sublabel" id="resultSubLabel">Dopo INPS + imposta sostitutiva</div>
+    <div class="result-amount">
+      <span class="result-currency">€</span>
+      <span id="resultInt">0</span><span class="result-decimal" id="resultDec">,00</span>
+    </div>
+    <div class="result-bar">
+      <div class="result-bar-fill" id="bar"></div>
+    </div>
+    <div class="result-bar-info">
+      <span id="barLeft">0% trattenuto</span>
+      <span id="barRight">0% netto</span>
+    </div>
+  </div>
+
+  <div class="coeff-wrap no-pdf">
+    <label class="coeff-wrap-label" for="coeffSelect">Categoria attività (coefficiente di redditività)</label>
+    <div class="coeff-select-box">
+      <select id="coeffSelect">
+        <option value="40">Commercio all'ingrosso e al dettaglio — 40%</option>
+        <option value="40">Industria alimentari e bevande — 40%</option>
+        <option value="40">Commercio ambulante alimentari — 40%</option>
+        <option value="40">Alloggio e ristorazione (bar, hotel) — 40%</option>
+        <option value="54">Commercio ambulante altri prodotti — 54%</option>
+        <option value="62">Intermediari del commercio — 62%</option>
+        <option value="67" selected>Altre attività economiche (es. foto/video, artigiani) — 67%</option>
+        <option value="78">Professioni tecniche, scientifiche, sanitarie — 78%</option>
+        <option value="86">Costruzioni e attività immobiliari — 86%</option>
+        <option value="custom">Personalizzato…</option>
+      </select>
+      <svg class="coeff-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="coeff-custom-wrap" id="coeffCustomWrap" style="display:none;">
+      <span class="coeff-custom-label">Coefficiente personalizzato</span>
+      <div class="coeff-custom-input-wrap">
+        <input type="number" id="coeffCustom" min="1" max="100" step="1" value="67" inputmode="decimal">
+        <span>%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="breakdown">
+    <div class="stat stat-wide">
+      <div class="stat-label"><span class="stat-dot"></span>Imponibile</div>
+      <div class="stat-value" id="statImponibile">€ 0,00</div>
+      <div class="stat-percent">Fatturato × <span id="coeffPercentLabel">67%</span> (coefficiente)</div>
+    </div>
+    <div class="stat stat-amber">
+      <div class="stat-label"><span class="stat-dot"></span>INPS</div>
+      <div class="stat-value" id="statInps">€ 0,00</div>
+      <div class="stat-percent">26,07% su imponibile</div>
+    </div>
+    <div class="stat stat-amber">
+      <div class="stat-label"><span class="stat-dot"></span>Imp. sost.</div>
+      <div class="stat-value" id="statImposta">€ 0,00</div>
+      <div class="stat-percent" id="impostaPercentLabel">5% su (imp. − INPS)</div>
+    </div>
+  </div>
+
+  <div class="params-info">
+    Calcolo regime <strong>forfettario</strong> · categoria <strong id="categoriaInfoLabel">Altre attività economiche</strong> · coefficiente <strong id="coeffInfoLabel">67%</strong> · INPS Gestione Separata <strong>26,07%</strong> · imposta sostitutiva <strong id="impostaInfoLabel">5%</strong> (<span id="regimeInfoLabel">primi 5 anni di attività</span>).
+  </div>
+  <div class="coeff-note no-pdf">
+    <strong>Nota:</strong> il coefficiente di redditività dipende dal proprio codice ATECO e varia dal 40% all'86%. Scegli la categoria più vicina alla tua attività dal menu sopra, oppure inserisci un valore personalizzato se conosci già il tuo coefficiente esatto. La logica di calcolo di INPS e imposta sostitutiva resta identica per tutti i forfettari.
+  </div>
+
+  <!-- Pulsante Esporta PDF -->
+  <button class="export-btn no-pdf" id="exportBtn" type="button">
+    <svg class="export-btn-icon" viewBox="0 0 24 24">
+      <path d="M12 3v12m0 0l-4-4m4 4l4-4"/>
+      <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>
+    </svg>
+    <span id="exportBtnLabel">Esporta in PDF</span>
+  </button>
+
+  <!-- Metadata PDF (visibile solo in stampa) -->
+  <div class="pdf-only pdf-meta">
+    Calcolo generato il <strong id="pdfDate">—</strong> · <strong>Davide Morabito</strong> · P.IVA 09036590967
+  </div>
+
+  <!-- Sezione introduttiva testuale per SEO -->
+  <section class="seo-section no-pdf">
+    <h2>Il calcolatore tasse per la tua partita IVA</h2>
+    <p style="color:#5a6b80; font-size:15px; line-height:1.7; margin:0;">Che tu sia una partita IVA da poco aperta o attiva da anni, questo strumento calcola in tempo reale quanto paghi di tasse e contributi nel <strong>regime forfettario</strong>: imposta sostitutiva, contributi INPS Gestione Separata e netto effettivo da un fatturato lordo (o, al contrario, quanto devi fatturare per ottenere un netto preciso). Puoi scegliere la categoria di attività più vicina alla tua o impostare un <strong>coefficiente di redditività personalizzato</strong>, così il calcolo è preciso per qualsiasi partita IVA in regime forfettario — non solo per fotografi e videomaker. È gratuito e non richiede registrazione.</p>
+  </section>
+
+  <!-- Sezione FAQ testuale per SEO -->
+  <section class="seo-section no-pdf">
+    <h2>Domande frequenti</h2>
+    <div class="seo-faq-item">
+      <h3>Come si calcola l'imposta sostitutiva nel regime forfettario?</h3>
+      <p>Si applica l'aliquota (5% nei primi 5 anni di attività, 15% dal sesto anno) sull'imponibile fiscale meno i contributi INPS già versati. L'imponibile si ottiene moltiplicando il fatturato lordo per il coefficiente di redditività del proprio codice ATECO.</p>
+    </div>
+    <div class="seo-faq-item">
+      <h3>Qual è la differenza tra l'aliquota al 5% e al 15%?</h3>
+      <p>Il 5% è il regime di vantaggio per le nuove attività, applicabile nei primi 5 anni a determinate condizioni. Dal sesto anno, o se i requisiti non sono rispettati, si applica l'aliquota ordinaria del 15%.</p>
+    </div>
+    <div class="seo-faq-item">
+      <h3>Come si calcolano i contributi INPS nel regime forfettario?</h3>
+      <p>Chi non ha una cassa previdenziale di categoria versa i contributi alla Gestione Separata INPS con aliquota al 26,07%, calcolata sull'imponibile fiscale (fatturato × coefficiente di redditività).</p>
+    </div>
+    <div class="seo-faq-item">
+      <h3>Quanto resta netto da un fatturato nel regime forfettario?</h3>
+      <p>Il netto si ottiene sottraendo dal fatturato lordo i contributi INPS e l'imposta sostitutiva. La percentuale finale varia in base al coefficiente di redditività della propria attività e all'aliquota applicata (5% o 15%).</p>
+    </div>
+    <div class="seo-faq-item">
+      <h3>Questo calcolatore va bene per qualsiasi partita IVA in regime forfettario?</h3>
+      <p>Sì. La logica di calcolo di INPS e imposta sostitutiva è identica per tutte le partite IVA in regime forfettario. Cambia solo il coefficiente di redditività, che dipende dal codice ATECO: varia dal 40% all'86% a seconda dell'attività svolta.</p>
+    </div>
+    <div class="seo-faq-item">
+      <h3>Quando conviene aprire la partita IVA in regime forfettario?</h3>
+      <p>Il regime forfettario conviene a chi ha ricavi o compensi entro la soglia annua prevista dalla normativa vigente, con spese deducibili limitate: al posto dei costi reali si applica un coefficiente di redditività forfettario, quindi meno spese si hanno e più il regime risulta vantaggioso rispetto al regime ordinario.</p>
+    </div>
+  </section>
+
+  <footer class="foot no-pdf">
+    Brand <strong>·</strong> Davide Freelance Videomaker
+  </footer>
+
+</div>
+
+<script>
+  // ====== PARAMETRI FORFETTARIO ======
+  let COEFF = 0.67;
+  const INPS = 0.2607;
+  const IMPOSTA_STARTUP = 0.05;   // primi 5 anni - regime di vantaggio
+  const IMPOSTA_STANDARD = 0.15;  // oltre 5 anni - aliquota ordinaria
+
+  let IMPOSTA = IMPOSTA_STARTUP;
+  let regime = 'startup'; // 'startup' (primi 5 anni) o 'standard' (oltre 5 anni)
+
+  // Fattore netto/lordo per il calcolo inverso (dipende da IMPOSTA, va ricalcolato)
+  function getNetRatio(){
+    return 1 - COEFF*(INPS + IMPOSTA - INPS*IMPOSTA);
+  }
+
+  let mode = 'lordo'; // 'lordo' o 'netto'
+
+  // ====== ELEMENTI ======
+  const amount = document.getElementById('amount');
+  const slider = document.getElementById('slider');
+  const modeLordoBtn = document.getElementById('modeLordo');
+  const modeNettoBtn = document.getElementById('modeNetto');
+  const inputLabelText = document.getElementById('inputLabelText');
+  const modeTag = document.getElementById('modeTag');
+
+  const sliderRegime = document.getElementById('sliderRegime');
+  const regimeStartupBtn = document.getElementById('regimeStartup');
+  const regimeStandardBtn = document.getElementById('regimeStandard');
+  const regimeNote = document.getElementById('regimeNote');
+  const impostaPercentLabel = document.getElementById('impostaPercentLabel');
+  const impostaInfoLabel = document.getElementById('impostaInfoLabel');
+  const regimeInfoLabel = document.getElementById('regimeInfoLabel');
+
+  const coeffSelect = document.getElementById('coeffSelect');
+  const coeffCustomWrap = document.getElementById('coeffCustomWrap');
+  const coeffCustom = document.getElementById('coeffCustom');
+  const coeffPercentLabel = document.getElementById('coeffPercentLabel');
+  const coeffInfoLabel = document.getElementById('coeffInfoLabel');
+  const categoriaInfoLabel = document.getElementById('categoriaInfoLabel');
+
+  const resultLabel = document.getElementById('resultLabel');
+  const resultSubLabel = document.getElementById('resultSubLabel');
+  const resultInt = document.getElementById('resultInt');
+  const resultDec = document.getElementById('resultDec');
+
+  const statImponibile = document.getElementById('statImponibile');
+  const statInps = document.getElementById('statInps');
+  const statImposta = document.getElementById('statImposta');
+
+  const bar = document.getElementById('bar');
+  const barLeft = document.getElementById('barLeft');
+  const barRight = document.getElementById('barRight');
+  const resultCard = document.getElementById('resultCard');
+
+  // ====== FORMATTAZIONE ======
+  function fEuro(n){
+    return n.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+  function fInt(n){
+    return Math.floor(Math.max(0,n)).toLocaleString('it-IT');
+  }
+  function fDec(n){
+    const v = Math.max(0,n);
+    const dec = (v - Math.floor(v)).toFixed(2).slice(1);
+    return dec.replace('.', ',');
+  }
+  function fPct(n){
+    return (n*100).toLocaleString('it-IT', {minimumFractionDigits:1, maximumFractionDigits:1});
+  }
+
+  // ====== CALCOLO ======
+  function calcola(){
+    const v = parseFloat(amount.value) || 0;
+    let lordo, imponibile, inps, imposta, netto;
+
+    if(mode === 'lordo'){
+      lordo = v;
+      imponibile = lordo * COEFF;
+      inps = imponibile * INPS;
+      imposta = (imponibile - inps) * IMPOSTA;
+      netto = lordo - inps - imposta;
+    } else {
+      netto = v;
+      const nr = getNetRatio();
+      lordo = nr > 0 ? netto / nr : 0;
+      imponibile = lordo * COEFF;
+      inps = imponibile * INPS;
+      imposta = (imponibile - inps) * IMPOSTA;
+    }
+
+    // Risultato principale = quello che NON è stato inserito
+    const main = (mode === 'lordo') ? netto : lordo;
+    resultInt.textContent = fInt(main);
+    resultDec.textContent = fDec(main);
+
+    // Breakdown
+    statImponibile.textContent = '€ ' + fEuro(Math.max(0,imponibile));
+    statInps.textContent = '€ ' + fEuro(Math.max(0,inps));
+    statImposta.textContent = '€ ' + fEuro(Math.max(0,imposta));
+
+    // Bar (netto / lordo)
+    if(lordo > 0){
+      const ratio = netto / lordo;
+      bar.style.width = Math.min(100, Math.max(0, ratio*100)) + '%';
+      barLeft.textContent = fPct(1-ratio) + '% tasse';
+      barRight.textContent = fPct(ratio) + '% netto';
+    } else {
+      bar.style.width = '0%';
+      barLeft.textContent = '0% tasse';
+      barRight.textContent = '0% netto';
+    }
+
+    // Pulse
+    resultCard.classList.remove('pulse');
+    void resultCard.offsetWidth;
+    resultCard.classList.add('pulse');
+  }
+
+  function setMode(newMode){
+    mode = newMode;
+    if(mode === 'lordo'){
+      slider.classList.remove('right');
+      modeLordoBtn.classList.add('active');
+      modeNettoBtn.classList.remove('active');
+      inputLabelText.textContent = 'Fatturato lordo';
+      modeTag.textContent = 'LORDO';
+      modeTag.classList.remove('netto');
+      resultLabel.textContent = 'Netto in tasca';
+      resultSubLabel.textContent = 'Dopo INPS + imposta sostitutiva';
+    } else {
+      slider.classList.add('right');
+      modeLordoBtn.classList.remove('active');
+      modeNettoBtn.classList.add('active');
+      inputLabelText.textContent = 'Netto desiderato';
+      modeTag.textContent = 'NETTO';
+      modeTag.classList.add('netto');
+      resultLabel.textContent = 'Lordo da fatturare';
+      resultSubLabel.textContent = 'Per ottenere questo netto';
+    }
+    calcola();
+  }
+
+  function setRegime(newRegime){
+    regime = newRegime;
+    if(regime === 'startup'){
+      IMPOSTA = IMPOSTA_STARTUP;
+      sliderRegime.classList.remove('right');
+      regimeStartupBtn.classList.add('active');
+      regimeStandardBtn.classList.remove('active');
+      regimeNote.innerHTML = 'Imposta sostitutiva al <strong>5%</strong> — regime di vantaggio startup';
+      impostaPercentLabel.textContent = '5% su (imp. − INPS)';
+      impostaInfoLabel.textContent = '5%';
+      regimeInfoLabel.textContent = 'primi 5 anni di attività';
+    } else {
+      IMPOSTA = IMPOSTA_STANDARD;
+      sliderRegime.classList.add('right');
+      regimeStartupBtn.classList.remove('active');
+      regimeStandardBtn.classList.add('active');
+      regimeNote.innerHTML = 'Imposta sostitutiva al <strong>15%</strong> — aliquota ordinaria';
+      impostaPercentLabel.textContent = '15% su (imp. − INPS)';
+      impostaInfoLabel.textContent = '15%';
+      regimeInfoLabel.textContent = 'oltre 5 anni di attività';
+    }
+    calcola();
+  }
+
+  amount.addEventListener('input', calcola);
+  modeLordoBtn.addEventListener('click', ()=>setMode('lordo'));
+  modeNettoBtn.addEventListener('click', ()=>setMode('netto'));
+  regimeStartupBtn.addEventListener('click', ()=>setRegime('startup'));
+  regimeStandardBtn.addEventListener('click', ()=>setRegime('standard'));
+
+  // ====== SELETTORE COEFFICIENTE DI REDDITIVITÀ ======
+  function fCoeffPct(pct){
+    // Intero se possibile, altrimenti max 1 decimale (es. 67 -> "67%", 67.5 -> "67,5%")
+    const rounded = Math.round(pct*10)/10;
+    const str = Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1).replace('.', ',');
+    return str + '%';
+  }
+
+  function setCoeff(pct, categoria){
+    const clamped = Math.min(100, Math.max(1, pct));
+    COEFF = clamped / 100;
+    const label = fCoeffPct(clamped);
+    coeffPercentLabel.textContent = label;
+    coeffInfoLabel.textContent = label;
+    if(categoria) categoriaInfoLabel.textContent = categoria;
+    calcola();
+  }
+
+  coeffSelect.addEventListener('change', ()=>{
+    if(coeffSelect.value === 'custom'){
+      coeffCustomWrap.style.display = 'flex';
+      const v = parseFloat(coeffCustom.value) || 67;
+      setCoeff(v, 'Personalizzato');
+      coeffCustom.focus();
+    } else {
+      coeffCustomWrap.style.display = 'none';
+      const opt = coeffSelect.options[coeffSelect.selectedIndex];
+      const categoria = opt.textContent.split(' — ')[0];
+      setCoeff(parseFloat(coeffSelect.value), categoria);
+    }
+  });
+
+  coeffCustom.addEventListener('input', ()=>{
+    const v = parseFloat(coeffCustom.value);
+    if(!isNaN(v)) setCoeff(v, 'Personalizzato');
+  });
+
+  document.querySelectorAll('.quick-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      amount.value = btn.dataset.val;
+      calcola();
+      amount.focus();
+    });
+  });
+
+  calcola();
+
+  // ====== EXPORT PDF ======
+  const exportBtn = document.getElementById('exportBtn');
+  const exportBtnLabel = document.getElementById('exportBtnLabel');
+  const pdfDate = document.getElementById('pdfDate');
+
+  function getOriginalIcon(){
+    return `
+      <svg class="export-btn-icon" viewBox="0 0 24 24">
+        <path d="M12 3v12m0 0l-4-4m4 4l4-4"/>
+        <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>
+      </svg>
+    `;
+  }
+
+  function setExportState(state){
+    if(state === 'loading'){
+      exportBtn.disabled = true;
+      exportBtn.innerHTML = '<div class="export-btn-spinner"></div><span>Generazione in corso…</span>';
+    } else if(state === 'success'){
+      exportBtn.disabled = false;
+      exportBtn.innerHTML = getOriginalIcon() + '<span>PDF scaricato ✓</span>';
+      setTimeout(()=>{ setExportState('idle'); }, 2200);
+    } else {
+      exportBtn.disabled = false;
+      exportBtn.innerHTML = getOriginalIcon() + '<span>Esporta in PDF</span>';
+    }
+  }
+
+  function exportToPDF(){
+    // Aggiorna data nel metadata PDF
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString('it-IT', {
+      day:'2-digit', month:'long', year:'numeric'
+    }) + ' alle ' + now.toLocaleTimeString('it-IT', {
+      hour:'2-digit', minute:'2-digit'
+    });
+    pdfDate.textContent = formattedDate;
+
+    // Nome file dinamico
+    const v = parseFloat(amount.value) || 0;
+    const ts = now.toISOString().split('T')[0]; // 2026-06-19
+    const tipo = mode === 'lordo' ? 'Lordo' : 'Netto';
+    const importo = v > 0 ? `-${tipo}-${Math.round(v)}EUR` : '';
+    const filename = `Calcolo-Forfettario${importo}-${ts}.pdf`;
+
+    // Loading state
+    setExportState('loading');
+
+    // Aggiungi classe di esportazione
+    document.body.classList.add('is-exporting');
+
+    // Attendi che il DOM si aggiorni
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const element = document.querySelector('.app');
+
+        const opts = {
+          margin: [8, 8, 8, 8],
+          filename: filename,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: {
+            scale: 2.5,
+            useCORS: true,
+            backgroundColor: '#fdf8ee',
+            letterRendering: true,
+            logging: false
+          },
+          jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'portrait',
+            compress: true
+          },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        html2pdf().set(opts).from(element).save()
+          .then(() => {
+            document.body.classList.remove('is-exporting');
+            setExportState('success');
+          })
+          .catch((err) => {
+            console.error('Errore PDF:', err);
+            document.body.classList.remove('is-exporting');
+            setExportState('idle');
+            alert('Si è verificato un errore durante la generazione del PDF. Riprova.');
+          });
+      });
+    });
+  }
+
+  exportBtn.addEventListener('click', exportToPDF);
+
+  // NAV standard (scroll + mobile toggle)
+  var nav = document.getElementById('nav');
+  if(nav){ var onNavScroll=function(){ nav.classList.toggle('scrolled', window.scrollY>40); }; window.addEventListener('scroll',onNavScroll,{passive:true}); onNavScroll(); }
+  var navToggle = document.getElementById('navToggle');
+  var mobileMenu = document.getElementById('mobileMenu');
+  if(navToggle && mobileMenu){
+    var setMenu = function(open){ navToggle.classList.toggle('open',open); mobileMenu.classList.toggle('open',open); navToggle.setAttribute('aria-expanded',open?'true':'false'); mobileMenu.setAttribute('aria-hidden',open?'false':'true'); document.body.style.overflow=open?'hidden':''; };
+    navToggle.addEventListener('click',function(){ setMenu(!mobileMenu.classList.contains('open')); });
+    mobileMenu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click',function(){ setMenu(false); }); });
+  }
+</script>
+<!-- Fotocamere animate hero (standard) -->
+<script>
+(function(){
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  function buildScene(canvas, specs){
+    if (typeof THREE === 'undefined' || !canvas) return;
+    var wrap = canvas.parentElement;
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100); camera.position.set(0,0,14);
+    var renderer = new THREE.WebGLRenderer({ canvas:canvas, alpha:true, antialias:true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+    scene.add(new THREE.AmbientLight(0xffffff,0.75));
+    var key=new THREE.DirectionalLight(0xffffff,0.7); key.position.set(5,8,6); scene.add(key);
+    var matBody=new THREE.MeshStandardMaterial({color:0xffad01,roughness:0.55,metalness:0.1});
+    var matDark=new THREE.MeshStandardMaterial({color:0xe09600,roughness:0.5,metalness:0.15});
+    function makeCamera(){
+      var g=new THREE.Group();
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(2.2,1.4,1.1),matBody));
+      var lens=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.62,0.9,24),matDark); lens.rotation.x=Math.PI/2; lens.position.set(0,-0.05,0.85); g.add(lens);
+      var ring=new THREE.Mesh(new THREE.CylinderGeometry(0.64,0.64,0.18,24),matBody); ring.rotation.x=Math.PI/2; ring.position.set(0,-0.05,1.28); g.add(ring);
+      var vf=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.45,0.7),matBody); vf.position.set(0,0.85,-0.05); g.add(vf);
+      var btn=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.13,0.16,16),matDark); btn.position.set(0.75,0.82,0); g.add(btn);
+      return g;
+    }
+    var cams=specs.map(function(s){ var c=makeCamera(); c.position.set(s.pos[0],s.pos[1],s.pos[2]); c.scale.setScalar(s.scale); c.rotation.set(-0.5,0.7,0.15); c.userData=s; scene.add(c); return c; });
+    function resize(){ var w=wrap.clientWidth,h=wrap.clientHeight; if(!w||!h)return; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
+    resize(); window.addEventListener('resize',resize);
+    var t0=performance.now(),raf,running=false;
+    function animate(now){ var t=(now-t0)/1000; cams.forEach(function(c){ var s=c.userData; c.position.y=s.pos[1]+Math.sin(t*s.floatSpeed+s.phase)*s.floatAmp; c.rotation.y+=s.rotSpeed*0.01; c.rotation.x=-0.5+Math.sin(t*s.floatSpeed*0.7+s.phase)*0.12; }); renderer.render(scene,camera); raf=requestAnimationFrame(animate); }
+    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting&&!running){running=true;raf=requestAnimationFrame(animate);} else if(!e.isIntersecting&&running){running=false;cancelAnimationFrame(raf);} }); },{threshold:0.02});
+    io.observe(wrap);
+  }
+  function init(){
+    buildScene(document.getElementById('heroCams'), [
+      { pos:[-5.5,1.6,0], scale:1.05, floatSpeed:0.42, floatAmp:0.55, rotSpeed:0.18, phase:0 },
+      { pos:[5.6,-1.4,-1], scale:0.85, floatSpeed:0.52, floatAmp:0.45, rotSpeed:-0.15, phase:2.1 },
+      { pos:[0.5,2.6,-2.5], scale:0.62, floatSpeed:0.38, floatAmp:0.65, rotSpeed:0.12, phase:4.0 }
+    ]);
+  }
+  if (typeof THREE !== 'undefined') { init(); }
+  else { var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload=init; document.head.appendChild(s); }
+})();
+</script>
+
+</body>
+</html>

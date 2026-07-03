@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pagina non trovata &middot; davidemorabito</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'DM Sans',sans-serif;background:radial-gradient(ellipse 80% 70% at 50% 35%,#16273a,#0e1620);
+    color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}
+  .box{max-width:440px}
+  .ey{font-family:'Jost';font-size:12px;letter-spacing:4px;text-transform:uppercase;color:#FFAD01;font-weight:700;margin-bottom:14px}
+  h1{font-family:'Jost';font-weight:300;font-size:64px;line-height:1;margin-bottom:10px}
+  h1 b{font-weight:700;color:#FFAD01}
+  p{color:#aeb8c2;font-size:15px;line-height:1.6;margin-bottom:26px}
+  a.btn{display:inline-block;font-family:'Jost';font-weight:600;background:#FFAD01;color:#1a1205;padding:13px 26px;border-radius:11px;text-decoration:none}
+</style>
+<script>
+  (function(){
+    var map = [
+    ["/analogico","/#analog"],
+    ["/marco-merrino","/portfolio.html"],
+    ["/contatti","/#contatti"],
+    ["/portfolio","/portfolio.html"],
+    ["/reel-instagram","/contenuti-verticali.html"],
+    ["/workdetail-page","/portfolio.html"],
+    ["/drone","/videomaker-milano.html"],
+    ["/service","/#servizi"],
+    ["/video-eventi","/teatro.html"],
+    ["/portfolio-padel-mi-amor","/fotografia.html"],
+    ["/chitarrafacile","/"],
+    ["/credential","/chi-sono.html"],
+    ["/youtube","/"],
+    ["/blog-with-rightsidebar","/"],
+    ["/home-mobile","/"],
+    ["/2023","/"]
+    ];
+    var p = location.pathname.replace(/\/+$/,'');
+    for (var i=0;i<map.length;i++){
+      if (p === map[i][0] || p.indexOf(map[i][0]+'/')===0){ location.replace(map[i][1]); return; }
+    }
+  })();
+</script>
+</head>
+<body>
+  <div class="box">
+    <div class="ey">Errore 404</div>
+    <h1>Pagina <b>non trovata</b></h1>
+    <p>La pagina che cercavi non esiste o &egrave; stata spostata. Torna alla home per trovare quello che ti serve.</p>
+    <a class="btn" href="/">Torna alla home</a>
+  </div>
+</body>
+</html>

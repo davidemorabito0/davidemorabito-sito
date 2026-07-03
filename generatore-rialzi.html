@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta name="google-site-verification" content="0D9xVTcIzWZeSobQT0zp5xdG6rSIn4cXBrK1XTlb27c" />
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7N72HVRGRJ"></script>
+<script>
+  window.dataLayer=window.dataLayer||[];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js',new Date());
+  gtag('config','G-7N72HVRGRJ');
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('a[href*="contatt"],a[href^="mailto:"]').forEach(function(el){
+      el.addEventListener('click',function(){gtag('event','click_contattami');});
+    });
+    var f=document.querySelector('form[name="contatti"]');
+    if(f){f.addEventListener('submit',function(){gtag('event','invio_form');});}
+  });
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Generatore Rialzi 3D per Fotografia di Prodotto e Still Life · Davide Morabito</title>
+<link rel="canonical" href="https://davidemorabito.com/generatore-rialzi.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://davidemorabito.com/generatore-rialzi.html">
+<meta property="og:title" content="Generatore Rialzi 3D · Product Photography">
+<meta property="og:description" content="Software gratuito che crea e modella forme personalizzabili per fotografia di prodotto e still life, da stampare in 3D. Anteprima 3D ed esportazione STL.">
+<meta property="og:image" content="https://davidemorabito.com/media/og-cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Generatore Rialzi 3D · Product Photography">
+<meta name="twitter:description" content="Software gratuito che crea forme personalizzabili per fotografia di prodotto e still life, da stampare in 3D.">
+<meta name="twitter:image" content="https://davidemorabito.com/media/og-cover.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Generatore Rialzi 3D",
+  "url": "https://davidemorabito.com/generatore-rialzi.html",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+  "description": "Software gratuito che crea e modella forme personalizzabili per la fotografia di prodotto e still life, da stampare in 3D.",
+  "author": { "@type": "Person", "name": "Davide Morabito", "url": "https://davidemorabito.com" }
+}
+</script>
+<meta name="description" content="Software gratuito che crea e modella forme personalizzabili per la fotografia di prodotto e still life, da stampare in 3D. Anteprima 3D in tempo reale ed esportazione STL.">
+<link rel="canonical" href="https://davidemorabito.com/generatore-rialzi.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* scala tipografica fluida: cresce su schermi grandi (1440p/4K), compatta su mobile */
+    font-size: clamp(16px, 0.45vw + 11px, 26px);
+    --navy:#2B4868;
+    --navy-deep:#16273a;
+    --navy-mid:#21384f;
+    --amber:#FFAD01;
+    --amber-soft:#ffc24d;
+    --ink:#eaf0f7;
+    --ink-dim:#9fb2c7;
+    --line:rgba(255,255,255,.10);
+    --line-strong:rgba(255,255,255,.18);
+    --panel:rgba(20,34,52,.72);
+    --ok:#5fd08a;
+    --bad:#ff6b5e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Jost',sans-serif;
+    font-size:1rem;
+    color:var(--ink);
+    background:
+      radial-gradient(120% 90% at 78% 8%, #2a4a6e 0%, transparent 60%),
+      radial-gradient(140% 120% at 18% 100%, #213b56 0%, transparent 55%),
+      linear-gradient(160deg,#1b2f45 0%,#13202f 100%);
+    background-color:#13202f;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{display:grid;grid-template-columns:23rem 1fr;grid-template-rows:auto 1fr;height:100vh;height:100dvh}
+
+  header{
+    grid-column:1 / -1;
+    display:flex;align-items:center;gap:.875rem;
+    padding:.875rem 1.375rem;
+    border-bottom:1px solid var(--line);
+    background:rgba(15,25,38,.55);
+    backdrop-filter:blur(8px);
+    z-index:5;
+    position:relative;
+    overflow:hidden;
+  }
+  header .header-cams{ position:absolute; inset:0; width:100%; height:100%; z-index:0; opacity:.14; pointer-events:none; }
+  header > *:not(.header-cams){ position:relative; z-index:1; }
+  .logo{width:3rem;height:3rem;flex:0 0 auto}
+  .brand h1{font-size:1.5rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+  .brand p{font-size:.69rem;color:var(--ink-dim);letter-spacing:.22em;text-transform:uppercase;margin-top:.12rem}
+  .spacer{flex:1}
+  .btn-export{
+    display:inline-flex;align-items:center;gap:.56rem;
+    background:var(--amber);color:#241a00;
+    border:none;border-radius:.625rem;
+    font-family:inherit;font-weight:600;font-size:.875rem;letter-spacing:.06em;
+    padding:.69rem 1.25rem;cursor:pointer;
+    box-shadow:0 .375rem 1.375rem rgba(255,173,1,.28);
+    transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+  }
+  .btn-export:hover{transform:translateY(-1px);box-shadow:0 .625rem 1.75rem rgba(255,173,1,.38);background:var(--amber-soft)}
+  .btn-export:active{transform:translateY(0)}
+  .btn-export svg{width:1.06rem;height:1.06rem}
+
+  .btn-info{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:2.125rem;height:2.125rem;flex:0 0 auto;
+    background:rgba(255,255,255,.05);color:var(--ink-dim);
+    border:1px solid var(--line-strong);border-radius:50%;
+    cursor:pointer;font-family:inherit;font-size:.94rem;font-weight:600;
+    transition:all .14s ease;
+  }
+  .btn-info:hover{color:#fff;border-color:var(--amber);background:rgba(255,173,1,.1)}
+
+  .modal-overlay{
+    position:fixed;inset:0;z-index:50;
+    background:rgba(10,16,24,.72);backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;
+    padding:1.5rem;
+  }
+  .modal-overlay.open{display:flex}
+  .modal-box{
+    max-width:34rem;max-height:85vh;overflow-y:auto;
+    background:linear-gradient(160deg,#1b2f45 0%,#13202f 100%);
+    border:1px solid var(--line-strong);border-radius:1.125rem;
+    padding:2rem 2.125rem;
+    box-shadow:0 1.5rem 4rem rgba(0,0,0,.5);
+  }
+  .modal-box::-webkit-scrollbar{width:.5rem}
+  .modal-box::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:.5rem}
+  .modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem}
+  .modal-head h2{font-size:1.125rem;font-weight:600;letter-spacing:.04em;color:#fff}
+  .modal-close{
+    flex:0 0 auto;width:1.875rem;height:1.875rem;border-radius:50%;
+    background:rgba(255,255,255,.06);border:none;color:var(--ink-dim);
+    cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;
+    transition:all .14s ease;
+  }
+  .modal-close:hover{color:#fff;background:rgba(255,255,255,.12)}
+  .modal-box p{font-size:.875rem;line-height:1.65;color:var(--ink-dim);margin-bottom:1rem}
+  .modal-box p strong{color:var(--ink);font-weight:600}
+  .modal-box h3{font-size:.81rem;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin:1.5rem 0 .75rem}
+  .modal-box ul{margin:0 0 1rem;padding-left:1.125rem;color:var(--ink-dim);font-size:.875rem;line-height:1.7}
+  .modal-box ul li{margin-bottom:.4rem}
+  .modal-box ul li strong{color:var(--ink)}
+  @media (max-width:760px){
+    .modal-box{padding:1.5rem 1.5rem}
+  }
+
+  .panel{
+    overflow-y:auto;
+    padding:1.25rem 1.25rem 2.5rem;
+    border-right:1px solid var(--line);
+    background:var(--panel);
+    backdrop-filter:blur(6px);
+  }
+  .panel::-webkit-scrollbar{width:.55rem}
+  .panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:.55rem}
+
+  .group{margin-bottom:1.375rem}
+  .group > .gl{
+    font-size:.69rem;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);
+    margin-bottom:.69rem;display:flex;align-items:center;gap:.5rem;
+  }
+  .group > .gl::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  .shapes{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+  .shape-btn{
+    appearance:none;border:1px solid var(--line-strong);background:rgba(255,255,255,.03);
+    color:var(--ink-dim);font-family:inherit;font-size:.78rem;letter-spacing:.04em;
+    padding:.69rem .5rem;border-radius:.56rem;cursor:pointer;text-align:center;
+    transition:all .14s ease;line-height:1.2;
+  }
+  .shape-btn:hover{border-color:var(--line-strong);color:var(--ink);background:rgba(255,255,255,.06)}
+  .shape-btn.active{
+    border-color:var(--amber);color:#fff;background:linear-gradient(180deg,rgba(255,173,1,.20),rgba(255,173,1,.06));
+    box-shadow:inset 0 0 0 1px rgba(255,173,1,.35);
+  }
+  .shapes .full{grid-column:1 / -1}
+
+  .ctrl{margin-bottom:.94rem}
+  .ctrl .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.44rem}
+  .ctrl label{font-size:.81rem;color:var(--ink);letter-spacing:.02em}
+  .valbox{display:flex;align-items:baseline;gap:.19rem}
+  .valbox input{
+    width:3.6rem;background:rgba(255,255,255,.06);border:1px solid var(--line-strong);
+    color:#fff;font-family:inherit;font-size:.81rem;font-weight:500;text-align:right;
+    padding:.19rem .375rem;border-radius:.44rem;
+  }
+  .valbox input:focus{outline:none;border-color:var(--amber)}
+  .valbox .u{font-size:.69rem;color:var(--ink-dim);width:1.125rem}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:.25rem;border-radius:.25rem;
+    background:linear-gradient(90deg,var(--amber) var(--fill,40%),rgba(255,255,255,.12) var(--fill,40%));
+    cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:1.06rem;height:1.06rem;border-radius:50%;
+    background:#fff;border:.19rem solid var(--amber);box-shadow:0 .125rem .375rem rgba(0,0,0,.4);cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:.9rem;height:.9rem;border-radius:50%;background:#fff;border:.19rem solid var(--amber);cursor:pointer;
+  }
+
+  .pills{display:flex;gap:.44rem}
+  .pill{
+    flex:1;text-align:center;padding:.5rem;border-radius:.5rem;cursor:pointer;
+    border:1px solid var(--line-strong);background:rgba(255,255,255,.03);
+    color:var(--ink-dim);font-size:.78rem;letter-spacing:.04em;transition:all .14s;
+  }
+  .pill.active{border-color:var(--amber);color:#fff;background:rgba(255,173,1,.12)}
+
+  .swatches{display:flex;gap:.56rem}
+  .sw{width:1.875rem;height:1.875rem;border-radius:50%;cursor:pointer;border:.125rem solid transparent;transition:transform .12s,border-color .12s}
+  .sw:hover{transform:scale(1.08)}
+  .sw.active{border-color:var(--amber)}
+
+  .toggle-line{display:flex;align-items:center;justify-content:space-between;font-size:.81rem;color:var(--ink);padding:.125rem 0}
+  .switch{position:relative;width:2.5rem;height:1.375rem;flex:0 0 auto}
+  .switch input{opacity:0;width:0;height:0}
+  .slider-sw{position:absolute;inset:0;background:rgba(255,255,255,.14);border-radius:1.375rem;transition:.18s}
+  .slider-sw::before{content:"";position:absolute;height:1rem;width:1rem;left:.19rem;top:.19rem;background:#fff;border-radius:50%;transition:.18s}
+  .switch input:checked + .slider-sw{background:var(--amber)}
+  .switch input:checked + .slider-sw::before{transform:translateX(1.125rem)}
+
+  .readout{background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:.69rem;padding:.875rem .94rem}
+  .ro-line{display:flex;justify-content:space-between;align-items:center;padding:.31rem 0;font-size:.81rem}
+  .ro-line .k{color:var(--ink-dim);letter-spacing:.03em}
+  .ro-line .v{font-weight:500;letter-spacing:.02em}
+  .ro-line + .ro-line{border-top:1px solid rgba(255,255,255,.05)}
+  .fit-tag{font-size:.69rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.25rem .625rem;border-radius:1.25rem}
+  .fit-ok{color:var(--ok);background:rgba(95,208,138,.12)}
+  .fit-bad{color:var(--bad);background:rgba(255,107,94,.12)}
+  .note{font-size:.69rem;color:var(--ink-dim);margin-top:.56rem;line-height:1.5}
+
+  .bed-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem}
+  .bed-grid .valbox{justify-content:flex-start}
+  .bed-grid .mini{font-size:.625rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:.25rem;display:block}
+
+  .viewport{position:relative;overflow:hidden}
+  #c{display:block;width:100%;height:100%}
+  .vp-hint{
+    position:absolute;left:50%;bottom:1rem;transform:translateX(-50%);
+    font-size:.69rem;letter-spacing:.1em;color:var(--ink-dim);text-transform:uppercase;
+    background:rgba(0,0,0,.3);padding:.375rem .875rem;border-radius:1.25rem;backdrop-filter:blur(4px);pointer-events:none;white-space:nowrap;
+  }
+  .vp-reset{
+    position:absolute;top:1rem;right:1rem;
+    display:inline-flex;align-items:center;gap:.44rem;
+    background:rgba(0,0,0,.32);border:1px solid var(--line-strong);color:var(--ink);
+    font-family:inherit;font-size:.75rem;letter-spacing:.05em;padding:.5rem .81rem;border-radius:.56rem;cursor:pointer;
+    backdrop-filter:blur(4px);transition:all .14s;
+  }
+  .vp-reset:hover{border-color:var(--amber);color:#fff}
+  .vp-reset svg{width:.875rem;height:.875rem}
+  .dim-badge{
+    position:absolute;top:1rem;left:1rem;
+    background:rgba(0,0,0,.32);border:1px solid var(--line);border-radius:.56rem;
+    padding:.56rem .875rem;backdrop-filter:blur(4px);
+  }
+  .dim-badge .lab{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin-bottom:.19rem}
+  .dim-badge .dims{font-size:.94rem;font-weight:500;letter-spacing:.04em}
+
+  @media (max-width:860px){
+    :root{font-size:16px}
+    .app{grid-template-columns:1fr;grid-template-rows:auto 52vh 1fr}
+    .viewport{grid-row:2}
+    .panel{grid-row:3;border-right:none;border-top:1px solid var(--line)}
+    header{padding:.75rem 1rem}
+    .brand h1{font-size:1.25rem}
+    .btn-export{padding:.56rem .94rem;font-size:.81rem}
+    .vp-hint{display:none}
+  }
+
+  .gen-nav-links{ display:flex; gap:1rem; list-style:none; align-items:center; margin:0; padding:0; flex-wrap:nowrap; }
+  .gen-nav-links a{ font-family:inherit; font-size:.6rem; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-dim); text-decoration:none; font-weight:600; white-space:nowrap; transition:color .2s ease; position:relative; }
+  .gen-nav-links a:hover{ color:#fff; }
+  .gen-nav-links a.current{ color:var(--amber); }
+  @media (max-width:1100px){ .gen-nav-links{ display:none; } }
+
+  .gen-nav-toggle{ display:none; width:2.125rem; height:2.125rem; border:none; background:transparent; cursor:pointer; flex-direction:column; justify-content:center; align-items:center; gap:.3rem; padding:0; flex:0 0 auto; }
+  .gen-nav-toggle span{ width:1.25rem; height:2px; background:#fff; border-radius:2px; transition:transform .3s ease, opacity .3s ease; }
+  .gen-nav-toggle.open span:nth-child(1){ transform:translateY(.36rem) rotate(45deg); }
+  .gen-nav-toggle.open span:nth-child(2){ opacity:0; }
+  .gen-nav-toggle.open span:nth-child(3){ transform:translateY(-.36rem) rotate(-45deg); }
+  @media (max-width:1100px){ .gen-nav-toggle{ display:flex; } }
+  .gen-mobile-menu{ position:fixed; inset:0; z-index:200; background:rgba(10,16,24,.97); backdrop-filter:blur(20px); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .3s ease; }
+  .gen-mobile-menu.open{ opacity:1; pointer-events:auto; }
+  .gen-mobile-menu-inner{ display:flex; flex-direction:column; align-items:center; gap:1.5rem; }
+  .gen-mobile-menu-inner a{ font-family:'Jost',sans-serif; font-size:1.375rem; font-weight:300; letter-spacing:.05em; color:#fff; text-decoration:none; transition:color .2s ease; }
+  .gen-mobile-menu-inner a:hover, .gen-mobile-menu-inner a.current{ color:var(--amber); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <canvas class="header-cams" id="heroCams" aria-hidden="true"></canvas>
+    <svg class="logo" viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="44" stroke="#FFAD01" stroke-width="6"/>
+      <line x1="22" y1="74" x2="78" y2="26" stroke="#FFAD01" stroke-width="6" stroke-linecap="round"/>
+    </svg>
+    <div class="brand">
+      <h1>Generatore Rialzi</h1>
+      <p>Forme su misura per fotografia di prodotto e still life · da stampare in 3D</p>
+    </div>
+    <div class="spacer"></div>
+    <ul class="gen-nav-links">
+      <li><a href="aziende.html">Aziende</a></li>
+      <li><a href="matrimoni.html">Matrimoni</a></li>
+      <li><a href="contenuti-verticali.html">Social</a></li>
+      <li><a href="teatro.html">Eventi</a></li>
+      <li><a href="fotografia.html">Fotografia</a></li>
+      <li><a href="chi-sono.html">Chi sono</a></li>
+      <li><a href="strumenti.html" class="active">Strumenti</a></li>
+    </ul>
+    <button class="gen-nav-toggle" id="genNavToggle" aria-label="Apri il menu" aria-expanded="false" aria-controls="genMobileMenu">
+      <span></span><span></span><span></span>
+    </button>
+    <button class="btn-info" id="infoBtn" type="button" title="Cos'è questo strumento">?</button>
+    <button class="btn-export" id="exportBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>
+      </svg>
+      Esporta STL
+    </button>
+  </header>
+
+  <div class="gen-mobile-menu" id="genMobileMenu" aria-hidden="true">
+    <nav class="gen-mobile-menu-inner" aria-label="Menu principale">
+      <a href="index.html">Home</a>
+      <a href="aziende.html">Aziende</a>
+      <a href="matrimoni.html">Matrimoni</a>
+      <a href="contenuti-verticali.html">Social</a>
+      <a href="teatro.html">Eventi</a>
+      <a href="fotografia.html">Fotografia</a>
+      <a href="chi-sono.html">Chi sono</a>
+      <a href="strumenti.html" class="active">Strumenti</a>
+    </nav>
+  </div>
+
+  <!-- Menu mobile: script indipendente, non dipende da Three.js -->
+  <script>
+  (function(){
+    var toggle = document.getElementById('genNavToggle');
+    var menu = document.getElementById('genMobileMenu');
+    if(!toggle || !menu) return;
+    function setMenu(open){
+      toggle.classList.toggle('open', open);
+      menu.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      menu.setAttribute('aria-hidden', open ? 'false' : 'true');
+    }
+    toggle.addEventListener('click', function(){ setMenu(!menu.classList.contains('open')); });
+    menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ setMenu(false); }); });
+  })();
+  </script>
+
+  <!-- Modal info -->
+  <div class="modal-overlay" id="infoModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h2>Cos'è il Generatore Rialzi</h2>
+        <button class="modal-close" id="infoClose" type="button" aria-label="Chiudi">✕</button>
+      </div>
+      <p><strong>Un software che crea e modella forme su misura per la fotografia di prodotto e lo still life</strong>: rialzi e supporti completamente personalizzabili che alzano e inclinano gli oggetti sul set, per ottenere angolazioni e composizioni migliori durante lo shooting.</p>
+      <p>Scegli forma e dimensioni, vedi l'anteprima 3D in tempo reale e scarichi direttamente il file <strong>STL</strong> pronto da affettare in slicer (PrusaSlicer, Bambu Studio, ecc.) e <strong>stampare in 3D</strong> con qualsiasi stampante.</p>
+      <h3>Come si usa</h3>
+      <ul>
+        <li><strong>Forma</strong> — scegli il tipo di rialzo tra le opzioni disponibili</li>
+        <li><strong>Dimensioni</strong> — imposta altezza, base e inclinazione in millimetri</li>
+        <li><strong>Volume di stampa</strong> — verifica che il pezzo entri nel piano della tua stampante (preset Prusa Core One, modificabile)</li>
+        <li><strong>Riepilogo</strong> — controlla volume di materiale e peso stimato prima di esportare</li>
+      </ul>
+      <h3>Perché serve</h3>
+      <p>Nella fotografia di prodotto bastano pochi millimetri di altezza o un'inclinazione precisa per cambiare completamente la composizione di uno scatto. Avere rialzi su misura, stampati in casa, evita di affidarsi a libri, scatole o supporti improvvisati che spesso non danno l'angolazione o la stabilità giuste.</p>
+    </div>
+  </div>
+
+  <!-- Viewport -->
+  <div class="viewport">
+    <canvas id="c"></canvas>
+    <div class="dim-badge">
+      <div class="lab">Ingombro</div>
+      <div class="dims" id="dimBadge">– × – × –</div>
+    </div>
+    <button class="vp-reset" id="resetBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+      Vista
+    </button>
+    <div class="vp-hint">Trascina per ruotare · rotellina per zoom</div>
+  </div>
+
+  <!-- Controls -->
+  <aside class="panel">
+    <div class="group">
+      <div class="gl">Forma</div>
+      <div class="shapes" id="shapeBtns"></div>
+    </div>
+
+    <div class="group">
+      <div class="gl">Dimensioni</div>
+      <div id="params"></div>
+    </div>
+
+    <div class="group">
+      <div class="gl">Anteprima</div>
+      <div class="swatches" id="swatches"></div>
+    </div>
+
+    <div class="group">
+      <div class="gl">Volume di stampa</div>
+      <div class="bed-grid">
+        <div><span class="mini">X</span><div class="valbox"><input type="number" id="bedX" value="250"><span class="u">mm</span></div></div>
+        <div><span class="mini">Y</span><div class="valbox"><input type="number" id="bedY" value="220"><span class="u">mm</span></div></div>
+        <div><span class="mini">Z</span><div class="valbox"><input type="number" id="bedZ" value="270"><span class="u">mm</span></div></div>
+      </div>
+      <div class="toggle-line" style="margin-top:14px">
+        <span>Mostra area di stampa</span>
+        <label class="switch"><input type="checkbox" id="showBed"><span class="slider-sw"></span></label>
+      </div>
+      <div class="note">Preset: Prusa Core One. Modifica i valori se stampi su un'altra macchina.</div>
+    </div>
+
+    <div class="group" style="margin-bottom:0">
+      <div class="gl">Riepilogo</div>
+      <div class="readout">
+        <div class="ro-line"><span class="k">Volume materiale</span><span class="v" id="roVol">–</span></div>
+        <div class="ro-line"><span class="k">Peso PLA (pieno)</span><span class="v" id="roWfull">–</span></div>
+        <div class="ro-line"><span class="k">Peso PLA (~15%)</span><span class="v" id="roW15">–</span></div>
+        <div class="ro-line"><span class="k">Fit volume stampa</span><span class="fit-tag fit-ok" id="roFit">OK</span></div>
+        <div class="note" id="fitNote"></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ============================================================
+   GENERATORE RIALZI 3D — parametrico, export STL (Z up)
+   Unità di lavoro = millimetri
+   ============================================================ */
+
+// ---------- Definizione forme e parametri ----------
+const SHAPES = {
+  cilindro: { label:'Cilindro', cls:'', params:[
+    {k:'d', label:'Diametro', min:10, max:250, step:1, def:60},
+    {k:'h', label:'Altezza',  min:2,  max:270, step:1, def:40},
+  ]},
+  box: { label:'Parallelepipedo', cls:'', params:[
+    {k:'w', label:'Larghezza',   min:10, max:250, step:1, def:80},
+    {k:'p', label:'Profondità',  min:10, max:220, step:1, def:60},
+    {k:'h', label:'Altezza',     min:2,  max:270, step:1, def:40},
+    {k:'r', label:'Raggio angoli',min:0, max:40,  step:0.5,def:0},
+  ]},
+  cono: { label:'Tronco di cono', cls:'', params:[
+    {k:'dBot', label:'Ø inferiore', min:5, max:250, step:1, def:70},
+    {k:'dTop', label:'Ø superiore', min:5, max:250, step:1, def:45},
+    {k:'h',    label:'Altezza',     min:2, max:270, step:1, def:50},
+  ]},
+  piramide: { label:'Tronco piramide', cls:'', params:[
+    {k:'wBot', label:'Largh. base',  min:10, max:250, step:1, def:80},
+    {k:'pBot', label:'Prof. base',   min:10, max:220, step:1, def:60},
+    {k:'wTop', label:'Largh. cima',  min:5,  max:250, step:1, def:55},
+    {k:'pTop', label:'Prof. cima',   min:5,  max:220, step:1, def:40},
+    {k:'h',    label:'Altezza',      min:2,  max:270, step:1, def:50},
+  ]},
+  gradini: { label:'A gradini', cls:'full', round:true, params:[
+    {k:'n',       label:'Numero gradini', min:2, max:6,  step:1, def:3},
+    {k:'sizeBot', label:'Base (Ø/lato)',  min:20,max:250,step:1, def:130},
+    {k:'sizeTop', label:'Cima (Ø/lato)',  min:10,max:250,step:1, def:50},
+    {k:'h',       label:'Altezza totale', min:6, max:270,step:1, def:60},
+  ]},
+};
+
+const COLORS = [
+  {name:'Bianco', hex:'#ededed'},
+  {name:'Grigio', hex:'#9aa0a6'},
+  {name:'Nero',   hex:'#262a2e'},
+  {name:'Amber',  hex:'#FFAD01'},
+  {name:'Navy',   hex:'#2B4868'},
+];
+
+// ---------- Stato ----------
+const state = {};
+// inizializza tutti i parametri di tutte le forme con i default
+Object.values(SHAPES).forEach(s=>s.params.forEach(p=>{ if(state[p.k]===undefined) state[p.k]=p.def; }));
+state.activeShape = 'cilindro';
+state.stepShape = 'tondo';     // gradini: tondo|quadrato
+state.color = '#ededed';
+state.bed = {x:250,y:220,z:270};
+state.showBed = false;
+
+// ============================================================
+//  THREE.JS  SETUP
+// ============================================================
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true, preserveDrawingBuffer:false});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputEncoding = THREE.sRGBEncoding;
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(35, 1, 1, 5000);
+
+// Luci
+scene.add(new THREE.HemisphereLight(0xbcd2ec, 0x1a2636, 0.85));
+const key = new THREE.DirectionalLight(0xffffff, 1.15);
+key.position.set(-180, 320, 220);
+key.castShadow = true;
+key.shadow.mapSize.set(2048,2048);
+key.shadow.camera.near = 50; key.shadow.camera.far = 1200;
+key.shadow.camera.left=-260; key.shadow.camera.right=260;
+key.shadow.camera.top=260; key.shadow.camera.bottom=-260;
+key.shadow.bias = -0.0004;
+scene.add(key);
+const fill = new THREE.DirectionalLight(0xfff0d6, 0.35);
+fill.position.set(220, 120, -160);
+scene.add(fill);
+
+// Piano ombra (mostra solo l'ombra sul fondo CSS)
+const shadowPlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(4000,4000),
+  new THREE.ShadowMaterial({opacity:0.28})
+);
+shadowPlane.rotation.x = -Math.PI/2;
+shadowPlane.receiveShadow = true;
+scene.add(shadowPlane);
+
+// Griglia di riferimento (celle 10mm)
+const grid = new THREE.GridHelper(400, 40, 0xFFAD01, 0x3a5170);
+grid.material.opacity = 0.16; grid.material.transparent = true;
+scene.add(grid);
+
+// Materiale del rialzo
+const material = new THREE.MeshStandardMaterial({color:new THREE.Color(state.color), roughness:0.62, metalness:0.0});
+
+// Gruppo che contiene la geometria
+let riserGroup = new THREE.Group();
+scene.add(riserGroup);
+
+// Wireframe area di stampa
+let bedBox = null;
+
+// ============================================================
+//  COSTRUZIONE GEOMETRIA
+// ============================================================
+function roundedRectShape(w,p,r){
+  r = Math.min(r, Math.min(w,p)/2);
+  const s = new THREE.Shape();
+  const x=-w/2, y=-p/2;
+  s.moveTo(x+r, y);
+  s.lineTo(x+w-r, y);
+  s.quadraticCurveTo(x+w, y, x+w, y+r);
+  s.lineTo(x+w, y+p-r);
+  s.quadraticCurveTo(x+w, y+p, x+w-r, y+p);
+  s.lineTo(x+r, y+p);
+  s.quadraticCurveTo(x, y+p, x, y+p-r);
+  s.lineTo(x, y+r);
+  s.quadraticCurveTo(x, y, x+r, y);
+  return s;
+}
+
+// volume con segno (per orientare normali del tronco di piramide)
+function signedVolume(geo){
+  const p = geo.attributes.position; let v=0;
+  for(let i=0;i<p.count;i+=3){
+    const ax=p.getX(i),ay=p.getY(i),az=p.getZ(i);
+    const bx=p.getX(i+1),by=p.getY(i+1),bz=p.getZ(i+1);
+    const cx=p.getX(i+2),cy=p.getY(i+2),cz=p.getZ(i+2);
+    v += ax*(by*cz-bz*cy) - ay*(bx*cz-bz*cx) + az*(bx*cy-by*cx);
+  }
+  return v/6;
+}
+function ensureOutward(geo){
+  if(signedVolume(geo) < 0){
+    const arr = geo.attributes.position.array;
+    for(let i=0;i<geo.attributes.position.count;i+=3){
+      for(let k=0;k<3;k++){
+        const a=(i+1)*3+k, b=(i+2)*3+k;
+        const t=arr[a]; arr[a]=arr[b]; arr[b]=t;
+      }
+    }
+    geo.attributes.position.needsUpdate=true;
+  }
+  geo.computeVertexNormals();
+  return geo;
+}
+
+// tronco di piramide (base a y=0) — costruito non-indicizzato
+function makeFrustumBox(bw,bd,tw,td,h){
+  const c = {
+    B0:[-bw/2,0, bd/2], B1:[bw/2,0, bd/2], B2:[bw/2,0,-bd/2], B3:[-bw/2,0,-bd/2],
+    T0:[-tw/2,h, td/2], T1:[tw/2,h, td/2], T2:[tw/2,h,-td/2], T3:[-tw/2,h,-td/2],
+  };
+  const quad=(a,b,cc,d)=>[...a,...b,...cc, ...a,...cc,...d];
+  const verts = [
+    ...quad(c.B0,c.B1,c.T1,c.T0), // front
+    ...quad(c.B1,c.B2,c.T2,c.T1), // right
+    ...quad(c.B2,c.B3,c.T3,c.T2), // back
+    ...quad(c.B3,c.B0,c.T0,c.T3), // left
+    ...quad(c.T0,c.T1,c.T2,c.T3), // top
+    ...quad(c.B3,c.B2,c.B1,c.B0), // bottom
+  ];
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(verts,3));
+  return ensureOutward(g);
+}
+
+function lerp(a,b,t){ return a+(b-a)*t; }
+
+// ritorna un array di geometrie (base a y=0, asse Y verso l'alto)
+function buildGeometries(){
+  const sh = state.activeShape;
+  const s = state;
+  if(sh==='cilindro'){
+    const g = new THREE.CylinderGeometry(s.d/2, s.d/2, s.h, 96);
+    g.translate(0, s.h/2, 0);
+    return [g];
+  }
+  if(sh==='box'){
+    if(s.r>0.05){
+      const shape = roundedRectShape(s.w, s.p, s.r);
+      const g = new THREE.ExtrudeGeometry(shape, {depth:s.h, bevelEnabled:false, curveSegments:28});
+      g.rotateX(-Math.PI/2);            // estrusione lungo +Z -> altezza lungo Y, base a y=0
+      g.computeVertexNormals();
+      return [g];
+    } else {
+      const g = new THREE.BoxGeometry(s.w, s.h, s.p);
+      g.translate(0, s.h/2, 0);
+      return [g];
+    }
+  }
+  if(sh==='cono'){
+    const g = new THREE.CylinderGeometry(s.dTop/2, s.dBot/2, s.h, 96);
+    g.translate(0, s.h/2, 0);
+    return [g];
+  }
+  if(sh==='piramide'){
+    return [ makeFrustumBox(s.wBot, s.pBot, s.wTop, s.pTop, s.h) ];
+  }
+  if(sh==='gradini'){
+    const n = Math.round(s.n);
+    const tierH = s.h / n;
+    const out = [];
+    for(let i=0;i<n;i++){
+      const t = n>1 ? i/(n-1) : 0;
+      const size = lerp(s.sizeBot, s.sizeTop, t);
+      const embed = i>0 ? 0.4 : 0;          // piccola compenetrazione -> fusione pulita nello slicer
+      const gh = tierH + embed;
+      const baseY = i*tierH - embed;
+      let g;
+      if(state.stepShape==='tondo'){
+        g = new THREE.CylinderGeometry(size/2, size/2, gh, 80);
+      } else {
+        g = new THREE.BoxGeometry(size, gh, size);
+      }
+      g.translate(0, baseY + gh/2, 0);
+      out.push(g);
+    }
+    return out;
+  }
+  return [];
+}
+
+function rebuild(){
+  // pulizia
+  while(riserGroup.children.length){
+    const m = riserGroup.children.pop();
+    m.geometry.dispose();
+  }
+  const geoms = buildGeometries();
+  geoms.forEach(g=>{
+    const mesh = new THREE.Mesh(g, material);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    riserGroup.add(mesh);
+  });
+  scene.updateMatrixWorld(true);
+  updateReadouts();
+}
+
+// ============================================================
+//  TRIANGOLI / VOLUME / FIT
+// ============================================================
+function getWorldTriangles(){
+  // ritorna Float64Array piatto [ax,ay,az, bx,by,bz, cx,cy,cz, ...] in coord mondo (Y up)
+  const tris = [];
+  const v = new THREE.Vector3();
+  riserGroup.updateMatrixWorld(true);
+  riserGroup.traverse(o=>{
+    if(!o.isMesh) return;
+    let g = o.geometry;
+    const pos = g.attributes.position;
+    const idx = g.index;
+    const m = o.matrixWorld;
+    const push=(i)=>{ v.fromBufferAttribute(pos,i).applyMatrix4(m); tris.push(v.x,v.y,v.z); };
+    if(idx){
+      for(let i=0;i<idx.count;i++) push(idx.getX(i));
+    } else {
+      for(let i=0;i<pos.count;i++) push(i);
+    }
+  });
+  return tris;
+}
+
+function computeVolumeCm3(tris){
+  let v=0;
+  for(let i=0;i<tris.length;i+=9){
+    const ax=tris[i],ay=tris[i+1],az=tris[i+2];
+    const bx=tris[i+3],by=tris[i+4],bz=tris[i+5];
+    const cx=tris[i+6],cy=tris[i+7],cz=tris[i+8];
+    v += ax*(by*cz-bz*cy) - ay*(bx*cz-bz*cx) + az*(bx*cy-by*cx);
+  }
+  return Math.abs(v/6) / 1000; // mm³ -> cm³
+}
+
+function getBBox(){
+  return new THREE.Box3().setFromObject(riserGroup);
+}
+
+function updateReadouts(){
+  const bb = getBBox();
+  const size = new THREE.Vector3(); bb.getSize(size);
+  const W = size.x, P = size.z, H = size.y;        // larghezza, profondità, altezza
+  document.getElementById('dimBadge').textContent =
+    `${W.toFixed(0)} × ${P.toFixed(0)} × ${H.toFixed(0)} mm`;
+
+  const tris = getWorldTriangles();
+  const vol = computeVolumeCm3(tris);
+  const wFull = vol * 1.24;            // PLA ~1.24 g/cm³, 100%
+  const w15   = vol * 1.24 * 0.22;     // stima indicativa al ~15% + pareti
+  document.getElementById('roVol').textContent   = vol.toFixed(1)+' cm³';
+  document.getElementById('roWfull').textContent = '≈ '+wFull.toFixed(0)+' g';
+  document.getElementById('roW15').textContent   = '≈ '+w15.toFixed(0)+' g';
+
+  // Fit volume di stampa (X=larghezza, Y=profondità, Z=altezza)
+  const b = state.bed;
+  const fits = W<=b.x+0.01 && P<=b.y+0.01 && H<=b.z+0.01;
+  const tag = document.getElementById('roFit');
+  const note = document.getElementById('fitNote');
+  if(fits){
+    tag.textContent='OK'; tag.className='fit-tag fit-ok'; note.textContent='';
+  } else {
+    tag.textContent='FUORI'; tag.className='fit-tag fit-bad';
+    const over=[];
+    if(W>b.x) over.push('X');
+    if(P>b.y) over.push('Y');
+    if(H>b.z) over.push('Z');
+    note.textContent = 'Supera il volume sull\'asse '+over.join(', ')+'. Riduci le misure o dividi il pezzo per la stampa.';
+  }
+  updateBedBox();
+}
+
+// ============================================================
+//  AREA DI STAMPA (wireframe)
+// ============================================================
+function updateBedBox(){
+  if(bedBox){ scene.remove(bedBox); bedBox.geometry.dispose(); bedBox.material.dispose(); bedBox=null; }
+  if(!state.showBed) return;
+  const b = state.bed;
+  const geo = new THREE.BoxGeometry(b.x, b.z, b.y); // X=larg, Y(three)=altezza=bedZ, Z=prof=bedY
+  geo.translate(0, b.z/2, 0);
+  const edges = new THREE.EdgesGeometry(geo);
+  bedBox = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color:0xFFAD01, transparent:true, opacity:0.35}));
+  geo.dispose();
+  scene.add(bedBox);
+}
+
+// ============================================================
+//  EXPORT STL (binario, asse Z verso l'alto)
+// ============================================================
+function exportSTL(){
+  const tris = getWorldTriangles();        // Y up
+  const nTri = tris.length/9;
+  const buffer = new ArrayBuffer(84 + nTri*50);
+  const dv = new DataView(buffer);
+  // header 80 byte (lasciati a 0) + conteggio
+  dv.setUint32(80, nTri, true);
+  let off = 84;
+  // trasformazione Y-up -> Z-up : (x,y,z) -> (x, -z, y)
+  const map = (x,y,z)=>[x, -z, y];
+  for(let i=0;i<tris.length;i+=9){
+    const a = map(tris[i],   tris[i+1], tris[i+2]);
+    const b = map(tris[i+3], tris[i+4], tris[i+5]);
+    const c = map(tris[i+6], tris[i+7], tris[i+8]);
+    // normale = (b-a) x (c-a)
+    const ux=b[0]-a[0], uy=b[1]-a[1], uz=b[2]-a[2];
+    const vx=c[0]-a[0], vy=c[1]-a[1], vz=c[2]-a[2];
+    let nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx;
+    const len=Math.hypot(nx,ny,nz)||1; nx/=len; ny/=len; nz/=len;
+    dv.setFloat32(off,nx,true); dv.setFloat32(off+4,ny,true); dv.setFloat32(off+8,nz,true);
+    dv.setFloat32(off+12,a[0],true); dv.setFloat32(off+16,a[1],true); dv.setFloat32(off+20,a[2],true);
+    dv.setFloat32(off+24,b[0],true); dv.setFloat32(off+28,b[1],true); dv.setFloat32(off+32,b[2],true);
+    dv.setFloat32(off+36,c[0],true); dv.setFloat32(off+40,c[1],true); dv.setFloat32(off+44,c[2],true);
+    dv.setUint16(off+48,0,true);
+    off += 50;
+  }
+  // nome file
+  const bb=getBBox(); const sz=new THREE.Vector3(); bb.getSize(sz);
+  const tag = `${Math.round(sz.x)}x${Math.round(sz.z)}x${Math.round(sz.y)}`;
+  const name = `rialzo_${state.activeShape}_${tag}mm.stl`;
+  const blob = new Blob([buffer], {type:'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=name; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+// ============================================================
+//  ORBIT CONTROL (mouse + touch)
+// ============================================================
+const orbit = {
+  target:new THREE.Vector3(0,0,0),
+  radius:300, theta:Math.PI*0.18, phi:Math.PI*0.40,
+  apply(){
+    const r=this.radius, p=this.phi, t=this.theta;
+    camera.position.set(
+      this.target.x + r*Math.sin(p)*Math.sin(t),
+      this.target.y + r*Math.cos(p),
+      this.target.z + r*Math.sin(p)*Math.cos(t)
+    );
+    camera.lookAt(this.target);
+  }
+};
+function fitView(){
+  const bb=getBBox();
+  if(bb.isEmpty()) return;
+  const center=new THREE.Vector3(); bb.getCenter(center);
+  const size=new THREE.Vector3(); bb.getSize(size);
+  const maxDim=Math.max(size.x,size.y,size.z);
+  orbit.target.set(center.x, size.y*0.46, center.z);
+  const fov=camera.fov*Math.PI/180;
+  // più margine attorno al pezzo: distanza maggiore = modello più piccolo nel viewport
+  orbit.radius = (maxDim*0.95)/Math.sin(fov/2) + maxDim*0.6;
+  orbit.theta=Math.PI*0.18; orbit.phi=Math.PI*0.42;
+  orbit.apply();
+}
+
+let dragging=false, lastX=0, lastY=0, pinchDist=0;
+canvas.addEventListener('pointerdown', e=>{ dragging=true; lastX=e.clientX; lastY=e.clientY; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', e=>{
+  if(!dragging) return;
+  const dx=e.clientX-lastX, dy=e.clientY-lastY; lastX=e.clientX; lastY=e.clientY;
+  orbit.theta -= dx*0.006;
+  orbit.phi   -= dy*0.006;
+  orbit.phi = Math.max(0.08, Math.min(Math.PI-0.08, orbit.phi));
+  orbit.apply();
+});
+canvas.addEventListener('pointerup', ()=>dragging=false);
+canvas.addEventListener('pointercancel', ()=>dragging=false);
+canvas.addEventListener('wheel', e=>{
+  e.preventDefault();
+  orbit.radius *= (1 + Math.sign(e.deltaY)*0.08);
+  orbit.radius = Math.max(40, Math.min(2500, orbit.radius));
+  orbit.apply();
+}, {passive:false});
+// pinch
+canvas.addEventListener('touchstart', e=>{
+  if(e.touches.length===2){ pinchDist=touchDist(e); }
+}, {passive:true});
+canvas.addEventListener('touchmove', e=>{
+  if(e.touches.length===2){
+    e.preventDefault();
+    const d=touchDist(e);
+    if(pinchDist){ orbit.radius *= pinchDist/d; orbit.radius=Math.max(40,Math.min(2500,orbit.radius)); orbit.apply(); }
+    pinchDist=d;
+  }
+}, {passive:false});
+function touchDist(e){
+  const dx=e.touches[0].clientX-e.touches[1].clientX;
+  const dy=e.touches[0].clientY-e.touches[1].clientY;
+  return Math.hypot(dx,dy);
+}
+
+// ============================================================
+//  UI — costruzione pannello
+// ============================================================
+function fmt(n){ return Number.isInteger(n)? n : n.toFixed(1); }
+
+function buildShapeButtons(){
+  const wrap=document.getElementById('shapeBtns'); wrap.innerHTML='';
+  Object.entries(SHAPES).forEach(([key,s])=>{
+    const b=document.createElement('button');
+    b.className='shape-btn'+(s.cls?(' '+s.cls):'')+(key===state.activeShape?' active':'');
+    b.textContent=s.label; b.dataset.shape=key;
+    b.onclick=()=>{
+      state.activeShape=key;
+      document.querySelectorAll('.shape-btn').forEach(x=>x.classList.toggle('active', x.dataset.shape===key));
+      buildParams();
+      rebuild();
+      fitView();
+    };
+    wrap.appendChild(b);
+  });
+}
+
+function sliderFill(input){
+  const min=+input.min, max=+input.max, val=+input.value;
+  const pct=((val-min)/(max-min))*100;
+  input.style.setProperty('--fill', pct+'%');
+}
+
+function buildParams(){
+  const box=document.getElementById('params'); box.innerHTML='';
+  const s=SHAPES[state.activeShape];
+
+  // toggle tondo/quadrato per i gradini
+  if(s.round){
+    const ctrl=document.createElement('div'); ctrl.className='ctrl';
+    ctrl.innerHTML=`<div class="row"><label>Forma gradini</label></div>
+      <div class="pills">
+        <div class="pill ${state.stepShape==='tondo'?'active':''}" data-v="tondo">Tondo</div>
+        <div class="pill ${state.stepShape==='quadrato'?'active':''}" data-v="quadrato">Quadrato</div>
+      </div>`;
+    ctrl.querySelectorAll('.pill').forEach(p=>p.onclick=()=>{
+      state.stepShape=p.dataset.v;
+      ctrl.querySelectorAll('.pill').forEach(x=>x.classList.toggle('active',x.dataset.v===state.stepShape));
+      rebuild();
+    });
+    box.appendChild(ctrl);
+  }
+
+  s.params.forEach(p=>{
+    const ctrl=document.createElement('div'); ctrl.className='ctrl';
+    ctrl.innerHTML=`
+      <div class="row">
+        <label>${p.label}</label>
+        <div class="valbox"><input type="number" min="${p.min}" max="${p.max}" step="${p.step}" value="${state[p.k]}"><span class="u">${p.k==='n'?'':'mm'}</span></div>
+      </div>
+      <input type="range" min="${p.min}" max="${p.max}" step="${p.step}" value="${state[p.k]}">`;
+    const num=ctrl.querySelector('input[type=number]');
+    const rng=ctrl.querySelector('input[type=range]');
+    sliderFill(rng);
+    const apply=(val,fromRange)=>{
+      val=Math.max(p.min, Math.min(p.max, val||p.min));
+      state[p.k]=val;
+      if(fromRange) num.value=fmt(val); else rng.value=val;
+      sliderFill(rng);
+      rebuild();
+    };
+    rng.addEventListener('input', ()=>apply(+rng.value,true));
+    num.addEventListener('input', ()=>apply(+num.value,false));
+    num.addEventListener('change',()=>{ num.value=fmt(state[p.k]); });
+    box.appendChild(ctrl);
+  });
+}
+
+function buildSwatches(){
+  const wrap=document.getElementById('swatches'); wrap.innerHTML='';
+  COLORS.forEach(c=>{
+    const d=document.createElement('div');
+    d.className='sw'+(c.hex===state.color?' active':'');
+    d.style.background=c.hex; d.title=c.name;
+    d.onclick=()=>{
+      state.color=c.hex; material.color.set(c.hex);
+      document.querySelectorAll('.sw').forEach(x=>x.classList.remove('active'));
+      d.classList.add('active');
+    };
+    wrap.appendChild(d);
+  });
+}
+
+// bed inputs
+['bedX','bedY','bedZ'].forEach((id,i)=>{
+  const el=document.getElementById(id);
+  el.addEventListener('input',()=>{
+    const v=Math.max(10,+el.value||10);
+    state.bed[['x','y','z'][i]]=v;
+    updateReadouts();
+  });
+});
+document.getElementById('showBed').addEventListener('change',e=>{
+  state.showBed=e.target.checked; updateBedBox();
+});
+
+document.getElementById('exportBtn').addEventListener('click', exportSTL);
+document.getElementById('resetBtn').addEventListener('click', fitView);
+
+// ============================================================
+//  RESIZE + LOOP
+// ============================================================
+function resize(){
+  const vp=canvas.parentElement;
+  const w=vp.clientWidth, h=vp.clientHeight;
+  renderer.setSize(w,h,false);
+  camera.aspect=w/h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(canvas.parentElement);
+
+function loop(){
+  requestAnimationFrame(loop);
+  renderer.render(scene,camera);
+}
+
+// ---------- INIT ----------
+buildShapeButtons();
+buildParams();
+buildSwatches();
+rebuild();
+resize();
+fitView();
+loop();
+
+// ---------- INFO MODAL ----------
+const infoModal = document.getElementById('infoModal');
+const infoBtn = document.getElementById('infoBtn');
+const infoClose = document.getElementById('infoClose');
+function openInfo(){ infoModal.classList.add('open'); }
+function closeInfo(){ infoModal.classList.remove('open'); }
+infoBtn.addEventListener('click', openInfo);
+infoClose.addEventListener('click', closeInfo);
+infoModal.addEventListener('click', (e)=>{ if(e.target===infoModal) closeInfo(); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeInfo(); });
+
+// Apri automaticamente la prima volta che si visita la pagina
+if(!localStorage.getItem('rialzi_info_seen')){
+  openInfo();
+  localStorage.setItem('rialzi_info_seen','1');
+}
+</script>
+<!-- Fotocamere animate hero (standard) -->
+<script>
+(function(){
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  function buildScene(canvas, specs){
+    if (typeof THREE === 'undefined' || !canvas) return;
+    var wrap = canvas.parentElement;
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100); camera.position.set(0,0,14);
+    var renderer = new THREE.WebGLRenderer({ canvas:canvas, alpha:true, antialias:true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+    scene.add(new THREE.AmbientLight(0xffffff,0.75));
+    var key=new THREE.DirectionalLight(0xffffff,0.7); key.position.set(5,8,6); scene.add(key);
+    var matBody=new THREE.MeshStandardMaterial({color:0xffad01,roughness:0.55,metalness:0.1});
+    var matDark=new THREE.MeshStandardMaterial({color:0xe09600,roughness:0.5,metalness:0.15});
+    function makeCamera(){
+      var g=new THREE.Group();
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(2.2,1.4,1.1),matBody));
+      var lens=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.62,0.9,24),matDark); lens.rotation.x=Math.PI/2; lens.position.set(0,-0.05,0.85); g.add(lens);
+      var ring=new THREE.Mesh(new THREE.CylinderGeometry(0.64,0.64,0.18,24),matBody); ring.rotation.x=Math.PI/2; ring.position.set(0,-0.05,1.28); g.add(ring);
+      var vf=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.45,0.7),matBody); vf.position.set(0,0.85,-0.05); g.add(vf);
+      var btn=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.13,0.16,16),matDark); btn.position.set(0.75,0.82,0); g.add(btn);
+      return g;
+    }
+    var cams=specs.map(function(s){ var c=makeCamera(); c.position.set(s.pos[0],s.pos[1],s.pos[2]); c.scale.setScalar(s.scale); c.rotation.set(-0.5,0.7,0.15); c.userData=s; scene.add(c); return c; });
+    function resize(){ var w=wrap.clientWidth,h=wrap.clientHeight; if(!w||!h)return; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
+    resize(); window.addEventListener('resize',resize);
+    var t0=performance.now(),raf,running=false;
+    function animate(now){ var t=(now-t0)/1000; cams.forEach(function(c){ var s=c.userData; c.position.y=s.pos[1]+Math.sin(t*s.floatSpeed+s.phase)*s.floatAmp; c.rotation.y+=s.rotSpeed*0.01; c.rotation.x=-0.5+Math.sin(t*s.floatSpeed*0.7+s.phase)*0.12; }); renderer.render(scene,camera); raf=requestAnimationFrame(animate); }
+    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting&&!running){running=true;raf=requestAnimationFrame(animate);} else if(!e.isIntersecting&&running){running=false;cancelAnimationFrame(raf);} }); },{threshold:0.02});
+    io.observe(wrap);
+  }
+  function init(){
+    buildScene(document.getElementById('heroCams'), [
+      { pos:[-5.5,1.6,0], scale:1.05, floatSpeed:0.42, floatAmp:0.55, rotSpeed:0.18, phase:0 },
+      { pos:[5.6,-1.4,-1], scale:0.85, floatSpeed:0.52, floatAmp:0.45, rotSpeed:-0.15, phase:2.1 },
+      { pos:[0.5,2.6,-2.5], scale:0.62, floatSpeed:0.38, floatAmp:0.65, rotSpeed:0.12, phase:4.0 }
+    ]);
+  }
+  if (typeof THREE !== 'undefined') { init(); }
+  else { var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload=init; document.head.appendChild(s); }
+})();
+</script>
+
+</body>
+</html>

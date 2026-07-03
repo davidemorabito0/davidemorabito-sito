@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Pannello · davidemorabito</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:#0e1620; --navy-card:#152232; --navy-line:#22344a;
+    --navy:#2b4868; --amber:#ffad01; --ink:#e9eef4; --mut:#8ea0b4;
+    --ok:#3fb950; --warn:#ffad01; --err:#e5534b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;background:var(--navy-deep);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,.jost{font-family:'Jost',sans-serif}
+  a{color:var(--amber);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+
+  /* ---- LOGIN ---- */
+  #gate{position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(43,72,104,.4),transparent),var(--navy-deep);display:flex;align-items:center;justify-content:center;z-index:50;padding:22px}
+  .gate-box{width:100%;max-width:380px;text-align:center}
+  .gate-box .logo{font-family:'Jost',sans-serif;font-size:26px;font-weight:300;letter-spacing:1px;margin-bottom:6px}
+  .gate-box .logo b{font-weight:700;color:var(--amber)}
+  .gate-box .sub{color:var(--mut);font-size:13px;letter-spacing:3px;text-transform:uppercase;margin-bottom:34px}
+  .gate-box input{width:100%;padding:15px 18px;border-radius:12px;border:1px solid var(--navy-line);background:var(--navy-card);color:var(--ink);font-size:16px;font-family:'DM Sans',sans-serif;outline:none}
+  .gate-box input:focus{border-color:var(--amber)}
+  .gate-box button{width:100%;margin-top:12px;padding:15px;border:0;border-radius:12px;background:var(--amber);color:#1a1205;font-family:'Jost',sans-serif;font-weight:700;font-size:15px;letter-spacing:.5px;cursor:pointer}
+  .gate-box button:hover{filter:brightness(1.05)}
+  .gate-err{color:var(--err);font-size:13px;margin-top:14px;min-height:18px}
+
+  /* ---- APP ---- */
+  #app{display:none}
+  header.top{border-bottom:1px solid var(--navy-line);padding:20px 0;position:sticky;top:0;background:rgba(14,22,32,.88);backdrop-filter:blur(12px);z-index:10}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .brand{font-family:'Jost',sans-serif;font-size:22px;font-weight:300;letter-spacing:.5px}
+  .brand b{font-weight:700;color:var(--amber)}
+  .brand small{display:block;font-family:'DM Sans';font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);font-weight:500}
+  .logout{font-family:'Jost',sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--mut);border:1px solid var(--navy-line);padding:9px 16px;border-radius:30px;cursor:pointer;background:none}
+  .logout:hover{color:var(--ink);border-color:var(--mut)}
+
+  main{padding:34px 0 70px}
+  .eyebrow{font-family:'Jost',sans-serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--amber);margin:38px 0 14px}
+  .eyebrow:first-child{margin-top:0}
+
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:780px){.g2,.g3{grid-template-columns:1fr}}
+
+  .card{background:var(--navy-card);border:1px solid var(--navy-line);border-radius:16px;padding:22px}
+  .card h3{font-size:17px;font-weight:600;margin-bottom:4px}
+  .card .lead{color:var(--mut);font-size:13px;margin-bottom:16px}
+
+  /* SEO score ring (signature) */
+  .score-card{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+  .ring{--val:0;width:132px;height:132px;border-radius:50%;flex:0 0 auto;
+    background:conic-gradient(var(--amber) calc(var(--val)*1%), #20303f 0);
+    display:flex;align-items:center;justify-content:center;position:relative}
+  .ring::after{content:'';position:absolute;inset:11px;border-radius:50%;background:var(--navy-card)}
+  .ring .num{position:relative;z-index:1;font-family:'Jost',sans-serif;font-weight:700;font-size:38px;line-height:1}
+  .ring .num small{display:block;font-size:11px;letter-spacing:2px;color:var(--mut);font-weight:500;text-transform:uppercase;margin-top:2px}
+  .score-meta{flex:1;min-width:220px}
+  .score-meta h2{font-size:22px;margin-bottom:6px}
+  .score-meta p{color:var(--mut);font-size:14px}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--navy-line)}
+  th{font-family:'Jost',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);font-weight:500}
+  td.page{font-weight:500}
+  .dot{display:inline-flex;width:9px;height:9px;border-radius:50%;margin:0 2px}
+  .dot.ok{background:var(--ok)} .dot.no{background:var(--err)} .dot.warn{background:var(--warn)}
+  .pscore{font-family:'Jost',sans-serif;font-weight:700}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:14px}
+  .legend span{display:flex;align-items:center;gap:6px}
+
+  .status{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .pill{font-family:'Jost',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:30px}
+  .pill.off{background:rgba(229,83,75,.14);color:#ff8a82;border:1px solid rgba(229,83,75,.3)}
+  .pill.on{background:rgba(63,185,80,.14);color:#5dd56e;border:1px solid rgba(63,185,80,.3)}
+
+  .btn{display:inline-block;margin-top:6px;padding:11px 18px;border-radius:10px;background:var(--navy);color:#fff;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;letter-spacing:.3px}
+  .btn:hover{background:#365a82;text-decoration:none}
+  .btn.amber{background:var(--amber);color:#1a1205}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap}
+
+  ul.steps{list-style:none;counter-reset:s;margin-top:6px}
+  ul.steps li{counter-increment:s;position:relative;padding:7px 0 7px 30px;font-size:13.5px;color:var(--ink);border-bottom:1px solid rgba(34,52,74,.5)}
+  ul.steps li:last-child{border-bottom:0}
+  ul.steps li::before{content:counter(s);position:absolute;left:0;top:7px;width:20px;height:20px;border-radius:50%;background:var(--navy);color:#fff;font-family:'Jost';font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+
+  .metric{text-align:center;padding:8px 0}
+  .metric .v{font-family:'Jost',sans-serif;font-weight:700;font-size:26px;color:var(--amber)}
+  .metric .l{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-top:3px}
+  .muted-box{background:rgba(34,52,74,.35);border:1px dashed var(--navy-line);border-radius:12px;padding:16px;font-size:13.5px;color:var(--mut)}
+  .note{font-size:12px;color:var(--mut);margin-top:10px}
+  .foot{margin-top:50px;padding-top:20px;border-top:1px solid var(--navy-line);font-size:12px;color:var(--mut)}
+  .loading{color:var(--mut);font-size:13px;padding:10px 0}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="gate">
+  <div class="gate-box">
+    <div class="logo">davide<b>morabito</b></div>
+    <div class="sub">Pannello</div>
+    <input id="pass" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password">
+    <button id="enter">Entra</button>
+    <div class="gate-err" id="gerr"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="top">
+    <div class="wrap">
+      <div class="brand">davide<b>morabito</b><small>Pannello di controllo</small></div>
+      <button class="logout" id="logout">Esci</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- SEO SCORE -->
+    <div class="eyebrow">Stato SEO</div>
+    <div class="card score-card">
+      <div class="ring" id="ring" style="--val:0"><div class="num"><span id="scoreNum">–</span><small>/100</small></div></div>
+      <div class="score-meta">
+        <h2 id="scoreTitle">Analisi in corso…</h2>
+        <p id="scoreDesc">Sto controllando title, descrizioni, Open Graph, dati strutturati, immagini e indicizzabilità di ogni pagina, direttamente dal sito.</p>
+      </div>
+    </div>
+
+    <!-- PER-PAGE -->
+    <div class="eyebrow">Pagine del sito</div>
+    <div class="card">
+      <div id="pagesLoading" class="loading">Caricamento pagine…</div>
+      <table id="pagesTable" style="display:none">
+        <thead><tr>
+          <th>Pagina</th><th>Titolo</th><th>Descr.</th><th>OG</th><th>Dati str.</th><th>H1</th><th>Alt img</th><th>Index</th><th>Voto</th>
+        </tr></thead>
+        <tbody id="pagesBody"></tbody>
+      </table>
+      <div class="legend">
+        <span><i class="dot ok"></i> a posto</span>
+        <span><i class="dot warn"></i> migliorabile</span>
+        <span><i class="dot no"></i> manca</span>
+      </div>
+      <div class="note" id="pagesNote"></div>
+    </div>
+
+    <!-- INDICIZZAZIONE -->
+    <div class="eyebrow">Indicizzazione Google</div>
+    <div class="grid g2">
+      <div class="card">
+        <div class="status"><span class="pill off" id="scPill">Da attivare</span></div>
+        <h3>Google Search Console</h3>
+        <p class="lead">Dice se Google ha indicizzato il sito, con quali parole chiave ti trovano e se ci sono errori di scansione. È il dato SEO reale.</p>
+        <ul class="steps">
+          <li>Apri Search Console e aggiungi la proprietà <b>davidemorabito.com</b></li>
+          <li>Scegli la verifica “tag HTML”: ti dà un meta da incollare</li>
+          <li>Mandami quel meta: lo aggiungo a tutte le pagine</li>
+          <li>Invia la <b>sitemap.xml</b> (ce l'hai già) dentro Search Console</li>
+        </ul>
+        <div class="btn-row" style="margin-top:14px">
+          <a class="btn amber" href="https://search.google.com/search-console" target="_blank" rel="noopener">Apri Search Console</a>
+          <a class="btn" href="https://davidemorabito.com/sitemap.xml" target="_blank" rel="noopener">Vedi sitemap</a>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Verifica rapida su Google</h3>
+        <p class="lead">Controlla al volo quante pagine del tuo sito sono già nell'indice di Google.</p>
+        <div class="btn-row">
+          <a class="btn" href="https://www.google.com/search?q=site:davidemorabito.com" target="_blank" rel="noopener">site:davidemorabito.com</a>
+        </div>
+        <p class="note">Se compaiono le tue pagine, Google ti ha indicizzato. Se non compare nulla, il sito è troppo nuovo o non ancora segnalato: Search Console accelera tutto.</p>
+      </div>
+    </div>
+
+    <!-- TRAFFICO -->
+    <div class="eyebrow">Traffico e visite</div>
+    <div class="card">
+      <div class="status"><span class="pill off" id="gaPill">Analytics da attivare</span></div>
+      <h3>Visite, provenienza, pagine più viste, tempo sul sito</h3>
+      <p class="lead">Questi numeri non esistono dentro il sito: li raccoglie Google Analytics 4 nel tempo. Una volta attivo, qui sotto compaiono i collegamenti diretti ai report giusti.</p>
+
+      <div class="grid g3" style="margin:10px 0 18px">
+        <div class="muted-box"><b style="color:var(--ink)">Visite</b><br>giorno · mese · anno<br><span class="note">GA4 › Rapporti › Acquisizione</span></div>
+        <div class="muted-box"><b style="color:var(--ink)">Provenienza</b><br>Milano vs resto / bot<br><span class="note">GA4 › Dati demografici › Città</span></div>
+        <div class="muted-box"><b style="color:var(--ink)">Pagina top</b><br>home, strumenti, aziende…<br><span class="note">GA4 › Coinvolgimento › Pagine</span></div>
+      </div>
+
+      <ul class="steps" id="gaSteps">
+        <li>Crea un account su Google Analytics e una proprietà <b>GA4</b> per davidemorabito.com</li>
+        <li>Copia l'ID misurazione (formato <b>G-XXXXXXXX</b>)</li>
+        <li>Mandamelo: inserisco lo snippet in tutte le pagine del sito</li>
+        <li>Dopo 24–48h i dati iniziano a popolarsi e questo pannello si collega ai report</li>
+      </ul>
+      <div class="btn-row" style="margin-top:14px">
+        <a class="btn amber" href="https://analytics.google.com/" target="_blank" rel="noopener">Apri Google Analytics</a>
+        <a class="btn" id="gaReport" href="https://analytics.google.com/" target="_blank" rel="noopener" style="display:none">Vai ai report</a>
+      </div>
+    </div>
+
+    <!-- CONVERSIONI -->
+    <div class="eyebrow">Conversioni</div>
+    <div class="card">
+      <h3>Quello che conta davvero per te</h3>
+      <p class="lead">Le visite sono utili, ma il dato che pesa è quante persone ti contattano. Con GA4 attivo posso tracciare due eventi:</p>
+      <div class="grid g2">
+        <div class="muted-box"><b style="color:var(--ink)">Click su “Contattami”</b><br><span class="note">quante persone aprono il contatto</span></div>
+        <div class="muted-box"><b style="color:var(--ink)">Invii del form</b><br><span class="note">richieste reali ricevute (anche da Netlify Forms)</span></div>
+      </div>
+      <p class="note">Quando attivi Analytics, dimmelo e configuro questi due eventi come “conversioni”.</p>
+    </div>
+
+    <div class="foot">
+      Pannello privato · pagina non indicizzata. La protezione con password è leggera (lato browser): non condividere il link e non pubblicarlo nel menu.
+      <br>Per cambiare la password apri <b>admin.html</b> e modifica la riga <code>const ADMIN_PASS</code> in cima allo script.
+    </div>
+  </main>
+</div>
+
+<script>
+/* ============ CONFIG ============ */
+const ADMIN_PASS = "morabito2026";   // ← cambia questa password
+const PAGES = [
+  {f:"index.html",            n:"Home"},
+  {f:"aziende.html",          n:"Aziende"},
+  {f:"matrimoni.html",        n:"Matrimoni"},
+  {f:"fotografia.html",       n:"Fotografia"},
+  {f:"teatro.html",           n:"Eventi"},
+  {f:"contenuti-verticali.html", n:"Social"},
+  {f:"chi-sono.html",         n:"Chi sono"},
+  {f:"strumenti.html",        n:"Strumenti"},
+  {f:"portfolio.html",        n:"Portfolio"},
+  {f:"calcolatore-tasse.html",n:"Calcolatore tasse"},
+  {f:"generatore-rialzi.html",n:"Generatore Rialzi"},
+  {f:"lut-conversioni.html",  n:"LUT"},
+  {f:"ruota-colori.html",     n:"Ruota colori"}
+];
+
+/* ============ LOGIN ============ */
+const SKEY="dm_admin_ok";
+const gate=document.getElementById('gate'), app=document.getElementById('app');
+function unlock(){gate.style.display='none';app.style.display='block';runChecks();}
+if(sessionStorage.getItem(SKEY)==="1") unlock();
+function tryLogin(){
+  const v=document.getElementById('pass').value;
+  if(v===ADMIN_PASS){sessionStorage.setItem(SKEY,"1");unlock();}
+  else{document.getElementById('gerr').textContent="Password errata.";}
+}
+document.getElementById('enter').addEventListener('click',tryLogin);
+document.getElementById('pass').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});
+document.getElementById('logout').addEventListener('click',()=>{sessionStorage.removeItem(SKEY);location.reload();});
+
+/* ============ SEO CHECK (live, same-origin) ============ */
+function analyze(html){
+  const d=new DOMParser().parseFromString(html,"text/html");
+  const title=(d.querySelector('title')||{}).textContent||"";
+  const descEl=d.querySelector('meta[name="description"]');
+  const desc=descEl?descEl.getAttribute('content')||"":"";
+  const robots=(d.querySelector('meta[name="robots"]')||{}).getAttribute?d.querySelector('meta[name="robots"]'):null;
+  const noindex=robots?/noindex/i.test(robots.getAttribute('content')||""):false;
+  const imgs=[...d.querySelectorAll('img')];
+  const withAlt=imgs.filter(i=>i.hasAttribute('alt')&&i.getAttribute('alt').trim()!=="").length;
+  return {
+    title:title.trim(),
+    titleOk: title.trim().length>=25 && title.trim().length<=65,
+    titleWarn: title.trim().length>0 && (title.trim().length<25||title.trim().length>65),
+    desc:desc.trim(),
+    descOk: desc.trim().length>=80 && desc.trim().length<=165,
+    descWarn: desc.trim().length>0 && (desc.trim().length<80||desc.trim().length>165),
+    og: !!d.querySelector('meta[property="og:title"]') && !!d.querySelector('meta[property="og:image"]'),
+    ld: !!d.querySelector('script[type="application/ld+json"]'),
+    h1: d.querySelectorAll('h1').length===1,
+    imgs:imgs.length, withAlt,
+    altOk: imgs.length===0 || withAlt===imgs.length,
+    index: !noindex
+  };
+}
+function pageScore(a){
+  let pts=0,max=7;
+  pts += a.titleOk?1:(a.titleWarn?0.5:0);
+  pts += a.descOk?1:(a.descWarn?0.5:0);
+  pts += a.og?1:0;
+  pts += a.ld?1:0;
+  pts += a.h1?1:0;
+  pts += a.altOk?1:0;
+  pts += a.index?1:0;
+  return Math.round(pts/max*100);
+}
+function dot(state){ // 'ok' | 'warn' | 'no'
+  return '<i class="dot '+state+'"></i>';
+}
+async function runChecks(){
+  const body=document.getElementById('pagesBody');
+  let total=0, done=0, sumOg=0, sumLd=0;
+  for(const p of PAGES){
+    let a=null;
+    try{
+      const res=await fetch(p.f,{cache:"no-store"});
+      if(res.ok){ a=analyze(await res.text()); }
+    }catch(e){ a=null; }
+    const tr=document.createElement('tr');
+    if(!a){
+      tr.innerHTML='<td class="page">'+p.n+'</td><td colspan="8" class="note">non raggiungibile (apri il pannello dal sito pubblicato, non in locale)</td>';
+    }else{
+      const sc=pageScore(a); total+=sc; done++;
+      if(a.og)sumOg++; if(a.ld)sumLd++;
+      tr.innerHTML=
+        '<td class="page">'+p.n+'</td>'+
+        '<td>'+dot(a.titleOk?'ok':(a.titleWarn?'warn':'no'))+' '+(a.title?a.title.length+'c':'–')+'</td>'+
+        '<td>'+dot(a.descOk?'ok':(a.descWarn?'warn':'no'))+' '+(a.desc?a.desc.length+'c':'–')+'</td>'+
+        '<td>'+dot(a.og?'ok':'no')+'</td>'+
+        '<td>'+dot(a.ld?'ok':'no')+'</td>'+
+        '<td>'+dot(a.h1?'ok':'warn')+'</td>'+
+        '<td>'+dot(a.altOk?'ok':'warn')+' '+a.withAlt+'/'+a.imgs+'</td>'+
+        '<td>'+dot(a.index?'ok':'no')+'</td>'+
+        '<td class="pscore" style="color:'+(sc>=85?'var(--ok)':sc>=65?'var(--warn)':'var(--err)')+'">'+sc+'</td>';
+    }
+    body.appendChild(tr);
+  }
+  document.getElementById('pagesLoading').style.display='none';
+  document.getElementById('pagesTable').style.display='table';
+
+  const global = done? Math.round(total/done) : 0;
+  document.getElementById('scoreNum').textContent=global;
+  const ring=document.getElementById('ring'); ring.style.setProperty('--val',global);
+  const t=document.getElementById('scoreTitle'), dsc=document.getElementById('scoreDesc');
+  if(global>=85){t.textContent="SEO in ottima forma";dsc.textContent="Le pagine sono ben ottimizzate. Manca solo attivare la raccolta dati (Search Console + Analytics) per misurare i risultati reali.";}
+  else if(global>=65){t.textContent="SEO buono, con margini";dsc.textContent="Base solida. Sistema le caselle rosse nella tabella per spingere il punteggio più in alto.";}
+  else{t.textContent="SEO da migliorare";dsc.textContent="Diverse pagine hanno elementi mancanti. Parti dalle caselle rosse qui sotto.";}
+
+  document.getElementById('pagesNote').textContent =
+    "Open Graph presente su "+sumOg+"/"+done+" pagine · dati strutturati su "+sumLd+"/"+done+". Le caselle rosse sono i punti su cui intervenire.";
+
+  // GA detection: cerco gtag nella home
+  try{
+    const h=await (await fetch('index.html',{cache:'no-store'})).text();
+    if(/gtag\(|googletagmanager|G-[A-Z0-9]{8,}/.test(h)){
+      const pill=document.getElementById('gaPill'); pill.textContent="Analytics attivo"; pill.className="pill on";
+      document.getElementById('gaReport').style.display='inline-block';
+    }
+    if(/google-site-verification/.test(h)){
+      const sp=document.getElementById('scPill'); sp.textContent="Verificato"; sp.className="pill on";
+    }
+  }catch(e){}
+}
+</script>
+</body>
+</html>
