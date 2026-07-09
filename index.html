@@ -156,8 +156,8 @@
   .vot-title { font-family:'Jost',sans-serif; font-size:clamp(24px,4vw,44px); font-weight:200; color:#fff; letter-spacing:1px; text-shadow:0 2px 20px rgba(0,0,0,.5); }
   .vot-title b { font-weight:700; }
   /* Primo video con testo "Chi sono" sovrapposto */
-  .video-block.video-intro { aspect-ratio:auto; min-height:560px; display:flex; align-items:flex-end; }
-  @media (max-width:768px){ .video-block.video-intro { min-height:520px; } }
+  .video-block.video-intro { aspect-ratio:1920/818; min-height:420px; display:flex; align-items:flex-end; }
+  @media (max-width:768px){ .video-block.video-intro { aspect-ratio:auto; min-height:520px; } }
   .video-block.video-intro video { position:absolute; inset:0; z-index:0; }
   .video-block.video-intro .video-vignette { z-index:1; background:linear-gradient(90deg, rgba(8,12,18,.82) 0%, rgba(8,12,18,.45) 55%, rgba(8,12,18,.15) 100%), linear-gradient(transparent 25%, rgba(8,12,18,.85)); }
   .video-intro-text { position:relative; z-index:2; padding:clamp(38px,7vw,80px) 5vw; max-width:820px; }
@@ -166,6 +166,40 @@
   .video-intro-text .vi-lead b { font-weight:700; color:var(--amber); }
   .video-intro-text .vi-p { font-size:clamp(14px,1.5vw,17px); color:rgba(255,255,255,.92); line-height:1.7; margin:0 0 14px; max-width:700px; font-weight:300; text-shadow:0 1px 14px rgba(0,0,0,.65); }
   .video-intro-text .vi-p:last-child { margin-bottom:0; }
+  /* Su mobile i due paragrafi lunghi si spostano sotto "i miei lavori" (troppo testo sopra il video) */
+  .lavori-intro-text { display:none; }
+  @media (max-width:768px){
+    .video-intro-text .vi-p { display:none; }
+    .lavori-intro-text { display:block; margin:-18px 0 40px; }
+    .lavori-intro-text p { font-size:15px; line-height:1.7; color:rgba(255,255,255,.82); font-weight:300; margin:0 0 14px; }
+    .lavori-intro-text p:last-child { margin-bottom:0; }
+  }
+
+  /* Recensioni Google */
+  .reviews .formats-head{ text-align:center; }
+  .grev-slider{ position:relative; max-width:760px; margin:0 auto; display:flex; align-items:center; gap:8px; }
+  .reviews-compact{ padding-top:28px; padding-bottom:28px; }
+  @media (max-width:768px){ .reviews-compact{ padding-top:20px; padding-bottom:20px; } }
+  .grev-viewport{ overflow:hidden; flex:1; border-radius:16px; transition:height .55s cubic-bezier(.4,0,.2,1); }
+  .grev-track{ display:flex; align-items:flex-start; transition:transform .6s cubic-bezier(.4,0,.2,1); }
+  .grev-slide{ flex:0 0 100%; box-sizing:border-box; }
+  .grev-card{ background:#fff; border-radius:16px; padding:26px 30px 28px; box-shadow:0 12px 34px -18px rgba(20,32,46,.42); text-align:left; min-height:120px; box-sizing:border-box; }
+  .grev-top{ display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+  .grev-av{ width:54px; height:54px; border-radius:50%; flex:0 0 auto; object-fit:cover; display:flex; align-items:center; justify-content:center; font-family:'Jost',sans-serif; font-weight:700; font-size:22px; color:#fff; background:linear-gradient(135deg,var(--navy),var(--amber)); overflow:hidden; }
+  .grev-av img{ width:100%; height:100%; object-fit:cover; }
+  .grev-name{ font-family:'Jost',sans-serif; font-weight:600; font-size:16px; color:#12202e; }
+  .grev-meta{ font-size:12px; color:#8a97a3; margin-top:1px; }
+  .grev-st{ color:#FFAD01; letter-spacing:2px; font-size:15px; margin-top:3px; }
+  .grev-txt{ font-size:15px; line-height:1.7; color:#4a5a6a; margin:0; }
+  .grev-nav{ flex:0 0 auto; width:40px; height:40px; border-radius:50%; border:0; background:#fff; color:var(--navy); font-size:24px; line-height:1; cursor:pointer; box-shadow:0 6px 18px -8px rgba(20,32,46,.4); transition:all .2s; }
+  .grev-nav:hover{ background:var(--navy); color:#fff; }
+  @media (max-width:600px){ .grev-nav{ display:none; } }
+  .grev-dots{ display:flex; justify-content:center; gap:8px; margin-top:20px; }
+  .grev-dot{ width:8px; height:8px; border-radius:50%; border:0; padding:0; background:rgba(43,72,104,.25); cursor:pointer; transition:all .25s; }
+  .grev-dot.on{ background:var(--amber); width:22px; border-radius:4px; }
+  .grev-link{ display:inline-block; margin-top:30px; font-family:'Jost',sans-serif; font-weight:600; font-size:14.5px; color:var(--navy); text-decoration:none; border-bottom:2px solid var(--amber); padding-bottom:3px; }
+  .grev-link:hover{ color:var(--amber); }
+
 
   /* SECTION */
   .section { padding:clamp(80px,12vw,150px) 5vw; max-width:1280px; margin:0 auto; }
@@ -233,7 +267,8 @@
   /* CLIENTS */
   .clients { text-align:center; }
   .clients-label { font-family:'Jost',sans-serif; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#6a7686; margin-bottom:44px; font-weight:500; }
-  .clients-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:32px 24px; align-items:center; }
+  .clients-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:30px 20px; align-items:center; }
+  @media (max-width:1100px) { .clients-grid { grid-template-columns:repeat(4,1fr); } }
   @media (max-width:860px) { .clients-grid { grid-template-columns:repeat(3,1fr); gap:24px 16px; } }
   @media (max-width:480px) { .clients-grid { grid-template-columns:repeat(2,1fr); } }
 
@@ -243,14 +278,19 @@
 
   /* Logo card (aziende): monochrome navy, color on hover. Cells are tall so all aspect ratios fit. */
   .client-logo { width:100%; max-width:160px; height:72px; display:flex; align-items:center; justify-content:center; transition:all .3s; position:relative; }
-  .client-logo img { max-height:100%; max-width:100%; width:auto; height:auto; object-fit:contain; filter:brightness(0) saturate(100%) invert(20%) sepia(28%) saturate(900%) hue-rotate(176deg) brightness(94%) contrast(88%); opacity:.7; transition:filter .35s ease, opacity .35s ease; }
-  .client:hover .client-logo img { filter:none; opacity:1; }
+  .client-logo img { max-height:100%; max-width:100%; width:auto; height:auto; object-fit:contain; }
 
-  /* Logo with separate color version (for special logos where mono is pre-baked) */
-  .client-logo.has-swap img { filter:none; opacity:.85; transition:opacity .35s ease; }
-  .client-logo.has-swap .color { position:absolute; inset:0; margin:auto; opacity:0; }
-  .client:hover .client-logo.has-swap .mono { opacity:0; }
-  .client:hover .client-logo.has-swap .color { opacity:1; }
+  /* Loghi SENZA versione a colori: restano neri (leggero scurirsi all'hover) */
+  .client-logo:not(.has-swap):not(.tile) img { filter:brightness(0); opacity:.8; transition:opacity .35s ease; }
+  .client:hover .client-logo:not(.has-swap):not(.tile) img { opacity:1; }
+
+  /* Loghi CON versione a colori: a COLORI di default, GRIGI al passare del mouse */
+  .client-logo.has-swap .mono { opacity:0; }
+  .client-logo.has-swap .color { position:absolute; inset:0; margin:auto; max-width:100%; max-height:100%; opacity:1; filter:none; transition:filter .35s ease; }
+  .client:hover .client-logo.has-swap .color { filter:grayscale(100%) brightness(.95); }
+  /* Tile: loghi con box colorato proprio (CineFacts, Dolly Noire, JazzMi, ecc.) — mostrati integri */
+  .client-logo.tile { max-width:150px; }
+  .client-logo.tile img { filter:none; opacity:1; }
 
   /* Placeholder fallback (for clients without a logo yet) */
   .client-logo.placeholder { border-radius:10px; border:1px dashed rgba(20,32,46,.18); font-family:'Jost',sans-serif; font-size:13px; letter-spacing:1px; color:#5f6b7a; font-weight:500; }
@@ -258,8 +298,8 @@
 
   /* Creator card (volti): foto rotonda monocroma, colore al hover */
   .client-portrait { width:72px; height:72px; border-radius:50%; overflow:hidden; background:#e8ecf0; flex-shrink:0; }
-  .client-portrait img { width:100%; height:100%; object-fit:cover; filter:grayscale(100%) contrast(.95) brightness(.95); opacity:.78; transition:filter .35s ease, opacity .35s ease; }
-  .client:hover .client-portrait img { filter:none; opacity:1; }
+  .client-portrait img { width:100%; height:100%; object-fit:cover; opacity:1; filter:none; transition:filter .35s ease, opacity .35s ease; }
+  .client:hover .client-portrait img { filter:grayscale(100%) contrast(.95) brightness(.95); opacity:.9; }
   .client-name { font-family:'Jost',sans-serif; font-size:11px; letter-spacing:.8px; color:#5a6a7c; font-weight:500; text-align:center; transition:color .3s; }
   .client:hover .client-name { color:var(--amber-deep); }
 
@@ -300,6 +340,9 @@
   .proj-stat-mini b { display:block; font-size:22px; font-weight:300; color:var(--amber); line-height:1; }
   .proj-stat-mini span { font-size:9px; letter-spacing:1px; text-transform:uppercase; color:var(--warm-gray); }
   .proj-toggle { margin-left:auto; display:inline-flex; align-items:center; gap:9px; font-family:'Jost',sans-serif; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--amber); background:rgba(255,173,1,.1); border:1px solid rgba(255,173,1,.3); padding:11px 20px; border-radius:30px; cursor:pointer; transition:all .3s; white-space:nowrap; }
+  .proj-watch-video { display:inline-flex; align-items:center; gap:9px; font-family:'Jost',sans-serif; font-weight:600; font-size:13px; letter-spacing:1px; text-transform:uppercase; color:#12202e; background:var(--amber); border:0; padding:13px 26px; border-radius:30px; cursor:pointer; transition:all .3s; margin:0 0 30px; }
+  .proj-watch-video:hover { background:#fff; transform:translateY(-1px); }
+  .proj-watch-video .chev { font-size:11px; }
   .proj-toggle:hover { background:rgba(255,173,1,.18); }
   .proj-toggle .chev { display:inline-block; transition:transform .4s; font-size:14px; }
   .proj.open .proj-toggle .chev { transform:rotate(180deg); }
@@ -325,6 +368,11 @@
   .proj-text .lead-q b { color:var(--amber); font-weight:600; font-style:normal; }
   .proj-text p { font-family:'DM Sans',sans-serif; font-size:16px; line-height:1.75; color:var(--warm-gray-light); margin:0 0 20px; }
   .proj-text p b { color:#fff; font-weight:600; }
+  .proj-credits { max-width:720px; display:flex; flex-direction:column; gap:6px; margin:4px 0 28px; padding:16px 20px; border-left:2px solid rgba(255,173,1,.4); }
+  .proj-credits span { font-family:'DM Sans',sans-serif; font-size:13px; line-height:1.6; color:var(--warm-gray-light); opacity:.8; }
+  .proj-credits b { color:#fff; font-weight:600; opacity:1; }
+  .proj-cause-link { display:inline-block; margin:-6px 0 8px; font-family:'Jost',sans-serif; font-weight:600; font-size:15px; color:var(--amber); text-decoration:none; border-bottom:1.5px solid rgba(255,173,1,.4); padding-bottom:2px; transition:all .25s; }
+  .proj-cause-link:hover { border-bottom-color:var(--amber); color:#fff; }
 
   /* Inline figures */
   .proj-fig { margin:34px 0; }
@@ -440,7 +488,7 @@
     /* X di chiusura: in fondo al box, dopo tutto il testo */
     .proj.open .proj-close {
       display:flex; align-items:center; justify-content:center; gap:9px;
-      position:static; width:auto; margin:8px 34px 28px; padding:14px 0;
+      position:static; width:auto; margin:8px auto 28px; padding:13px 28px;
       border-radius:30px; background:rgba(255,173,1,.1);
       border:1px solid rgba(255,173,1,.3); color:var(--amber);
       font-family:'Jost',sans-serif; font-size:12px; letter-spacing:1.5px; text-transform:uppercase;
@@ -478,7 +526,7 @@
     /* Tasto "Chiudi" in fondo visibile anche su desktop quando la card è aperta */
     #lavori .proj.open .proj-close, #lavori-2 .proj.open .proj-close{
       display:flex; align-items:center; justify-content:center; gap:9px;
-      position:static; width:auto; margin:8px 34px 28px; padding:14px 0;
+      position:static; width:auto; margin:8px auto 28px; padding:13px 28px;
       border-radius:30px; background:rgba(255,173,1,.1);
       border:1px solid rgba(255,173,1,.3); color:var(--amber);
       font-family:'Jost',sans-serif; font-size:12px; letter-spacing:1.5px; text-transform:uppercase;
@@ -908,12 +956,72 @@
   </div>
 </section>
 
+<!-- CLIENTI (cream) -->
+<div class="bg-cream">
+  <section class="section clients">
+    <div class="clients-label reveal">Hanno scelto di lavorare con me</div>
+    <div class="clients-grid reveal">
+      <!-- Creator: card-ritratto con foto rotonda -->
+      <div class="client">
+        <div class="client-portrait"><img src="media/clienti/maurizio-merluzzo.png" alt="Maurizio Merluzzo" loading="lazy"></div>
+        <div class="client-name">Maurizio Merluzzo</div>
+      </div>
+
+      <!-- Loghi clienti (30) — brand forti distribuiti; tile = box colorato proprio -->
+      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/netflix.png" alt="Netflix" loading="lazy"><img class="color" src="media/clienti/netflix.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/chitarra-facile.png" alt="Chitarra Facile" loading="lazy"><img class="color" src="media/clienti/chitarra-facile-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/esselunga.png" alt="Esselunga" loading="lazy"><img class="color" src="media/clienti/esselunga-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/cydonia.png" alt="Cydonia" loading="lazy"><img class="color" src="media/clienti/cydonia.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/pianocity-milano.png" alt="PianoCity Milano" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/redbull.png" alt="Red Bull" loading="lazy"><img class="color" src="media/clienti/redbull.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/altavia-italia.png" alt="Altavia Italia" loading="lazy"><img class="color" src="media/clienti/altavia-italia-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+      <div class="client"><div class="client-logo tile"><img src="media/clienti/jazzmi.png" alt="JazzMi" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/dinobros.png" alt="DinoBros" loading="lazy"><img class="color" src="media/clienti/dinobros-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/sony-pictures.png" alt="Sony Pictures" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/wepromo.png" alt="WePromo" loading="lazy"><img class="color" src="media/clienti/wepromo-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+      <div class="client"><div class="client-logo tile"><img src="media/clienti/lomography.png" alt="Lomography" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/pvk.png" alt="PVK" loading="lazy"><img class="color" src="media/clienti/pvk-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/milano-design-week.png" alt="Milano Design Week" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/pixelart.png" alt="PixelArt" loading="lazy"><img class="color" src="media/clienti/pixelart-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+      <div class="client"><div class="client-logo tile"><img src="media/clienti/slim-dogs.png" alt="Slim Dogs" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/f-productions.png" alt="F-Productions" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo tile"><img src="media/clienti/milan-games-week.png" alt="Milan Games Week" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/mustard.png" alt="Mustard" loading="lazy"><img class="color" src="media/clienti/mustard-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/alberto-urso.png" alt="Alberto Urso" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/the-pepegas.png" alt="The Pepegas" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo tile"><img src="media/clienti/cinefacts.png" alt="CineFacts" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/fusina-lab.png" alt="Fusina Lab" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/carmagheddon.png" alt="Carmagheddon" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/rb-spettacoli.png" alt="RB Spettacoli" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo tile"><img src="media/clienti/dolly-noire.png" alt="Dolly Noire" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/the-best-blend.png" alt="The Best Blend" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/unaragazza-cinema.png" alt="Una Ragazza per il Cinema" loading="lazy"><img class="color" src="media/clienti/unaragazza-cinema.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/24-7-production.png" alt="24/7 Production" loading="lazy"><img class="color" src="media/clienti/24-7-production-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+    </div>
+  </section>
+</div>
+
+<!-- STATS (amber band) -->
+<div class="stats-band">
+  <div class="stats reveal">
+    <!-- [PLACEHOLDER] numeri reali -->
+    <div class="stat"><div class="stat-num">120+</div><div class="stat-label">Progetti</div></div>
+    <div class="stat"><div class="stat-num">14</div><div class="stat-label">Anni di lavoro</div></div>
+    <div class="stat"><div class="stat-num">50+</div><div class="stat-label">Clienti</div></div>
+    <div class="stat"><div class="stat-num">30M+</div><div class="stat-label">Views sui miei lavori</div></div>
+  </div>
+</div>
+
 <!-- I MIEI LAVORI (dark) - Esselunga, Piano City, Chitarra Facile -->
 <div class="bg-dark">
   <section class="section" id="lavori">
     <div class="reveal works-head">
       <div class="eyebrow">Progetti</div>
       <h2 class="section-h"><span class="light">i miei</span> <span class="amber">lavori</span></h2>
+    </div>
+    <div class="lavori-intro-text">
+      <p>Mi occupo di produzione video end-to-end: riprese, montaggio, direzione della fotografia e coordinamento del team. Lavoro a Milano e provincia, collaborando con creator, agenzie e brand per contenuti ad alto livello qualitativo.</p>
+      <p>Pilota drone certificato, realizzo anche riprese multicamera per eventi teatrali, workshop e produzioni dal vivo. Ogni progetto è pensato per garantire qualità dell'immagine e affidabilità sul set.</p>
     </div>
     <div class="projects-list">
 
@@ -1053,19 +1161,91 @@
         </div>
       </article>
 
+      <!-- ════ THEBESTBLEND × NETFLIX ════ -->
+      <article class="proj reveal" id="proj-thebestblend">
+        <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-thebestblend">
+          <div class="proj-cover"><img src="media/lavori/thebestblend-cover.jpg" alt="TheBestBlend × Netflix — Guida completa alla WWE" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
+          <div class="proj-summary">
+            <span class="proj-tag">Produzione video · Netflix</span>
+            <h3><b>TheBestBlend</b> × Netflix</h3>
+            <p class="proj-preview">Guida completa al mondo WWE condotta da Maurizio Merluzzo, in vista di Wrestlemania 42 e dei prossimi eventi PLE — un contenuto Netflix a cui ho preso parte come operatore camera.</p>
+            <div class="proj-meta-row">
+              <div class="proj-stat-mini"><b>Camera</b><span>Operatore</span></div>
+              <div class="proj-stat-mini"><b>Netflix</b><span>Branded content</span></div>
+              <div class="proj-stat-mini"><b>WWE</b><span>Guida completa</span></div>
+              <button class="proj-toggle" type="button">Scopri di più <span class="chev">⌄</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="proj-detail" id="detail-thebestblend">
+          <div class="proj-detail-inner">
+            <div class="proj-stats-band">
+              <div class="sb"><b>Camera</b><span>Operatore</span></div>
+              <div class="sb"><b>Netflix</b><span>Branded content</span></div>
+              <div class="sb"><b>Maurizio</b><span>Merluzzo</span></div>
+              <div class="sb"><b>WWE</b><span>Guida completa</span></div>
+            </div>
+            <div class="proj-text">
+              <p class="lead-q">Ho fatto parte della squadra dietro le quinte di un contenuto Netflix: la guida definitiva al mondo WWE, raccontata da <b>Maurizio Merluzzo</b>.</p>
+              <p>Ho lavorato come <b>operatore camera</b> per questo video realizzato per Netflix in collaborazione con TheBestBlend: una guida completa al mondo WWE, pensata per chi vuole rinfrescarsi la memoria in vista di <b>Wrestlemania 42</b> e dei prossimi eventi PLE, oltre alle dirette di SmackDown, Raw e NXT.</p>
+              <p>Il video è condotto da Maurizio Merluzzo, che accompagna gli spettatori nell'evoluzione della WWE: dai cambiamenti nelle dinamiche tra i lottatori alle nuove stelle emergenti, fino al futuro delle divisioni maschili e femminili — un aggiornamento completo su storie, protagonisti e appuntamenti principali disponibili su Netflix.</p>
+            </div>
+            <button class="proj-watch-video" type="button" data-video="https://www.youtube.com/watch?v=DDkYfgKxAws" data-title="TheBestBlend × Netflix — Guida completa alla WWE">Guarda il video <span class="chev">▸</span></button>
+            <button class="proj-close" type="button" aria-label="Chiudi lettura">Chiudi <span class="chev-up">⌃</span></button>
+          </div>
+        </div>
+      </article>
+
+      <!-- ════ KENTO — NOSTRA SIGNORA DELLE LACRIME ════ -->
+      <article class="proj reveal" id="proj-kento">
+        <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-kento">
+          <div class="proj-cover"><img src="media/lavori/kento-cover.jpg" alt="Kento — Nostra Signora delle Lacrime" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
+          <div class="proj-summary">
+            <span class="proj-tag">Music video · Reportage</span>
+            <h3><b>Kento</b> — Nostra Signora delle Lacrime</h3>
+            <p class="proj-preview">Il videoclip del nuovo singolo di Kento, girato a bordo della Ocean Viking di SOS Mediterranee: dall'imbarco ai salvataggi in mare, fino alla jam session finale sul ponte.</p>
+            <div class="proj-meta-row">
+              <div class="proj-stat-mini"><b>Video</b><span>Musicale</span></div>
+              <div class="proj-stat-mini"><b>Shooting</b><span>Editing e Color</span></div>
+              <div class="proj-stat-mini"><b>Ocean</b><span>Viking</span></div>
+              <button class="proj-toggle" type="button">Scopri di più <span class="chev">⌄</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="proj-detail" id="detail-kento">
+          <div class="proj-detail-inner">
+            <div class="proj-stats-band">
+              <div class="sb"><b>Music</b><span>Video</span></div>
+              <div class="sb"><b>Ocean Viking</b><span>SOS Mediterranee</span></div>
+              <div class="sb"><b>Shooting</b><span>Editing e Color</span></div>
+              <div class="sb"><b>Factanza</b><span>Media</span></div>
+            </div>
+            <div class="proj-text">
+              <p class="lead-q">Ho portato una <b>storia vera</b> dentro un videoclip: dal ponte di una nave di soccorso alle immagini di una missione nel Mediterraneo.</p>
+              <p>Ho firmato il video di <b>"Nostra Signora delle Lacrime"</b>, il singolo di Kento prodotto da Mad Simon per Time 2 Rap Records. Il brano racconta la strage silenziosa che va avanti da anni nel Mediterraneo, e il videoclip nasce dall'esperienza del rapper a bordo della <b>Ocean Viking</b> di SOS Mediterranee.</p>
+              <p>Nel montaggio ho intrecciato le immagini girate in mare da <b>Cecilia Palmeri</b> per Factanza Media, le mie riprese in studio e il materiale di repertorio di SOS Mediterranee, per ripercorrere tutti i momenti salienti della missione: dall'imbarco ai salvataggi in acque internazionali, fino alla <b>jam session</b> finale improvvisata sul ponte.</p>
+              <p>Mi sono occupato delle <b>riprese in studio</b>, dell'<b>editing</b> e del <b>color</b>: un lavoro in cui la parte tecnica era al servizio del racconto, per restituire allo spettatore la stessa emozione vissuta da chi c'era.</p>
+              <a class="proj-cause-link" href="https://dona.sosmediterranee.it/kento/~mia-donazione?_cv=1" target="_blank" rel="noopener">Sostieni SOS Mediterranee &rarr;</a>
+            </div>
+            <div class="proj-gal">
+              <div class="proj-gal-item"><img src="media/lavori/kento-gal1.jpg" alt="A bordo della Ocean Viking durante la missione" loading="lazy"></div>
+              <div class="proj-gal-item"><img src="media/lavori/kento-gal2.jpg" alt="Kento durante un'esibizione live" loading="lazy"></div>
+              <div class="proj-gal-item wide"><img src="media/lavori/kento-gal3.jpg" alt="Il servizio askanews sulla missione Ocean Viking" loading="lazy"></div>
+              <div class="proj-gal-item"><img src="media/lavori/kento-gal4.jpg" alt="Il vinile di Nostra Signora delle Lacrime, in collaborazione con SOS Mediterranee" loading="lazy"></div>
+            </div>
+            <div class="proj-credits">
+              <span>Immagini in nave: <b>Cecilia Palmeri</b> — Factanza Media</span>
+              <span>Immagini in studio, editing &amp; color: <b>Davide Morabito</b></span>
+              <span>Repertorio: per gentile concessione di <b>SOS Mediterranee</b></span>
+            </div>
+            <button class="proj-watch-video" type="button" data-video="https://www.youtube.com/watch?v=qsVjkphLR-I" data-title="Kento — Nostra Signora delle lacrime">Guarda il video <span class="chev">▸</span></button>
+            <button class="proj-close" type="button" aria-label="Chiudi lettura">Chiudi <span class="chev-up">⌃</span></button>
+          </div>
+        </div>
+      </article>
+
     </div>
   </section>
-</div>
-
-<!-- STATS (amber band) -->
-<div class="stats-band">
-  <div class="stats reveal">
-    <!-- [PLACEHOLDER] numeri reali -->
-    <div class="stat"><div class="stat-num">120+</div><div class="stat-label">Progetti</div></div>
-    <div class="stat"><div class="stat-num">14</div><div class="stat-label">Anni di lavoro</div></div>
-    <div class="stat"><div class="stat-num">50+</div><div class="stat-label">Clienti</div></div>
-    <div class="stat"><div class="stat-num">30M+</div><div class="stat-label">Views sui miei lavori</div></div>
-  </div>
 </div>
 
 <!-- SERVIZI PER FORMATO (white, palette sperimentali) -->
@@ -1155,33 +1335,15 @@
   </section>
 </div>
 
-<!-- CLIENTI (cream) -->
+<!-- RECENSIONI GOOGLE (cream) — solo slideshow -->
 <div class="bg-cream">
-  <section class="section clients">
-    <div class="clients-label reveal">Hanno scelto di lavorare con me</div>
-    <div class="clients-grid reveal">
-      <!-- Creator: card-ritratto con foto rotonda monocromatica -->
-      <div class="client">
-        <div class="client-portrait"><img src="media/clienti/maurizio-merluzzo.png" alt="Maurizio Merluzzo" loading="lazy"></div>
-        <div class="client-name">Maurizio Merluzzo</div>
-      </div>
-
-      <!-- [PLACEHOLDER] Loghi aziendali — sostituisci ogni .client-logo.placeholder con <img src="media/clienti/nomefile.png" alt="Nome"> -->
-      <div class="client"><div class="client-logo"><img src="media/clienti/chitarra-facile.png" alt="Chitarra Facile" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/altavia-italia.png" alt="Altavia Italia" loading="lazy"><img class="color" src="media/clienti/altavia-italia-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/esselunga.png" alt="Esselunga" loading="lazy"><img class="color" src="media/clienti/esselunga-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/dinobros.png" alt="DinoBros" loading="lazy"><img class="color" src="media/clienti/dinobros-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/wepromo.png" alt="WePromo" loading="lazy"><img class="color" src="media/clienti/wepromo-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/pvk.png" alt="PVK" loading="lazy"><img class="color" src="media/clienti/pvk-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/pixelart.png" alt="PixelArt" loading="lazy"><img class="color" src="media/clienti/pixelart-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/pianocity-milano.png" alt="PianoCity Milano" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/f-productions.png" alt="F-Productions" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/fusina-lab.png" alt="Fusina Lab" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/mustard.png" alt="Mustard" loading="lazy"><img class="color" src="media/clienti/mustard-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/the-pepegas.png" alt="The Pepegas" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/rb-spettacoli.png" alt="RB Spettacoli" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/24-7-production.png" alt="24/7 Production" loading="lazy"><img class="color" src="media/clienti/24-7-production-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+  <section class="section reviews reviews-compact">
+    <div class="grev-slider reveal">
+      <button class="grev-nav grev-prev" id="grevPrev" aria-label="Precedente">&#8249;</button>
+      <div class="grev-viewport"><div class="grev-track" id="grevTrack"></div></div>
+      <button class="grev-nav grev-next" id="grevNext" aria-label="Successiva">&#8250;</button>
     </div>
+    <div class="grev-dots" id="grevDots" aria-hidden="true"></div>
   </section>
 </div>
 
@@ -1253,9 +1415,11 @@
       <div class="contact-detail"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Milano, Italia</span></div>
     </div>
 
-    <form class="contact-form reveal" id="contactForm" name="contatti" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-      <input type="hidden" name="form-name" value="contatti">
-      <p style="display:none;"><label>Non compilare se sei umano: <input name="bot-field"></label></p>
+    <form class="contact-form reveal" id="contactForm" method="POST">
+      <input type="hidden" name="access_key" value="6c534e1e-12f6-4fa2-88bd-5591ea5c0fe1">
+      <input type="hidden" name="subject" value="Nuovo contatto dal sito davidemorabito.com">
+      <input type="hidden" name="from_name" value="davidemorabito.com">
+      <input type="checkbox" name="botcheck" style="display:none;" tabindex="-1" autocomplete="off">
       <div class="form-row split">
         <div><label for="name">Nome</label><input type="text" id="name" name="name" placeholder="Il tuo nome" required></div>
         <div><label for="email">Email</label><input type="email" id="email" name="email" placeholder="nome@email.com" required></div>
@@ -1547,7 +1711,7 @@
       <p>Videomaker freelance a Milano. Video corporate, wedding film, spot e contenuti social. Storie che si guardano e si sentono.</p>
     </div>
     <div class="footer-col"><h3>Naviga</h3><ul><li><a href="videomaker-milano.html">Videomaker a Milano</a></li><li><a href="matrimoni.html">Matrimoni</a></li><li><a href="contenuti-verticali.html">Social</a></li><li><a href="teatro.html">Eventi</a></li><li><a href="fotografia.html">Fotografia</a></li><li><a href="aziende.html">Aziende</a></li><li><a href="#servizi">Servizi</a></li><li><a href="#analog">Analogico</a></li><li><a href="chi-sono.html">Chi sono</a></li><li><a href="strumenti.html">Strumenti</a></li></ul></div>
-    <div class="footer-col"><h3>Contatti</h3><!-- [PLACEHOLDER] contatti reali --><ul><li><a href="mailto:morabito1992@gmail.com">morabito1992@gmail.com</a></li><li><a href="#">Milano, Italia</a></li></ul></div>
+    <div class="footer-col"><h3>Contatti</h3><!-- [PLACEHOLDER] contatti reali --><ul><li><a href="mailto:info@davidemorabito.com">info@davidemorabito.com</a></li><li><a href="#">Milano, Italia</a></li></ul></div>
     <svg class="footer-mascot" viewBox="0 0 96 96" aria-label="Cerchio">
       <circle cx="48" cy="48" r="38" fill="#2b4868"/>
       <path d="M48 10 A38 38 0 0 1 86 48 L48 86 Z" fill="#ffad01"/>
@@ -1589,7 +1753,7 @@
   "name": "Davide Morabito — Videomaker",
   "description": "Videomaker freelance a Milano dal 2011. Produzione video professionale per social, advertising ed eventi. Riprese multicamera, drone certificato, montaggio.",
   "url": "https://davidemorabito.com",
-  "email": "morabito1992@gmail.com",
+  "email": "info@davidemorabito.com",
   "image": "https://davidemorabito.com/media/og-cover.jpg",
   "logo": "https://davidemorabito.com/media/logo.png",
   "priceRange": "€€€",
@@ -1697,6 +1861,12 @@
     w.addEventListener('click', open);
     w.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
   });
+  document.querySelectorAll('.proj-watch-video').forEach((btn)=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      openModal(btn.getAttribute('data-video'), btn.getAttribute('data-title'));
+    });
+  });
   modalClose.addEventListener('click', closeModal);
   modal.addEventListener('click',(e)=>{ if(e.target===modal) closeModal(); });
   document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ closeModal(); setMenu(false); } });
@@ -1709,21 +1879,26 @@
     btn.disabled = true;
     btn.textContent = 'Invio…';
     const data = new FormData(form);
-    fetch('/', {
+    fetch('https://api.web3forms.com/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(data).toString()
+      headers: { 'Accept': 'application/json' },
+      body: data
     })
-    .then(() => {
-      success.classList.add('show');
-      form.reset();
+    .then((res) => res.json())
+    .then((json) => {
       btn.disabled = false;
       btn.textContent = 'Invia richiesta';
+      if (json.success) {
+        success.classList.add('show');
+        form.reset();
+      } else {
+        alert('Si è verificato un errore durante l\'invio. Riprova, oppure scrivimi direttamente a info@davidemorabito.com');
+      }
     })
     .catch(() => {
       btn.disabled = false;
       btn.textContent = 'Invia richiesta';
-      alert('Si è verificato un errore durante l\'invio. Riprova, oppure scrivimi direttamente a morabito1992@gmail.com');
+      alert('Si è verificato un errore durante l\'invio. Riprova, oppure scrivimi direttamente a info@davidemorabito.com');
     });
   });
 
@@ -2093,5 +2268,75 @@
 })();
 </script>
 
+<!-- ===== Slideshow recensioni Google ===== -->
+<script>
+(function(){
+  var GREV = [
+    { name:"Kevin Tripodi", meta:"Local Guide · 47 recensioni", stars:5, text:"Se cercate un videomaker che trasformi i vostri eventi/corti/tutto in un film da Oscar (o quasi), è la persona giusta. Professionale, creativo e con un tocco di follia, cattura i momenti più importanti e belli con maestria. Preparatevi a rivedere i suoi video all'infinito!😍" },
+    { name:"Sebastian Marabello", meta:"Local Guide · 305 recensioni", stars:5, text:"Ho avuto il piacere di collaborare con Davide Morabito, e non posso che consigliarlo a chiunque cerchi un videomaker talentuoso e professionale. La sua capacità di catturare ogni dettaglio con creatività e precisione è davvero impressionante. Davide non si limita a realizzare semplici video, ma racconta storie attraverso le immagini, creando contenuti emozionanti e di grande impatto visivo." },
+    { name:"Antonio De Maria", meta:"7 recensioni", stars:5, text:"Collaboriamo da 13 anni: non parliamo di un semplice videomaker, ma di un vero narratore visivo. Cura impeccabile per composizione, luce e montaggio, con contenuti che raccontano storie in modo coinvolgente e autentico. Disponibile, creativo e sempre pronto a trovare soluzioni." },
+    { name:"Francesco Olivieri", meta:"2 recensioni", stars:5, text:"Davide è un professionista serio ed esperto. E anche una bella persona (che è una cosa che non guarda mai). E soprattutto sa quello che fa e ha buon gusto nello scegliere inquadrature e luce. Puoi affidargli un lavoro e stare sicuro che ti tirerà fuori sempre un risultato top!" },
+    { name:"Federica Pappagallo", meta:"3 recensioni", stars:5, text:"Esperienza molto positiva. Lo consiglio per foto e videoclip. Persona molto gentile e disponibile oltre che serio e professionale, ottimo rapporto qualità prezzo, esperienza nel complesso top." },
+    { name:"Giuseppe Di Guglielmo", meta:"1 recensione", stars:5, text:"Super professionale. Molto bravo, attento ai dettagli, ascolta e realizza tutte le idee che hai in mente… ci sa tanto fare." },
+    { name:"Spery Sav", meta:"2 recensioni", stars:5, text:"Professionale, attento ai dettagli e capace di adattarsi a ogni situazione e imprevisto, oltre a essere gentile ed educato!" },
+    { name:"Claudio Manca", meta:"3 recensioni", stars:5, text:"Professionale, competente e affidabile." },
+    { name:"Federica Lisci", meta:"8 recensioni", stars:5, text:"Super professionale e creativo." },
+    { name:"Aries89", meta:"7 recensioni", stars:5, text:"Professionista di alti livelli! Stra consiglio, super top!" },
+    { name:"SteamPunch", meta:"11 recensioni", stars:5, text:"Top videomaker a Milano! Riprese aeree super dinamiche ✈️" }
+  ];
+
+  var track = document.getElementById('grevTrack');
+  var dotsBox = document.getElementById('grevDots');
+  if(!track || GREV.length === 0) return;
+
+  // ordine casuale
+  for(var i=GREV.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=GREV[i]; GREV[i]=GREV[j]; GREV[j]=t; }
+
+  function stars(n){ var s=''; for(var k=0;k<5;k++){ s += k<n ? '\u2605' : '\u2606'; } return s; }
+  function esc(x){ return (x||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  GREV.forEach(function(r){
+    var av = r.photo ? '<span class="grev-av"><img src="'+r.photo+'" alt="'+esc(r.name)+'"></span>'
+                     : '<span class="grev-av">'+esc((r.name||'?').charAt(0).toUpperCase())+'</span>';
+    var meta = r.meta ? '<div class="grev-meta">'+esc(r.meta)+'</div>' : '';
+    var slide = document.createElement('div');
+    slide.className = 'grev-slide';
+    slide.innerHTML = '<div class="grev-card"><div class="grev-top">'+av+
+      '<div><div class="grev-name">'+esc(r.name)+'</div>'+meta+
+      '<div class="grev-st">'+stars(r.stars||5)+'</div></div></div>'+
+      '<p class="grev-txt">'+esc(r.text)+'</p></div>';
+    track.appendChild(slide);
+  });
+
+  var idx=0, n=GREV.length, timer=null;
+  for(var d=0; d<n; d++){
+    var b=document.createElement('button'); b.className='grev-dot'+(d===0?' on':'');
+    (function(k){ b.addEventListener('click', function(){ go(k); reset(); }); })(d);
+    dotsBox.appendChild(b);
+  }
+  var dots = dotsBox.querySelectorAll('.grev-dot');
+  var viewport = track.parentElement;
+  function setHeight(){
+    var slide = track.children[idx];
+    if(slide) viewport.style.height = slide.offsetHeight + 'px';
+  }
+  function go(k){ idx=(k+n)%n; track.style.transform='translateX(-'+(idx*100)+'%)';
+    setHeight();
+    dots.forEach(function(el,ii){ el.classList.toggle('on', ii===idx); }); }
+  function next(){ go(idx+1); }
+  function prev(){ go(idx-1); }
+  function reset(){ clearInterval(timer); timer=setInterval(next, 6000); }
+
+  var pn=document.getElementById('grevNext'), pp=document.getElementById('grevPrev');
+  if(pn) pn.addEventListener('click', function(){ next(); reset(); });
+  if(pp) pp.addEventListener('click', function(){ prev(); reset(); });
+  // altezza iniziale (dopo il caricamento dei font, per misura corretta)
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(setHeight); }
+  window.addEventListener('load', setHeight);
+  setTimeout(setHeight, 100);
+  window.addEventListener('resize', setHeight);
+  reset();
+})();
+</script>
 </body>
 </html>
