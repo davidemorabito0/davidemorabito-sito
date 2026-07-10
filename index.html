@@ -267,7 +267,8 @@
   /* CLIENTS */
   .clients { text-align:center; }
   .clients-label { font-family:'Jost',sans-serif; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#6a7686; margin-bottom:44px; font-weight:500; }
-  .clients-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:30px 20px; align-items:center; }
+  .clients-grid { display:grid; grid-template-columns:repeat(10,1fr); gap:30px 20px; align-items:center; }
+  @media (max-width:1400px) { .clients-grid { grid-template-columns:repeat(6,1fr); } }
   @media (max-width:1100px) { .clients-grid { grid-template-columns:repeat(4,1fr); } }
   @media (max-width:860px) { .clients-grid { grid-template-columns:repeat(3,1fr); gap:24px 16px; } }
   @media (max-width:480px) { .clients-grid { grid-template-columns:repeat(2,1fr); } }
@@ -285,9 +286,8 @@
   .client:hover .client-logo:not(.has-swap):not(.tile) img { opacity:1; }
 
   /* Loghi CON versione a colori: a COLORI di default, GRIGI al passare del mouse */
-  .client-logo.has-swap .mono { opacity:0; }
-  .client-logo.has-swap .color { position:absolute; inset:0; margin:auto; max-width:100%; max-height:100%; opacity:1; filter:none; transition:filter .35s ease; }
-  .client:hover .client-logo.has-swap .color { filter:grayscale(100%) brightness(.95); }
+  .client-logo.has-swap img { transition:filter .35s ease; filter:none; }
+  .client:hover .client-logo.has-swap img { filter:grayscale(100%) brightness(.95); }
   /* Tile: loghi con box colorato proprio (CineFacts, Dolly Noire, JazzMi, ecc.) — mostrati integri */
   .client-logo.tile { max-width:150px; }
   .client-logo.tile img { filter:none; opacity:1; }
@@ -959,7 +959,7 @@
 <!-- CLIENTI (cream) -->
 <div class="bg-cream">
   <section class="section clients">
-    <div class="clients-label reveal">Hanno scelto di lavorare con me</div>
+    <div class="clients-label reveal">Ho lavorato e collaborato con</div>
     <div class="clients-grid reveal">
       <!-- Creator: card-ritratto con foto rotonda -->
       <div class="client">
@@ -968,35 +968,36 @@
       </div>
 
       <!-- Loghi clienti (30) — brand forti distribuiti; tile = box colorato proprio -->
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/netflix.png" alt="Netflix" loading="lazy"><img class="color" src="media/clienti/netflix.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/chitarra-facile.png" alt="Chitarra Facile" loading="lazy"><img class="color" src="media/clienti/chitarra-facile-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/esselunga.png" alt="Esselunga" loading="lazy"><img class="color" src="media/clienti/esselunga-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/cydonia.png" alt="Cydonia" loading="lazy"><img class="color" src="media/clienti/cydonia.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/pianocity-milano.png" alt="PianoCity Milano" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/redbull.png" alt="Red Bull" loading="lazy"><img class="color" src="media/clienti/redbull.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/altavia-italia.png" alt="Altavia Italia" loading="lazy"><img class="color" src="media/clienti/altavia-italia-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo tile"><img src="media/clienti/jazzmi.png" alt="JazzMi" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/dinobros.png" alt="DinoBros" loading="lazy"><img class="color" src="media/clienti/dinobros-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/sony-pictures.png" alt="Sony Pictures" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/wepromo.png" alt="WePromo" loading="lazy"><img class="color" src="media/clienti/wepromo-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo tile"><img src="media/clienti/lomography.png" alt="Lomography" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/pvk.png" alt="PVK" loading="lazy"><img class="color" src="media/clienti/pvk-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/milano-design-week.png" alt="Milano Design Week" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/pixelart.png" alt="PixelArt" loading="lazy"><img class="color" src="media/clienti/pixelart-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo tile"><img src="media/clienti/slim-dogs.png" alt="Slim Dogs" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/f-productions.png" alt="F-Productions" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo tile"><img src="media/clienti/milan-games-week.png" alt="Milan Games Week" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/mustard.png" alt="Mustard" loading="lazy"><img class="color" src="media/clienti/mustard-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+
+      <div class="client"><div class="client-logo"><img src="media/clienti/the-best-blend.png" alt="The Best Blend" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/chitarra-facile-color.png" alt="Chitarra Facile" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo tile"><img src="media/clienti/dolly-noire.png" alt="Dolly Noire" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/cydonia.png" alt="Cydonia" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/esselunga-color.png" alt="Esselunga" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/altavia-italia-color.png" alt="Altavia Italia" loading="lazy"></div></div>
       <div class="client"><div class="client-logo"><img src="media/clienti/alberto-urso.png" alt="Alberto Urso" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo tile"><img src="media/clienti/lomography.png" alt="Lomography" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/mustard-color.png" alt="Mustard" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/pvk-color.png" alt="PVK" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo tile"><img src="media/clienti/milan-games-week.png" alt="Milan Games Week" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/carmagheddon.png" alt="Carmagheddon" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/rb-spettacoli.png" alt="RB Spettacoli" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/24-7-production-color.png" alt="24/7 Production" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo tile"><img src="media/clienti/slim-dogs.png" alt="Slim Dogs" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/unaragazza-cinema.png" alt="Una Ragazza per il Cinema" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/redbull.png" alt="Red Bull" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/netflix.png" alt="Netflix" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/milano-design-week.png" alt="Milano Design Week" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/pixelart-color.png" alt="PixelArt" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/dinobros-color.png" alt="DinoBros" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/sony-pictures.png" alt="Sony Pictures" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/wepromo-color.png" alt="WePromo" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/pianocity-milano.png" alt="PianoCity Milano" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img src="media/clienti/f-productions.png" alt="F-Productions" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo tile"><img src="media/clienti/jazzmi.png" alt="JazzMi" loading="lazy"></div></div>
       <div class="client"><div class="client-logo"><img src="media/clienti/the-pepegas.png" alt="The Pepegas" loading="lazy"></div></div>
       <div class="client"><div class="client-logo tile"><img src="media/clienti/cinefacts.png" alt="CineFacts" loading="lazy"></div></div>
       <div class="client"><div class="client-logo"><img src="media/clienti/fusina-lab.png" alt="Fusina Lab" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/carmagheddon.png" alt="Carmagheddon" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/rb-spettacoli.png" alt="RB Spettacoli" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo tile"><img src="media/clienti/dolly-noire.png" alt="Dolly Noire" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/the-best-blend.png" alt="The Best Blend" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/unaragazza-cinema.png" alt="Una Ragazza per il Cinema" loading="lazy"><img class="color" src="media/clienti/unaragazza-cinema.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/24-7-production.png" alt="24/7 Production" loading="lazy"><img class="color" src="media/clienti/24-7-production-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
     </div>
   </section>
 </div>
