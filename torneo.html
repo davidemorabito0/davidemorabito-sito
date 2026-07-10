@@ -18,6 +18,7 @@
   --rosso:#A33B2E;
 }
 *{margin:0;padding:0;box-sizing:border-box}
+html{font-size:22px}
 body{
   font-family:'Alegreya',serif;
   background:var(--palude);
@@ -51,7 +52,7 @@ h1{
 }
 .sottotitolo{
   text-align:center;font-style:italic;color:var(--fango);
-  opacity:.75;margin:6px 0 4px;font-size:1.05rem;
+  opacity:.75;margin:6px 0 4px;font-size:1.2rem;
 }
 .cipolla-divider{
   display:flex;align-items:center;gap:12px;margin:18px 0 22px;
@@ -63,20 +64,20 @@ h1{
 .cipolla-divider svg{flex:none}
 h2{
   font-family:'Grenze Gotisch',serif;font-weight:700;
-  font-size:1.6rem;color:var(--palude);margin-bottom:12px;text-align:center;
+  font-size:1.85rem;color:var(--palude);margin-bottom:12px;text-align:center;
 }
-.nota{font-size:.95rem;font-style:italic;opacity:.7;text-align:center;margin-bottom:16px}
+.nota{font-size:1.1rem;font-style:italic;opacity:.7;text-align:center;margin-bottom:16px}
 input[type=text],input[type=number]{
-  font-family:'Alegreya',serif;font-size:1.05rem;
-  padding:10px 14px;border:2px solid var(--ogre);
+  font-family:'Alegreya',serif;font-size:1.2rem;
+  padding:11px 14px;border:2px solid var(--ogre);
   border-radius:10px;background:#FDFAF0;color:var(--fango);
   width:100%;
 }
 input:focus{outline:3px solid rgba(122,155,62,.4)}
 .riga-agg{display:flex;gap:10px;margin-bottom:16px}
 button{
-  font-family:'Grenze Gotisch',serif;font-weight:700;font-size:1.15rem;
-  padding:10px 22px;border:none;border-radius:10px;cursor:pointer;
+  font-family:'Grenze Gotisch',serif;font-weight:700;font-size:1.3rem;
+  padding:11px 22px;border:none;border-radius:10px;cursor:pointer;
   background:var(--ogre);color:#FDFAF0;
   box-shadow:0 3px 0 var(--palude);
   transition:transform .08s, box-shadow .08s;
@@ -86,54 +87,66 @@ button:hover{filter:brightness(1.07)}
 button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--palude)}
 button:disabled{opacity:.45;cursor:not-allowed}
 button.secondario{background:var(--fango);box-shadow:0 3px 0 #2c1f13}
-button.grande{width:100%;font-size:1.4rem;padding:14px;margin-top:18px}
+button.grande{width:100%;font-size:1.6rem;padding:15px;margin-top:18px}
 .lista-giocatori{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .chip{
   display:inline-flex;align-items:center;gap:8px;
   background:var(--pergamena-scura);border:2px solid var(--ogre);
-  border-radius:999px;padding:6px 8px 6px 14px;font-weight:500;font-size:1rem;
+  border-radius:999px;padding:7px 9px 7px 15px;font-weight:500;font-size:1.15rem;
 }
 .chip button{
-  background:var(--rosso);box-shadow:none;padding:0;width:24px;height:24px;
-  border-radius:50%;font-size:.9rem;line-height:1;font-family:'Alegreya',serif;
+  background:var(--rosso);box-shadow:none;padding:0;width:27px;height:27px;
+  border-radius:50%;font-size:1rem;line-height:1;font-family:'Alegreya',serif;
 }
 .contatore{
-  text-align:center;font-family:'Grenze Gotisch',serif;font-size:1.1rem;
+  text-align:center;font-family:'Grenze Gotisch',serif;font-size:1.3rem;
   color:var(--palude);margin-bottom:10px;
 }
 .tabella-punti{width:100%;border-collapse:collapse;margin-top:8px}
-.tabella-punti td{padding:7px 6px;border-bottom:1px dashed rgba(74,52,33,.3)}
-.tabella-punti td:first-child{font-weight:500;font-size:1.05rem}
-.tabella-punti input{max-width:110px;text-align:center;padding:7px 8px;margin-left:auto;display:block}
+.tabella-punti td{padding:9px 6px;border-bottom:1px dashed rgba(74,52,33,.3)}
+.tabella-punti td:first-child{font-weight:500;font-size:1.25rem}
+.tabella-punti input{max-width:120px;text-align:center;padding:8px;margin-left:auto;display:block;font-size:1.25rem}
 .progresso{
   font-family:'Grenze Gotisch',serif;text-align:center;
   color:var(--pergamena);background:var(--fango);
-  border-radius:999px;padding:6px 18px;display:inline-block;
-  margin:0 auto 14px;font-size:1.05rem;
+  border-radius:999px;padding:7px 20px;display:inline-block;
+  margin:0 auto 14px;font-size:1.2rem;
 }
 .centro{text-align:center}
 .banner-ripresa{
   background:var(--pergamena-scura);border:2px dashed var(--ogre);
   border-radius:12px;padding:14px;margin-bottom:18px;text-align:center;
 }
-.banner-ripresa p{margin-bottom:10px;font-style:italic}
+.banner-ripresa p{margin-bottom:10px;font-style:italic;font-size:1.1rem}
 .banner-ripresa .riga-agg{justify-content:center}
 .barra-salvataggio{
   display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;
-  margin:2px 0 18px;padding-bottom:14px;border-bottom:1px dashed rgba(74,52,33,.3);
+}
+.pannello-salvataggio{
+  max-width:720px;margin:22px auto 0;padding:0 16px;
+}
+.pannello-salvataggio summary{
+  cursor:pointer;text-align:center;color:var(--pergamena);opacity:.6;
+  font-size:.95rem;font-style:italic;list-style:none;padding:8px;
+}
+.pannello-salvataggio summary::-webkit-details-marker{display:none}
+.pannello-salvataggio[open] summary{opacity:.85}
+.pannello-salvataggio .barra-salvataggio{
+  background:rgba(243,235,211,.12);border:1px dashed rgba(243,235,211,.35);
+  border-radius:12px;padding:16px;margin-top:6px;
 }
 .mini{
-  font-family:'Alegreya',serif;font-weight:700;font-size:.85rem;
-  padding:7px 12px;box-shadow:0 2px 0 var(--palude);
+  font-family:'Alegreya',serif;font-weight:700;font-size:1rem;
+  padding:8px 13px;box-shadow:0 2px 0 var(--palude);
 }
 .mini.secondario{box-shadow:0 2px 0 #2c1f13}
 .stato-file{
-  width:100%;text-align:center;font-size:.85rem;font-style:italic;
-  color:var(--palude);opacity:.85;min-height:1.2em;
+  width:100%;text-align:center;font-size:1rem;font-style:italic;
+  color:var(--pergamena);opacity:.85;min-height:1.2em;
 }
 .nav-prove{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px}
-.nav-prove button{padding:6px 14px;font-size:1rem}
-.nav-prove button.nav-freccia{padding:6px 12px}
+.nav-prove button{padding:7px 16px;font-size:1.1rem}
+.nav-prove button.nav-freccia{padding:7px 14px}
 /* CLASSIFICA */
 .podio-vincitore{
   background:linear-gradient(160deg,#F8E9B8,#EAD189);
@@ -142,12 +155,12 @@ button.grande{width:100%;font-size:1.4rem;padding:14px;margin-top:18px}
   position:relative;
   animation:apparire .6s ease both;
 }
-.corona{font-size:2.6rem;display:block;margin-bottom:4px;animation:fluttua 2.5s ease-in-out infinite}
+.corona{font-size:3rem;display:block;margin-bottom:4px;animation:fluttua 2.5s ease-in-out infinite}
 @keyframes fluttua{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-6px) rotate(4deg)}}
 @keyframes apparire{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.podio-vincitore .nome{font-family:'Grenze Gotisch',serif;font-weight:900;font-size:2rem;color:var(--fango)}
-.podio-vincitore .titolo{font-style:italic;color:#7a5c1e;font-size:1rem}
-.podio-vincitore .punti{font-family:'Grenze Gotisch',serif;font-size:1.5rem;color:var(--palude);margin-top:4px}
+.podio-vincitore .nome{font-family:'Grenze Gotisch',serif;font-weight:900;font-size:2.5rem;color:var(--fango)}
+.podio-vincitore .titolo{font-family:'Grenze Gotisch',serif;font-weight:700;font-style:italic;color:#7a5c1e;font-size:2rem;letter-spacing:.5px}
+.podio-vincitore .punti{font-family:'Grenze Gotisch',serif;font-size:1.8rem;color:var(--palude);margin-top:4px}
 .podio-secondario{display:flex;gap:10px;margin-bottom:18px}
 .medaglia-card{
   flex:1;text-align:center;border-radius:12px;padding:14px 8px 12px;
@@ -155,26 +168,26 @@ button.grande{width:100%;font-size:1.4rem;padding:14px;margin-top:18px}
 }
 .medaglia-card.argento{background:linear-gradient(160deg,#EDEDED,#C9CDD3);border:2px solid #9AA1AB}
 .medaglia-card.bronzo{background:linear-gradient(160deg,#E9C6A5,#C98A54);border:2px solid #9C6631}
-.medaglia-card .ico{font-size:1.6rem;display:block}
-.medaglia-card .nome{font-family:'Grenze Gotisch',serif;font-weight:700;font-size:1.15rem;color:var(--fango);margin-top:2px}
-.medaglia-card .punti{font-family:'Grenze Gotisch',serif;font-size:1.05rem;color:var(--palude)}
-.azioni-classifica{display:flex;gap:10px;margin-top:8px}
-.azioni-classifica button{flex:1}
+.medaglia-card .ico{font-size:1.9rem;display:block}
+.medaglia-card .nome{font-family:'Grenze Gotisch',serif;font-weight:700;font-size:1.35rem;color:var(--fango);margin-top:2px}
+.medaglia-card .punti{font-family:'Grenze Gotisch',serif;font-size:1.2rem;color:var(--palude)}
+.azioni-classifica{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.azioni-classifica button{flex:1;min-width:150px;font-size:1.05rem;padding:10px 12px}
 .riga-classifica{
   display:flex;align-items:center;gap:12px;
   background:var(--pergamena-scura);border:2px solid rgba(74,52,33,.25);
-  border-radius:10px;padding:10px 14px;margin-bottom:8px;
+  border-radius:10px;padding:11px 14px;margin-bottom:8px;
   animation:apparire .5s ease both;
 }
 .riga-classifica .pos{
-  font-family:'Grenze Gotisch',serif;font-weight:700;font-size:1.2rem;
-  width:34px;height:34px;border-radius:50%;background:var(--ogre);
+  font-family:'Grenze Gotisch',serif;font-weight:700;font-size:1.35rem;
+  width:38px;height:38px;border-radius:50%;background:var(--ogre);
   color:#FDFAF0;display:flex;align-items:center;justify-content:center;flex:none;
 }
-.riga-classifica .nome{flex:1;font-weight:500;font-size:1.1rem}
-.riga-classifica .punti{font-family:'Grenze Gotisch',serif;font-weight:700;font-size:1.25rem;color:var(--palude)}
+.riga-classifica .nome{flex:1;font-weight:500;font-size:1.3rem}
+.riga-classifica .punti{font-family:'Grenze Gotisch',serif;font-weight:700;font-size:1.45rem;color:var(--palude)}
 .nascosto{display:none}
-.errore{color:var(--rosso);text-align:center;font-weight:500;margin-top:8px;min-height:1.4em}
+.errore{color:var(--rosso);text-align:center;font-weight:500;margin-top:8px;min-height:1.4em;font-size:1.05rem}
 .coriandoli{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden}
 .coriandolo{
   position:absolute;top:-20px;
@@ -234,16 +247,6 @@ footer p .top{color:var(--oro)}
     </svg>
   </div>
 
-  <div class="barra-salvataggio">
-    <button class="mini" id="btn-collega-file">📄 Salvataggio automatico su file</button>
-    <button class="mini secondario" id="btn-esporta-json">⬇️ Esporta backup</button>
-    <label class="mini secondario" style="cursor:pointer;display:inline-flex;align-items:center">
-      ⬆️ Importa backup
-      <input type="file" id="input-importa" accept="application/json" style="display:none">
-    </label>
-    <span class="stato-file" id="stato-file"></span>
-  </div>
-
   <!-- FASE 1: GIOCATORI -->
   <section id="fase-giocatori">
     <div class="banner-ripresa nascosto" id="banner-ripresa">
@@ -300,7 +303,8 @@ footer p .top{color:var(--oro)}
     <div id="lista-classifica"></div>
     <div class="azioni-classifica">
       <button class="secondario" id="btn-modifica">✏️ Modifica punteggi</button>
-      <button id="btn-esporta">📥 Scarica risultati</button>
+      <button id="btn-esporta">🖼️ Scarica immagine</button>
+      <button id="btn-esporta-pdf">📕 Scarica PDF</button>
     </div>
     <button class="grande secondario" id="btn-nuovo">Nuovo torneo</button>
   </section>
@@ -310,6 +314,20 @@ footer p .top{color:var(--oro)}
 
 <footer><p>E VISSERO TUTTI FELICI E CONTENTI,<br>MA IL <span class="top">VINCITORE</span> ANCORA DI PIÙ</p></footer>
 
+<details class="pannello-salvataggio">
+  <summary>⚙️ Opzioni di salvataggio</summary>
+  <div class="barra-salvataggio">
+    <button class="mini" id="btn-collega-file">📄 Salvataggio automatico su file</button>
+    <button class="mini secondario" id="btn-esporta-json">⬇️ Esporta backup</button>
+    <label class="mini secondario" style="cursor:pointer;display:inline-flex;align-items:center">
+      ⬆️ Importa backup
+      <input type="file" id="input-importa" accept="application/json" style="display:none">
+    </label>
+    <span class="stato-file" id="stato-file"></span>
+  </div>
+</details>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.3/jspdf.umd.min.js"></script>
 <script>
 (function(){
   const $=id=>document.getElementById(id);
@@ -553,71 +571,188 @@ footer p .top{color:var(--oro)}
     $('input-numgiochi').value='';aggiornaLista();mostra('fase-giocatori');
   };
 
-  // ---- ESPORTA RISULTATI COME IMMAGINE ----
+  // ---- ESPORTA RISULTATI: CANVAS TEMATICO CONDIVISO (usato per PNG e PDF) ----
+  const PALETTE_CORIANDOLI=['#7A9B3E','#A8C46B','#3E5622','#C7DE9C','#5C7C2E','#C9962E'];
+  function disegnaCoriandoliCanvas(ctx,larghezza,altezza,quantita,seme){
+    // generatore pseudo-casuale deterministico (seme fisso) così l'immagine non "salta" tra ridisegni
+    let s=seme;
+    const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};
+    for(let i=0;i<quantita;i++){
+      const x=rnd()*larghezza, y=rnd()*altezza;
+      const dim=5+rnd()*8;
+      const colore=PALETTE_CORIANDOLI[Math.floor(rnd()*PALETTE_CORIANDOLI.length)];
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(rnd()*Math.PI*2);
+      ctx.globalAlpha=0.45+rnd()*0.4;
+      ctx.fillStyle=colore;
+      if(rnd()>0.5){ ctx.fillRect(-dim/2,-dim/3,dim,dim*0.65); }
+      else{ ctx.beginPath();ctx.ellipse(0,0,dim/2,dim/3,0,0,Math.PI*2);ctx.fill(); }
+      ctx.restore();
+    }
+    ctx.globalAlpha=1;
+  }
+  function disegnaBoxArrotondato(ctx,x,y,w,h,r,fill){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+    ctx.fillStyle=fill;ctx.fill();
+    return ctx;
+  }
+  async function costruisciCanvasClassifica(scala){
+    try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(e){}
+    const n=ultimaClassifica.length;
+    const L=880; // larghezza logica
+    const extra=Math.max(0,n-3);
+    const H=520+extra*52; // altezza logica dinamica
+    const cv=$('canvas-export');
+    cv.width=L*scala;cv.height=H*scala;
+    const ctx=cv.getContext('2d');
+    ctx.scale(scala,scala);
+
+    // sfondo pergamena
+    const bg=ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'#F3EBD3');bg.addColorStop(1,'#E4D7B4');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,L,H);
+
+    // coriandoli in festa, sparsi su tutto il foglio (dietro ai contenuti)
+    disegnaCoriandoliCanvas(ctx,L,H,70,12345);
+
+    // cornice
+    ctx.strokeStyle='#4A3421';ctx.lineWidth=7;ctx.strokeRect(4,4,L-8,H-8);
+    ctx.strokeStyle='rgba(74,52,33,.4)';ctx.lineWidth=1.5;ctx.setLineDash([7,6]);
+    ctx.strokeRect(18,18,L-36,H-36);ctx.setLineDash([]);
+
+    // titolo
+    ctx.textAlign='center';
+    ctx.fillStyle='#3E5622';
+    ctx.font='700 44px "Grenze Gotisch", serif';
+    ctx.fillText('Il Torneo della Palude',L/2,72);
+    ctx.font='italic 20px Alegreya, serif';
+    ctx.fillStyle='#4A3421';ctx.globalAlpha=.8;
+    ctx.fillText('La Classifica del Regno',L/2,100);
+    ctx.globalAlpha=1;
+
+    // divisore a cipolla stilizzato
+    ctx.strokeStyle='#7A9B3E';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(70,122);ctx.lineTo(L/2-24,122);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(L/2+24,122);ctx.lineTo(L-70,122);ctx.stroke();
+    disegnaMedaglione(ctx,L/2,122,9,'#A8C46B','#7A9B3E');
+
+    // box vincitore (oro)
+    const wBox=L-120, xBox=60, yBox=146, hBox=150;
+    const gradOro=ctx.createLinearGradient(xBox,yBox,xBox+wBox,yBox+hBox);
+    gradOro.addColorStop(0,'#F8E9B8');gradOro.addColorStop(1,'#EAD189');
+    disegnaBoxArrotondato(ctx,xBox,yBox,wBox,hBox,16,gradOro);
+    ctx.lineWidth=3;ctx.strokeStyle='#C9962E';ctx.stroke();
+
+    ctx.font='50px serif';
+    ctx.fillText('👑',L/2,yBox+56);
+    ctx.font='700 24px "Grenze Gotisch", serif';
+    ctx.fillStyle='#7a5c1e';ctx.globalAlpha=.9;
+    ctx.fillText('Sovrano della Palude',L/2,yBox+84);
+    ctx.globalAlpha=1;
+    ctx.font='900 38px "Grenze Gotisch", serif';
+    ctx.fillStyle='#4A3421';
+    ctx.fillText(ultimaClassifica[0].nome,L/2,yBox+122);
+    ctx.font='700 24px "Grenze Gotisch", serif';
+    ctx.fillStyle='#3E5622';
+    ctx.fillText(ultimaClassifica[0].tot+' punti',L/2,yBox+146);
+
+    // box argento/bronzo affiancati
+    let yCursor=yBox+hBox+24;
+    const medaglie=[
+      {ico:'🥈',c1:'#EDEDED',c2:'#C9CDD3',bordo:'#9AA1AB'},
+      {ico:'🥉',c1:'#E9C6A5',c2:'#C98A54',bordo:'#9C6631'}
+    ];
+    const hMed=100, gap=16, wMed=(wBox-gap)/2;
+    for(let i=0;i<2;i++){
+      if(!ultimaClassifica[i+1])continue;
+      const x=xBox+i*(wMed+gap);
+      const grad=ctx.createLinearGradient(x,yCursor,x+wMed,yCursor+hMed);
+      grad.addColorStop(0,medaglie[i].c1);grad.addColorStop(1,medaglie[i].c2);
+      disegnaBoxArrotondato(ctx,x,yCursor,wMed,hMed,14,grad);
+      ctx.lineWidth=2.5;ctx.strokeStyle=medaglie[i].bordo;ctx.stroke();
+      ctx.font='32px serif';ctx.fillStyle='#000';
+      ctx.fillText(medaglie[i].ico,x+wMed/2,yCursor+40);
+      ctx.font='700 21px "Grenze Gotisch", serif';ctx.fillStyle='#4A3421';
+      ctx.fillText(ultimaClassifica[i+1].nome,x+wMed/2,yCursor+68);
+      ctx.font='600 18px "Grenze Gotisch", serif';ctx.fillStyle='#3E5622';
+      ctx.fillText(ultimaClassifica[i+1].tot+' punti',x+wMed/2,yCursor+90);
+    }
+    yCursor+=hMed+28;
+
+    // resto della classifica dal 4° posto
+    ctx.textAlign='left';
+    for(let i=3;i<n;i++){
+      const g=ultimaClassifica[i];
+      const yRiga=yCursor+(i-3)*48;
+      disegnaBoxArrotondato(ctx,xBox,yRiga-30,wBox,40,10,'rgba(228,215,180,.65)');
+      disegnaMedaglione(ctx,xBox+26,yRiga-10,15,'#A8C46B','#7A9B3E');
+      ctx.textAlign='center';
+      ctx.font='700 16px "Grenze Gotisch", serif';ctx.fillStyle='#FDFAF0';
+      ctx.fillText(String(i+1),xBox+26,yRiga-5);
+      ctx.textAlign='left';
+      ctx.font='500 21px Alegreya, serif';ctx.fillStyle='#3E5622';
+      ctx.fillText(g.nome,xBox+54,yRiga-3);
+      ctx.textAlign='right';
+      ctx.font='700 21px "Grenze Gotisch", serif';ctx.fillStyle='#4A3421';
+      ctx.fillText(String(g.tot),xBox+wBox-14,yRiga-3);
+      ctx.textAlign='left';
+    }
+
+    // footer
+    ctx.textAlign='center';
+    ctx.fillStyle='#4A3421';
+    ctx.font='italic 17px Alegreya, serif';
+    ctx.fillText('E vissero tutti felici e contenti, ma il vincitore ancora di più',L/2,H-22);
+
+    return {canvas:cv,larghezza:L,altezza:H};
+  }
   function disegnaMedaglione(ctx,x,y,r,colore1,colore2){
     const grad=ctx.createLinearGradient(x-r,y-r,x+r,y+r);
     grad.addColorStop(0,colore1);grad.addColorStop(1,colore2);
     ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
-    ctx.lineWidth=3;ctx.strokeStyle='#4A3421';ctx.stroke();
+    ctx.lineWidth=2;ctx.strokeStyle='#4A3421';ctx.stroke();
   }
+
   async function scaricaImmagine(){
-    try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(e){}
-    const n=ultimaClassifica.length;
-    const altezza=340+Math.max(0,n-3)*40;
-    const cv=$('canvas-export');
-    cv.width=800;cv.height=altezza;
-    const ctx=cv.getContext('2d');
-
-    // sfondo pergamena
-    const bg=ctx.createLinearGradient(0,0,0,altezza);
-    bg.addColorStop(0,'#F3EBD3');bg.addColorStop(1,'#E4D7B4');
-    ctx.fillStyle=bg;ctx.fillRect(0,0,800,altezza);
-    ctx.strokeStyle='#4A3421';ctx.lineWidth=6;ctx.strokeRect(3,3,794,altezza-6);
-    ctx.strokeStyle='rgba(74,52,33,.35)';ctx.lineWidth=1;ctx.setLineDash([6,5]);
-    ctx.strokeRect(16,16,768,altezza-32);ctx.setLineDash([]);
-
-    ctx.textAlign='center';
-    ctx.fillStyle='#3E5622';
-    ctx.font='700 40px "Grenze Gotisch", serif';
-    ctx.fillText('Il Torneo della Palude',400,64);
-
-    ctx.font='44px serif';
-    ctx.fillText('👑',400,124);
-
-    ctx.fillStyle='#4A3421';
-    ctx.font='900 34px "Grenze Gotisch", serif';
-    ctx.fillText(ultimaClassifica[0].nome,400,168);
-    ctx.fillStyle='#3E5622';
-    ctx.font='700 24px "Grenze Gotisch", serif';
-    ctx.fillText(ultimaClassifica[0].tot+' punti',400,198);
-
-    let y=250;
-    ctx.textAlign='left';
-    for(let i=1;i<n;i++){
-      const g=ultimaClassifica[i];
-      ctx.fillStyle= i<3 ? '#4A3421' : '#3E5622';
-      ctx.font='600 22px "Grenze Gotisch", serif';
-      ctx.fillText((i+1)+'.',60,y);
-      ctx.font='500 22px Alegreya, serif';
-      ctx.fillText(g.nome,110,y);
-      ctx.textAlign='right';
-      ctx.font='700 22px "Grenze Gotisch", serif';
-      ctx.fillText(String(g.tot),740,y);
-      ctx.textAlign='left';
-      y+=38;
+    $('btn-esporta').disabled=true;
+    try{
+      const {canvas}=await costruisciCanvasClassifica(2);
+      const url=canvas.toDataURL('image/png');
+      const a=document.createElement('a');
+      a.href=url;a.download='classifica-torneo-palude.png';
+      document.body.appendChild(a);a.click();a.remove();
+    }finally{
+      $('btn-esporta').disabled=false;
     }
-
-    ctx.textAlign='center';
-    ctx.fillStyle='#4A3421';
-    ctx.font='italic 18px Alegreya, serif';
-    ctx.fillText('E vissero tutti felici e contenti, ma il vincitore ancora di più',400,altezza-24);
-
-    const url=cv.toDataURL('image/png');
-    const a=document.createElement('a');
-    a.href=url;a.download='classifica-torneo-palude.png';
-    document.body.appendChild(a);a.click();a.remove();
   }
   $('btn-esporta').onclick=scaricaImmagine;
+
+  async function scaricaPDF(){
+    const btn=$('btn-esporta-pdf');
+    const testoOriginale=btn.textContent;
+    btn.disabled=true;btn.textContent='⏳ Preparazione…';
+    try{
+      if(!window.jspdf){throw new Error('Libreria PDF non disponibile (controlla la connessione).');}
+      const {canvas,larghezza,altezza}=await costruisciCanvasClassifica(2.5);
+      const {jsPDF}=window.jspdf;
+      const doc=new jsPDF({unit:'pt',format:[larghezza,altezza],orientation:altezza>=larghezza?'portrait':'landscape'});
+      const img=canvas.toDataURL('image/jpeg',0.95);
+      doc.addImage(img,'JPEG',0,0,larghezza,altezza);
+      doc.save('classifica-torneo-palude.pdf');
+    }catch(e){
+      alert('Impossibile creare il PDF: '+e.message);
+    }finally{
+      btn.disabled=false;btn.textContent=testoOriginale;
+    }
+  }
+  $('btn-esporta-pdf').onclick=scaricaPDF;
 
   // Coriandoli in festa (mentre si mostra la classifica)
   const coriandoliBox=$('coriandoli');
