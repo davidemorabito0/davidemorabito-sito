@@ -641,19 +641,22 @@
   .az-client:hover img { opacity:.95; }
 
   /* Case study */
-  .az-case { max-width:1000px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid rgba(255,255,255,.1); border-radius:8px; overflow:hidden; background:#0d0d0d; }
-  @media (max-width:760px){ .az-case { grid-template-columns:1fr; } }
-  .az-case + .az-case { margin-top:28px; }
-  .az-case-media { position:relative; min-height:280px; background:#111; }
-  .az-case-media img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; }
+  /* Griglia case study: 2 colonne full-width, card verticali */
+  .az-cases { display:grid; grid-template-columns:repeat(2,1fr); gap:26px; }
+  @media (max-width:820px){ .az-cases { grid-template-columns:1fr; } }
+  .az-case { border:1px solid rgba(255,255,255,.1); border-radius:10px; overflow:hidden; background:#0d0d0d; display:flex; flex-direction:column; transition:border-color .35s, transform .35s; }
+  .az-case:hover { border-color:rgba(255,173,1,.4); transform:translateY(-4px); }
+  .az-case-media { position:relative; width:100%; aspect-ratio:16/10; background:#111; overflow:hidden; }
+  .az-case-media img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .6s ease; }
+  .az-case:hover .az-case-media img { transform:scale(1.04); }
   .az-case-media .az-case-ph { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#3a3630; background:repeating-linear-gradient(45deg,#0e0e0e,#0e0e0e 14px,#111 14px,#111 28px); }
-  .az-case-body { padding:42px 40px; display:flex; flex-direction:column; justify-content:center; }
-  @media (max-width:760px){ .az-case-body { padding:30px 26px; } }
-  .az-case-client { font-family:'Futura',sans-serif; font-size:clamp(20px,2.6vw,26px); font-weight:600; letter-spacing:.3px; color:var(--amber); margin-bottom:6px; line-height:1.15; }
-  .az-case-tag { font-family:'Jost',sans-serif; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:#7a7468; margin-bottom:18px; }
-  .az-case-body h3 { font-size:clamp(22px,3vw,30px); font-weight:400; margin-bottom:14px; color:#f5f2ea; letter-spacing:.3px; }
-  .az-case-body p { color:#a9a299; font-size:15px; line-height:1.7; margin-bottom:18px; }
-  .az-case-meta { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
+  .az-case-body { padding:30px 32px 34px; display:flex; flex-direction:column; flex:1; }
+  @media (max-width:760px){ .az-case-body { padding:28px 26px; } }
+  .az-case-client { font-family:'Futura',sans-serif; font-size:clamp(19px,2.2vw,24px); font-weight:600; letter-spacing:.3px; color:var(--amber); margin-bottom:5px; line-height:1.15; }
+  .az-case-tag { font-family:'Jost',sans-serif; font-size:10.5px; letter-spacing:3px; text-transform:uppercase; color:#7a7468; margin-bottom:16px; }
+  .az-case-body h3 { font-size:clamp(20px,2.5vw,25px); font-weight:400; margin-bottom:12px; color:#f5f2ea; letter-spacing:.2px; }
+  .az-case-body p { color:#a9a299; font-size:14.5px; line-height:1.7; margin-bottom:20px; flex:1; }
+  .az-case-meta { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:0; }
   .az-case-meta span { font-family:'Jost',sans-serif; font-size:11px; letter-spacing:1px; color:#cfc8bd; border:1px solid rgba(255,255,255,.16); padding:5px 12px; border-radius:20px; }
 
   /* Process */
@@ -773,38 +776,16 @@
     </section>
   </div>
 
-  <!-- CLIENTI (nero) -->
-  <div class="bg-black">
-    <section class="section" style="padding-top:10px; padding-bottom:90px;">
-      <div class="clients-label reveal" style="text-align:center; font-family:'Jost',sans-serif; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#7a7468; margin-bottom:42px;">Hanno lavorato con me</div>
-      <div class="az-clients reveal">
-        <div class="az-client"><img width="321" height="120" src="media/clienti/esselunga.webp" alt="Esselunga" loading="lazy"></div>
-        <div class="az-client"><img width="681" height="120" src="media/clienti/chitarra-facile.webp" alt="Chitarra Facile" loading="lazy"></div>
-        <div class="az-client"><img width="114" height="120" src="media/clienti/pianocity-milano.webp" alt="Piano City Milano" loading="lazy"></div>
-        <div class="az-client"><img width="245" height="120" src="media/clienti/wepromo.webp" alt="WePromo" loading="lazy"></div>
-        <div class="az-client"><img width="727" height="120" src="media/clienti/altavia-italia.webp" alt="Altavia Italia" loading="lazy"></div>
-        <div class="az-client"><img width="453" height="120" src="media/clienti/24-7-production.webp" alt="24/7 Production" loading="lazy"></div>
-        <div class="az-client"><img width="464" height="120" src="media/clienti/mustard.webp" alt="Mustard" loading="lazy"></div>
-        <div class="az-client"><img width="251" height="120" src="media/clienti/pvk.webp" alt="PVK" loading="lazy"></div>
-        <div class="az-client"><img width="507" height="120" src="media/clienti/pixelart.webp" alt="PixelArt" loading="lazy"></div>
-        <div class="az-client"><img width="800" height="120" src="media/clienti/dinobros.webp" alt="DinoBros" loading="lazy"></div>
-        <div class="az-client"><img width="118" height="120" src="media/clienti/f-productions.webp" alt="F-Productions" loading="lazy"></div>
-        <div class="az-client"><img width="765" height="120" src="media/clienti/fusina-lab.webp" alt="Fusina Lab" loading="lazy"></div>
-        <div class="az-client"><img width="616" height="120" src="media/clienti/rb-spettacoli.webp" alt="RB Spettacoli" loading="lazy"></div>
-        <div class="az-client"><img width="290" height="120" src="media/clienti/the-pepegas.webp" alt="The Pepegas" loading="lazy"></div>
-      </div>
-    </section>
-  </div>
-
   <!-- CASE STUDY (nero) -->
   <div class="bg-black">
     <section class="section" style="padding-top:0; padding-bottom:90px;">
       <div class="foto-cat-head reveal">
         <div class="fc-num">Progetti</div>
         <h2>Come lavoro con i brand</h2>
-        <p>Due esempi di collaborazioni recenti. Case study completi con dati e risultati disponibili su richiesta.</p>
+        <p>Una selezione di collaborazioni recenti. Case study completi con dati e risultati disponibili su richiesta.</p>
       </div>
 
+      <div class="az-cases">
       <div class="az-case reveal">
         <div class="az-case-media">
           <img width="1400" height="1050" src="media/aziende/esselunga-fidaty.webp" alt="Campagna catalogo Fidaty per Esselunga" loading="lazy">
@@ -920,6 +901,7 @@
           <p>Operatore video in produzioni multicamera per spettacoli teatrali, gestendo la ripresa da diverse angolazioni per garantire una copertura completa e professionale dell'evento dal vivo.</p>
           <div class="az-case-meta"><span>Multicamera</span><span>Live teatrale</span><span>Operatore video</span></div>
         </div>
+      </div>
       </div>
     </section>
   </div>

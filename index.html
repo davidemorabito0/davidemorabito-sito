@@ -2261,6 +2261,8 @@
   try{
     var params = new URLSearchParams(window.location.search);
     if(params.get('ref') !== 'card') return;
+    // conteggio arrivo dal biglietto da visita (evento GA4)
+    if(typeof gtag === 'function'){ gtag('event','arrivo_da_biglietto',{ metodo:'qr_biglietto' }); }
     if(sessionStorage.getItem('cwSeen') === '1') return;
     var ov = document.getElementById('cardWelcome');
     if(!ov) return;

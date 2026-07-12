@@ -56,7 +56,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="/pdf-export.js"></script>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   :root{
@@ -1455,66 +1456,40 @@
   }
 
   function exportToPDF(){
-    // Aggiorna data nel metadata PDF
-    const now = new Date();
-    const formattedDate = now.toLocaleDateString('it-IT', {
-      day:'2-digit', month:'long', year:'numeric'
-    }) + ' alle ' + now.toLocaleTimeString('it-IT', {
-      hour:'2-digit', minute:'2-digit'
+    function txt(id){ var e=document.getElementById(id); return e ? e.textContent.trim().replace(/\s+/g,' ') : ''; }
+    var v = parseFloat(amount.value) || 0;
+    var amountFmt = '\u20ac ' + v.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
+    var isLordo = (mode === 'lordo');
+    var regimeStartupActive = document.getElementById('regimeStartup').classList.contains('active');
+    var inputLbl = document.getElementById('inputLabelText').textContent.trim();
+    var bigVal = '\u20ac ' + txt('resultInt') + txt('resultDec');
+
+    exportCalcPdf({
+      tool:'Calcolatore tasse \u2014 Regime forfettario',
+      subtitle: isLordo
+        ? 'Quanto resta netto da un fatturato lordo, tra contributi INPS e imposta sostitutiva.'
+        : 'Quanto fatturare per ottenere il netto desiderato, tra contributi INPS e imposta sostitutiva.',
+      highlight:{ label: txt('resultLabel'), value: bigVal, note: txt('resultSubLabel') },
+      sections:[
+        { title:'Impostazioni', rows:[
+          ['Modalità di calcolo', isLordo ? 'Da fatturato lordo' : 'Da netto desiderato'],
+          [inputLbl, amountFmt],
+          ['Regime', regimeStartupActive ? 'Primi 5 anni di attività' : 'Oltre 5 anni'],
+          ['Categoria attività', txt('categoriaInfoLabel')],
+          ['Coefficiente di redditività', txt('coeffInfoLabel')]
+        ]},
+        { title:'Risultati', rows:[
+          ['Imponibile (fatturato \u00d7 coefficiente)', txt('statImponibile')],
+          ['Contributi INPS (Gestione Separata 26,07%)', txt('statInps')],
+          ['Imposta sostitutiva ('+txt('impostaInfoLabel')+')', txt('statImposta')],
+          [txt('resultLabel'), bigVal]
+        ]}
+      ],
+      note:'Stima indicativa per il regime forfettario, basata sui parametri inseriti. Non sostituisce la consulenza di un commercialista.',
+      filename:'calcolatore-tasse-forfettario-davidemorabito.pdf'
     });
-    pdfDate.textContent = formattedDate;
-
-    // Nome file dinamico
-    const v = parseFloat(amount.value) || 0;
-    const ts = now.toISOString().split('T')[0]; // 2026-06-19
-    const tipo = mode === 'lordo' ? 'Lordo' : 'Netto';
-    const importo = v > 0 ? `-${tipo}-${Math.round(v)}EUR` : '';
-    const filename = `Calcolo-Forfettario${importo}-${ts}.pdf`;
-
-    // Loading state
-    setExportState('loading');
-
-    // Aggiungi classe di esportazione
-    document.body.classList.add('is-exporting');
-
-    // Attendi che il DOM si aggiorni
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const element = document.querySelector('.app');
-
-        const opts = {
-          margin: [8, 8, 8, 8],
-          filename: filename,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: {
-            scale: 2.5,
-            useCORS: true,
-            backgroundColor: '#fdf8ee',
-            letterRendering: true,
-            logging: false
-          },
-          jsPDF: {
-            unit: 'mm',
-            format: 'a4',
-            orientation: 'portrait',
-            compress: true
-          },
-          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-        };
-
-        html2pdf().set(opts).from(element).save()
-          .then(() => {
-            document.body.classList.remove('is-exporting');
-            setExportState('success');
-          })
-          .catch((err) => {
-            console.error('Errore PDF:', err);
-            document.body.classList.remove('is-exporting');
-            setExportState('idle');
-            alert('Si è verificato un errore durante la generazione del PDF. Riprova.');
-          });
-      });
-    });
+    if(typeof gtag==='function') gtag('event','export_pdf',{strumento:'calcolatore-tasse'});
+    setExportState('success');
   }
 
   exportBtn.addEventListener('click', exportToPDF);

@@ -770,6 +770,8 @@
   .cw-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="/pdf-export.js"></script>
 </head>
 <body>
 
@@ -857,6 +859,10 @@
             <button class="cw-btn cw-btn-ghost" id="cwCopyAll">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               Copia tutti gli HEX
+            </button>
+            <button class="cw-btn cw-btn-ghost" id="cwPdf">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+              Esporta PDF
             </button>
           </div>
         </div>
@@ -1247,6 +1253,22 @@
     if(arr.length > 30) arr = arr.slice(0,30);
     persistSaved(arr); renderSaved();
     showToast('Palette salvata');
+  });
+
+  // ---------- Export PDF palette ----------
+  document.getElementById('cwPdf').addEventListener('click', function(){
+    var colors = getColors();
+    var base = colors.filter(function(c){ return c.isBase; })[0] || colors[0];
+    var hBtn = document.querySelector('#cwHarmony button.active');
+    var harmonyLabel = hBtn ? hBtn.textContent.trim() : harmony;
+    exportPalettePdf({
+      title:'Palette colori',
+      subtitle:'Armonia ' + harmonyLabel.toLowerCase() + '  \u00b7  colore base ' + base.hex.toUpperCase(),
+      colors: colors.map(function(c){ return { hex:c.hex, rgb:c.rgb, h:c.h, s:c.s, v:c.v, name: c.isBase ? 'Base' : '' }; }),
+      note:'Palette generata con la ruota colori di davidemorabito.com.',
+      filename:'palette-davidemorabito.pdf'
+    });
+    if(typeof gtag==='function') gtag('event','export_pdf',{strumento:'ruota-colori'});
   });
 
   // ---------- Estrai da immagine ----------

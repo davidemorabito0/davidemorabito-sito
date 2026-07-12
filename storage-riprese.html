@@ -112,13 +112,13 @@
   .mobile-menu-inner a { font-family:'Jost',sans-serif; font-size:28px; font-weight:300; letter-spacing:2px; color:#fff; text-decoration:none; }
   .mobile-menu-inner a.active, .mobile-menu-inner a:hover { color:var(--amber); }
 
-  .hero { min-height:48vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:126px 5vw 46px; background:radial-gradient(ellipse 80% 60% at 50% 30%, rgba(43,72,104,.4), transparent), var(--dark); }
-  .hero-eyebrow { font-family:'Jost',sans-serif; font-size:11px; letter-spacing:6px; text-transform:uppercase; color:var(--amber); font-weight:500; margin-bottom:22px; }
+  .hero { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:100px 5vw 30px; background:radial-gradient(ellipse 80% 60% at 50% 30%, rgba(43,72,104,.4), transparent), var(--dark); }
+  .hero-eyebrow { font-family:'Jost',sans-serif; font-size:11px; letter-spacing:6px; text-transform:uppercase; color:var(--amber); font-weight:500; margin-bottom:16px; }
   .hero h1 { font-size:clamp(32px,6vw,64px); font-weight:200; letter-spacing:1px; line-height:1; color:#fff; }
   .hero h1 b { font-weight:800; color:var(--amber); }
-  .hero-tag { font-family:'Jost',sans-serif; font-size:clamp(13px,1.6vw,16px); font-weight:300; letter-spacing:3px; text-transform:uppercase; color:var(--warm-gray-light); margin-top:20px; }
+  .hero-tag { font-family:'Jost',sans-serif; font-size:clamp(13px,1.6vw,16px); font-weight:300; letter-spacing:3px; text-transform:uppercase; color:var(--warm-gray-light); margin-top:16px; }
 
-  .app { max-width:1040px; margin:0 auto; padding:16px 5vw 34px; }
+  .app { max-width:1400px; margin:0 auto; padding:22px clamp(18px,3vw,32px) 46px; }
   .grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start; }
   @media (max-width:860px){ .grid{ grid-template-columns:1fr; } }
   .card { background:var(--card); border:1px solid var(--card-line); border-radius:18px; padding:28px 26px; }
@@ -205,7 +205,13 @@
   .footer-social { display:flex; gap:14px; }
   .footer-social a { width:36px; height:36px; border-radius:50%; border:1px solid rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; color:#c3cdd8; transition:all .3s; }
   .footer-social a:hover { border-color:var(--amber); color:var(--amber); transform:translateY(-2px); }
+  .pdf-btn { width:100%; margin-top:14px; background:var(--amber); color:var(--navy-deep); border:none; border-radius:11px; padding:14px; font-family:'Jost',sans-serif; font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background .2s, transform .15s; letter-spacing:.2px; }
+  .pdf-btn:hover { background:var(--amber-light); transform:translateY(-1px); }
+  .pdf-btn:active { transform:translateY(0); }
+  .pdf-btn svg { width:17px; height:17px; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="/pdf-export.js"></script>
 </head>
 <body>
 
@@ -300,6 +306,10 @@
         <div class="result-sub" id="bigSub"></div>
       </div>
       <div class="result-rows" id="rows"></div>
+      <button class="pdf-btn" id="pdfBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        Esporta PDF
+      </button>
     </section>
   </div>
 </main>
@@ -487,6 +497,33 @@
         '<div class="rrow"><span class="k">Capacità impostata</span><span class="v">'+(cap>=1024?(cap/1024)+' TB':cap+' GB')+'</span></div>';
     }
   }
+  // ---- Export PDF ----
+  document.getElementById('pdfBtn').addEventListener('click', function(){
+    function txt(id){ return document.getElementById(id).textContent.trim().replace(/\s+/g,' '); }
+    function scrape(cid){ var out=[]; document.querySelectorAll('#'+cid+' .rrow').forEach(function(r){ var k=r.querySelector('.k'), v=r.querySelector('.v'); if(k&&v) out.push([k.textContent.trim().replace(/\s+/g,' '), v.textContent.trim().replace(/\s+/g,' ')]); }); return out; }
+    var sizeMode = document.getElementById('mSize').classList.contains('on');
+    var sel = document.getElementById('preset');
+    var formato = sel.options[sel.selectedIndex].text;
+    var br = document.getElementById('brBadge').textContent.replace('Bitrate:','').trim();
+    var settings = [['Formato di registrazione', formato], ['Bitrate', br]];
+    if(sizeMode){
+      var h=+document.getElementById('hh').value||0, mn=+document.getElementById('mm').value||0;
+      settings.push(['Durata delle riprese', h+'h '+(mn<10?'0':'')+mn+'min']);
+    } else {
+      var cap=+document.getElementById('cardCustom').value||0;
+      settings.push(['Capacità scheda / disco', (cap>=1024?(cap/1024)+' TB':cap+' GB')]);
+    }
+    exportCalcPdf({
+      tool:'Storage riprese',
+      subtitle: sizeMode ? 'Spazio di archiviazione necessario per le riprese impostate.' : 'Durata di registrazione possibile sulla scheda impostata.',
+      highlight:{ label: txt('bigLabel'), value: txt('bigVal'), note: txt('bigSub') },
+      sections:[ {title:'Impostazioni', rows:settings}, {title:'Dettaglio', rows:scrape('rows')} ],
+      note:'Stima indicativa: il peso reale varia con frame rate, profondità colore e livello di compressione del codec.',
+      filename:'storage-riprese-davidemorabito.pdf'
+    });
+    if(typeof gtag==='function') gtag('event','export_pdf',{strumento:'storage-riprese'});
+  });
+
   calc();
 </script>
 </body>
