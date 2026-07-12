@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta name="google-site-verification" content="0D9xVTcIzWZeSobQT0zp5xdG6rSIn4cXBrK1XTlb27c" />
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7N72HVRGRJ"></script>
+<script>
+  window.dataLayer=window.dataLayer||[];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent','default',{
+    ad_storage:'denied', analytics_storage:'denied',
+    ad_user_data:'denied', ad_personalization:'denied',
+    wait_for_update:500
+  });
+  gtag('js',new Date());
+  gtag('config','G-7N72HVRGRJ');
+</script>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#2b4868">
+<link rel="stylesheet" href="/cookie-consent.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Calcolatore Tariffa Oraria Freelance — Quanto Farsi Pagare</title>
+<meta name="description" content="Calcola la tua tariffa oraria e giornaliera da freelance partendo dal netto che vuoi guadagnare, con spese, ore fatturabili e settimane di stop.">
+<meta name="author" content="Davide Morabito">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:title" content="Calcolatore Tariffa Oraria Freelance — Quanto Farsi Pagare">
+<meta property="og:description" content="Scopri quanto dovresti farti pagare all'ora e al giorno come freelance, partendo dal netto che vuoi guadagnare.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://davidemorabito.com/tariffa-oraria.html">
+<meta property="og:image" content="https://davidemorabito.com/media/og-cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="Davide Morabito">
+<meta property="og:locale" content="it_IT">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Calcolatore Tariffa Oraria Freelance">
+<meta name="twitter:description" content="Quanto farsi pagare all'ora come freelance: calcolo partendo dal netto desiderato.">
+<meta name="twitter:image" content="https://davidemorabito.com/media/og-cover.jpg">
+<link rel="canonical" href="https://davidemorabito.com/tariffa-oraria.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<!-- Structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Calcolatore Tariffa Oraria Freelance",
+  "url": "https://davidemorabito.com/tariffa-oraria.html",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+  "author": { "@type": "Person", "name": "Davide Morabito", "url": "https://davidemorabito.com" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Come si calcola la tariffa oraria di un freelance?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Si parte dal reddito netto annuo desiderato, si aggiungono tasse, contributi e spese di gestione per ottenere il fatturato lordo necessario, e si divide per le ore realmente fatturabili in un anno (escludendo ferie, malattia, formazione e tempo non vendibile). Il risultato è la tariffa oraria minima sostenibile." }
+    },
+    {
+      "@type": "Question",
+      "name": "Quante ore fatturabili ha davvero un freelance in un anno?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Molte meno delle 2080 ore teoriche (40h × 52 settimane). Tolte ferie, festività, malattia, formazione, amministrazione e ricerca clienti, un freelance a tempo pieno fattura tipicamente tra le 1000 e le 1400 ore l'anno." }
+    }
+  ]
+}
+</script>
+
+<style>
+  :root {
+    --navy:#2b4868; --navy-deep:#1a2f45; --navy-darker:#122031; --navy-mid:#223a55;
+    --navy-light:#3d6289; --navy-pale:#6b8fb5;
+    --amber:#ffad01; --amber-light:#ffc844; --amber-deep:#e69a00;
+    --cream:#faf6f0; --off-white:#f2ede6;
+    --warm-gray-light:#b5ada5; --ink:#14202e; --white:#fff;
+    --dark:#0e1620; --card:#16232f; --card-line:rgba(255,255,255,.09);
+    --good:#3ec98a; --warn:#ffab3d;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :focus-visible { outline:2px solid var(--amber); outline-offset:3px; border-radius:3px; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'DM Sans',sans-serif; background:var(--dark); color:#eef2f6; overflow-x:hidden; line-height:1.7; }
+  ::selection { background:var(--amber); color:var(--navy-deep); }
+  h1,h2,h3,h4 { font-family:'Jost','Futura',sans-serif; }
+  a { color:var(--amber); }
+  @media (prefers-reduced-motion:reduce){ *,*::before,*::after{ animation-duration:.01ms!important; transition-duration:.01ms!important; } }
+
+  /* NAV */
+  .nav { position:fixed; top:0; left:0; right:0; z-index:1000; padding:16px 4vw; display:flex; justify-content:space-between; align-items:center; gap:16px; transition:all .4s ease; }
+  .nav.scrolled { padding:10px 4vw; background:rgba(14,22,32,.88); backdrop-filter:blur(22px); border-bottom:1px solid rgba(255,255,255,.07); }
+  .nav-brand { font-family:'Jost',sans-serif; font-size:22px; font-weight:300; letter-spacing:1.5px; color:#fff; text-decoration:none; white-space:nowrap; }
+  .nav-brand b { font-weight:700; color:var(--amber); }
+  .nav-links { display:flex; gap:18px; list-style:none; align-items:center; }
+  .nav-links a { font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; color:#c9cfd6; text-decoration:none; font-weight:500; transition:color .3s; position:relative; white-space:nowrap; }
+  .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:1px; background:var(--amber); transition:width .3s; }
+  .nav-links a:hover { color:#fff; } .nav-links a:hover::after { width:100%; }
+  .nav-links a.active { color:var(--amber); }
+  @media (max-width:980px){ .nav-links{ display:none; } }
+  .nav-toggle { display:none; width:42px; height:42px; border:none; background:transparent; cursor:pointer; flex-direction:column; justify-content:center; align-items:center; gap:5px; z-index:1101; }
+  .nav-toggle span { width:24px; height:2px; background:#fff; border-radius:2px; transition:transform .3s ease, opacity .3s ease; }
+  .nav-toggle.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2){ opacity:0; }
+  .nav-toggle.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+  @media (max-width:980px){ .nav-toggle{ display:flex; } }
+  .mobile-menu { position:fixed; inset:0; z-index:1100; background:rgba(14,22,32,.97); backdrop-filter:blur(20px); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .35s ease; }
+  .mobile-menu.open { opacity:1; pointer-events:auto; }
+  .mobile-menu-inner { display:flex; flex-direction:column; align-items:center; gap:26px; }
+  .mobile-menu-inner a { font-family:'Jost',sans-serif; font-size:28px; font-weight:300; letter-spacing:2px; color:#fff; text-decoration:none; }
+  .mobile-menu-inner a.active, .mobile-menu-inner a:hover { color:var(--amber); }
+
+  /* HERO */
+  .hero { min-height:56vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:130px 5vw 60px; background:radial-gradient(ellipse 80% 60% at 50% 30%, rgba(43,72,104,.4), transparent), var(--dark); position:relative; }
+  .hero-eyebrow { font-family:'Jost',sans-serif; font-size:11px; letter-spacing:6px; text-transform:uppercase; color:var(--amber); font-weight:500; margin-bottom:22px; }
+  .hero h1 { font-size:clamp(34px,6.5vw,72px); font-weight:200; letter-spacing:1px; line-height:1; color:#fff; }
+  .hero h1 b { font-weight:800; color:var(--amber); }
+  .hero-tag { font-family:'Jost',sans-serif; font-size:clamp(13px,1.6vw,16px); font-weight:300; letter-spacing:3px; text-transform:uppercase; color:var(--warm-gray-light); margin-top:20px; }
+
+  /* APP */
+  .app { max-width:1080px; margin:0 auto; padding:20px 5vw 40px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:26px; align-items:start; }
+  @media (max-width:860px){ .grid{ grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--card-line); border-radius:18px; padding:30px 28px; }
+  .card h2 { font-size:15px; letter-spacing:2px; text-transform:uppercase; color:var(--amber); font-weight:600; margin-bottom:24px; display:flex; align-items:center; gap:10px; }
+  .field { margin-bottom:22px; }
+  .field:last-child { margin-bottom:0; }
+  .field label { display:block; font-size:14px; font-weight:500; color:#dfe7ef; margin-bottom:4px; }
+  .field .hint { font-size:12px; color:#8ea2b6; margin-bottom:10px; line-height:1.5; }
+  .input-wrap { position:relative; }
+  .input-wrap .unit { position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:14px; color:#8ea2b6; pointer-events:none; }
+  .input-wrap .unit-left { left:16px; right:auto; font-weight:600; color:var(--amber); }
+  input[type=number], select { width:100%; background:#0e1a25; border:1.5px solid rgba(255,255,255,.12); border-radius:11px; padding:14px 16px; color:#fff; font-family:'DM Sans',sans-serif; font-size:16px; transition:border-color .2s; -moz-appearance:textfield; }
+  input.pad-left { padding-left:34px; }
+  input:focus, select:focus { outline:none; border-color:var(--amber); }
+  input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+  select { cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238ea2b6' d='M6 8 0 0h12z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 16px center; padding-right:40px; }
+  .slider-row { display:flex; align-items:center; gap:14px; }
+  input[type=range] { flex:1; -webkit-appearance:none; appearance:none; height:5px; border-radius:5px; background:linear-gradient(90deg,var(--amber) 0%,var(--amber) 50%,#28384a 50%); outline:none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--amber); cursor:pointer; border:3px solid #16232f; box-shadow:0 2px 8px rgba(0,0,0,.4); }
+  input[type=range]::-moz-range-thumb { width:20px; height:20px; border-radius:50%; background:var(--amber); cursor:pointer; border:3px solid #16232f; }
+  .slider-val { min-width:64px; text-align:right; font-weight:600; color:#fff; font-size:15px; }
+
+  /* RESULT */
+  .result-hero { background:linear-gradient(135deg,var(--navy),var(--navy-deep)); border:1px solid rgba(255,173,1,.25); border-radius:18px; padding:32px 28px; text-align:center; margin-bottom:22px; position:relative; overflow:hidden; }
+  .result-hero::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,var(--amber),transparent); }
+  .result-label { font-family:'Jost',sans-serif; font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--navy-pale); margin-bottom:8px; }
+  .result-big { font-family:'Jost',sans-serif; font-size:clamp(44px,9vw,68px); font-weight:800; color:var(--amber); line-height:1; }
+  .result-big span { font-size:.5em; font-weight:300; color:#cddaeb; }
+  .result-sub { font-size:14px; color:#aebfd0; margin-top:10px; }
+  .result-rows { display:grid; gap:2px; background:var(--card-line); border-radius:14px; overflow:hidden; border:1px solid var(--card-line); }
+  .rrow { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:var(--card); font-size:15px; }
+  .rrow .k { color:#c3cfdb; }
+  .rrow .v { font-weight:600; color:#fff; font-variant-numeric:tabular-nums; }
+  .rrow.accent .v { color:var(--amber); }
+  .rrow.big { padding:19px 20px; }
+  .rrow.big .k { font-family:'Jost',sans-serif; font-weight:600; }
+  .rrow.big .v { font-size:19px; }
+  .note-box { margin-top:18px; font-size:13px; color:#9fb0c2; background:rgba(255,173,1,.06); border-left:3px solid var(--amber); border-radius:8px; padding:14px 18px; line-height:1.6; }
+
+  /* CONTENT / SEO */
+  .content { max-width:820px; margin:0 auto; padding:40px 5vw 90px; }
+  .content h2 { font-size:clamp(24px,3.6vw,34px); font-weight:700; color:#fff; margin:44px 0 16px; }
+  .content h3 { font-size:19px; font-weight:600; color:var(--amber-light); margin:28px 0 10px; }
+  .content p { color:#c4cfda; margin-bottom:16px; }
+  .content ul { margin:0 0 18px 22px; color:#c4cfda; }
+  .content li { margin-bottom:9px; }
+  .faq-item { border-bottom:1px solid rgba(255,255,255,.09); padding:20px 0; }
+  .faq-item summary { font-family:'Jost',sans-serif; font-size:17px; font-weight:500; color:#fff; cursor:pointer; list-style:none; display:flex; justify-content:space-between; gap:16px; }
+  .faq-item summary::-webkit-details-marker { display:none; }
+  .faq-item summary::after { content:'+'; color:var(--amber); font-size:22px; line-height:1; flex:0 0 auto; }
+  .faq-item[open] summary::after { content:'−'; }
+  .faq-item p { margin-top:12px; margin-bottom:0; }
+  .cta-band { background:linear-gradient(135deg,var(--navy),var(--navy-deep)); border-radius:18px; padding:38px 32px; text-align:center; margin-top:40px; border:1px solid rgba(255,173,1,.2); }
+  .cta-band h3 { font-size:clamp(20px,3vw,26px); color:#fff; font-weight:600; margin-bottom:10px; }
+  .cta-band p { color:#aebfd0; margin-bottom:20px; }
+  .btn { display:inline-block; background:var(--amber); color:var(--navy-deep); padding:14px 32px; border-radius:10px; font-weight:600; text-decoration:none; font-family:'Jost',sans-serif; letter-spacing:.5px; transition:transform .15s, background .2s; }
+  .btn:hover { transform:translateY(-2px); background:var(--amber-light); }
+  .tool-links { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:22px; }
+  .tool-links a { font-size:13px; color:#c3cfdb; text-decoration:none; border:1px solid rgba(255,255,255,.15); padding:9px 16px; border-radius:20px; transition:all .2s; }
+  .tool-links a:hover { border-color:var(--amber); color:var(--amber); }
+
+  /* FOOTER */
+  .footer { background:var(--navy-darker); color:#dce4ec; padding:clamp(56px,8vw,90px) 5vw 36px; position:relative; }
+  .footer::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--amber),transparent); }
+  .footer-inner { max-width:1280px; margin:0 auto; display:grid; grid-template-columns:1.4fr 1fr 1fr auto; gap:48px; align-items:start; }
+  @media (max-width:860px){ .footer-inner{ grid-template-columns:1fr 1fr; gap:32px; } }
+  @media (max-width:560px){ .footer-inner{ grid-template-columns:1fr; } }
+  .footer-brand .fb-logo { font-family:'Jost',sans-serif; font-size:22px; font-weight:300; letter-spacing:1.5px; margin-bottom:16px; }
+  .footer-brand .fb-logo b { font-weight:700; color:var(--amber); }
+  .footer-brand p { font-size:14px; color:var(--navy-pale); line-height:1.7; font-weight:300; max-width:320px; }
+  .footer-col h3 { font-family:'Jost',sans-serif; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--amber); margin-bottom:20px; font-weight:600; }
+  .footer-col ul { list-style:none; }
+  .footer-col li { margin-bottom:12px; }
+  .footer-col a { color:#c3cdd8; text-decoration:none; font-size:14px; transition:color .3s; }
+  .footer-col a:hover { color:var(--amber); }
+  .footer-mascot { width:96px; height:96px; }
+  @media (max-width:860px){ .footer-mascot{ display:none; } }
+  .footer-bottom { max-width:1280px; margin:52px auto 0; padding-top:26px; border-top:1px solid rgba(255,255,255,.07); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+  .footer-bottom p { font-size:12px; color:var(--navy-pale); letter-spacing:1px; }
+  .footer-social { display:flex; gap:14px; }
+  .footer-social a { width:36px; height:36px; border-radius:50%; border:1px solid rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; color:#c3cdd8; transition:all .3s; }
+  .footer-social a:hover { border-color:var(--amber); color:var(--amber); transform:translateY(-2px); }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <a href="index.html" class="nav-brand">davide<b>morabito</b></a>
+  <ul class="nav-links">
+    <li><a href="aziende.html">Aziende</a></li>
+    <li><a href="matrimoni.html">Matrimoni</a></li>
+    <li><a href="contenuti-verticali.html">Social</a></li>
+    <li><a href="teatro.html">Eventi</a></li>
+    <li><a href="fotografia.html">Fotografia</a></li>
+    <li><a href="chi-sono.html">Chi sono</a></li>
+    <li><a href="strumenti.html" class="active">Strumenti</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle" aria-label="Apri il menu" aria-expanded="false" aria-controls="mobileMenu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <nav class="mobile-menu-inner" aria-label="Menu principale">
+    <a href="aziende.html">Aziende</a>
+    <a href="matrimoni.html">Matrimoni</a>
+    <a href="contenuti-verticali.html">Social</a>
+    <a href="teatro.html">Eventi</a>
+    <a href="fotografia.html">Fotografia</a>
+    <a href="chi-sono.html">Chi sono</a>
+    <a href="strumenti.html" class="active">Strumenti</a>
+  </nav>
+</div>
+
+<header class="hero">
+  <div class="hero-eyebrow">Strumenti per freelance</div>
+  <h1>Tariffa <b>oraria</b></h1>
+  <div class="hero-tag">Quanto farsi pagare · all'ora e al giorno</div>
+</header>
+
+<main class="app">
+  <div class="grid">
+    <!-- INPUT -->
+    <section class="card" aria-label="Dati">
+      <h2>I tuoi dati</h2>
+
+      <div class="field">
+        <label for="netto">Netto che vuoi guadagnare all'anno</label>
+        <div class="hint">Quanto vuoi che ti resti in tasca, dopo tasse e contributi.</div>
+        <div class="input-wrap">
+          <span class="unit unit-left">€</span>
+          <input type="number" id="netto" class="pad-left" value="24000" min="0" step="500" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="tasse">Aliquota tasse + contributi</label>
+        <div class="hint">Quanto se ne va tra imposte e previdenza. Forfettario ≈ 25–35%, ordinario più alto.</div>
+        <div class="slider-row">
+          <input type="range" id="tasse" min="0" max="60" value="30" step="1">
+          <span class="slider-val" id="tasseVal">30%</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="spese">Spese annue di lavoro</label>
+        <div class="hint">Attrezzatura, software, commercialista, assicurazioni, marketing, trasporti.</div>
+        <div class="input-wrap">
+          <span class="unit unit-left">€</span>
+          <input type="number" id="spese" class="pad-left" value="6000" min="0" step="250" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="giorni">Giorni fatturabili a settimana</label>
+        <div class="hint">Non tutti i giorni lavorati si fatturano: c'è amministrazione, preventivi, ricerca clienti.</div>
+        <div class="slider-row">
+          <input type="range" id="giorni" min="1" max="6" value="3" step="0.5">
+          <span class="slider-val" id="giorniVal">3</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="ore">Ore fatturabili al giorno</label>
+        <div class="slider-row">
+          <input type="range" id="ore" min="2" max="10" value="6" step="0.5">
+          <span class="slider-val" id="oreVal">6</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="ferie">Settimane di ferie / stop all'anno</label>
+        <div class="hint">Ferie, malattia, festività, formazione. In media 6–10 settimane.</div>
+        <div class="slider-row">
+          <input type="range" id="ferie" min="0" max="16" value="7" step="1">
+          <span class="slider-val" id="ferieVal">7</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULT -->
+    <section aria-label="Risultato">
+      <div class="result-hero">
+        <div class="result-label">La tua tariffa oraria minima</div>
+        <div class="result-big" id="outHour">€ 0<span>/ora</span></div>
+        <div class="result-sub" id="outDay">€ 0 al giorno</div>
+      </div>
+
+      <div class="result-rows">
+        <div class="rrow"><span class="k">Fatturato lordo necessario</span><span class="v" id="outGross">€ 0</span></div>
+        <div class="rrow"><span class="k">— di cui tasse e contributi</span><span class="v" id="outTax">€ 0</span></div>
+        <div class="rrow"><span class="k">— di cui spese di lavoro</span><span class="v" id="outExp">€ 0</span></div>
+        <div class="rrow accent"><span class="k">= Netto per te</span><span class="v" id="outNet">€ 0</span></div>
+        <div class="rrow"><span class="k">Ore fatturabili all'anno</span><span class="v" id="outHours">0 h</span></div>
+        <div class="rrow big"><span class="k">Tariffa giornaliera</span><span class="v" id="outDayRate">€ 0</span></div>
+      </div>
+
+      <div class="note-box" id="note">
+        Muovi i valori a sinistra: il calcolo si aggiorna in tempo reale. Questa è la tariffa <strong>minima</strong> per coprire tutto e raggiungere il netto che hai indicato — sotto questa cifra, ci rimetti.
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- CONTENUTO SEO -->
+<article class="content">
+  <h2>Come si calcola la tariffa oraria da freelance</h2>
+  <p>
+    L'errore più comune di chi inizia è fissare la tariffa "guardando gli altri" o dividendo lo stipendio
+    da dipendente per le ore. Il problema è che da freelance <strong>non tutte le ore si fatturano</strong> e
+    devi coprire da solo tasse, contributi, attrezzatura e periodi senza lavoro. La tariffa giusta si costruisce
+    al contrario: parti da quanto vuoi guadagnare netto e risali.
+  </p>
+
+  <h3>1. Parti dal netto che vuoi in tasca</h3>
+  <p>
+    Decidi quanto vuoi guadagnare davvero in un anno, al netto di tutto. È il tuo obiettivo di reddito personale,
+    non il fatturato.
+  </p>
+
+  <h3>2. Aggiungi tasse, contributi e spese</h3>
+  <p>
+    Sul netto vanno "ricaricate" le imposte e la previdenza (la percentuale varia molto: il regime forfettario è
+    più leggero, quello ordinario più pesante) e tutte le spese per lavorare: software, hardware, commercialista,
+    assicurazione, marketing, spostamenti. La somma è il <strong>fatturato lordo</strong> che devi generare.
+  </p>
+
+  <h3>3. Dividi per le ore che fatturi davvero</h3>
+  <p>
+    Qui sta il punto chiave. Un anno teorico ha circa 2080 ore lavorative, ma un freelance ne fattura molte meno:
+    tra ferie, festività, malattia, formazione, preventivi non pagati, contabilità e ricerca clienti, restano
+    tipicamente <strong>1000–1400 ore fatturabili</strong>. Dividere il fatturato lordo per queste ore reali —
+    non per le 2080 teoriche — dà la tariffa oraria sostenibile.
+  </p>
+
+  <h2>Perché la tua tariffa sembra "alta" (ma non lo è)</h2>
+  <p>
+    Quando vedi il risultato può sorprenderti: "devo chiedere così tanto all'ora?". Sì, perché quella cifra non è
+    il tuo stipendio orario — dentro ci sono le tasse che pagherai, l'attrezzatura che si consuma, i mesi più
+    scarichi e il tempo non fatturabile. Un dipendente costa all'azienda molto più del suo netto orario: da
+    freelance quel "molto più" lo gestisci tu.
+  </p>
+
+  <h2>Domande frequenti</h2>
+  <details class="faq-item"><summary>Questa tariffa include l'IVA?</summary><p>No. Il calcolo ragiona sull'imponibile (il tuo compenso). L'IVA, quando dovuta, si aggiunge in fattura ed è un importo che incassi e poi versi allo Stato: non è tuo guadagno. In regime forfettario, inoltre, l'IVA non si applica.</p></details>
+  <details class="faq-item"><summary>Vale anche se sono in regime forfettario?</summary><p>Sì. Ti basta impostare l'aliquota "tasse + contributi" più bassa (indicativamente 25–35% a seconda di coefficiente, INPS e imposta sostitutiva). Per un calcolo preciso di imposte e netto puoi usare il calcolatore forfettario dedicato.</p></details>
+  <details class="faq-item"><summary>Devo far pagare tutti allo stesso prezzo?</summary><p>Questa è la tua <strong>base minima</strong>. Sopra ci costruisci il prezzo reale in base a valore, urgenza, cliente e tipo di progetto. Ma scendere sotto questa soglia significa lavorare in perdita, spesso senza accorgersene.</p></details>
+  <details class="faq-item"><summary>Perché contano le ferie e la malattia?</summary><p>Perché da freelance quei giorni non li paga nessuno. Se in un anno stai fermo 7 settimane, le tue ore fatturabili calano e la tariffa deve salire per compensare: il calcolatore lo fa automaticamente.</p></details>
+</article>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="fb-logo">davide<b>morabito</b></div>
+      <p>Videomaker freelance a Milano. Video corporate, wedding film, spot e contenuti social. Storie che si guardano e si sentono.</p>
+    </div>
+    <div class="footer-col"><h3>Naviga</h3><ul><li><a href="matrimoni.html">Matrimoni</a></li><li><a href="contenuti-verticali.html">Social</a></li><li><a href="teatro.html">Eventi</a></li><li><a href="fotografia.html">Fotografia</a></li><li><a href="aziende.html">Aziende</a></li><li><a href="chi-sono.html">Chi sono</a></li><li><a href="strumenti.html">Strumenti</a></li></ul></div>
+    <div class="footer-col"><h3>Contatti</h3><ul><li><a href="mailto:info@davidemorabito.com">info@davidemorabito.com</a></li><li><a href="#">Milano, Italia</a></li></ul></div>
+    <svg class="footer-mascot" viewBox="0 0 96 96" aria-label="Cerchio">
+      <circle cx="48" cy="48" r="38" fill="#2b4868"/>
+      <path d="M48 10 A38 38 0 0 1 86 48 L48 86 Z" fill="#ffad01"/>
+      <ellipse cx="38" cy="44" rx="5.5" ry="6.5" fill="#fff"/><circle cx="39.5" cy="45" r="3" fill="#141210"/><circle cx="41" cy="43" r="1" fill="#fff"/>
+      <ellipse cx="58" cy="44" rx="5.5" ry="6.5" fill="#fff"/><circle cx="59.5" cy="45" r="3" fill="#141210"/><circle cx="61" cy="43" r="1" fill="#fff"/>
+      <path d="M40 56 Q48 63 56 56" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="footer-bottom">
+    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967 · <a href="/privacy.html" style="color:inherit;">Privacy &amp; Cookie</a></p>
+    <div class="footer-social">
+      <a href="https://www.instagram.com/_davidemorabito" target="_blank" rel="noopener" aria-label="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+      <a href="https://www.linkedin.com/in/davidemorabito0" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Nav scroll + mobile menu
+  var nav=document.getElementById('nav');
+  addEventListener('scroll',function(){ nav.classList.toggle('scrolled', scrollY>40); });
+  var t=document.getElementById('navToggle'), mm=document.getElementById('mobileMenu');
+  t.addEventListener('click',function(){
+    var open=mm.classList.toggle('open'); t.classList.toggle('open',open);
+    t.setAttribute('aria-expanded',open?'true':'false'); mm.setAttribute('aria-hidden',open?'false':'true');
+    document.body.style.overflow=open?'hidden':'';
+  });
+  mm.querySelectorAll('a').forEach(function(a){ a.addEventListener('click',function(){ mm.classList.remove('open'); t.classList.remove('open'); document.body.style.overflow=''; }); });
+  document.getElementById('year').textContent=new Date().getFullYear();
+
+  // ---- Calcolo tariffa ----
+  var euro=function(n){ return '€ '+Math.round(n).toLocaleString('it-IT'); };
+  var ids=['netto','tasse','spese','giorni','ore','ferie'];
+  var el={}; ids.forEach(function(i){ el[i]=document.getElementById(i); });
+
+  function fillRange(r){
+    var pct=(r.value-r.min)/(r.max-r.min)*100;
+    r.style.background='linear-gradient(90deg,var(--amber) '+pct+'%,#28384a '+pct+'%)';
+  }
+
+  function calc(){
+    var netto=+el.netto.value||0;
+    var tasse=+el.tasse.value/100;
+    var spese=+el.spese.value||0;
+    var giorni=+el.giorni.value;
+    var ore=+el.ore.value;
+    var ferie=+el.ferie.value;
+
+    // Fatturato lordo: netto + spese, poi "ricaricato" per le tasse
+    // lordo = (netto + spese) / (1 - aliquota)
+    var lordo=(netto+spese)/(1-tasse);
+    if(!isFinite(lordo)||lordo<0) lordo=0;
+    var tasseTot=lordo*tasse;
+
+    // Ore fatturabili all'anno
+    var settLavoro=52-ferie;
+    if(settLavoro<0) settLavoro=0;
+    var oreAnno=settLavoro*giorni*ore;
+
+    var oraria = oreAnno>0 ? lordo/oreAnno : 0;
+    var giornaliera = oraria*ore;
+
+    document.getElementById('tasseVal').textContent=el.tasse.value+'%';
+    document.getElementById('giorniVal').textContent=(giorni%1?giorni:giorni.toFixed(0));
+    document.getElementById('oreVal').textContent=(ore%1?ore:ore.toFixed(0));
+    document.getElementById('ferieVal').textContent=ferie;
+
+    document.getElementById('outHour').innerHTML=euro(oraria)+'<span>/ora</span>';
+    document.getElementById('outDay').textContent=euro(giornaliera)+' al giorno';
+    document.getElementById('outGross').textContent=euro(lordo);
+    document.getElementById('outTax').textContent=euro(tasseTot);
+    document.getElementById('outExp').textContent=euro(spese);
+    document.getElementById('outNet').textContent=euro(netto);
+    document.getElementById('outHours').textContent=Math.round(oreAnno).toLocaleString('it-IT')+' h';
+    document.getElementById('outDayRate').textContent=euro(giornaliera);
+
+    ['tasse','giorni','ore','ferie'].forEach(function(i){ fillRange(el[i]); });
+  }
+  ids.forEach(function(i){ el[i].addEventListener('input',calc); });
+  calc();
+</script>
+</body>
+</html>

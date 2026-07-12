@@ -1,0 +1,33 @@
+/* Cookie banner — stile brand Davide Morabito */
+#cookie-banner{
+  position:fixed; left:0; right:0; bottom:0; z-index:99999;
+  background:#2b4868; color:#fff;
+  box-shadow:0 -6px 24px rgba(0,0,0,.28);
+  transform:translateY(100%); transition:transform .35s ease;
+  font-family:'DM Sans','Jost',system-ui,sans-serif;
+}
+#cookie-banner.cb-show{ transform:translateY(0); }
+#cookie-banner.cb-hide{ transform:translateY(100%); }
+.cb-inner{
+  max-width:1100px; margin:0 auto; padding:18px 22px;
+  display:flex; align-items:center; gap:22px; flex-wrap:wrap;
+  justify-content:space-between;
+}
+.cb-text{ font-size:14px; line-height:1.55; color:#e6edf5; flex:1 1 420px; font-weight:300; }
+.cb-text a{ color:#ffad01; text-decoration:underline; }
+.cb-actions{ display:flex; gap:12px; flex:0 0 auto; }
+.cb-btn{
+  font-family:inherit; font-size:14px; font-weight:600; letter-spacing:.3px;
+  padding:11px 26px; border-radius:8px; border:0; cursor:pointer;
+  transition:transform .12s ease, opacity .2s ease, background .2s ease;
+}
+.cb-btn:hover{ transform:translateY(-1px); }
+.cb-reject{ background:transparent; color:#cdd9e6; border:1.5px solid rgba(255,255,255,.35); }
+.cb-reject:hover{ border-color:#fff; color:#fff; }
+.cb-accept{ background:#ffad01; color:#2b4868; }
+.cb-accept:hover{ background:#ffbb2e; }
+@media (max-width:560px){
+  .cb-inner{ padding:16px; gap:14px; }
+  .cb-actions{ width:100%; }
+  .cb-btn{ flex:1; padding:12px; }
+}

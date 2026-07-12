@@ -7,6 +7,12 @@
 <script>
   window.dataLayer=window.dataLayer||[];
   function gtag(){dataLayer.push(arguments);}
+  // Consent Mode v2 — tutto negato finché l'utente non accetta
+  gtag('consent','default',{
+    ad_storage:'denied', analytics_storage:'denied',
+    ad_user_data:'denied', ad_personalization:'denied',
+    wait_for_update:500
+  });
   gtag('js',new Date());
   gtag('config','G-7N72HVRGRJ');
   document.addEventListener('DOMContentLoaded',function(){
@@ -18,10 +24,16 @@
   });
 </script>
 <meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#2b4868">
+<link rel="stylesheet" href="/cookie-consent.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ═══════════════ META / SEO ═══════════════ -->
-<title>Videomaker a Milano — Video Aziendali, Eventi e Social · Davide Morabito</title>
+<title>Videomaker a Milano — Aziende, Eventi e Social · D. Morabito</title>
 <meta name="description" content="Videomaker freelance a Milano dal 2011. Video aziendali, eventi multicamera, contenuti social e riprese drone. Oltre 50 clienti. Richiedi un preventivo.">
 <meta name="author" content="Davide Morabito">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -808,7 +820,7 @@
       <p class="sec-intro">Una selezione di lavori realizzati a Milano: eventi cittadini, campagne e produzioni per brand del territorio.</p>
       <div class="mi-works">
         <div class="mi-work">
-          <img src="media/lavori/pianocity-cover.jpg" alt="Riprese video a Piano City Milano" loading="lazy">
+          <img width="1200" height="750" src="media/lavori/pianocity-cover.webp" alt="Riprese video a Piano City Milano" loading="lazy">
           <div class="mi-work-ov">
             <span class="mi-tag">Evento · Milano</span>
             <h3>Piano City Milano 2026</h3>
@@ -816,7 +828,7 @@
           </div>
         </div>
         <div class="mi-work">
-          <img src="media/lavori/regia-multicamera.jpg" alt="Riprese multicamera al festival JazzMi di Milano" loading="lazy">
+          <img width="1206" height="1508" src="media/lavori/regia-multicamera.webp" alt="Riprese multicamera al festival JazzMi di Milano" loading="lazy">
           <div class="mi-work-ov">
             <span class="mi-tag">Evento · Milano</span>
             <h3>JAZZMI</h3>
@@ -824,7 +836,7 @@
           </div>
         </div>
         <div class="mi-work">
-          <img src="media/lavori/esselunga-cover.jpg" alt="Shooting fotografico Esselunga Fidaty per Altavia a Milano" loading="lazy">
+          <img width="1400" height="1050" src="media/lavori/esselunga-cover.webp" alt="Shooting fotografico Esselunga Fidaty per Altavia a Milano" loading="lazy">
           <div class="mi-work-ov">
             <span class="mi-tag">Fotografia · Milano</span>
             <h3>Esselunga × Altavia</h3>
@@ -832,7 +844,7 @@
           </div>
         </div>
         <div class="mi-work">
-          <img src="media/fotografia/eventi-aveda-awards.jpg" alt="Riprese e fotografia all'evento Aveda Italia Salons Awards 2022 a Milano" loading="lazy">
+          <img width="1600" height="1067" src="media/fotografia/eventi-aveda-awards.webp" alt="Riprese e fotografia all'evento Aveda Italia Salons Awards 2022 a Milano" loading="lazy">
           <div class="mi-work-ov">
             <span class="mi-tag">Evento · Milano</span>
             <h3>Aveda Italia Salons Awards</h3>
@@ -913,7 +925,7 @@
     </svg>
   </div>
   <div class="footer-bottom">
-    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967</p>
+    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967 · <a href="/privacy.html" style="color:inherit;">Privacy &amp; Cookie</a></p>
     <div class="footer-social">
       <a href="https://www.instagram.com/_davidemorabito" target="_blank" rel="noopener" aria-label="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
       <a href="https://www.linkedin.com/in/davidemorabito0" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
@@ -1122,5 +1134,6 @@
 })();
 </script>
 
+  <script src="/cookie-consent.js" defer></script>
 </body>
 </html>

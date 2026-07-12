@@ -7,6 +7,12 @@
 <script>
   window.dataLayer=window.dataLayer||[];
   function gtag(){dataLayer.push(arguments);}
+  // Consent Mode v2 — tutto negato finché l'utente non accetta
+  gtag('consent','default',{
+    ad_storage:'denied', analytics_storage:'denied',
+    ad_user_data:'denied', ad_personalization:'denied',
+    wait_for_update:500
+  });
   gtag('js',new Date());
   gtag('config','G-7N72HVRGRJ');
   document.addEventListener('DOMContentLoaded',function(){
@@ -18,6 +24,12 @@
   });
 </script>
 <meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#2b4868">
+<link rel="stylesheet" href="/cookie-consent.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ═══════════════ META / SEO ═══════════════ -->
@@ -977,7 +989,7 @@
     </svg>
   </div>
   <div class="footer-bottom">
-    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967</p>
+    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967 · <a href="/privacy.html" style="color:inherit;">Privacy &amp; Cookie</a></p>
     <div class="footer-social">
       <!-- [PLACEHOLDER] link social reali -->
       <a href="https://www.instagram.com/_davidemorabito" target="_blank" rel="noopener" aria-label="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
@@ -1281,5 +1293,6 @@
 })();
 </script>
 
+  <script src="/cookie-consent.js" defer></script>
 </body>
 </html>

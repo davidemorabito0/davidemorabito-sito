@@ -7,6 +7,12 @@
 <script>
   window.dataLayer=window.dataLayer||[];
   function gtag(){dataLayer.push(arguments);}
+  // Consent Mode v2 — tutto negato finché l'utente non accetta
+  gtag('consent','default',{
+    ad_storage:'denied', analytics_storage:'denied',
+    ad_user_data:'denied', ad_personalization:'denied',
+    wait_for_update:500
+  });
   gtag('js',new Date());
   gtag('config','G-7N72HVRGRJ');
   document.addEventListener('DOMContentLoaded',function(){
@@ -18,6 +24,12 @@
   });
 </script>
 <meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#2b4868">
+<link rel="stylesheet" href="/cookie-consent.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ═══════════════ META / SEO ═══════════════ -->
@@ -944,7 +956,7 @@
 
 <!-- SHOWREEL VIDEO 1 + CHI SONO sovrapposto (dark) -->
 <section class="video-block video-intro" aria-label="Showreel e presentazione">
-  <video autoplay muted loop playsinline preload="metadata" poster="media/videos/showreel-poster.jpg">
+  <video autoplay muted loop playsinline preload="metadata" poster="media/videos/showreel-poster.webp">
     <source src="media/videos/showreel.mp4" type="video/mp4">
   </video>
   <div class="video-vignette"></div>
@@ -963,41 +975,41 @@
     <div class="clients-grid reveal">
       <!-- Creator: card-ritratto con foto rotonda -->
       <div class="client">
-        <div class="client-portrait"><img src="media/clienti/maurizio-merluzzo.png" alt="Maurizio Merluzzo" loading="lazy"></div>
+        <div class="client-portrait"><img width="400" height="400" src="media/clienti/maurizio-merluzzo.webp" alt="Maurizio Merluzzo" loading="lazy"></div>
         <div class="client-name">Maurizio Merluzzo</div>
       </div>
 
       <!-- Loghi clienti (30) — brand forti distribuiti; tile = box colorato proprio -->
 
-      <div class="client"><div class="client-logo"><img src="media/clienti/the-best-blend.png" alt="The Best Blend" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/chitarra-facile-color.png" alt="Chitarra Facile" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo tile"><img src="media/clienti/dolly-noire.png" alt="Dolly Noire" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/cydonia.png" alt="Cydonia" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/esselunga-color.png" alt="Esselunga" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/altavia-italia-color.png" alt="Altavia Italia" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/alberto-urso.png" alt="Alberto Urso" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo tile"><img src="media/clienti/lomography.png" alt="Lomography" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/mustard-color.png" alt="Mustard" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/pvk-color.png" alt="PVK" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo tile"><img src="media/clienti/milan-games-week.png" alt="Milan Games Week" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/carmagheddon.png" alt="Carmagheddon" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/rb-spettacoli.png" alt="RB Spettacoli" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/24-7-production-color.png" alt="24/7 Production" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo tile"><img src="media/clienti/slim-dogs.png" alt="Slim Dogs" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/unaragazza-cinema.png" alt="Una Ragazza per il Cinema" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/redbull.png" alt="Red Bull" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/netflix.png" alt="Netflix" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/milano-design-week.png" alt="Milano Design Week" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/pixelart-color.png" alt="PixelArt" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/dinobros-color.png" alt="DinoBros" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/sony-pictures.png" alt="Sony Pictures" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo has-swap"><img src="media/clienti/wepromo-color.png" alt="WePromo" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/pianocity-milano.png" alt="PianoCity Milano" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/f-productions.png" alt="F-Productions" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo tile"><img src="media/clienti/jazzmi.png" alt="JazzMi" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/the-pepegas.png" alt="The Pepegas" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo tile"><img src="media/clienti/cinefacts.png" alt="CineFacts" loading="lazy"></div></div>
-      <div class="client"><div class="client-logo"><img src="media/clienti/fusina-lab.png" alt="Fusina Lab" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img width="280" height="137" src="media/clienti/the-best-blend.webp" alt="The Best Blend" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img width="500" height="88" src="media/clienti/chitarra-facile-color.webp" alt="Chitarra Facile" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo tile"><img width="662" height="253" src="media/clienti/dolly-noire.webp" alt="Dolly Noire" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img width="360" height="333" src="media/clienti/cydonia.webp" alt="Cydonia" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img width="321" height="120" src="media/clienti/esselunga-color.webp" alt="Esselunga" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img width="727" height="120" src="media/clienti/altavia-italia-color.webp" alt="Altavia Italia" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img width="150" height="150" src="media/clienti/alberto-urso.webp" alt="Alberto Urso" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo tile"><img width="600" height="149" src="media/clienti/lomography.webp" alt="Lomography" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img width="464" height="120" src="media/clienti/mustard-color.webp" alt="Mustard" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img width="251" height="120" src="media/clienti/pvk-color.webp" alt="PVK" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo tile"><img width="1014" height="457" src="media/clienti/milan-games-week.webp" alt="Milan Games Week" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img width="600" height="600" src="media/clienti/carmagheddon.webp" alt="Carmagheddon" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img width="616" height="120" src="media/clienti/rb-spettacoli.webp" alt="RB Spettacoli" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img width="144" height="144" src="media/clienti/24-7-production-color.webp" alt="24/7 Production" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo tile"><img width="784" height="703" src="media/clienti/slim-dogs.webp" alt="Slim Dogs" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img width="120" height="48" src="media/clienti/unaragazza-cinema.webp" alt="Una Ragazza per il Cinema" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img width="600" height="369" src="media/clienti/redbull.webp" alt="Red Bull" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img width="600" height="161" src="media/clienti/netflix.webp" alt="Netflix" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img width="318" height="137" src="media/clienti/milano-design-week.webp" alt="Milano Design Week" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img width="510" height="120" src="media/clienti/pixelart-color.webp" alt="PixelArt" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img width="800" height="120" src="media/clienti/dinobros-color.webp" alt="DinoBros" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img width="600" height="931" src="media/clienti/sony-pictures.webp" alt="Sony Pictures" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo has-swap"><img width="245" height="120" src="media/clienti/wepromo-color.webp" alt="WePromo" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img width="114" height="120" src="media/clienti/pianocity-milano.webp" alt="PianoCity Milano" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img width="118" height="120" src="media/clienti/f-productions.webp" alt="F-Productions" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo tile"><img width="258" height="513" src="media/clienti/jazzmi.webp" alt="JazzMi" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img width="290" height="120" src="media/clienti/the-pepegas.webp" alt="The Pepegas" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo tile"><img width="834" height="181" src="media/clienti/cinefacts.webp" alt="CineFacts" loading="lazy"></div></div>
+      <div class="client"><div class="client-logo"><img width="765" height="120" src="media/clienti/fusina-lab.webp" alt="Fusina Lab" loading="lazy"></div></div>
     </div>
   </section>
 </div>
@@ -1029,7 +1041,7 @@
       <!-- ════ ESSELUNGA × ALTAVIA ITALIA ════ -->
       <article class="proj reveal" id="proj-esselunga">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-esselunga">
-          <div class="proj-cover"><img src="media/lavori/esselunga-cover.jpg" alt="Shooting fotografico per catalogo Fidaty Esselunga" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
+          <div class="proj-cover"><img width="1400" height="1050" src="media/lavori/esselunga-cover.webp" alt="Shooting fotografico per catalogo Fidaty Esselunga" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
           <div class="proj-summary">
             <span class="proj-tag">Fotografia · Catalogo</span>
             <h3><b>Esselunga</b> × Altavia</h3>
@@ -1058,7 +1070,7 @@
             <div class="proj-sub-eye">Dietro le quinte</div>
             <h3 class="proj-subh">Gallery</h3>
             <div class="proj-gal" id="gal-esselunga">
-              <div class="proj-gal-item"><img src="media/lavori/esselunga-cover.jpg" alt="Catalogo Fidaty Esselunga — Ottobre 2026" loading="lazy"></div>
+              <div class="proj-gal-item"><img width="1400" height="1050" src="media/lavori/esselunga-cover.webp" alt="Catalogo Fidaty Esselunga — Ottobre 2026" loading="lazy"></div>
             </div>
             <button class="proj-close" type="button" aria-label="Chiudi lettura">Chiudi <span class="chev-up">⌃</span></button>
           </div>
@@ -1068,7 +1080,7 @@
       <!-- ════ PROGETTO 2: PIANO CITY MILANO ════ -->
       <article class="proj reveal" id="proj-pianocity">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-pianocity">
-          <div class="proj-cover"><img src="media/lavori/pianocity-cover.jpg" alt="Piano City Milano — produzione video" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
+          <div class="proj-cover"><img width="1200" height="750" src="media/lavori/pianocity-cover.webp" alt="Piano City Milano — produzione video" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
           <div class="proj-summary">
             <span class="proj-tag">Festival · Milano</span>
             <h3>Piano City <b>Milano</b> 2026</h3>
@@ -1105,11 +1117,11 @@
             <div class="proj-sub-eye">Dietro le quinte</div>
             <h3 class="proj-subh">Le giornate</h3>
             <div class="proj-gal" id="gal-pianocity">
-              <div class="proj-gal-item tall"><img src="media/lavori/pianocity-portagenova.jpg" alt="Pianista che suona accanto ai binari di Porta Genova" data-lb loading="lazy"></div>
-              <div class="proj-gal-item"><img src="media/lavori/pianocity-applemusic.jpg" alt="Palco Apple Music Classical con due pianoforti" data-lb loading="lazy"></div>
-              <div class="proj-gal-item wide"><img src="media/lavori/pianocity-campo.jpg" alt="Vista aerea del pubblico sul campo durante un concerto" data-lb loading="lazy"></div>
-              <div class="proj-gal-item tall"><img src="media/lavori/pianocity-pass.jpg" alt="Pass AAA Piano City Milano 15-17 maggio 2026" data-lb loading="lazy"></div>
-              <div class="proj-gal-item"><img src="media/lavori/pianocity-palco.jpg" alt="Allestimento del palco di Piano City Milano" data-lb loading="lazy"></div>
+              <div class="proj-gal-item tall"><img width="1152" height="2048" src="media/lavori/pianocity-portagenova.webp" alt="Pianista che suona accanto ai binari di Porta Genova" data-lb loading="lazy"></div>
+              <div class="proj-gal-item"><img width="1600" height="900" src="media/lavori/pianocity-applemusic.webp" alt="Palco Apple Music Classical con due pianoforti" data-lb loading="lazy"></div>
+              <div class="proj-gal-item wide"><img width="1206" height="1538" src="media/lavori/pianocity-campo.webp" alt="Vista aerea del pubblico sul campo durante un concerto" data-lb loading="lazy"></div>
+              <div class="proj-gal-item tall"><img width="1600" height="2844" src="media/lavori/pianocity-pass.webp" alt="Pass AAA Piano City Milano 15-17 maggio 2026" data-lb loading="lazy"></div>
+              <div class="proj-gal-item"><img width="1600" height="994" src="media/lavori/pianocity-palco.webp" alt="Allestimento del palco di Piano City Milano" data-lb loading="lazy"></div>
             </div>
 
             <button class="proj-close" type="button" aria-label="Chiudi lettura">Chiudi <span class="chev-up">⌃</span></button>
@@ -1121,7 +1133,7 @@
       <!-- ════ CHITARRA FACILE ════ -->
       <article class="proj reveal" id="proj-chitarrafacile">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-chitarrafacile">
-          <div class="proj-cover"><img src="media/lavori/chitfacile6.jpg" alt="Produzione video per Chitarra Facile" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
+          <div class="proj-cover"><img width="1267" height="712" src="media/lavori/chitfacile6.webp" alt="Produzione video per Chitarra Facile" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
           <div class="proj-summary">
             <span class="proj-tag">Produzione Video · Social</span>
             <h3>Chitarra <b>Facile</b></h3>
@@ -1150,12 +1162,12 @@
             <div class="proj-sub-eye">Dietro le quinte</div>
             <h3 class="proj-subh">Gallery</h3>
             <div class="proj-gal" id="gal-chitarrafacile">
-              <div class="proj-gal-item"><img src="media/lavori/chitfacile1.jpg" alt="Chitarra Facile — studio recording" loading="lazy"></div>
-              <div class="proj-gal-item"><img src="media/lavori/chitfacile2.jpg" alt="Chitarra Facile — videolezione con spartito" loading="lazy"></div>
-              <div class="proj-gal-item"><img src="media/lavori/chitfacile3.jpg" alt="Chitarra Facile — intervista artisti" loading="lazy"></div>
-              <div class="proj-gal-item"><img src="media/lavori/chitfacile4.jpg" alt="Chitarra Facile — workshop live su palco" loading="lazy"></div>
-              <div class="proj-gal-item"><img src="media/lavori/chitfacile5.jpg" alt="Chitarra Facile — performance dal vivo" loading="lazy"></div>
-              <div class="proj-gal-item"><img src="media/lavori/chitfacile6.jpg" alt="Chitarra Facile — masterclass con tablatura" loading="lazy"></div>
+              <div class="proj-gal-item"><img width="1024" height="582" src="media/lavori/chitfacile1.webp" alt="Chitarra Facile — studio recording" loading="lazy"></div>
+              <div class="proj-gal-item"><img width="1267" height="712" src="media/lavori/chitfacile2.webp" alt="Chitarra Facile — videolezione con spartito" loading="lazy"></div>
+              <div class="proj-gal-item"><img width="1267" height="712" src="media/lavori/chitfacile3.webp" alt="Chitarra Facile — intervista artisti" loading="lazy"></div>
+              <div class="proj-gal-item"><img width="1267" height="712" src="media/lavori/chitfacile4.webp" alt="Chitarra Facile — workshop live su palco" loading="lazy"></div>
+              <div class="proj-gal-item"><img width="1267" height="712" src="media/lavori/chitfacile5.webp" alt="Chitarra Facile — performance dal vivo" loading="lazy"></div>
+              <div class="proj-gal-item"><img width="1267" height="712" src="media/lavori/chitfacile6.webp" alt="Chitarra Facile — masterclass con tablatura" loading="lazy"></div>
             </div>
             <button class="proj-close" type="button" aria-label="Chiudi lettura">Chiudi <span class="chev-up">⌃</span></button>
           </div>
@@ -1165,7 +1177,7 @@
       <!-- ════ THEBESTBLEND × NETFLIX ════ -->
       <article class="proj reveal" id="proj-thebestblend">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-thebestblend">
-          <div class="proj-cover"><img src="media/lavori/thebestblend-cover.jpg" alt="TheBestBlend × Netflix — Guida completa alla WWE" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
+          <div class="proj-cover"><img width="1280" height="720" src="media/lavori/thebestblend-cover.webp" alt="TheBestBlend × Netflix — Guida completa alla WWE" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
           <div class="proj-summary">
             <span class="proj-tag">Produzione video · Netflix</span>
             <h3><b>TheBestBlend</b> × Netflix</h3>
@@ -1200,7 +1212,7 @@
       <!-- ════ KENTO — NOSTRA SIGNORA DELLE LACRIME ════ -->
       <article class="proj reveal" id="proj-kento">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-kento">
-          <div class="proj-cover"><img src="media/lavori/kento-cover.jpg" alt="Kento — Nostra Signora delle Lacrime" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
+          <div class="proj-cover"><img width="1280" height="720" src="media/lavori/kento-cover.webp" alt="Kento — Nostra Signora delle Lacrime" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
           <div class="proj-summary">
             <span class="proj-tag">Music video · Reportage</span>
             <h3><b>Kento</b> — Nostra Signora delle Lacrime</h3>
@@ -1229,10 +1241,10 @@
               <a class="proj-cause-link" href="https://dona.sosmediterranee.it/kento/~mia-donazione?_cv=1" target="_blank" rel="noopener">Sostieni SOS Mediterranee &rarr;</a>
             </div>
             <div class="proj-gal">
-              <div class="proj-gal-item"><img src="media/lavori/kento-gal1.jpg" alt="A bordo della Ocean Viking durante la missione" loading="lazy"></div>
-              <div class="proj-gal-item"><img src="media/lavori/kento-gal2.jpg" alt="Kento durante un'esibizione live" loading="lazy"></div>
-              <div class="proj-gal-item wide"><img src="media/lavori/kento-gal3.jpg" alt="Il servizio askanews sulla missione Ocean Viking" loading="lazy"></div>
-              <div class="proj-gal-item"><img src="media/lavori/kento-gal4.jpg" alt="Il vinile di Nostra Signora delle Lacrime, in collaborazione con SOS Mediterranee" loading="lazy"></div>
+              <div class="proj-gal-item"><img width="1280" height="960" src="media/lavori/kento-gal1.webp" alt="A bordo della Ocean Viking durante la missione" loading="lazy"></div>
+              <div class="proj-gal-item"><img width="400" height="267" src="media/lavori/kento-gal2.webp" alt="Kento durante un'esibizione live" loading="lazy"></div>
+              <div class="proj-gal-item wide"><img width="1500" height="844" src="media/lavori/kento-gal3.webp" alt="Il servizio askanews sulla missione Ocean Viking" loading="lazy"></div>
+              <div class="proj-gal-item"><img width="1536" height="2048" src="media/lavori/kento-gal4.webp" alt="Il vinile di Nostra Signora delle Lacrime, in collaborazione con SOS Mediterranee" loading="lazy"></div>
             </div>
             <div class="proj-credits">
               <span>Immagini in nave: <b>Cecilia Palmeri</b> — Factanza Media</span>
@@ -1358,12 +1370,12 @@
     <div class="swipe-hint" aria-hidden="true">Scorri <span>→</span></div>
     <div class="works-grid">
       <!-- [PLACEHOLDER] thumbnail + data-video col link al video -->
-      <div class="work reveal" data-video="https://www.youtube.com/watch?v=sc4kQkSc1lI" data-title="Ho ascoltato SABAKU per 420 ore di fila — Scuola di Voce" role="button" tabindex="0" aria-label="Apri video: Ho ascoltato SABAKU per 420 ore di fila, Scuola di Voce"><div class="work-thumb"><img src="https://img.youtube.com/vi/sc4kQkSc1lI/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/sc4kQkSc1lI/hqdefault.jpg'" alt="" style="width:100%;height:100%;object-fit:cover;"></div><span class="work-cat" style="background:var(--cat-social);">Content</span><div class="work-play"></div><div class="work-info"><h3>Ho ascoltato SABAKU per 420 ore</h3><span>Scuola di Voce · 2026</span></div></div>
-      <div class="work reveal" data-video="https://www.youtube.com/watch?v=-8cebsWkk_8" data-title="SONOHRA SENZA FILTRI su Sanremo e industria musicale" role="button" tabindex="0" aria-label="Apri video: Sonohra senza filtri su Sanremo e industria musicale"><div class="work-thumb"><img src="https://img.youtube.com/vi/-8cebsWkk_8/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/-8cebsWkk_8/hqdefault.jpg'" alt="" style="width:100%;height:100%;object-fit:cover;"></div><span class="work-cat" style="background:var(--cat-corporate);">Intervista</span><div class="work-play"></div><div class="work-info"><h3>Sonohra senza filtri</h3><span>Sanremo, industria musicale · 2026</span></div></div>
-      <div class="work reveal" data-video="https://www.instagram.com/pianocitymilano/reel/DZw0j2GMrdw/" data-title="Piano City Milano — Reel" role="button" tabindex="0" aria-label="Apri video: Piano City Milano"><div class="work-thumb"><img src="media/lavori/pianocity-cover.jpg" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#3a5570,#16222e)'" alt="" style="width:100%;height:100%;object-fit:cover;"></div><span class="work-cat" style="background:var(--cat-event);">Eventi</span><div class="work-play"></div><div class="work-info"><h3>Piano City Milano</h3><span>Reel · 2026</span></div></div>
-      <div class="work reveal" data-video="https://youtu.be/795gYiT1N-Q" data-title="Essenza Han — Spot cinema" role="button" tabindex="0" aria-label="Apri video: Essenza Han, spot per il cinema"><div class="work-thumb"><img src="https://img.youtube.com/vi/795gYiT1N-Q/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/795gYiT1N-Q/hqdefault.jpg'" alt="" style="width:100%;height:100%;object-fit:cover;"></div><span class="work-cat" style="background:var(--cat-event);">Spot cinema</span><div class="work-play"></div><div class="work-info"><h3>Essenza Han</h3><span>Spot per il cinema · 2026</span></div></div>
-      <div class="work reveal" data-video="https://www.youtube.com/watch?v=qsVjkphLR-I" data-title="Kento — Nostra Signora delle lacrime" role="button" tabindex="0" aria-label="Apri video: Kento, Nostra Signora delle lacrime"><div class="work-thumb"><img src="https://img.youtube.com/vi/qsVjkphLR-I/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/qsVjkphLR-I/hqdefault.jpg'" alt="" style="width:100%;height:100%;object-fit:cover;"></div><span class="work-cat" style="background:var(--cat-music);">Music</span><div class="work-play"></div><div class="work-info"><h3>Kento</h3><span>Nostra Signora delle lacrime · 2026</span></div></div>
-      <div class="work reveal" data-video="https://www.youtube.com/watch?v=FAgE18h1RYE" data-title="VAEVA | LIVE at Circolo Magnolia" role="button" tabindex="0" aria-label="Apri video: VAEVA Live at Circolo Magnolia"><div class="work-thumb"><img src="https://img.youtube.com/vi/FAgE18h1RYE/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/FAgE18h1RYE/hqdefault.jpg'" alt="" style="width:100%;height:100%;object-fit:cover;"></div><span class="work-cat" style="background:var(--cat-music);">Live</span><div class="work-play"></div><div class="work-info"><h3>VAEVA</h3><span>Live at Circolo Magnolia · 2026</span></div></div>
+      <div class="work reveal" data-video="https://www.youtube.com/watch?v=sc4kQkSc1lI" data-title="Ho ascoltato SABAKU per 420 ore di fila — Scuola di Voce" role="button" tabindex="0" aria-label="Apri video: Ho ascoltato SABAKU per 420 ore di fila, Scuola di Voce"><div class="work-thumb"><img src="https://img.youtube.com/vi/sc4kQkSc1lI/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/sc4kQkSc1lI/hqdefault.jpg'" alt="Video "Ho ascoltato SABAKU per 420 ore" — Scuola di Voce" style="width:100%;height:100%;object-fit:cover;"></div><span class="work-cat" style="background:var(--cat-social);">Content</span><div class="work-play"></div><div class="work-info"><h3>Ho ascoltato SABAKU per 420 ore</h3><span>Scuola di Voce · 2026</span></div></div>
+      <div class="work reveal" data-video="https://www.youtube.com/watch?v=-8cebsWkk_8" data-title="SONOHRA SENZA FILTRI su Sanremo e industria musicale" role="button" tabindex="0" aria-label="Apri video: Sonohra senza filtri su Sanremo e industria musicale"><div class="work-thumb"><img src="https://img.youtube.com/vi/-8cebsWkk_8/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/-8cebsWkk_8/hqdefault.jpg'" alt="Intervista ai Sonohra su Sanremo e industria musicale" style="width:100%;height:100%;object-fit:cover;"></div><span class="work-cat" style="background:var(--cat-corporate);">Intervista</span><div class="work-play"></div><div class="work-info"><h3>Sonohra senza filtri</h3><span>Sanremo, industria musicale · 2026</span></div></div>
+      <div class="work reveal" data-video="https://www.instagram.com/pianocitymilano/reel/DZw0j2GMrdw/" data-title="Piano City Milano — Reel" role="button" tabindex="0" aria-label="Apri video: Piano City Milano"><div class="work-thumb"><img width="1200" height="750" src="media/lavori/pianocity-cover.webp" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#3a5570,#16222e)'" alt="Reel Piano City Milano" style="width:100%;height:100%;object-fit:cover;"></div><span class="work-cat" style="background:var(--cat-event);">Eventi</span><div class="work-play"></div><div class="work-info"><h3>Piano City Milano</h3><span>Reel · 2026</span></div></div>
+      <div class="work reveal" data-video="https://youtu.be/795gYiT1N-Q" data-title="Essenza Han — Spot cinema" role="button" tabindex="0" aria-label="Apri video: Essenza Han, spot per il cinema"><div class="work-thumb"><img src="https://img.youtube.com/vi/795gYiT1N-Q/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/795gYiT1N-Q/hqdefault.jpg'" alt="Spot cinema "Essenza Han"" style="width:100%;height:100%;object-fit:cover;"></div><span class="work-cat" style="background:var(--cat-event);">Spot cinema</span><div class="work-play"></div><div class="work-info"><h3>Essenza Han</h3><span>Spot per il cinema · 2026</span></div></div>
+      <div class="work reveal" data-video="https://www.youtube.com/watch?v=qsVjkphLR-I" data-title="Kento — Nostra Signora delle lacrime" role="button" tabindex="0" aria-label="Apri video: Kento, Nostra Signora delle lacrime"><div class="work-thumb"><img src="https://img.youtube.com/vi/qsVjkphLR-I/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/qsVjkphLR-I/hqdefault.jpg'" alt="Videoclip Kento — "Nostra Signora delle lacrime"" style="width:100%;height:100%;object-fit:cover;"></div><span class="work-cat" style="background:var(--cat-music);">Music</span><div class="work-play"></div><div class="work-info"><h3>Kento</h3><span>Nostra Signora delle lacrime · 2026</span></div></div>
+      <div class="work reveal" data-video="https://www.youtube.com/watch?v=FAgE18h1RYE" data-title="VAEVA | LIVE at Circolo Magnolia" role="button" tabindex="0" aria-label="Apri video: VAEVA Live at Circolo Magnolia"><div class="work-thumb"><img src="https://img.youtube.com/vi/FAgE18h1RYE/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/FAgE18h1RYE/hqdefault.jpg'" alt="VAEVA live at Circolo Magnolia" style="width:100%;height:100%;object-fit:cover;"></div><span class="work-cat" style="background:var(--cat-music);">Live</span><div class="work-play"></div><div class="work-info"><h3>VAEVA</h3><span>Live at Circolo Magnolia · 2026</span></div></div>
     </div>
   </section>
   <div class="diag"><div class="accent"></div></div>
@@ -1384,9 +1396,9 @@
 
       <div class="film-strip reveal">
         <div class="film-frames">
-          <div class="film-frame"><img src="media/analog/scatto-1.jpg" alt="Ritratto su pellicola — primo piano" loading="lazy"></div>
-          <div class="film-frame"><img src="media/analog/scatto-2.jpg" alt="Ritratto su pellicola — figura in controluce" loading="lazy"></div>
-          <div class="film-frame"><img src="media/analog/scatto-3.jpg" alt="Ritratto su pellicola — Navigli, Milano" loading="lazy"></div>
+          <div class="film-frame"><img width="683" height="1024" src="media/analog/scatto-1.webp" alt="Ritratto su pellicola — primo piano" loading="lazy"></div>
+          <div class="film-frame"><img width="768" height="1152" src="media/analog/scatto-2.webp" alt="Ritratto su pellicola — figura in controluce" loading="lazy"></div>
+          <div class="film-frame"><img width="768" height="1151" src="media/analog/scatto-3.webp" alt="Ritratto su pellicola — Navigli, Milano" loading="lazy"></div>
         </div>
         <div class="film-label"><span class="dot"></span>ILFORD HP5 PLUS · ASA 400 · 36 EXP</div>
       </div>
@@ -1442,7 +1454,7 @@
 
 <!-- VIDEO 2 (dark) -->
 <section class="video-block" aria-label="Showreel 2">
-  <video autoplay muted loop playsinline preload="none" poster="media/videos/showreel-2-poster.jpg">
+  <video autoplay muted loop playsinline preload="none" poster="media/videos/showreel-2-poster.webp">
     <source src="media/videos/showreel-2.mp4" type="video/mp4">
   </video>
   <div class="video-vignette"></div>
@@ -1461,7 +1473,7 @@
       <!-- ════ IL RIFIUTO — CORTOMETRAGGIO ════ -->
       <article class="proj reveal" id="proj-rifiuto">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-rifiuto">
-          <div class="proj-cover"><img src="media/lavori/rifiuto-cover.jpg" alt="Sul set del cortometraggio Il Rifiuto" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
+          <div class="proj-cover"><img width="1280" height="720" src="media/lavori/rifiuto-cover.webp" alt="Sul set del cortometraggio Il Rifiuto" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
           <div class="proj-summary">
             <span class="proj-tag">Cortometraggio · Cinema</span>
             <h3>Il <b>Rifiuto</b></h3>
@@ -1490,7 +1502,7 @@
             <div class="proj-sub-eye">Dietro le quinte</div>
             <h3 class="proj-subh">Gallery</h3>
             <div class="proj-gal" id="gal-rifiuto">
-              <div class="proj-gal-item wide"><img src="media/lavori/rifiuto-cover.jpg" alt="Il Rifiuto — locandina del cortometraggio" loading="lazy"></div>
+              <div class="proj-gal-item wide"><img width="1280" height="720" src="media/lavori/rifiuto-cover.webp" alt="Il Rifiuto — locandina del cortometraggio" loading="lazy"></div>
             </div>
             <div class="proj-sub-eye">Credits</div>
             <h3 class="proj-subh">Il team</h3>
@@ -1520,7 +1532,7 @@
       <!-- ════ PROGETTO 1: CICCIO MERRINO ════ -->
       <article class="proj reveal" id="proj-ciccio">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-ciccio">
-          <div class="proj-cover"><img src="media/lavori/regia-multicamera.jpg" alt="Regia multicamera del live show di Ciccio Merrino" loading="lazy"></div>
+          <div class="proj-cover"><img width="1206" height="1508" src="media/lavori/regia-multicamera.webp" alt="Regia multicamera del live show di Ciccio Merrino" loading="lazy"></div>
           <div class="proj-summary">
             <span class="proj-tag">Live Show · Twitch</span>
             <h3>Ciccio <b>Merrino</b> Live</h3>
@@ -1550,19 +1562,19 @@
             </div>
 
             <figure class="proj-fig">
-              <img src="media/lavori/regia-multicamera.jpg" alt="Regia multicamera con monitor a 8 riquadri e mixer ATEM" data-lb loading="lazy">
+              <img width="1206" height="1508" src="media/lavori/regia-multicamera.webp" alt="Regia multicamera con monitor a 8 riquadri e mixer ATEM" data-lb loading="lazy">
               <figcaption>La regia: 8 sorgenti live, mixer ATEM e scaletta alla mano</figcaption>
             </figure>
 
             <div class="proj-sub-eye">Dietro le quinte</div>
             <h3 class="proj-subh">La macchina</h3>
             <div class="proj-gal">
-              <div class="proj-gal-item wide"><img src="media/lavori/operatore-gimbal.jpg" alt="Operatore con gimbal e softbox Godox sul set" data-lb loading="lazy"></div>
-              <div class="proj-gal-item tall"><img src="media/lavori/sala-regia.jpg" alt="Il team in sala regia con le cuffie" data-lb loading="lazy"></div>
-              <div class="proj-gal-item"><img src="media/lavori/intervista-quiz.jpg" alt="Momento di quiz con microfono e telefono" data-lb loading="lazy"></div>
-              <div class="proj-gal-item wide"><img src="media/lavori/set-ripresa.jpg" alt="Set di ripresa con camera su treppiede e ospiti" data-lb loading="lazy"></div>
-              <div class="proj-gal-item tall"><img src="media/lavori/backstage-team.jpg" alt="Il team in pausa nel backstage" data-lb loading="lazy"></div>
-              <div class="proj-gal-item"><img src="media/lavori/intervista-set.jpg" alt="Intervista sul set bianco" data-lb loading="lazy"></div>
+              <div class="proj-gal-item wide"><img width="1206" height="1508" src="media/lavori/operatore-gimbal.webp" alt="Operatore con gimbal e softbox Godox sul set" data-lb loading="lazy"></div>
+              <div class="proj-gal-item tall"><img width="1206" height="1508" src="media/lavori/sala-regia.webp" alt="Il team in sala regia con le cuffie" data-lb loading="lazy"></div>
+              <div class="proj-gal-item"><img width="1206" height="748" src="media/lavori/intervista-quiz.webp" alt="Momento di quiz con microfono e telefono" data-lb loading="lazy"></div>
+              <div class="proj-gal-item wide"><img width="1206" height="968" src="media/lavori/set-ripresa.webp" alt="Set di ripresa con camera su treppiede e ospiti" data-lb loading="lazy"></div>
+              <div class="proj-gal-item tall"><img width="1206" height="1446" src="media/lavori/backstage-team.webp" alt="Il team in pausa nel backstage" data-lb loading="lazy"></div>
+              <div class="proj-gal-item"><img width="1206" height="704" src="media/lavori/intervista-set.webp" alt="Intervista sul set bianco" data-lb loading="lazy"></div>
             </div>
 
             <div class="proj-sub-eye">Il team video</div>
@@ -1605,7 +1617,7 @@
       <!-- ════ PROGETTO 3: HO FATTO TEATRO ════ -->
       <article class="proj reveal" id="proj-teatro">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-teatro">
-          <div class="proj-cover"><img src="media/lavori/teatro-cover.jpg" alt="Locandina del tour Ho Fatto Teatro di Mario Sturniolo" loading="lazy"></div>
+          <div class="proj-cover"><img width="824" height="515" src="media/lavori/teatro-cover.webp" alt="Locandina del tour Ho Fatto Teatro di Mario Sturniolo" loading="lazy"></div>
           <div class="proj-summary">
             <span class="proj-tag">Live · Club Tour</span>
             <h3>Ho Fatto <b>Teatro</b></h3>
@@ -1635,7 +1647,7 @@
             </div>
 
             <figure class="proj-fig">
-              <img src="media/lavori/teatro-poster.jpg" alt="Locandina ufficiale di Ho Fatto Teatro Club Tour" data-lb loading="lazy">
+              <img width="824" height="1030" src="media/lavori/teatro-poster.webp" alt="Locandina ufficiale di Ho Fatto Teatro Club Tour" data-lb loading="lazy">
               <figcaption>Ho Fatto Teatro · Club Tour — Mario Sturniolo</figcaption>
             </figure>
 
@@ -1648,11 +1660,11 @@
             <div class="proj-sub-eye">Dietro le quinte</div>
             <h3 class="proj-subh">Le serate</h3>
             <div class="proj-gal" id="gal-teatro">
-              <div class="proj-gal-item tall"><img src="media/lavori/teatro-club-rosso.jpg" alt="Il club gremito durante uno spettacolo del tour" data-lb loading="lazy"></div>
-              <div class="proj-gal-item wide"><img src="media/lavori/teatro-palco.jpg" alt="Performance sul palco durante lo show" data-lb loading="lazy" onerror="this.closest('.proj-gal-item').style.display='none'"></div>
-              <div class="proj-gal-item"><img src="media/lavori/teatro-momento.jpg" alt="Momento dello spettacolo dal vivo" data-lb loading="lazy" onerror="this.closest('.proj-gal-item').style.display='none'"></div>
-              <div class="proj-gal-item tall"><img src="media/lavori/teatro-gruppo.jpg" alt="Foto di gruppo con il pubblico a fine show" data-lb loading="lazy" onerror="this.closest('.proj-gal-item').style.display='none'"></div>
-              <div class="proj-gal-item wide"><img src="media/lavori/teatro-pubblico.jpg" alt="Il pubblico durante il concerto" data-lb loading="lazy" onerror="this.closest('.proj-gal-item').style.display='none'"></div>
+              <div class="proj-gal-item tall"><img width="1206" height="1491" src="media/lavori/teatro-club-rosso.webp" alt="Il club gremito durante uno spettacolo del tour" data-lb loading="lazy"></div>
+              <div class="proj-gal-item wide"><img width="1206" height="1059" src="media/lavori/teatro-palco.webp" alt="Performance sul palco durante lo show" data-lb loading="lazy" onerror="this.closest('.proj-gal-item').style.display='none'"></div>
+              <div class="proj-gal-item"><img width="1206" height="1136" src="media/lavori/teatro-momento.webp" alt="Momento dello spettacolo dal vivo" data-lb loading="lazy" onerror="this.closest('.proj-gal-item').style.display='none'"></div>
+              <div class="proj-gal-item tall"><img width="1206" height="1150" src="media/lavori/teatro-gruppo.webp" alt="Foto di gruppo con il pubblico a fine show" data-lb loading="lazy" onerror="this.closest('.proj-gal-item').style.display='none'"></div>
+              <div class="proj-gal-item wide"><img src="media/lavori/teatro-pubblico.webp" alt="Il pubblico durante il concerto" data-lb loading="lazy" onerror="this.closest('.proj-gal-item').style.display='none'"></div>
             </div>
 
             <button class="proj-close" type="button" aria-label="Chiudi lettura">Chiudi <span class="chev-up">⌃</span></button>
@@ -1722,7 +1734,7 @@
     </svg>
   </div>
   <div class="footer-bottom">
-    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967</p>
+    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967 · <a href="/privacy.html" style="color:inherit;">Privacy &amp; Cookie</a></p>
     <div class="footer-social">
       <!-- [PLACEHOLDER] link social reali -->
       <a href="https://www.instagram.com/_davidemorabito" target="_blank" rel="noopener" aria-label="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
@@ -2339,5 +2351,6 @@
   reset();
 })();
 </script>
+  <script src="/cookie-consent.js" defer></script>
 </body>
 </html>

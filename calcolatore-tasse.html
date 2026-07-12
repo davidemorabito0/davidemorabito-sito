@@ -7,6 +7,12 @@
 <script>
   window.dataLayer=window.dataLayer||[];
   function gtag(){dataLayer.push(arguments);}
+  // Consent Mode v2 — tutto negato finché l'utente non accetta
+  gtag('consent','default',{
+    ad_storage:'denied', analytics_storage:'denied',
+    ad_user_data:'denied', ad_personalization:'denied',
+    wait_for_update:500
+  });
   gtag('js',new Date());
   gtag('config','G-7N72HVRGRJ');
   document.addEventListener('DOMContentLoaded',function(){
@@ -18,12 +24,18 @@
   });
 </script>
 <meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#2b4868">
+<link rel="stylesheet" href="/cookie-consent.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#fdf8ee">
 <meta name="color-scheme" content="light only">
 <meta name="supported-color-schemes" content="light">
-<title>Calcolatore Tasse Partita IVA 2026 — Regime Forfettario, INPS e Netto</title>
-<meta name="description" content="Calcolatore gratuito per partita IVA in regime forfettario 2026: calcola imposta sostitutiva (5% o 15%), contributi INPS Gestione Separata e netto da fattura per qualsiasi attività. Online, senza registrazione.">
+<title>Calcolatore Tasse Partita IVA 2026 — Regime Forfettario</title>
+<meta name="description" content="Calcolatore gratuito per partita IVA in regime forfettario 2026: imposta sostitutiva, contributi INPS e netto reale, sia nei primi 5 anni sia dal sesto.">
 <meta name="keywords" content="calcolatore forfettario, regime forfettario 2026, calcolo tasse partita iva, imposta sostitutiva 5%, imposta sostitutiva 15%, inps gestione separata, netto da fattura, calcolo coefficiente redditività, quanto resta da fatturato, tasse freelance">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://davidemorabito.com/calcolatore-tasse.html">
@@ -1562,5 +1574,6 @@
 })();
 </script>
 
+  <script src="/cookie-consent.js" defer></script>
 </body>
 </html>

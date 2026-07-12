@@ -7,6 +7,12 @@
 <script>
   window.dataLayer=window.dataLayer||[];
   function gtag(){dataLayer.push(arguments);}
+  // Consent Mode v2 — tutto negato finché l'utente non accetta
+  gtag('consent','default',{
+    ad_storage:'denied', analytics_storage:'denied',
+    ad_user_data:'denied', ad_personalization:'denied',
+    wait_for_update:500
+  });
   gtag('js',new Date());
   gtag('config','G-7N72HVRGRJ');
   document.addEventListener('DOMContentLoaded',function(){
@@ -18,6 +24,12 @@
   });
 </script>
 <meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#2b4868">
+<link rel="stylesheet" href="/cookie-consent.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ═══════════════ META / SEO ═══════════════ -->
@@ -756,23 +768,23 @@
       <div class="slideshow reveal" id="mainSlideshow">
         <div class="slideshow-track">
           <div class="slide active">
-            <img src="media/foto/moda-1.jpg" alt="Fotografia di moda — editorial" loading="lazy">
+            <img src="media/foto/moda-1.webp" alt="Fotografia di moda — editorial" loading="lazy">
             <div class="slide-caption"><div class="sc-cat">Moda</div><div class="sc-title">Editorial & Campaign</div></div>
           </div>
           <div class="slide">
-            <img src="media/foto/moda-4.jpg" alt="Ritratto fotografico in bianco e nero" loading="lazy">
+            <img src="media/foto/moda-4.webp" alt="Ritratto fotografico in bianco e nero" loading="lazy">
             <div class="slide-caption"><div class="sc-cat">Ritratto</div><div class="sc-title">Black & White</div></div>
           </div>
           <div class="slide">
-            <img src="media/foto/eventi-4.jpg" alt="Reportage di evento" loading="lazy">
+            <img src="media/foto/eventi-4.webp" alt="Reportage di evento" loading="lazy">
             <div class="slide-caption"><div class="sc-cat">Eventi</div><div class="sc-title">Live & Reportage</div></div>
           </div>
           <div class="slide">
-            <img src="media/foto/moda-6.jpg" alt="Street fashion" loading="lazy">
+            <img src="media/foto/moda-6.webp" alt="Street fashion" loading="lazy">
             <div class="slide-caption"><div class="sc-cat">Street</div><div class="sc-title">Fashion in città</div></div>
           </div>
           <div class="slide">
-            <img src="media/foto/moda-2.jpg" alt="Beauty e moda" loading="lazy">
+            <img src="media/foto/moda-2.webp" alt="Beauty e moda" loading="lazy">
             <div class="slide-caption"><div class="sc-cat">Beauty</div><div class="sc-title">Luce & Pelle</div></div>
           </div>
         </div>
@@ -793,12 +805,12 @@
         <p>Editorial, beauty, campagne. Lo styling della luce e la direzione del soggetto per immagini che raccontano un'identità.</p>
       </div>
       <div class="foto-grid">
-        <div class="foto-item reveal"><img src="media/foto/moda-1.jpg" alt="Moda editorial" loading="lazy"><div class="foto-item-overlay"><span>Editorial</span></div></div>
-        <div class="foto-item reveal"><img src="media/foto/moda-3.jpg" alt="Ritratto femminile B/N" loading="lazy"><div class="foto-item-overlay"><span>Ritratto</span></div></div>
-        <div class="foto-item reveal"><img src="media/foto/moda-2.jpg" alt="Beauty" loading="lazy"><div class="foto-item-overlay"><span>Beauty</span></div></div>
-        <div class="foto-item reveal"><img src="media/foto/moda-5.jpg" alt="Ritratto artistico B/N" loading="lazy"><div class="foto-item-overlay"><span>Fine art</span></div></div>
-        <div class="foto-item reveal"><img src="media/foto/moda-4.jpg" alt="Ritratto B/N" loading="lazy"><div class="foto-item-overlay"><span>Black & White</span></div></div>
-        <div class="foto-item reveal"><img src="media/foto/moda-6.jpg" alt="Street fashion" loading="lazy"><div class="foto-item-overlay"><span>Street fashion</span></div></div>
+        <div class="foto-item reveal"><img src="media/foto/moda-1.webp" alt="Moda editorial" loading="lazy"><div class="foto-item-overlay"><span>Editorial</span></div></div>
+        <div class="foto-item reveal"><img src="media/foto/moda-3.webp" alt="Ritratto femminile B/N" loading="lazy"><div class="foto-item-overlay"><span>Ritratto</span></div></div>
+        <div class="foto-item reveal"><img src="media/foto/moda-2.webp" alt="Beauty" loading="lazy"><div class="foto-item-overlay"><span>Beauty</span></div></div>
+        <div class="foto-item reveal"><img src="media/foto/moda-5.webp" alt="Ritratto artistico B/N" loading="lazy"><div class="foto-item-overlay"><span>Fine art</span></div></div>
+        <div class="foto-item reveal"><img src="media/foto/moda-4.webp" alt="Ritratto B/N" loading="lazy"><div class="foto-item-overlay"><span>Black & White</span></div></div>
+        <div class="foto-item reveal"><img src="media/foto/moda-6.webp" alt="Street fashion" loading="lazy"><div class="foto-item-overlay"><span>Street fashion</span></div></div>
       </div>
     </section>
   </div>
@@ -816,8 +828,8 @@
         <p>Still life curato per e-commerce, packaging e campagne. Composizione, luce controllata, dettaglio che fa venire voglia di toccare.</p>
       </div>
       <div class="foto-grid">
-        <div class="foto-item reveal"><img src="media/fotografia/oleato.jpg" alt="Oleato — Tripstillery Milano, packaging e still life" loading="lazy"><div class="foto-item-overlay"><span>Packaging · Tripstillery</span></div></div>
-        <div class="foto-item reveal"><img src="media/fotografia/padel.jpg" alt="Scarpe da padel — still life sportivo su campo" loading="lazy"><div class="foto-item-overlay"><span>Still life · Sport</span></div></div>
+        <div class="foto-item reveal"><img width="864" height="1232" src="media/fotografia/oleato.webp" alt="Oleato — Tripstillery Milano, packaging e still life" loading="lazy"><div class="foto-item-overlay"><span>Packaging · Tripstillery</span></div></div>
+        <div class="foto-item reveal"><img width="844" height="1264" src="media/fotografia/padel.webp" alt="Scarpe da padel — still life sportivo su campo" loading="lazy"><div class="foto-item-overlay"><span>Still life · Sport</span></div></div>
       </div>
       <p style="text-align:center; color:#8a96a5; font-size:13px; margin-top:30px; font-style:italic;">Altri scatti di prodotto in arrivo</p>
     </section>
@@ -832,14 +844,14 @@
         <p>Concerti, presentazioni, momenti dal vivo. Reportage che cattura l'energia e i dettagli che fanno la differenza.</p>
       </div>
       <div class="foto-grid">
-        <div class="foto-item reveal"><img src="media/fotografia/fabrifibra.jpg" alt="Fabri Fibra — Festival Tour 2025, palco a cassetta" loading="lazy"><div class="foto-item-overlay"><span>Concerto · Fabri Fibra</span></div></div>
-        <div class="foto-item reveal"><img src="media/fotografia/eventi-aveda-awards.jpg" alt="Aveda Italia Salons Awards 2022 — premiazione sul palco" loading="lazy"><div class="foto-item-overlay"><span>Aveda · Salons Awards</span></div></div>
-        <div class="foto-item reveal"><img src="media/fotografia/eventi-aveda-fashion.jpg" alt="Aveda — sfilata di moda sul palco" loading="lazy"><div class="foto-item-overlay"><span>Aveda · Fashion Show</span></div></div>
-        <div class="foto-item reveal"><img src="media/fotografia/eventi-aveda-hairshow.jpg" alt="Aveda — hair show con performance dal vivo" loading="lazy"><div class="foto-item-overlay"><span>Aveda · Hair Show</span></div></div>
-        <div class="foto-item reveal"><img src="media/fotografia/eventi-mercomedy.jpg" alt="Mercomedy — stand-up comedy, Ghe Pensi Mi e Baz" loading="lazy"><div class="foto-item-overlay"><span>Stand-up · Mercomedy</span></div></div>
-        <div class="foto-item reveal"><img src="media/fotografia/eventi-max-angioni.jpg" alt="Max Angioni sul palco durante un evento" loading="lazy"><div class="foto-item-overlay"><span>Comedy · Max Angioni</span></div></div>
-        <div class="foto-item reveal"><img src="media/fotografia/eventi-milano-corporate.jpg" alt="Evento corporate con vista sullo skyline di Milano" loading="lazy"><div class="foto-item-overlay"><span>Corporate · Milano</span></div></div>
-        <div class="foto-item reveal"><img src="media/fotografia/eventi-workshop.jpg" alt="Talk e workshop con proiezione" loading="lazy"><div class="foto-item-overlay"><span>Talk · Workshop</span></div></div>
+        <div class="foto-item reveal"><img width="1067" height="1600" src="media/fotografia/fabrifibra.webp" alt="Fabri Fibra — Festival Tour 2025, palco a cassetta" loading="lazy"><div class="foto-item-overlay"><span>Concerto · Fabri Fibra</span></div></div>
+        <div class="foto-item reveal"><img width="1600" height="1067" src="media/fotografia/eventi-aveda-awards.webp" alt="Aveda Italia Salons Awards 2022 — premiazione sul palco" loading="lazy"><div class="foto-item-overlay"><span>Aveda · Salons Awards</span></div></div>
+        <div class="foto-item reveal"><img width="1600" height="1067" src="media/fotografia/eventi-aveda-fashion.webp" alt="Aveda — sfilata di moda sul palco" loading="lazy"><div class="foto-item-overlay"><span>Aveda · Fashion Show</span></div></div>
+        <div class="foto-item reveal"><img width="1600" height="1067" src="media/fotografia/eventi-aveda-hairshow.webp" alt="Aveda — hair show con performance dal vivo" loading="lazy"><div class="foto-item-overlay"><span>Aveda · Hair Show</span></div></div>
+        <div class="foto-item reveal"><img width="1600" height="900" src="media/fotografia/eventi-mercomedy.webp" alt="Mercomedy — stand-up comedy, Ghe Pensi Mi e Baz" loading="lazy"><div class="foto-item-overlay"><span>Stand-up · Mercomedy</span></div></div>
+        <div class="foto-item reveal"><img width="1600" height="1067" src="media/fotografia/eventi-max-angioni.webp" alt="Max Angioni sul palco durante un evento" loading="lazy"><div class="foto-item-overlay"><span>Comedy · Max Angioni</span></div></div>
+        <div class="foto-item reveal"><img width="634" height="476" src="media/fotografia/eventi-milano-corporate.webp" alt="Evento corporate con vista sullo skyline di Milano" loading="lazy"><div class="foto-item-overlay"><span>Corporate · Milano</span></div></div>
+        <div class="foto-item reveal"><img width="1200" height="1600" src="media/fotografia/eventi-workshop.webp" alt="Talk e workshop con proiezione" loading="lazy"><div class="foto-item-overlay"><span>Talk · Workshop</span></div></div>
       </div>
     </section>
   </div>
@@ -853,9 +865,9 @@
         <p>Ritratti su pellicola, luce naturale e grana analogica. Scatti che catturano presenza, corpo e carattere.</p>
       </div>
       <div class="foto-grid">
-        <div class="foto-item reveal"><img src="media/fotografia/beauty-ballo.jpg" alt="Ritratto femminile in movimento su pellicola B/N" loading="lazy"><div class="foto-item-overlay"><span>Movimento</span></div></div>
-        <div class="foto-item reveal"><img src="media/fotografia/beauty-seduta.jpg" alt="Ritratto femminile su balcone, pellicola B/N" loading="lazy"><div class="foto-item-overlay"><span>Ritratto</span></div></div>
-        <div class="foto-item reveal"><img src="media/fotografia/beauty-ritratto.jpg" alt="Ritratto maschile su pellicola B/N a Messina" loading="lazy"><div class="foto-item-overlay"><span>Black &amp; White</span></div></div>
+        <div class="foto-item reveal"><img width="1067" height="1600" src="media/fotografia/beauty-ballo.webp" alt="Ritratto femminile in movimento su pellicola B/N" loading="lazy"><div class="foto-item-overlay"><span>Movimento</span></div></div>
+        <div class="foto-item reveal"><img width="1067" height="1600" src="media/fotografia/beauty-seduta.webp" alt="Ritratto femminile su balcone, pellicola B/N" loading="lazy"><div class="foto-item-overlay"><span>Ritratto</span></div></div>
+        <div class="foto-item reveal"><img width="1067" height="1600" src="media/fotografia/beauty-ritratto.webp" alt="Ritratto maschile su pellicola B/N a Messina" loading="lazy"><div class="foto-item-overlay"><span>Black &amp; White</span></div></div>
       </div>
     </section>
   </div>
@@ -884,7 +896,7 @@
     </svg>
   </div>
   <div class="footer-bottom">
-    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967</p>
+    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967 · <a href="/privacy.html" style="color:inherit;">Privacy &amp; Cookie</a></p>
     <div class="footer-social">
       <!-- [PLACEHOLDER] link social reali -->
       <a href="https://www.instagram.com/_davidemorabito" target="_blank" rel="noopener" aria-label="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
@@ -1096,5 +1108,6 @@
   else { var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload=init; document.head.appendChild(s); }
 })();
 </script>
+  <script src="/cookie-consent.js" defer></script>
 </body>
 </html>

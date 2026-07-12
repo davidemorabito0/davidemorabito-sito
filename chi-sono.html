@@ -7,6 +7,12 @@
 <script>
   window.dataLayer=window.dataLayer||[];
   function gtag(){dataLayer.push(arguments);}
+  // Consent Mode v2 — tutto negato finché l'utente non accetta
+  gtag('consent','default',{
+    ad_storage:'denied', analytics_storage:'denied',
+    ad_user_data:'denied', ad_personalization:'denied',
+    wait_for_update:500
+  });
   gtag('js',new Date());
   gtag('config','G-7N72HVRGRJ');
   document.addEventListener('DOMContentLoaded',function(){
@@ -18,6 +24,12 @@
   });
 </script>
 <meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#2b4868">
+<link rel="stylesheet" href="/cookie-consent.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ═══════════════ META / SEO ═══════════════ -->
@@ -765,23 +777,23 @@
       <div class="clients-label reveal">Hanno scelto di lavorare con me</div>
       <div class="clients-grid reveal">
         <div class="client">
-          <div class="client-portrait"><img src="media/clienti/maurizio-merluzzo.png" alt="Maurizio Merluzzo" loading="lazy"></div>
+          <div class="client-portrait"><img width="400" height="400" src="media/clienti/maurizio-merluzzo.webp" alt="Maurizio Merluzzo" loading="lazy"></div>
           <div class="client-name">Maurizio Merluzzo</div>
         </div>
-        <div class="client"><div class="client-logo"><img src="media/clienti/chitarra-facile.png" alt="Chitarra Facile" loading="lazy"></div></div>
-        <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/altavia-italia.png" alt="Altavia Italia" loading="lazy"><img class="color" src="media/clienti/altavia-italia-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-        <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/esselunga.png" alt="Esselunga" loading="lazy"><img class="color" src="media/clienti/esselunga-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-        <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/dinobros.png" alt="DinoBros" loading="lazy"><img class="color" src="media/clienti/dinobros-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-        <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/wepromo.png" alt="WePromo" loading="lazy"><img class="color" src="media/clienti/wepromo-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-        <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/pvk.png" alt="PVK" loading="lazy"><img class="color" src="media/clienti/pvk-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-        <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/pixelart.png" alt="PixelArt" loading="lazy"><img class="color" src="media/clienti/pixelart-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-        <div class="client"><div class="client-logo"><img src="media/clienti/pianocity-milano.png" alt="PianoCity Milano" loading="lazy"></div></div>
-        <div class="client"><div class="client-logo"><img src="media/clienti/f-productions.png" alt="F-Productions" loading="lazy"></div></div>
-        <div class="client"><div class="client-logo"><img src="media/clienti/fusina-lab.png" alt="Fusina Lab" loading="lazy"></div></div>
-        <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/mustard.png" alt="Mustard" loading="lazy"><img class="color" src="media/clienti/mustard-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
-        <div class="client"><div class="client-logo"><img src="media/clienti/the-pepegas.png" alt="The Pepegas" loading="lazy"></div></div>
-        <div class="client"><div class="client-logo"><img src="media/clienti/rb-spettacoli.png" alt="RB Spettacoli" loading="lazy"></div></div>
-        <div class="client"><div class="client-logo has-swap"><img class="mono" src="media/clienti/24-7-production.png" alt="24/7 Production" loading="lazy"><img class="color" src="media/clienti/24-7-production-color.png" alt="" loading="lazy" aria-hidden="true"></div></div>
+        <div class="client"><div class="client-logo"><img width="681" height="120" src="media/clienti/chitarra-facile.webp" alt="Chitarra Facile" loading="lazy"></div></div>
+        <div class="client"><div class="client-logo has-swap"><img width="727" height="120" class="mono" src="media/clienti/altavia-italia.webp" alt="Altavia Italia" loading="lazy"><img width="727" height="120" class="color" src="media/clienti/altavia-italia-color.webp" alt="" loading="lazy" aria-hidden="true"></div></div>
+        <div class="client"><div class="client-logo has-swap"><img width="321" height="120" class="mono" src="media/clienti/esselunga.webp" alt="Esselunga" loading="lazy"><img width="321" height="120" class="color" src="media/clienti/esselunga-color.webp" alt="" loading="lazy" aria-hidden="true"></div></div>
+        <div class="client"><div class="client-logo has-swap"><img width="800" height="120" class="mono" src="media/clienti/dinobros.webp" alt="DinoBros" loading="lazy"><img width="800" height="120" class="color" src="media/clienti/dinobros-color.webp" alt="" loading="lazy" aria-hidden="true"></div></div>
+        <div class="client"><div class="client-logo has-swap"><img width="245" height="120" class="mono" src="media/clienti/wepromo.webp" alt="WePromo" loading="lazy"><img width="245" height="120" class="color" src="media/clienti/wepromo-color.webp" alt="" loading="lazy" aria-hidden="true"></div></div>
+        <div class="client"><div class="client-logo has-swap"><img width="251" height="120" class="mono" src="media/clienti/pvk.webp" alt="PVK" loading="lazy"><img width="251" height="120" class="color" src="media/clienti/pvk-color.webp" alt="" loading="lazy" aria-hidden="true"></div></div>
+        <div class="client"><div class="client-logo has-swap"><img width="507" height="120" class="mono" src="media/clienti/pixelart.webp" alt="PixelArt" loading="lazy"><img width="510" height="120" class="color" src="media/clienti/pixelart-color.webp" alt="" loading="lazy" aria-hidden="true"></div></div>
+        <div class="client"><div class="client-logo"><img width="114" height="120" src="media/clienti/pianocity-milano.webp" alt="PianoCity Milano" loading="lazy"></div></div>
+        <div class="client"><div class="client-logo"><img width="118" height="120" src="media/clienti/f-productions.webp" alt="F-Productions" loading="lazy"></div></div>
+        <div class="client"><div class="client-logo"><img width="765" height="120" src="media/clienti/fusina-lab.webp" alt="Fusina Lab" loading="lazy"></div></div>
+        <div class="client"><div class="client-logo has-swap"><img width="464" height="120" class="mono" src="media/clienti/mustard.webp" alt="Mustard" loading="lazy"><img width="464" height="120" class="color" src="media/clienti/mustard-color.webp" alt="" loading="lazy" aria-hidden="true"></div></div>
+        <div class="client"><div class="client-logo"><img width="290" height="120" src="media/clienti/the-pepegas.webp" alt="The Pepegas" loading="lazy"></div></div>
+        <div class="client"><div class="client-logo"><img width="616" height="120" src="media/clienti/rb-spettacoli.webp" alt="RB Spettacoli" loading="lazy"></div></div>
+        <div class="client"><div class="client-logo has-swap"><img width="453" height="120" class="mono" src="media/clienti/24-7-production.webp" alt="24/7 Production" loading="lazy"><img width="144" height="144" class="color" src="media/clienti/24-7-production-color.webp" alt="" loading="lazy" aria-hidden="true"></div></div>
       </div>
     </section>
   </div>
@@ -812,7 +824,7 @@
     </svg>
   </div>
   <div class="footer-bottom">
-    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967</p>
+    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967 · <a href="/privacy.html" style="color:inherit;">Privacy &amp; Cookie</a></p>
     <div class="footer-social">
       <!-- [PLACEHOLDER] link social reali -->
       <a href="https://www.instagram.com/_davidemorabito" target="_blank" rel="noopener" aria-label="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
@@ -1116,5 +1128,6 @@
 })();
 </script>
 
+  <script src="/cookie-consent.js" defer></script>
 </body>
 </html>

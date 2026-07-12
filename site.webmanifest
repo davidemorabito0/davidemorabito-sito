@@ -1,0 +1,14 @@
+{
+  "name": "Davide Morabito — Videomaker & Fotografo",
+  "short_name": "Davide Morabito",
+  "description": "Videomaker e fotografo freelance a Milano. Video aziendali, matrimoni, eventi e contenuti social.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2b4868",
+  "theme_color": "#2b4868",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

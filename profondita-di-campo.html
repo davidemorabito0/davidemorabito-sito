@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta name="google-site-verification" content="0D9xVTcIzWZeSobQT0zp5xdG6rSIn4cXBrK1XTlb27c" />
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7N72HVRGRJ"></script>
+<script>
+  window.dataLayer=window.dataLayer||[];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent','default',{
+    ad_storage:'denied', analytics_storage:'denied',
+    ad_user_data:'denied', ad_personalization:'denied',
+    wait_for_update:500
+  });
+  gtag('js',new Date());
+  gtag('config','G-7N72HVRGRJ');
+</script>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#2b4868">
+<link rel="stylesheet" href="/cookie-consent.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Calcolatore Profondità di Campo (DoF) — Iperfocale e Fuoco</title>
+<meta name="description" content="Calcola la profondità di campo, la distanza iperfocale e la zona a fuoco in base a sensore, focale, apertura e distanza. Preset per i sensori più comuni. Gratis.">
+<meta name="author" content="Davide Morabito">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:title" content="Calcolatore Profondità di Campo (DoF)">
+<meta property="og:description" content="Zona a fuoco, iperfocale, davanti e dietro il soggetto: in base a sensore, focale e apertura.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://davidemorabito.com/profondita-di-campo.html">
+<meta property="og:image" content="https://davidemorabito.com/media/og-cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="Davide Morabito">
+<meta property="og:locale" content="it_IT">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Calcolatore Profondità di Campo (DoF)">
+<meta name="twitter:description" content="Zona a fuoco e iperfocale in base a sensore, focale e apertura.">
+<meta name="twitter:image" content="https://davidemorabito.com/media/og-cover.jpg">
+<link rel="canonical" href="https://davidemorabito.com/profondita-di-campo.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Calcolatore Profondità di Campo",
+  "url": "https://davidemorabito.com/profondita-di-campo.html",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+  "author": { "@type": "Person", "name": "Davide Morabito", "url": "https://davidemorabito.com" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Cos'è la profondità di campo?",
+      "acceptedAnswer": { "@type": "Answer", "text": "È la zona, davanti e dietro il punto di messa a fuoco, che appare nitida in una foto. Dipende da apertura del diaframma, lunghezza focale, distanza dal soggetto e dimensione del sensore. Aperture più chiuse, focali più corte e sensori più piccoli aumentano la profondità di campo." } },
+    { "@type": "Question", "name": "Cos'è la distanza iperfocale?",
+      "acceptedAnswer": { "@type": "Answer", "text": "È la distanza di messa a fuoco che rende nitido tutto da metà di quella distanza fino all'infinito. Mettere a fuoco sull'iperfocale è la tecnica classica per la fotografia di paesaggio, perché massimizza la profondità di campo con quella combinazione di focale e apertura." } }
+  ]
+}
+</script>
+
+<style>
+  :root {
+    --navy:#2b4868; --navy-deep:#1a2f45; --navy-darker:#122031; --navy-mid:#223a55;
+    --navy-light:#3d6289; --navy-pale:#6b8fb5;
+    --amber:#ffad01; --amber-light:#ffc844; --amber-deep:#e69a00;
+    --warm-gray-light:#b5ada5; --ink:#14202e; --white:#fff;
+    --dark:#0e1620; --card:#16232f; --card-line:rgba(255,255,255,.09);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :focus-visible { outline:2px solid var(--amber); outline-offset:3px; border-radius:3px; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'DM Sans',sans-serif; background:var(--dark); color:#eef2f6; overflow-x:hidden; line-height:1.7; }
+  ::selection { background:var(--amber); color:var(--navy-deep); }
+  h1,h2,h3,h4 { font-family:'Jost','Futura',sans-serif; }
+  a { color:var(--amber); }
+  @media (prefers-reduced-motion:reduce){ *,*::before,*::after{ animation-duration:.01ms!important; transition-duration:.01ms!important; } }
+
+  .nav { position:fixed; top:0; left:0; right:0; z-index:1000; padding:16px 4vw; display:flex; justify-content:space-between; align-items:center; gap:16px; transition:all .4s ease; }
+  .nav.scrolled { padding:10px 4vw; background:rgba(14,22,32,.88); backdrop-filter:blur(22px); border-bottom:1px solid rgba(255,255,255,.07); }
+  .nav-brand { font-family:'Jost',sans-serif; font-size:22px; font-weight:300; letter-spacing:1.5px; color:#fff; text-decoration:none; white-space:nowrap; }
+  .nav-brand b { font-weight:700; color:var(--amber); }
+  .nav-links { display:flex; gap:18px; list-style:none; align-items:center; }
+  .nav-links a { font-size:9.5px; letter-spacing:1.2px; text-transform:uppercase; color:#c9cfd6; text-decoration:none; font-weight:500; transition:color .3s; position:relative; white-space:nowrap; }
+  .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:1px; background:var(--amber); transition:width .3s; }
+  .nav-links a:hover { color:#fff; } .nav-links a:hover::after { width:100%; }
+  .nav-links a.active { color:var(--amber); }
+  @media (max-width:980px){ .nav-links{ display:none; } }
+  .nav-toggle { display:none; width:42px; height:42px; border:none; background:transparent; cursor:pointer; flex-direction:column; justify-content:center; align-items:center; gap:5px; z-index:1101; }
+  .nav-toggle span { width:24px; height:2px; background:#fff; border-radius:2px; transition:transform .3s ease, opacity .3s ease; }
+  .nav-toggle.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2){ opacity:0; }
+  .nav-toggle.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+  @media (max-width:980px){ .nav-toggle{ display:flex; } }
+  .mobile-menu { position:fixed; inset:0; z-index:1100; background:rgba(14,22,32,.97); backdrop-filter:blur(20px); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .35s ease; }
+  .mobile-menu.open { opacity:1; pointer-events:auto; }
+  .mobile-menu-inner { display:flex; flex-direction:column; align-items:center; gap:26px; }
+  .mobile-menu-inner a { font-family:'Jost',sans-serif; font-size:28px; font-weight:300; letter-spacing:2px; color:#fff; text-decoration:none; }
+  .mobile-menu-inner a.active, .mobile-menu-inner a:hover { color:var(--amber); }
+
+  .hero { min-height:48vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:128px 5vw 46px; background:radial-gradient(ellipse 80% 60% at 50% 30%, rgba(43,72,104,.4), transparent), var(--dark); }
+  .hero-eyebrow { font-family:'Jost',sans-serif; font-size:11px; letter-spacing:6px; text-transform:uppercase; color:var(--amber); font-weight:500; margin-bottom:22px; }
+  .hero h1 { font-size:clamp(30px,5.6vw,62px); font-weight:200; letter-spacing:1px; line-height:1; color:#fff; }
+  .hero h1 b { font-weight:800; color:var(--amber); }
+  .hero-tag { font-family:'Jost',sans-serif; font-size:clamp(13px,1.6vw,16px); font-weight:300; letter-spacing:3px; text-transform:uppercase; color:var(--warm-gray-light); margin-top:20px; }
+
+  .app { max-width:1000px; margin:0 auto; padding:16px 5vw 34px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start; }
+  @media (max-width:820px){ .grid{ grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--card-line); border-radius:18px; padding:28px 26px; }
+  .card h2 { font-size:14px; letter-spacing:2px; text-transform:uppercase; color:var(--amber); font-weight:600; margin-bottom:22px; }
+  .field { margin-bottom:20px; }
+  .field:last-child { margin-bottom:0; }
+  .field label { display:block; font-size:14px; font-weight:500; color:#dfe7ef; margin-bottom:9px; }
+  .field label .v { float:right; color:var(--amber); font-family:'Jost',sans-serif; font-weight:600; }
+  input[type=number], select { width:100%; background:#0e1a25; border:1.5px solid rgba(255,255,255,.12); border-radius:11px; padding:14px 16px; color:#fff; font-family:'DM Sans',sans-serif; font-size:16px; transition:border-color .2s; -moz-appearance:textfield; }
+  input:focus, select:focus { outline:none; border-color:var(--amber); }
+  input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+  select { cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238ea2b6' d='M6 8 0 0h12z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 16px center; padding-right:40px; }
+  input[type=range] { width:100%; -webkit-appearance:none; appearance:none; height:5px; border-radius:5px; background:#28384a; outline:none; margin-top:4px; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--amber); cursor:pointer; border:3px solid #16232f; box-shadow:0 2px 8px rgba(0,0,0,.4); }
+  input[type=range]::-moz-range-thumb { width:20px; height:20px; border-radius:50%; background:var(--amber); cursor:pointer; border:3px solid #16232f; }
+  .aperture-row { display:flex; gap:10px; }
+  .aperture-row select { flex:1; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+  /* RESULT */
+  .result-hero { background:linear-gradient(135deg,var(--navy),var(--navy-deep)); border:1px solid rgba(255,173,1,.25); border-radius:18px; padding:28px 26px; text-align:center; margin-bottom:20px; position:relative; overflow:hidden; }
+  .result-hero::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,var(--amber),transparent); }
+  .result-label { font-family:'Jost',sans-serif; font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--navy-pale); margin-bottom:8px; }
+  .result-big { font-family:'Jost',sans-serif; font-size:clamp(38px,8vw,58px); font-weight:800; color:var(--amber); line-height:1; }
+  .result-big span { font-size:.42em; font-weight:300; color:#cddaeb; }
+  .result-sub { font-size:13px; color:#aebfd0; margin-top:10px; }
+
+  /* Visual bar */
+  .dof-vis { margin:0 0 20px; background:var(--card); border:1px solid var(--card-line); border-radius:14px; padding:22px 24px; }
+  .dof-vis .vt { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#8ea2b6; margin-bottom:16px; }
+  .bar-wrap { position:relative; height:54px; }
+  .bar-track { position:absolute; top:22px; left:0; right:0; height:8px; border-radius:8px; background:linear-gradient(90deg,#22303f,#28384a); overflow:hidden; }
+  .bar-zone { position:absolute; top:22px; height:8px; background:linear-gradient(90deg,var(--amber-deep),var(--amber),var(--amber-light)); border-radius:8px; box-shadow:0 0 14px rgba(255,173,1,.5); transition:left .3s, width .3s; }
+  .bar-cam { position:absolute; top:14px; left:0; font-size:20px; transform:translateX(-50%); }
+  .bar-subj { position:absolute; top:2px; width:2px; height:38px; background:#fff; transition:left .3s; }
+  .bar-subj::after { content:'soggetto'; position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-size:9px; color:#fff; white-space:nowrap; letter-spacing:.5px; }
+  .bar-labels { display:flex; justify-content:space-between; margin-top:8px; font-size:11px; color:#8ea2b6; }
+
+  .result-rows { display:grid; gap:2px; background:var(--card-line); border-radius:14px; overflow:hidden; border:1px solid var(--card-line); }
+  .rrow { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:var(--card); font-size:15px; }
+  .rrow .k { color:#c3cfdb; }
+  .rrow .v { font-weight:600; color:#fff; font-variant-numeric:tabular-nums; }
+  .rrow.accent .v { color:var(--amber); }
+  .rrow.big { padding:18px 20px; }
+  .rrow.big .k { font-family:'Jost',sans-serif; font-weight:600; }
+  .rrow.big .v { font-size:18px; color:var(--amber); }
+
+  .content { max-width:820px; margin:0 auto; padding:44px 5vw 90px; }
+  .content h2 { font-size:clamp(24px,3.6vw,34px); font-weight:700; color:#fff; margin:44px 0 16px; }
+  .content h3 { font-size:19px; font-weight:600; color:var(--amber-light); margin:28px 0 10px; }
+  .content p { color:#c4cfda; margin-bottom:16px; }
+  .content ul { margin:0 0 18px 22px; color:#c4cfda; }
+  .content li { margin-bottom:9px; }
+  .faq-item { border-bottom:1px solid rgba(255,255,255,.09); padding:20px 0; }
+  .faq-item summary { font-family:'Jost',sans-serif; font-size:17px; font-weight:500; color:#fff; cursor:pointer; list-style:none; display:flex; justify-content:space-between; gap:16px; }
+  .faq-item summary::-webkit-details-marker { display:none; }
+  .faq-item summary::after { content:'+'; color:var(--amber); font-size:22px; line-height:1; }
+  .faq-item[open] summary::after { content:'−'; }
+  .faq-item p { margin-top:12px; margin-bottom:0; }
+  .cta-band { background:linear-gradient(135deg,var(--navy),var(--navy-deep)); border-radius:18px; padding:38px 32px; text-align:center; margin-top:40px; border:1px solid rgba(255,173,1,.2); }
+  .cta-band h3 { font-size:clamp(20px,3vw,26px); color:#fff; font-weight:600; margin-bottom:10px; }
+  .cta-band p { color:#aebfd0; margin-bottom:20px; }
+  .btn { display:inline-block; background:var(--amber); color:var(--navy-deep); padding:14px 32px; border-radius:10px; font-weight:600; text-decoration:none; font-family:'Jost',sans-serif; letter-spacing:.5px; transition:transform .15s, background .2s; }
+  .btn:hover { transform:translateY(-2px); background:var(--amber-light); }
+  .tool-links { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:22px; }
+  .tool-links a { font-size:13px; color:#c3cfdb; text-decoration:none; border:1px solid rgba(255,255,255,.15); padding:9px 16px; border-radius:20px; transition:all .2s; }
+  .tool-links a:hover { border-color:var(--amber); color:var(--amber); }
+
+  .footer { background:var(--navy-darker); color:#dce4ec; padding:clamp(56px,8vw,90px) 5vw 36px; position:relative; }
+  .footer::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--amber),transparent); }
+  .footer-inner { max-width:1280px; margin:0 auto; display:grid; grid-template-columns:1.4fr 1fr 1fr auto; gap:48px; align-items:start; }
+  @media (max-width:860px){ .footer-inner{ grid-template-columns:1fr 1fr; gap:32px; } }
+  @media (max-width:560px){ .footer-inner{ grid-template-columns:1fr; } }
+  .footer-brand .fb-logo { font-family:'Jost',sans-serif; font-size:22px; font-weight:300; letter-spacing:1.5px; margin-bottom:16px; }
+  .footer-brand .fb-logo b { font-weight:700; color:var(--amber); }
+  .footer-brand p { font-size:14px; color:var(--navy-pale); line-height:1.7; font-weight:300; max-width:320px; }
+  .footer-col h3 { font-family:'Jost',sans-serif; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--amber); margin-bottom:20px; font-weight:600; }
+  .footer-col ul { list-style:none; }
+  .footer-col li { margin-bottom:12px; }
+  .footer-col a { color:#c3cdd8; text-decoration:none; font-size:14px; transition:color .3s; }
+  .footer-col a:hover { color:var(--amber); }
+  .footer-mascot { width:96px; height:96px; }
+  @media (max-width:860px){ .footer-mascot{ display:none; } }
+  .footer-bottom { max-width:1280px; margin:52px auto 0; padding-top:26px; border-top:1px solid rgba(255,255,255,.07); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+  .footer-bottom p { font-size:12px; color:var(--navy-pale); letter-spacing:1px; }
+  .footer-social { display:flex; gap:14px; }
+  .footer-social a { width:36px; height:36px; border-radius:50%; border:1px solid rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; color:#c3cdd8; transition:all .3s; }
+  .footer-social a:hover { border-color:var(--amber); color:var(--amber); transform:translateY(-2px); }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <a href="index.html" class="nav-brand">davide<b>morabito</b></a>
+  <ul class="nav-links">
+    <li><a href="aziende.html">Aziende</a></li>
+    <li><a href="matrimoni.html">Matrimoni</a></li>
+    <li><a href="contenuti-verticali.html">Social</a></li>
+    <li><a href="teatro.html">Eventi</a></li>
+    <li><a href="fotografia.html">Fotografia</a></li>
+    <li><a href="chi-sono.html">Chi sono</a></li>
+    <li><a href="strumenti.html" class="active">Strumenti</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle" aria-label="Apri il menu" aria-expanded="false" aria-controls="mobileMenu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <nav class="mobile-menu-inner" aria-label="Menu principale">
+    <a href="aziende.html">Aziende</a>
+    <a href="matrimoni.html">Matrimoni</a>
+    <a href="contenuti-verticali.html">Social</a>
+    <a href="teatro.html">Eventi</a>
+    <a href="fotografia.html">Fotografia</a>
+    <a href="chi-sono.html">Chi sono</a>
+    <a href="strumenti.html" class="active">Strumenti</a>
+  </nav>
+</div>
+
+<header class="hero">
+  <div class="hero-eyebrow">Strumenti per foto e video</div>
+  <h1>Profondità <b>di campo</b></h1>
+  <div class="hero-tag">Zona a fuoco · Iperfocale · Sfocato</div>
+</header>
+
+<main class="app">
+  <div class="grid">
+    <!-- INPUT -->
+    <section class="card" aria-label="Parametri">
+      <h2>Impostazioni scatto</h2>
+
+      <div class="field">
+        <label for="sensor">Sensore / Fotocamera</label>
+        <select id="sensor"></select>
+      </div>
+
+      <div class="two">
+        <div class="field">
+          <label for="focal">Focale <span class="v" id="focalV">50 mm</span></label>
+          <input type="number" id="focal" value="50" min="4" max="1200" step="1" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label for="aperture">Apertura</label>
+          <select id="aperture"></select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="dist">Distanza dal soggetto <span class="v" id="distV">3 m</span></label>
+        <input type="range" id="dist" min="0.3" max="30" value="3" step="0.1">
+        <input type="number" id="distNum" value="3" min="0.1" max="500" step="0.1" inputmode="decimal" style="margin-top:12px;">
+      </div>
+
+      <div class="field">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;">
+          <input type="checkbox" id="ftUnit" style="width:auto;accent-color:var(--amber);transform:scale(1.3);">
+          Mostra risultati in piedi (ft) invece che metri
+        </label>
+      </div>
+    </section>
+
+    <!-- RESULT -->
+    <section aria-label="Risultato">
+      <div class="result-hero">
+        <div class="result-label">Profondità di campo totale</div>
+        <div class="result-big" id="outDof">— <span>m</span></div>
+        <div class="result-sub" id="outSplit">— davanti · — dietro il soggetto</div>
+      </div>
+
+      <div class="dof-vis">
+        <div class="vt">Zona a fuoco</div>
+        <div class="bar-wrap">
+          <div class="bar-cam">📷</div>
+          <div class="bar-track"></div>
+          <div class="bar-zone" id="barZone" style="left:30%;width:20%;"></div>
+          <div class="bar-subj" id="barSubj" style="left:40%;"></div>
+        </div>
+        <div class="bar-labels"><span id="lblNear">—</span><span id="lblFar">—</span></div>
+      </div>
+
+      <div class="result-rows">
+        <div class="rrow"><span class="k">Limite vicino</span><span class="v" id="outNear">—</span></div>
+        <div class="rrow"><span class="k">Limite lontano</span><span class="v" id="outFar">—</span></div>
+        <div class="rrow accent"><span class="k">Davanti al soggetto</span><span class="v" id="outFront">—</span></div>
+        <div class="rrow accent"><span class="k">Dietro al soggetto</span><span class="v" id="outBack">—</span></div>
+        <div class="rrow big"><span class="k">Distanza iperfocale</span><span class="v" id="outHyper">—</span></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<article class="content">
+  <h2>Come funziona la profondità di campo</h2>
+  <p>
+    La <strong>profondità di campo</strong> (in inglese <em>depth of field</em>, DoF) è la zona — davanti e dietro
+    il punto di messa a fuoco — che risulta nitida nell'immagine. Fuori da questa zona, tutto sfuma progressivamente.
+    Controllarla è ciò che ti permette di isolare un ritratto su uno sfondo cremoso o, al contrario, tenere a fuoco
+    un intero paesaggio.
+  </p>
+  <h3>I quattro fattori che la determinano</h3>
+  <ul>
+    <li><strong>Apertura (f/):</strong> più il diaframma è aperto (numero f basso, es. f/1.8) più lo sfondo è sfocato e la zona a fuoco sottile.</li>
+    <li><strong>Focale:</strong> le focali lunghe (85mm, 200mm) riducono la profondità di campo; i grandangoli la aumentano.</li>
+    <li><strong>Distanza dal soggetto:</strong> più ti avvicini, più la zona a fuoco si assottiglia.</li>
+    <li><strong>Sensore:</strong> a parità di inquadratura, un sensore grande (full frame) dà meno profondità di campo di uno piccolo (Micro 4/3, smartphone).</li>
+  </ul>
+
+  <h2>La distanza iperfocale</h2>
+  <p>
+    La <strong>distanza iperfocale</strong> è la distanza di messa a fuoco che rende nitido tutto da metà di
+    quella distanza fino all'infinito. È la tecnica classica del paesaggio: mettendo a fuoco sull'iperfocale
+    ottieni la massima profondità di campo possibile con quella combinazione di focale e apertura, senza sprecare
+    nitidezza "oltre l'infinito".
+  </p>
+
+  <h2>Nota sui calcoli</h2>
+  <p>
+    I risultati usano il <em>circle of confusion</em> standard per ciascun formato (diagonale del sensore diviso
+    1500), il valore comunemente adottato per stampe e visione a dimensioni normali. Sono un riferimento molto
+    affidabile per il lavoro reale; per esigenze critiche di stampa a grande formato il criterio di nitidezza può
+    essere reso più severo.
+  </p>
+
+  <h2>Domande frequenti</h2>
+  <details class="faq-item"><summary>Cos'è la profondità di campo?</summary><p>È la zona, davanti e dietro il punto di messa a fuoco, che appare nitida. Dipende da apertura, focale, distanza dal soggetto e dimensione del sensore. Aperture chiuse, focali corte e sensori piccoli la aumentano.</p></details>
+  <details class="faq-item"><summary>Cos'è la distanza iperfocale?</summary><p>È la distanza di messa a fuoco che rende nitido tutto da metà di quella distanza fino all'infinito. È la tecnica classica per il paesaggio, perché massimizza la profondità di campo.</p></details>
+  <details class="faq-item"><summary>Perché il full frame "sfoca di più"?</summary><p>A parità di inquadratura, per riempire il fotogramma con un sensore più grande devi avvicinarti o usare una focale più lunga: entrambe le cose riducono la profondità di campo. Ecco perché il full frame produce sfondi più morbidi rispetto a un sensore piccolo.</p></details>
+  <details class="faq-item"><summary>Quale apertura per un ritratto?</summary><p>Per staccare il soggetto dallo sfondo si usano aperture ampie (f/1.4–f/2.8) con focali medio-lunghe (50–135mm). Attenzione però: a f/1.4 la zona a fuoco può essere di pochi centimetri, quindi la messa a fuoco sull'occhio deve essere precisa. Prova i valori qui sopra per vedere quanto margine hai.</p></details>
+</article>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="fb-logo">davide<b>morabito</b></div>
+      <p>Videomaker freelance a Milano. Video corporate, wedding film, spot e contenuti social. Storie che si guardano e si sentono.</p>
+    </div>
+    <div class="footer-col"><h3>Naviga</h3><ul><li><a href="matrimoni.html">Matrimoni</a></li><li><a href="contenuti-verticali.html">Social</a></li><li><a href="teatro.html">Eventi</a></li><li><a href="fotografia.html">Fotografia</a></li><li><a href="aziende.html">Aziende</a></li><li><a href="chi-sono.html">Chi sono</a></li><li><a href="strumenti.html">Strumenti</a></li></ul></div>
+    <div class="footer-col"><h3>Contatti</h3><ul><li><a href="mailto:info@davidemorabito.com">info@davidemorabito.com</a></li><li><a href="#">Milano, Italia</a></li></ul></div>
+    <svg class="footer-mascot" viewBox="0 0 96 96" aria-label="Cerchio">
+      <circle cx="48" cy="48" r="38" fill="#2b4868"/>
+      <path d="M48 10 A38 38 0 0 1 86 48 L48 86 Z" fill="#ffad01"/>
+      <ellipse cx="38" cy="44" rx="5.5" ry="6.5" fill="#fff"/><circle cx="39.5" cy="45" r="3" fill="#141210"/><circle cx="41" cy="43" r="1" fill="#fff"/>
+      <ellipse cx="58" cy="44" rx="5.5" ry="6.5" fill="#fff"/><circle cx="59.5" cy="45" r="3" fill="#141210"/><circle cx="61" cy="43" r="1" fill="#fff"/>
+      <path d="M40 56 Q48 63 56 56" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="footer-bottom">
+    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967 · <a href="/privacy.html" style="color:inherit;">Privacy &amp; Cookie</a></p>
+    <div class="footer-social">
+      <a href="https://www.instagram.com/_davidemorabito" target="_blank" rel="noopener" aria-label="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+      <a href="https://www.linkedin.com/in/davidemorabito0" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  var nav=document.getElementById('nav');
+  addEventListener('scroll',function(){ nav.classList.toggle('scrolled', scrollY>40); });
+  var t=document.getElementById('navToggle'), mm=document.getElementById('mobileMenu');
+  t.addEventListener('click',function(){
+    var open=mm.classList.toggle('open'); t.classList.toggle('open',open);
+    t.setAttribute('aria-expanded',open?'true':'false'); mm.setAttribute('aria-hidden',open?'false':'true');
+    document.body.style.overflow=open?'hidden':'';
+  });
+  mm.querySelectorAll('a').forEach(function(a){ a.addEventListener('click',function(){ mm.classList.remove('open'); t.classList.remove('open'); document.body.style.overflow=''; }); });
+  document.getElementById('year').textContent=new Date().getFullYear();
+
+  // ---- DoF engine ----
+  // CoC = diagonale sensore / 1500
+  var SENSORS=[
+    {name:'Full Frame — Sony A7, A7S III, FX3', coc:0.0288},
+    {name:'APS-C — Sony / Nikon / Fujifilm X100VI', coc:0.0189},
+    {name:'APS-C — Canon', coc:0.0179},
+    {name:'Super 35 (cinema)', coc:0.0180},
+    {name:'Micro 4/3', coc:0.0144},
+    {name:'1 pollice', coc:0.0106},
+    {name:'Medio formato (44×33)', coc:0.0367},
+    {name:'Smartphone (1/1.7")', coc:0.0060}
+  ];
+  var APERTURES=[1.2,1.4,1.8,2,2.8,3.5,4,5.6,6.3,8,11,16,22];
+
+  var selS=document.getElementById('sensor');
+  SENSORS.forEach(function(s,i){ var o=document.createElement('option'); o.value=i; o.textContent=s.name; selS.appendChild(o); });
+  var selA=document.getElementById('aperture');
+  APERTURES.forEach(function(a){ var o=document.createElement('option'); o.value=a; o.textContent='f/'+a; if(a===2.8)o.selected=true; selA.appendChild(o); });
+
+  var focal=document.getElementById('focal'), dist=document.getElementById('dist'), distNum=document.getElementById('distNum');
+  var ftUnit=document.getElementById('ftUnit');
+
+  function fmtDist(m){
+    if(!isFinite(m)) return '∞';
+    if(ftUnit.checked){
+      var ft=m*3.28084;
+      if(ft<3) return (ft*12).toFixed(1)+' in';
+      return ft.toFixed(ft<10?2:1)+' ft';
+    }
+    if(m<1) return (m*100).toFixed(1)+' cm';
+    return m.toFixed(m<10?2:1)+' m';
+  }
+
+  function calc(){
+    var f=+focal.value||50;
+    var N=+selA.value||2.8;
+    var c=SENSORS[+selS.value].coc;
+    var s=(+distNum.value||3)*1000; // mm
+
+    var H=f*f/(N*c)+f; // iperfocale mm
+    var Dn=s*(H-f)/(H+s-2*f);
+    var denom=H-s;
+    var Df=(denom<=0)?Infinity:s*(H-f)/denom;
+    var dof=(Df-Dn);
+    var front=s-Dn, back=(isFinite(Df)?Df-s:Infinity);
+
+    // labels
+    document.getElementById('focalV').textContent=f+' mm';
+    document.getElementById('distV').textContent=fmtDist(s/1000);
+
+    document.getElementById('outDof').innerHTML = isFinite(dof)
+      ? fmtDist(dof/1000).replace(/ (m|cm|ft|in)$/,'')+' <span>'+(fmtDist(dof/1000).match(/(m|cm|ft|in)$/)||['m'])[0]+'</span>'
+      : '∞ <span></span>';
+    document.getElementById('outSplit').textContent=fmtDist(front/1000)+' davanti · '+fmtDist(back/1000)+' dietro';
+    document.getElementById('outNear').textContent=fmtDist(Dn/1000);
+    document.getElementById('outFar').textContent=fmtDist(Df/1000);
+    document.getElementById('outFront').textContent=fmtDist(front/1000);
+    document.getElementById('outBack').textContent=fmtDist(back/1000);
+    document.getElementById('outHyper').textContent=fmtDist(H/1000);
+
+    // visual bar: scala su [0 .. min(Df, 2*s or fitting)]
+    var scaleMax = isFinite(Df) ? Math.max(Df, s*1.2) : s*2.2;
+    var camPct=2;
+    var nearPct=Math.max(camPct, Dn/scaleMax*100);
+    var farPct=isFinite(Df)? Df/scaleMax*100 : 100;
+    var subjPct=s/scaleMax*100;
+    document.getElementById('barZone').style.left=nearPct+'%';
+    document.getElementById('barZone').style.width=Math.max(1.5,(farPct-nearPct))+'%';
+    document.getElementById('barSubj').style.left=subjPct+'%';
+    document.getElementById('lblNear').textContent='vicino '+fmtDist(Dn/1000);
+    document.getElementById('lblFar').textContent=isFinite(Df)?('lontano '+fmtDist(Df/1000)):'lontano ∞';
+  }
+
+  // sync slider <-> number
+  dist.addEventListener('input',function(){ distNum.value=dist.value; calc(); });
+  distNum.addEventListener('input',function(){
+    var v=+distNum.value;
+    if(v>=+dist.min && v<=+dist.max) dist.value=v;
+    calc();
+  });
+  [focal,selA,selS,ftUnit].forEach(function(el){ el.addEventListener('input',calc); });
+  calc();
+</script>
+</body>
+</html>

@@ -7,6 +7,12 @@
 <script>
   window.dataLayer=window.dataLayer||[];
   function gtag(){dataLayer.push(arguments);}
+  // Consent Mode v2 — tutto negato finché l'utente non accetta
+  gtag('consent','default',{
+    ad_storage:'denied', analytics_storage:'denied',
+    ad_user_data:'denied', ad_personalization:'denied',
+    wait_for_update:500
+  });
   gtag('js',new Date());
   gtag('config','G-7N72HVRGRJ');
   document.addEventListener('DOMContentLoaded',function(){
@@ -18,8 +24,14 @@
   });
 </script>
 <meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#2b4868">
+<link rel="stylesheet" href="/cookie-consent.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Generatore Rialzi 3D per Fotografia di Prodotto e Still Life · Davide Morabito</title>
+<title>Generatore Rialzi 3D per Fotografia di Prodotto e Still Life</title>
 <link rel="canonical" href="https://davidemorabito.com/generatore-rialzi.html">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://davidemorabito.com/generatore-rialzi.html">
@@ -43,7 +55,7 @@
   "author": { "@type": "Person", "name": "Davide Morabito", "url": "https://davidemorabito.com" }
 }
 </script>
-<meta name="description" content="Software gratuito che crea e modella forme personalizzabili per la fotografia di prodotto e still life, da stampare in 3D. Anteprima 3D in tempo reale ed esportazione STL.">
+<meta name="description" content="Software gratuito che crea e modella forme personalizzabili per la fotografia di prodotto e lo still life. Anteprima 3D e file pronto per la stampa.">
 <link rel="canonical" href="https://davidemorabito.com/generatore-rialzi.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1074,5 +1086,6 @@ if(!localStorage.getItem('rialzi_info_seen')){
 })();
 </script>
 
+  <script src="/cookie-consent.js" defer></script>
 </body>
 </html>

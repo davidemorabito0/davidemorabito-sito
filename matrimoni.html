@@ -7,6 +7,12 @@
 <script>
   window.dataLayer=window.dataLayer||[];
   function gtag(){dataLayer.push(arguments);}
+  // Consent Mode v2 — tutto negato finché l'utente non accetta
+  gtag('consent','default',{
+    ad_storage:'denied', analytics_storage:'denied',
+    ad_user_data:'denied', ad_personalization:'denied',
+    wait_for_update:500
+  });
   gtag('js',new Date());
   gtag('config','G-7N72HVRGRJ');
   document.addEventListener('DOMContentLoaded',function(){
@@ -18,6 +24,12 @@
   });
 </script>
 <meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#2b4868">
+<link rel="stylesheet" href="/cookie-consent.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ═══════════════ META / SEO ═══════════════ -->
@@ -779,15 +791,15 @@
       <h2 class="sec-h">Fotografie</h2>
       <p class="sec-intro">Qui andranno le foto dei matrimoni.</p>
       <div class="photo-gallery">
-        <div class="photo-item wide"><img src="media/matrimoni/matr-chiesa.jpg" alt="Uscita dalla chiesa tra coriandoli" loading="lazy"></div>
-        <div class="photo-item tall"><img src="media/matrimoni/matr-acconciatura.jpg" alt="Dettaglio acconciatura della sposa" loading="lazy"></div>
-        <div class="photo-item"><img src="media/matrimoni/matr-nonno.jpg" alt="Momento tra nonno e bambina" loading="lazy"></div>
-        <div class="photo-item tall"><img src="media/matrimoni/_DAV0070.jpg" alt="Anelli su cuscino di pizzo con dettagli floreali" loading="lazy"></div>
-        <div class="photo-item wide"><img src="media/matrimoni/matr-scarpe.jpg" alt="Scarpe della sposa in controluce" loading="lazy"></div>
-        <div class="photo-item"><img src="media/matrimoni/matr-tavoli.jpg" alt="Allestimento tavoli del ricevimento" loading="lazy"></div>
-        <div class="photo-item tall"><img src="media/matrimoni/matr-bacio.jpg" alt="Bacio degli sposi con i flûte di champagne" loading="lazy"></div>
-        <div class="photo-item wide"><img src="media/matrimoni/_DAV1137.jpg" alt="Celebrazione della coppia con spumante tra il verde" loading="lazy"></div>
-        <div class="photo-item"><img src="media/matrimoni/matr-festa.jpg" alt="Festa serale con gli ospiti" loading="lazy"></div>
+        <div class="photo-item wide"><img width="1800" height="1200" src="media/matrimoni/matr-chiesa.webp" alt="Uscita dalla chiesa tra coriandoli" loading="lazy"></div>
+        <div class="photo-item tall"><img width="1200" height="1800" src="media/matrimoni/matr-acconciatura.webp" alt="Dettaglio acconciatura della sposa" loading="lazy"></div>
+        <div class="photo-item"><img width="1800" height="1200" src="media/matrimoni/matr-nonno.webp" alt="Momento tra nonno e bambina" loading="lazy"></div>
+        <div class="photo-item tall"><img width="1600" height="1067" src="media/matrimoni/_DAV0070.webp" alt="Anelli su cuscino di pizzo con dettagli floreali" loading="lazy"></div>
+        <div class="photo-item wide"><img width="1800" height="1200" src="media/matrimoni/matr-scarpe.webp" alt="Scarpe della sposa in controluce" loading="lazy"></div>
+        <div class="photo-item"><img width="1800" height="1200" src="media/matrimoni/matr-tavoli.webp" alt="Allestimento tavoli del ricevimento" loading="lazy"></div>
+        <div class="photo-item tall"><img width="1200" height="1800" src="media/matrimoni/matr-bacio.webp" alt="Bacio degli sposi con i flûte di champagne" loading="lazy"></div>
+        <div class="photo-item wide"><img width="1600" height="1067" src="media/matrimoni/_DAV1137.webp" alt="Celebrazione della coppia con spumante tra il verde" loading="lazy"></div>
+        <div class="photo-item"><img width="1800" height="1200" src="media/matrimoni/matr-festa.webp" alt="Festa serale con gli ospiti" loading="lazy"></div>
       </div>
     </section>
   </div>
@@ -815,7 +827,7 @@
     </svg>
   </div>
   <div class="footer-bottom">
-    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967</p>
+    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967 · <a href="/privacy.html" style="color:inherit;">Privacy &amp; Cookie</a></p>
     <div class="footer-social">
       <a href="https://www.instagram.com/_davidemorabito" target="_blank" rel="noopener" aria-label="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
       <a href="https://www.linkedin.com/in/davidemorabito0" target="_blank" rel="noopener" aria-label="LinkedIn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-11h4v1.5"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
@@ -1024,5 +1036,6 @@
 })();
 </script>
 
+  <script src="/cookie-consent.js" defer></script>
 </body>
 </html>

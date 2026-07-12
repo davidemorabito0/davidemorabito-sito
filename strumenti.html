@@ -7,6 +7,12 @@
 <script>
   window.dataLayer=window.dataLayer||[];
   function gtag(){dataLayer.push(arguments);}
+  // Consent Mode v2 — tutto negato finché l'utente non accetta
+  gtag('consent','default',{
+    ad_storage:'denied', analytics_storage:'denied',
+    ad_user_data:'denied', ad_personalization:'denied',
+    wait_for_update:500
+  });
   gtag('js',new Date());
   gtag('config','G-7N72HVRGRJ');
   document.addEventListener('DOMContentLoaded',function(){
@@ -18,6 +24,12 @@
   });
 </script>
 <meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#2b4868">
+<link rel="stylesheet" href="/cookie-consent.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ═══════════════ META / SEO ═══════════════ -->
@@ -763,15 +775,75 @@
           <span class="tool-card-cta">Apri lo strumento <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg></span>
         </a>
 
-        <div class="tool-card is-soon">
+        <a href="tariffa-oraria.html" class="tool-card">
           <div class="tool-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           </div>
-          <div class="tool-card-tag">In arrivo</div>
-          <h3>Prossimo strumento</h3>
-          <p>Sto lavorando ad altri strumenti utili per il workflow di video e fotografia. Torna a trovarmi presto.</p>
-          <span class="tool-card-cta">Presto disponibile</span>
-        </div>
+          <div class="tool-card-tag">Freelance</div>
+          <h3>Tariffa oraria</h3>
+          <p>Calcola quanto farti pagare all'ora e al giorno partendo dal netto che vuoi guadagnare, con tasse, spese e ore realmente fatturabili.</p>
+          <span class="tool-card-cta">Apri lo strumento <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg></span>
+        </a>
+
+        <a href="convertitore-timecode.html" class="tool-card">
+          <div class="tool-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M12 3v1.5M12 19.5V21M3 12h1.5M19.5 12H21"/></svg>
+          </div>
+          <div class="tool-card-tag">Video</div>
+          <h3>Convertitore timecode</h3>
+          <p>Converti timecode, frame e secondi a qualsiasi frame rate, con drop-frame. Calcola anche la durata tra due punti di in e out.</p>
+          <span class="tool-card-cta">Apri lo strumento <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg></span>
+        </a>
+
+        <a href="profondita-di-campo.html" class="tool-card">
+          <div class="tool-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2"/></svg>
+          </div>
+          <div class="tool-card-tag">Fotografia</div>
+          <h3>Profondità di campo</h3>
+          <p>Calcola la zona a fuoco, la distanza iperfocale e quanto sfocato ottieni, in base a sensore, focale, apertura e distanza.</p>
+          <span class="tool-card-cta">Apri lo strumento <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg></span>
+        </a>
+
+        <a href="calcolatore-iva.html" class="tool-card">
+          <div class="tool-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M9 15l6 0M9 18h3"/></svg>
+          </div>
+          <div class="tool-card-tag">Fiscale</div>
+          <h3>Calcolatore IVA</h3>
+          <p>Aggiungi o scorpora l'IVA (22%, 10%, 5%, 4%) e calcola la ritenuta d'acconto. Imponibile, IVA e netto a pagare in un attimo.</p>
+          <span class="tool-card-cta">Apri lo strumento <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg></span>
+        </a>
+
+        <a href="generatore-preventivi.html" class="tool-card">
+          <div class="tool-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+          </div>
+          <div class="tool-card-tag">Freelance</div>
+          <h3>Generatore preventivi</h3>
+          <p>Crea un preventivo professionale in PDF: inserisci i tuoi dati, il cliente e le voci, scarica il file pronto da inviare. Calcolo IVA automatico.</p>
+          <span class="tool-card-cta">Apri lo strumento <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg></span>
+        </a>
+
+        <a href="storage-riprese.html" class="tool-card">
+          <div class="tool-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>
+          </div>
+          <div class="tool-card-tag">Video</div>
+          <h3>Storage riprese</h3>
+          <p>Quanti GB occupa un'ora di 4K? Quanto girato entra in una scheda? Preset per Sony, iPhone, ProRes, RAW e bitrate personalizzato.</p>
+          <span class="tool-card-cta">Apri lo strumento <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg></span>
+        </a>
+
+        <a href="bitrate-export.html" class="tool-card">
+          <div class="tool-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15v-3a9 9 0 0 1 18 0v3"/><path d="M3 15a2 2 0 0 0 2 2h1v-5H5a2 2 0 0 0-2 2z"/><path d="M21 15a2 2 0 0 1-2 2h-1v-5h1a2 2 0 0 1 2 2z"/><path d="M8 21h8"/></svg>
+          </div>
+          <div class="tool-card-tag">Video</div>
+          <h3>Bitrate & export</h3>
+          <p>Il bitrate giusto per YouTube, Instagram e TikTok in base a risoluzione e fps. Calcola dimensione del file e bitrate per un peso target.</p>
+          <span class="tool-card-cta">Apri lo strumento <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg></span>
+        </a>
 
       </div>
     </section>
@@ -797,7 +869,7 @@
     </svg>
   </div>
   <div class="footer-bottom">
-    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967</p>
+    <p>© <span id="year"></span> Davide Morabito · P.IVA 09036590967 · <a href="/privacy.html" style="color:inherit;">Privacy &amp; Cookie</a></p>
     <div class="footer-social">
       <!-- [PLACEHOLDER] link social reali -->
       <a href="https://www.instagram.com/_davidemorabito" target="_blank" rel="noopener" aria-label="Instagram"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
@@ -1101,5 +1173,6 @@
 })();
 </script>
 
+  <script src="/cookie-consent.js" defer></script>
 </body>
 </html>
