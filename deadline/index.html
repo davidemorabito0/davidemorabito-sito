@@ -307,7 +307,7 @@
 <div id="wrap">
   <canvas id="cv" width="480" height="300"></canvas>
   <div id="flash"></div>
-  <div id="ver">v1.58</div>
+  <div id="ver">v1.63</div>
 
   <div id="topstack" class="hidden">
     <div id="bgDay">GIORNO 1</div>
@@ -340,6 +340,7 @@
     <button id="btnX2">x2</button>
     <button id="btnX4">x4</button>
     <button id="btnZoom" title="Zoom">🔍</button>
+    <button id="btnSup" class="hidden" title="Supervisor (dal giorno 10)">🧑‍💼</button>
   </div>
 
   <div id="powerup" class="overlay hidden">
@@ -379,12 +380,12 @@
       Tra un giorno e l'altro: pedala in bici e <b>salta gli ostacoli</b>!
       <h3>⌨️ TASTIERA</h3>
       <kbd>WASD</kbd>/<kbd>←↑↓→</kbd> muoviti · <kbd>SHIFT</kbd> scatto (e invio telematico) · <kbd>SPAZIO</kbd> azione/salto ·
-      <kbd>Z</kbd> o rotellina zoom · <kbd>E</kbd> battuta al collega · <kbd>P</kbd> pausa
+      <kbd>Z</kbd> o rotellina zoom · <kbd>E</kbd> battuta al collega · <kbd>V</kbd> supervisor (g.10+) · <kbd>P</kbd> pausa
       <h3>📱 TOUCH</h3>
       Trascina il dito per muoverti (a fondo corsa = scatto) · tap = azione/salto · <b>🔍</b> zoom
       <h3>🎮 CONTROLLER XBOX 360</h3>
       Stick/croce muoviti · <kbd>A</kbd> azione/salto · <kbd>B</kbd> battuta · <kbd>X</kbd> invio telematico ·
-      <kbd>Y</kbd> velocità · <kbd>LT/RT</kbd> scatto · <kbd>LB/RB</kbd> zoom −/+ · <kbd>Back</kbd> o clic stick destro cicla zoom ·
+      <kbd>LT/RT</kbd> tempo −/+ (anche <kbd>Y</kbd>) · <kbd>LB/RB</kbd> zoom −/+ · scatto: stick a fondo corsa · <kbd>Back</kbd>/clic stick dx cicla zoom ·
       <kbd>Start</kbd> pausa · difficoltà in NUOVA PARTITA (croce sx/dx o <kbd>LB/RB</kbd>)
     </div>
     <button id="gBack" class="menubtn">↩ INDIETRO</button>
@@ -579,6 +580,36 @@ function menuMusicStop(){
   MENU_AUD_WANT=false;
   try{ if(MENU_AUD){ MENU_AUD.pause(); MENU_AUD.currentTime=0; } }catch(e){}
 }
+/* ---- musiche esterne dei livelli (v1.61): file OPZIONALI accanto alla pagina.
+   Se il file manca resta la musica chip di sempre; se c'è, la sostituisce. ---- */
+const EXT_MUS={aud:null,file:'',cache:{}};
+function sceneMusicFile(){ /* non più usata per i livelli (ora playlist background random) */ return S.mall ? 'mall.mp3' : (S.scene==='office' ? 'ufficio.mp3' : 'casa.mp3'); }
+function extPlay(file){
+  if(!OPT.music || typeof Audio==='undefined') return;
+  if(EXT_MUS.file===file && EXT_MUS.aud){ const pr=EXT_MUS.aud.play(); if(pr&&pr.catch) pr.catch(function(){}); return; }
+  extStop();
+  try{
+    let a=EXT_MUS.cache[file];
+    if(a && a.error){ a=null; delete EXT_MUS.cache[file]; }   // il file prima mancava: riprova
+    if(!a){
+      a=new Audio(file); a.loop=true; a.volume=0.55; EXT_MUS.cache[file]=a;
+      a.addEventListener('playing',function(){ if(EXT_MUS.aud===a){ stopChip(); bgmActive=false; try{ BGM.pause(); }catch(e2){} } });   // file trovato: tacciono chip e playlist
+      a.addEventListener('error',function(){                                              // file mancante: torna la chip
+        if(EXT_MUS.aud===a){ EXT_MUS.aud=null; EXT_MUS.file='';
+          if(OPT.music && (S.mode==='play'||S.mode==='night'||S.mode==='bike')) startMusic(); }
+      });
+    }
+    EXT_MUS.aud=a; EXT_MUS.file=file;
+    try{ a.currentTime=0; }catch(e2){}
+    const pr=a.play(); if(pr&&pr.catch) pr.catch(function(){});
+  }catch(e){}
+}
+function extStop(){ try{ if(EXT_MUS.aud) EXT_MUS.aud.pause(); }catch(e){} EXT_MUS.aud=null; EXT_MUS.file=''; }
+function sVoiceJump(){ // voce random quando salti un uomo col coltello (arab1/2/3.wav, opzionali)
+  if(!OPT.sfx || typeof Audio==='undefined') return;
+  try{ const a=new Audio('arab'+(1+Math.floor(Math.random()*3))+'.wav'); a.volume=0.9;
+       const pr=a.play(); if(pr&&pr.catch) pr.catch(function(){}); }catch(e){}
+}
 function ac(){ if(!AC) AC = new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended')AC.resume(); if(MENU_AUD_WANT && S.mode==='title') menuMusicPlay(); return AC; }
 function noiseBuf(a,len){ const b=a.createBuffer(1,a.sampleRate*len,a.sampleRate),d=b.getChannelData(0); for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1; return b; }
 function sFart(){
@@ -770,7 +801,9 @@ BGM.loop=false; BGM.volume=0.41;
 let bgmIdx=0, bgmActive=false;
 BGM.addEventListener('ended',()=>{
   if(!bgmActive || PLAYLIST.length===0) return;
-  bgmIdx=(bgmIdx+1)%PLAYLIST.length;
+  let ni=Math.floor(Math.random()*PLAYLIST.length);                 // prossima traccia a caso
+  if(PLAYLIST.length>1 && ni===bgmIdx) ni=(ni+1)%PLAYLIST.length;   // evita la ripetizione immediata
+  bgmIdx=ni;
   playTrack(bgmIdx);
 });
 function playTrack(i){
@@ -815,7 +848,7 @@ const S = {
   seg:0, segCount:1, needExport:false,
   needClip:false, recT:0, recKind:'clip', trashLoad:0,
   scene:'room', sceneStreak:1, _prevScene:'room',
-  telUnlocked:false, sendUnlocked:false, sendMash:0,
+  telUnlocked:false, sendUnlocked:false, sendMash:0, sendPulse:0,
   arrow:null,
   needMic:false, micAt:-1, micDone:true,
   evtId:'zen', evtName:'', evtDeliv:1, evtPhone:1, crashAt:0, crashDone:true,
@@ -834,6 +867,7 @@ const S = {
   startHour:8,  // ora d'inizio giornata (9 se in ritardo per il minigioco)
   diff:'normal',
   pendingPU:null, puActive:false, puResumeT:0,
+  supervisor:false, wifiOut:0, mall:false, supUnlocked:false, coffeeUnlocked:false,
   run:{farts:0,burps:0,meals:0,calls:0, deliveries:0, cleanMeals:0, exports:0, ollies:0},
   score:0,
   msg:'', msgT:0
@@ -1000,11 +1034,19 @@ function startBikeMinigame(theme){
     theme, t:0, run:15.0, phase:'intro', introT:0.9, outroT:0,
     gy:0, vy:0, jumping:false, hit:false, hitFlash:0,
     obstacles:[], spawnCd:1.2, dist:0, legPhase:0,
-    jump(){ if(!this.jumping && this.phase==='run'){ this.jumping=true; this.vy=-385; sJump(); } }
+    dj:0, doubled:false, flipA:0,
+    jump(){
+      if(this.phase!=='run') return;
+      if(!this.jumping){ this.jumping=true; this.vy=-385; sJump(); }
+      else if(this.dj>=2 && !this.doubled){                 // DOPPIO SALTO: carico pieno -> backflip!
+        this.doubled=true; this.dj=0; this.vy=-360; sWhoosh();
+      }
+    }
   };
   S.floats.length=0;
+  extPlay('bici.mp3');   // musica della pedalata (file opzionale)
 }
-function bikeObstacleSpeed(o){ return o.kind==='scooter' ? BIKE_SPEED*1.18 : BIKE_SPEED; }
+function bikeObstacleSpeed(o){ return o.kind==='scooter' ? BIKE_SPEED*1.18 : o.kind==='zombie' ? BIKE_SPEED*1.08 : BIKE_SPEED; }
 function updateBike(dt){
   const b=S.bike; if(!b) return;
   dt=Math.min(dt,0.033);                 // clamp: niente scatti se il frame e' lungo
@@ -1028,10 +1070,11 @@ function updateBike(dt){
   if(b.phase==='outro'){
     b.dist+=BIKE_SPEED*dt;
     b.outroT-=dt;
-    if(b.jumping){ b.gy+=b.vy*dt; b.vy+=1250*dt; if(b.gy>=0){ b.gy=0; b.jumping=false; b.vy=0; } }
+    if(b.jumping){ b.gy+=b.vy*dt; b.vy+=1250*dt; if(b.doubled) b.flipA=Math.max(-Math.PI*2,b.flipA-dt*9.5); if(b.gy>=0){ b.gy=0; b.jumping=false; b.vy=0; b.doubled=false; b.flipA=0; } }
     if(b.outroT<=0){
       const hit=b.hit; const theme=b.theme;
       S.bike=null; S.mode='play';
+      extStop(); startMusic();   // nuova giornata: parte un'altra traccia background a caso
       if(theme==='home'){
         if(hit){
           S.energy=Math.max(20, S.energy-20);
@@ -1053,7 +1096,8 @@ function updateBike(dt){
   b.dist+=BIKE_SPEED*dt;
   if(b.jumping){
     b.gy+=b.vy*dt; b.vy+=1250*dt;
-    if(b.gy>=0){ b.gy=0; b.jumping=false; b.vy=0; }
+    if(b.doubled) b.flipA=Math.max(-Math.PI*2, b.flipA-dt*9.5);   // rotazione del backflip
+    if(b.gy>=0){ b.gy=0; b.jumping=false; b.vy=0; b.doubled=false; b.flipA=0; }
   }
   // spawn: mai due ostacoli ravvicinati (gap minimo garantito, cosi' sono sempre saltabili uno alla volta)
   b.spawnCd-=dt;
@@ -1080,7 +1124,18 @@ function updateBike(dt){
     const halfW = o.kind==='suv' ? 20 : o.kind==='scooter' ? 12 : 11;
     const topClear = o.kind==='suv' ? -22 : o.kind==='scooter' ? -18 : -14;
     if(!o.hit && !b.hit && Math.abs(o.x-bikeX)<halfW && b.gy>topClear){
-      o.hit=true; b.hit=true; b.hitFlash=0.5; sHit();
+      o.hit=true; b.hit=true; b.hitFlash=0.5; b.dj=0; sHit();
+    }
+  }
+  // conteggio nemici saltati: ogni 2 si carica il DOPPIO SALTO (backflip)
+  for(const o of b.obstacles){
+    const hw = o.kind==='suv'?20 : o.kind==='scooter'?12 : 11;
+    if(!o.counted && o.x < bikeX-hw-2){
+      o.counted=true;
+      if(!o.hit && !b.hit){
+        if(o.kind==='zombie') sVoiceJump();               // voce random: l'hai saltato!
+        if(b.dj<2){ b.dj++; if(b.dj>=2) sChirp(); }
+      }
     }
   }
   if(b.t>=b.run){ b.phase='outro'; b.outroT=0.8; }
@@ -1204,6 +1259,9 @@ function renderBike(t){
   const wy=py-1;
   // ombra
   ctx.fillStyle='rgba(0,0,0,.22)'; ctx.fillRect(bikeX-16, py+2, 32, 3);
+  // BACKFLIP: durante il doppio salto bici+ciclista ruotano attorno al baricentro
+  ctx.save();
+  if(b.flipA){ ctx.translate(bikeX,py-12); ctx.rotate(b.flipA); ctx.translate(-bikeX,-(py-12)); }
   // ruote
   ctx.strokeStyle='#181117'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.arc(backX, wy, wheelR, 0, Math.PI*2); ctx.stroke();
@@ -1279,6 +1337,9 @@ function renderBike(t){
   ctx.fillStyle='#f6f4ee'; ctx.fillRect(hx+3,hy+2,3,3);
   ctx.fillStyle='#e08b2d'; ctx.fillRect(hx+4,hy+3,2,2);
 
+  ctx.restore();   // fine rotazione backflip
+  if(b.doubled){ ctx.fillStyle='#ffd76a'; ctx.font='bold 11px monospace'; ctx.textAlign='center'; ctx.fillText('BACKFLIP! \ud83e\udd38', bikeX, py-60); ctx.textAlign='left'; }
+
   // barra superiore + testo
   ctx.fillStyle='rgba(20,15,25,.82)'; ctx.fillRect(0,0,CW,22);
   ctx.textAlign='center';
@@ -1289,6 +1350,14 @@ function renderBike(t){
     ctx.fillStyle='#ffad01'; ctx.font='bold 11px monospace';
     const secs=Math.max(0,Math.ceil(b.run-b.t));
     ctx.fillText('SALTA GLI ZOMBIE! ('+secs+'s)  —  SPAZIO / TAP / A', CW/2, 15);
+    // barretta DOPPIO SALTO: si carica saltando 2 nemici, poi risalta in aria!
+    const ready=b.dj>=2, blink=Math.sin(t*8)>0;
+    ctx.textAlign='left'; ctx.font='bold 9px monospace';
+    ctx.fillStyle='rgba(20,15,25,.75)'; ctx.fillRect(6,26,158,14);
+    ctx.fillStyle= ready ? (blink?'#ffd76a':'#ffad01') : '#8fd8a4';
+    ctx.fillText(ready?'DOPPIO SALTO PRONTO! \u2934':'DOPPIO SALTO '+b.dj+'/2', 10, 36);
+    for(let k2=0;k2<2;k2++){ ctx.fillStyle = k2<b.dj ? '#42bdb7' : '#3a3446'; ctx.fillRect(138+k2*11, 29, 8, 8); }
+    ctx.textAlign='center';
   } else {
     ctx.fillStyle=b.hit?'#e05a4e':'#42bdb7'; ctx.font='bold 12px monospace';
     ctx.fillText(b.hit?'AHI!':(home?'A CASA!':'IN UFFICIO!'), CW/2, 15);
@@ -1319,7 +1388,10 @@ function setupDay(d){
   S.telUnlocked = d>=5;
   S.ansUnlocked = d>=6;   // segreteria telefonica
   S.fastUnlocked = d>=7;  // scarpe da ginnastica nuove: +15% velocità
-  S.mealUnlocked = d>=8;  // meal prep: pasti +15% energia
+  S.mealUnlocked = d>=8;  // nuovo locale (food court): pasti +15% energia
+  S.supUnlocked  = d>=10; // supervisor: affianchi un nuovo montatore
+  S.coffeeUnlocked = d>=12; // macchina del caffè in studio e a casa
+  S.supervisor=false; S.wifiOut=0;
   S.sendMash=0;
   S.arrow=null;
   S.leftovers=0; S.paused=false; S.dying=null; S.trashLoad=0;
@@ -1333,6 +1405,9 @@ function setupDay(d){
   }
   S.sceneStreak = (S.scene===S._prevScene) ? (S.sceneStreak||0)+1 : 1;
   S._prevScene = S.scene;
+  // giorno 8: SMART WORKING AL CENTRO COMMERCIALE (layout ufficio, dinamiche sue)
+  S.mall = (d===8);
+  if(S.mall){ S.scene='office'; S._prevScene='office'; }
   // ogni giorno una maglietta diversa
   S.shirtC = SHIRTS[(d-1)%SHIRTS.length];
   // registrazione audio a sorpresa (max 1/giorno, oltre il 50%, a volte mai)
@@ -1439,10 +1514,19 @@ function setupDay(d){
       desc:'Ti sei comprato delle scarpe da ginnastica fiammanti: da oggi ti muovi il 15% più veloce, sempre. La stanza non è mai stata così piccola.' };
   }
   if(d===8){
-    S.pendingPU={ icon:'🍱', title:'POWERUP: MEAL PREP',
-      desc:'Hai imparato a cucinare sul serio: ogni pasto ora dà il 15% di energia in più. Mangiare conviene ancora di più (occhio sempre al gas però).' };
+    S.pendingPU={ icon:'🏬', title:'SMART WORKING AL CENTRO COMMERCIALE',
+      desc:'Oggi lavori dal centro commerciale! Il WI-FI ogni tanto si pianta (il lavoro si ferma qualche secondo) e il cibo del food court è più unto (+ gas). In compenso hai trovato un NUOVO LOCALE molto migliore: da oggi ogni pasto dà il 15% di energia in più, per sempre!' };
   }
-  if(S.scene==='office') addFloat(isoX(S.p.i,S.p.j),isoY(S.p.i,S.p.j)-76,'OGGI SI LAVORA IN UFFICIO!','#8fc0e8');
+  if(d===10){
+    S.pendingPU={ icon:'🧑\u200d\ud83d\udcbc', title:'POWERUP: SUPERVISOR',
+      desc:'Promozione! Puoi affiancare un nuovo montatore e supervisionare il video con lui: la deadline corre il 35% più veloce, ma lo stress ti gonfia di gas e ti stanca molto di più. Attiva e disattiva quando vuoi con V (o X del pad, o il tasto 🧑\u200d\ud83d\udcbc in basso). Va dosato bene!' };
+  }
+  if(d===12){
+    S.pendingPU={ icon:'☕', title:'POWERUP: MACCHINA DEL CAFFÈ',
+      desc:'Installata una macchina del caffè sia in studio che a casa! Da oggi ti muovi il 10% più veloce e la stanchezza sale più lentamente… ma il caffè ti gonfia di gas, sempre, poco a poco.' };
+  }
+  if(S.mall) addFloat(isoX(S.p.i,S.p.j),isoY(S.p.i,S.p.j)-76,'🏬 OGGI: SMART WORKING AL CENTRO COMMERCIALE!','#ffd76a');
+  else if(S.scene==='office') addFloat(isoX(S.p.i,S.p.j),isoY(S.p.i,S.p.j)-76,'OGGI SI LAVORA IN UFFICIO!','#8fc0e8');
   if(d>=2){
     addFloat(isoX(S.p.i,S.p.j),isoY(S.p.i,S.p.j)-64,S.evtName,'#9fd4ff');
     if(S.evtNote) addFloat(isoX(S.p.i,S.p.j),isoY(S.p.i,S.p.j)-52,S.evtNote,'#c9e4ff');
@@ -1454,6 +1538,7 @@ function setupDay(d){
 /* ---------- input ---------- */
 const keys={};
 window.addEventListener('keydown',e=>{
+  try{ ac(); }catch(e2){}                                  // sblocca l'audio al primo tasto (regole autoplay)
   if(e.target && e.target.tagName==='INPUT'){
     if(e.key==='Enter'){ e.target.blur(); onSpace(); }
     return;
@@ -1536,7 +1621,8 @@ function ptUp(id){
   if(wasTap) onTap(tapY);
 }
 if(window.PointerEvent){
-  window.addEventListener('pointerdown',e=>{ if(e.target.closest&&e.target.closest('#ctrls,input,label,button,#title,#guide,#options'))return; e.preventDefault(); ptDown(e.clientX,e.clientY,e.pointerId); },{passive:false});
+  window.addEventListener('pointerdown',()=>{ try{ ac(); }catch(e2){} }, true);   // sblocco audio su qualsiasi tocco/click
+window.addEventListener('pointerdown',e=>{ if(e.target.closest&&e.target.closest('#ctrls,input,label,button,#title,#guide,#options'))return; e.preventDefault(); ptDown(e.clientX,e.clientY,e.pointerId); },{passive:false});
   window.addEventListener('pointermove',e=>{ if(TOUCH.active) e.preventDefault(); ptMove(e.clientX,e.clientY,e.pointerId); },{passive:false});
   window.addEventListener('pointerup',  e=>{ ptUp(e.pointerId); },{passive:false});
   window.addEventListener('pointercancel',e=>{ ptUp(e.pointerId); },{passive:false});
@@ -1711,13 +1797,24 @@ function startExport(){
 const SEND_TARGET=10;
 function doSendMash(){
   S.sendMash=Math.min(SEND_TARGET,S.sendMash+1);
+  S.sendPulse=1;                                     // fa "pulsare" il badge del tasto a schermo
   sType();
+  const pm=S.p;
+  addFloat(isoX(pm.i,pm.j)+(Math.random()*18-9), isoY(pm.i,pm.j)-28-Math.random()*10, '\ud83d\udce8+1', '#42bdb7');
   if(S.sendMash>=SEND_TARGET){
     S.seg++; S.needExport=false; S.sendMash=0;
     S.run.exports++; S.score+=150;
     sBell();
     addFloat(isoX(S.p.i,S.p.j),isoY(S.p.i,S.p.j)-46,'INVIATO TELEMATICAMENTE! 📡','#42bdb7');
   }
+}
+function toggleSupervisor(){
+  if(!S.supUnlocked || S.mode!=='play' || S.dying) return;
+  S.supervisor=!S.supervisor;
+  const b=$('btnSup'); if(b && b.classList) b.classList.toggle('on',S.supervisor);
+  const p=S.p;
+  if(S.supervisor){ sChirp(); addFloat(isoX(p.i,p.j),isoY(p.i,p.j)-50,'\ud83e\uddd1\u200d\ud83d\udcbc SUPERVISOR ON: deadline +35%, gas e stanchezza su!','#ffd76a'); }
+  else { sType(); addFloat(isoX(p.i,p.j),isoY(p.i,p.j)-50,'SUPERVISOR OFF: si torna a montare da soli','#8fc0e8'); }
 }
 function startRec(){
   S.recT=2.0; S.recKind='clip';
@@ -1805,8 +1902,8 @@ function doPOI(o){
 }
 
 /* ---------- controller Xbox 360 / gamepad ----------
-   Stick sx o croce = muovi · A = azione/salto · LT/RT (o stick a fondo) = scatto · LB/RB = zoom −/+
-   B = battuta al collega · X = invio telematico (mashing) · Y = velocità x1/x2/x4
+   Stick sx o croce = muovi · A = azione/salto · scatto: stick a fondo corsa · LB/RB = zoom −/+ · LT/RT = tempo −/+
+   B = battuta al collega · X = invio telematico / SUPERVISOR · Y o LT/RT = tempo x1/x2/x4
    Back o clic stick destro = zoom · Start = pausa · nel menu: LB/RB (o croce sx/dx) = difficoltà */
 const GP={connected:false,ax:0,ay:0,mag:0,sprint:false,prev:{}};
 function pollGamepad(){
@@ -1830,19 +1927,21 @@ function pollGamepad(){
   GP.ax=Math.max(-1,Math.min(1,ax));
   GP.ay=Math.max(-1,Math.min(1,ay));
   GP.mag=Math.hypot(GP.ax,GP.ay);
-  GP.sprint = b(6)||b(7)||GP.mag>0.92;
+  GP.sprint = GP.mag>0.92;
   const edge=i=>{ const now=b(i), was=!!GP.prev[i]; GP.prev[i]=now; return now&&!was; };
   // fronte di salita di ogni tasto, letto UNA sola volta per frame
   const eA=edge(0), eB=edge(1), eX=edge(2), eY=edge(3),
-        eLB=edge(4), eRB=edge(5), eBack=edge(8), eStart=edge(9),
+        eLB=edge(4), eRB=edge(5), eLT=edge(6), eRT=edge(7), eBack=edge(8), eStart=edge(9),
         eR3=edge(11), eDUp=edge(12), eDDown=edge(13), eDLeft=edge(14), eDRight=edge(15);
   if(eA){ ac(); onSpace(); }                                        // A: azione / conferma
   if(eStart){ if(S.mode==='play') togglePause(); else { ac(); onSpace(); } } // Start
   if(eY && S.mode==='play' && !S.paused){                           // Y: cicla velocità
     if(S.speed===1) setSpeed(2); else if(S.speed===2) setSpeed(4); else setSpeed(4);
   }
-  if(eX && S.mode==='play' && !S.paused && !S.dying                 // X: invio telematico
-     && S.needExport && S.sendUnlocked && S.door.phase==='idle') doSendMash();
+  if(eX && S.mode==='play' && !S.paused && !S.dying){               // X: invio telematico / SUPERVISOR
+    if(S.needExport && S.sendUnlocked && S.door.phase==='idle') doSendMash();
+    else if(S.supUnlocked) toggleSupervisor();
+  }
   if(eB && S.mode==='play' && !S.paused && !S.dying){               // B: battuta squallida
     const c=nearColleague(); if(c) tellJoke(c);
   }
@@ -1850,6 +1949,10 @@ function pollGamepad(){
   if(S.mode==='play' || S.mode==='night'){                          // L1 dezoomma · R1 zoomma
     if(eRB) stepZoom(1);
     if(eLB) stepZoom(-1);
+  }
+  if(S.mode==='play' && !S.paused){                                 // L2 rallenta / R2 velocizza il tempo
+    if(eRT) stepSpeed(1);
+    if(eLT) stepSpeed(-1);
   }
   if(S.mode==='title'){                                             // schermata titolo
     if(MENU.screen!=='menu'){ if(eB) closeSub(); }                  // B: indietro da Guida/Opzioni
@@ -1908,7 +2011,7 @@ function startGame(){
   S.score=0;
   saveRun();   // checkpoint: giorno 1
   lockScreen(); tryFullscreen();
-  startMusic();
+  startMusic();   // musica di livello: una traccia background a caso (playlist), altrimenti chiptune
   show('title',false); show('gameover',false); show('night',false);
   show('topstack',true); show('infoBox',true); show('ctrls',true);
   S.speed=1; $('btnX2').classList.remove('on'); $('btnX4').classList.remove('on');
@@ -1938,7 +2041,7 @@ function endDay(){
   }
 }
 function gameOver(title,reason){
-  S.mode='over'; S.dying=null; stopMusic(); sDeath();
+  S.mode='over'; S.dying=null; stopMusic(); extStop(); sDeath();
   clearRun();   // la run è finita: niente più "Continua"
   unlockScreen();
   const days=S.day-1;
@@ -2090,6 +2193,14 @@ function setSpeed(v){
   $('btnX2').classList.toggle('on',S.speed===2);
   $('btnX4').classList.toggle('on',S.speed===4);
 }
+function stepSpeed(d){ // tempo di gioco a scatti x1/x2/x4 (per L2/R2 del pad)
+  const L=[1,2,4];
+  let i=L.indexOf(S.speed); if(i<0) i=0;
+  const ni=Math.max(0,Math.min(L.length-1,i+d));
+  S.speed=L[ni];
+  $('btnX2').classList.toggle('on',S.speed===2);
+  $('btnX4').classList.toggle('on',S.speed===4);
+}
 /* ---------- zoom / telecamera sul personaggio ---------- */
 const ZOOM_LEVELS=[1, 1.55, 2.05];      // ciclo: normale → medio → ravvicinato
 function cycleZoom(){
@@ -2111,10 +2222,11 @@ $('btnPause').addEventListener('click',e=>{ e.stopPropagation(); togglePause(); 
 $('btnX2').addEventListener('click',e=>{ e.stopPropagation(); setSpeed(2); });
 $('btnX4').addEventListener('click',e=>{ e.stopPropagation(); setSpeed(4); });
 $('btnZoom').addEventListener('click',e=>{ e.stopPropagation(); cycleZoom(); });
+$('btnSup').addEventListener('click',e=>{ e.stopPropagation(); toggleSupervisor(); });
 $('btnPlay').addEventListener('click',e=>{ e.stopPropagation(); startNew(); });
 $('gBack').addEventListener('click',e=>{ e.stopPropagation(); closeSub(); });
 $('oBack').addEventListener('click',e=>{ e.stopPropagation(); closeSub(); });
-$('goMenu').addEventListener('click',e=>{ e.stopPropagation(); show('gameover',false); show('title',true); S.mode='title'; MENU.screen='menu'; setPhase('menu'); menuSelectDefault(); menuMusicPlay(); });
+$('goMenu').addEventListener('click',e=>{ e.stopPropagation(); show('gameover',false); show('title',true); S.mode='title'; MENU.screen='menu'; setPhase('menu'); menuSelectDefault(); extStop(); menuMusicPlay(); });
 /* ---------- opzioni: interruttori ---------- */
 function updateOptUI(){
   const set=(id,on,label)=>{ const btn=$(id); if(!btn||!btn.classList) return; btn.textContent=label+': '+(on?'ON':'OFF'); btn.classList.toggle('on',on); };
@@ -2167,6 +2279,7 @@ function padSetDiff(dir){
 }
 window.addEventListener('keydown',e=>{ if(e.code==='KeyP'&&S.mode==='play') togglePause();
   if(e.code==='KeyE'&&S.mode==='play'&&!S.paused&&!S.dying){ const c=nearColleague(); if(c) tellJoke(c); }
+  if(e.code==='KeyV'&&S.mode==='play'&&!S.paused&&!S.dying) toggleSupervisor();
   if(e.code==='KeyZ'){ e.preventDefault(); cycleZoom(); }   // Z: zoom sul personaggio
 });
 
@@ -2321,8 +2434,22 @@ function update(dt){
         addFloat(isoX(p.i,p.j),isoY(p.i,p.j)-50,'IL CLIENTE VUOLE MODIFICHE! -'+Math.round(back)+'%','#e05a4e');
         sGlitch();
       } else {
-        addFloat(isoX(p.i,p.j),isoY(p.i,p.j)-38,'ERA '+PH.who+'...','#f4f4f4');
+        addFloat(isoX(p.i,p.j),isoY(p.i,p.j)-38,'\ud83d\udcde ERA '+PH.who+'!','#ffad01');
       }
+    }
+  }
+
+  // il badge del tasto smette di pulsare poco dopo l'ultima pressione
+  // (il decadimento della barra di mashing esiste gia' nel gioco: -2.5/s senza SHIFT)
+  if(S.sendPulse>0) S.sendPulse=Math.max(0,S.sendPulse-dt*4);
+  // caffè (giorno 12+): un filo di gas costante
+  if(S.coffeeUnlocked && !S.dying) S.tox=Math.min(120,S.tox+dt*0.45);
+  // centro commerciale: WI-FI ballerino mentre lavori
+  if(S.mall){
+    if(S.wifiOut>0) S.wifiOut-=dt;
+    else if(p.sitting && Math.random()<dt*0.10){
+      S.wifiOut=1.6; sGlitch();
+      addFloat(isoX(p.i,p.j),isoY(p.i,p.j)-46,'WI-FI DEL CENTRO LENTO! \ud83d\udedc','#e05a4e');
     }
   }
 
@@ -2337,7 +2464,7 @@ function update(dt){
       // scatto: Shift da tastiera, o joystick spinto a fondo corsa
       const sprint = keys.ShiftLeft || keys.ShiftRight || GP.sprint || (TOUCH.active && Math.hypot(TOUCH.dx,TOUCH.dy)>0.95);
       p.running = !!sprint;
-      const sp=(sprint?5.4:3.1)*(S.boost>0?1.15:1)*(S.fastUnlocked?1.15:1)*S.evtWalkMul*dt;
+      const sp=(sprint?5.4:3.1)*(S.boost>0?1.15:1)*(S.fastUnlocked?1.15:1)*(S.coffeeUnlocked?1.10:1)*S.evtWalkMul*dt;
       let ni=p.i+di*sp, nj=p.j+dj*sp;
       if(!blocked(ni,p.j,p.i,p.j)) p.i=ni;
       if(!blocked(p.i,nj,p.i,p.j)) p.j=nj;
@@ -2358,7 +2485,7 @@ function update(dt){
     if(p.eating<=0){
       const eneGain = Math.round(46 * (S.mealPenalty ? 0.85 : 1) * (S.mealUnlocked ? 1.15 : 1));
       S.energy=Math.min(100,S.energy+eneGain);
-      S.tox=Math.min(120,S.tox+27);
+      S.tox=Math.min(120,S.tox+(S.mall?31:27));   // food court: più unto
       S.leftovers=Math.min(6,S.leftovers+1);
       S.leftoverTypes.push(S.pendingMeal);
       bump('meals');
@@ -2410,7 +2537,7 @@ function update(dt){
     const cap=(S.seg+1)*100/S.segCount;
     const ringSlow = S.phone.state==='ringing' ? 0.35 : 1;
     if(!S.needMic && S.deadline<cap){
-      S.deadline=Math.min(cap, S.deadline + dt*(100/S.workNeed)*bMul*ringSlow);
+      S.deadline=Math.min(cap, S.deadline + dt*(100/S.workNeed)*bMul*ringSlow*(S.supervisor?1.35:1)*(S.wifiOut>0?0:1));
       // registrazione audio a sorpresa
       if(!S.micDone && S.deadline>=S.micAt){
         S.micDone=true; S.needMic=true;
@@ -2430,14 +2557,14 @@ function update(dt){
       }
       S.typeT-=dt; if(S.typeT<=0){ sType(); S.typeT=0.13+Math.random()*0.2; }
     }
-    S.tox    += dt*S.toxSit*bTox;
-    S.energy -= dt*S.eneSit;
+    S.tox    += dt*S.toxSit*bTox + (S.supervisor? dt*2.2 : 0);   // supervisor: lo stress gonfia
+    S.energy -= dt*S.eneSit*(S.coffeeUnlocked?0.85:1)*(S.supervisor?1.6:1);
   } else if(p.eating>0){
     // sta mangiando: il gas sale piano ma l'energia NON si consuma
     S.tox    += dt*S.toxIdle*bTox;
   } else {
     S.tox    += dt*S.toxIdle*bTox;
-    S.energy -= dt*(p.walking?(p.running?S.eneWalk*1.45:S.eneWalk):S.eneIdle);
+    S.energy -= dt*(p.walking?(p.running?S.eneWalk*1.45:S.eneWalk):S.eneIdle)*(S.coffeeUnlocked?0.85:1);
   }
 
   // a deadline (dell'intera giornata) completata, si alza automaticamente dal PC
@@ -2474,6 +2601,7 @@ function updateHUD(){
   $('bDead').firstElementChild.style.width=S.deadline+'%';
   $('bTox').firstElementChild.style.width=Math.min(100,S.tox)+'%';
   $('bEne').firstElementChild.style.width=Math.max(0,S.energy)+'%';
+  { const bs=$('btnSup'); if(bs&&bs.classList) bs.classList.toggle('hidden', !S.supUnlocked); }
   $('vDead').textContent=Math.floor(S.deadline)+'%';
   $('vTox').textContent=Math.floor(S.tox)+'%';
   $('vEne').textContent=Math.max(0,Math.floor(S.energy))+'%';
@@ -2488,7 +2616,7 @@ function updateHUD(){
   $('clock').textContent=hh+':'+mm;
   $('bgDay').textContent='GIORNO '+S.day;
   $('bgClock').textContent=hh+':'+mm;
-  $('evt').textContent = S.day>=2 ? S.evtName : '';
+  $('evt').textContent = (S.day>=2 ? S.evtName : '') + (S.supervisor ? '  \u00b7  \ud83e\uddd1\u200d\ud83d\udcbc SUPERVISOR ON' : '');
   // hint
   const p=S.p; let h='';
   if(S.slip>0) h='AHIA! Sei scivolato...';
@@ -2517,6 +2645,7 @@ function updateHUD(){
     }
   }
   else if(inFZ()) h='SPAZIO: rutta / scoreggia!';
+  else if(S.supervisor && p.sitting) h='\ud83e\uddd1\u200d\ud83d\udcbc SUPERVISOR: deadline veloce, occhio a gas e stanchezza! (V per staccare)';
   else if(nearColleague()) h='E / SPAZIO: fai una battuta squallida';
   else if(nearDoor()) h=(S.door.phase==='idle'?'SPAZIO: ordina cibo':'aspetta alla porta...');
   else if(nearestPOI()) h=nearestPOI().hint;
@@ -2708,14 +2837,14 @@ function drawFloor(){
 }
 function drawWalls(){
   const H=52;
-  const OF=S.scene==='office';
-  const wR = OF?'#e2e7ec':PAL.wall, wL = OF?'#d0d7de':PAL.wallD;
-  const wBand = OF?'#9ab0c0':'#b8d0e0', wBandL = OF?'#8aa0b0':'#a5bccc';
-  const wBase = OF?'#6a7684':PAL.wallBase, wTop = OF?'#f0f4f7':PAL.wallTop;
+  const OF=S.scene==='office', ML=S.mall;
+  const wR = ML?'#f3e4c6':(OF?'#e2e7ec':PAL.wall), wL = ML?'#e6d4b2':(OF?'#d0d7de':PAL.wallD);
+  const wBand = ML?'#d86a9c':(OF?'#9ab0c0':'#b8d0e0'), wBandL = ML?'#c25a8c':(OF?'#8aa0b0':'#a5bccc');
+  const wBase = ML?'#8a7a5e':(OF?'#6a7684':PAL.wallBase), wTop = ML?'#fff6df':(OF?'#f0f4f7':PAL.wallTop);
   // right wall (along j=0)
-  fillQuadOrImage([isoX(0,0),isoY(0,0)-H],[isoX(10,0),isoY(10,0)-H],[isoX(10,0),isoY(10,0)],[isoX(0,0),isoY(0,0)],wR, OF?'wall_office':'wall_room');
+  fillQuadOrImage([isoX(0,0),isoY(0,0)-H],[isoX(10,0),isoY(10,0)-H],[isoX(10,0),isoY(10,0)],[isoX(0,0),isoY(0,0)],wR, ML?'wall_mall':(OF?'wall_office':'wall_room'));
   // left wall (along i=0)
-  fillQuadOrImage([isoX(0,0),isoY(0,0)-H],[isoX(0,10),isoY(0,10)-H],[isoX(0,10),isoY(0,10)],[isoX(0,0),isoY(0,0)],wL, OF?'wall_office':'wall_room');
+  fillQuadOrImage([isoX(0,0),isoY(0,0)-H],[isoX(0,10),isoY(0,10)-H],[isoX(0,10),isoY(0,10)],[isoX(0,0),isoY(0,0)],wL, ML?'wall_mall':(OF?'wall_office':'wall_room'));
   // gradiente verticale: pareti più chiare in alto, più scure alla base
   quad([isoX(0,0),isoY(0,0)-H],[isoX(10,0),isoY(10,0)-H],[isoX(10,0),isoY(10,0)-H+14],[isoX(0,0),isoY(0,0)-H+14],'rgba(255,255,242,.14)');
   quad([isoX(0,0),isoY(0,0)-H],[isoX(0,10),isoY(0,10)-H],[isoX(0,10),isoY(0,10)-H+14],[isoX(0,0),isoY(0,0)-H+14],'rgba(255,255,242,.10)');
@@ -2724,6 +2853,13 @@ function drawWalls(){
   // fascia colorata a metà parete (stile cameretta)
   quad([isoX(0,0),isoY(0,0)-H+14],[isoX(10,0),isoY(10,0)-H+14],[isoX(10,0),isoY(10,0)-H+18],[isoX(0,0),isoY(0,0)-H+18],wBand);
   quad([isoX(0,0),isoY(0,0)-H+14],[isoX(0,10),isoY(0,10)-H+14],[isoX(0,10),isoY(0,10)-H+18],[isoX(0,0),isoY(0,0)-H+18],wBandL);
+  // insegna del centro commerciale sul muro di destra
+  if(ML){
+    const sx=(isoX(2.2,0)+isoX(7.8,0))/2, sy=(isoY(2.2,0)+isoY(7.8,0))/2 - H + 8;
+    ctx.fillStyle='#2a1a2e'; ctx.fillRect(sx-62,sy-9,124,18);
+    ctx.strokeStyle='#ffd76a'; ctx.lineWidth=2; ctx.strokeRect(sx-62,sy-9,124,18);
+    pixText(ctx,'\ud83c\udfec GALLERIA MILANO \u2615', sx, sy, 10, '#ffd76a');
+  }
   // baseboards
   quad([isoX(0,0),isoY(0,0)-5],[isoX(10,0),isoY(10,0)-5],[isoX(10,0),isoY(10,0)],[isoX(0,0),isoY(0,0)],wBase);
   quad([isoX(0,0),isoY(0,0)-5],[isoX(0,10),isoY(0,10)-5],[isoX(0,10),isoY(0,10)],[isoX(0,0),isoY(0,0)],wBase);
@@ -3247,14 +3383,21 @@ function drawColleague(ci,cj,shirt,hair,sit){
   const x=isoX(ci,cj), y=isoY(ci,cj);
   ctx.fillStyle='rgba(0,0,0,.22)';
   ctx.beginPath(); ctx.ellipse(x,y+1,7,3,0,0,Math.PI*2); ctx.fill();
+  // il collega SEGUE il protagonista con lo sguardo (specchio orizzontale del corpo)
+  const faceL = S.p && isoX(S.p.i,S.p.j) < x-2;
+  const nowS = (typeof performance!=='undefined'&&performance.now)?performance.now()/1000:0;
+  const bob = sit?0:Math.round(Math.sin(nowS*1.9 + x*0.13));   // respiro/dondolio: mai fermi come statue
+  const mir=()=>{ ctx.save(); ctx.translate(0,bob); if(faceL){ ctx.translate(x,0); ctx.scale(-1,1); ctx.translate(-x,0); } };
   const key = sit?'colleague_sit':'colleague_stand';
   if(assetReady(key)){
     if(sit){
       isoBox(ci-0.27,cj-0.27,0.54,0.54,9,'#3a3f4a','#23262e','#2c303a');
       px(x-1,y+2,2,3,'#23262e');
     }
+    mir();
     ctx.drawImage(ASSETS[key], 0,0,36,68, Math.round((x-9)*2)/2, y-33, 18, 34);
     if(!sit){ px(x+6,y-15,4,4,'#f4f4f4'); px(x+7,y-16,2,1,'#6e451f'); } // tazza caffè
+    ctx.restore();
     if(sit){ isoBox(ci+0.16,cj-0.27,0.13,0.54,22,'#3a3f4a','#23262e','#2c303a'); }
     return;
   }
@@ -3262,7 +3405,9 @@ function drawColleague(ci,cj,shirt,hair,sit){
     // sedia da ufficio sotto il collega
     isoBox(ci-0.27,cj-0.27,0.54,0.54,9,'#3a3f4a','#23262e','#2c303a');
     px(x-1,y+2,2,3,'#23262e'); // gamba centrale
-  } else {
+  }
+  mir();
+  if(!sit){
     px(x-4,y-9,3,6,PAL.skin); px(x+1,y-9,3,6,PAL.skin);
     px(x-4,y-4,3,4,'#2c2c33'); px(x+1,y-4,3,4,'#2c2c33');
   }
@@ -3279,6 +3424,7 @@ function drawColleague(ci,cj,shirt,hair,sit){
   px(x-3,yb-27,2,2,'#2b2b2b'); px(x+1,yb-27,2,2,'#2b2b2b');
   px(x-5,yb-32,10,4,hair);
   px(x-5,yb-29,2,3,hair); px(x+3,yb-29,2,3,hair);
+  ctx.restore();
   if(sit){
     // schienale della sedia dietro al collega
     isoBox(ci+0.16,cj-0.27,0.13,0.54,22,'#3a3f4a','#23262e','#2c303a');
@@ -3961,6 +4107,23 @@ function renderTitle(t){
   }
   ctx.fillStyle=TITLE.vg; ctx.fillRect(0,0,CW,CH);
 }
+function drawSendBanner(t){
+  // banner del mashing: rinforza il concetto "premi TANTE volte velocemente"
+  const w=Math.min(300,CW*0.86), x0=Math.round((CW-w)/2), y0=Math.round(CH*0.13);
+  ctx.fillStyle='rgba(10,8,16,.85)'; ctx.fillRect(x0,y0,w,46);
+  ctx.strokeStyle='#42bdb7'; ctx.lineWidth=2; ctx.strokeRect(x0+1,y0+1,w-2,44);
+  pixText(ctx,'\ud83d\udce1 INVIO TELEMATICO', CW/2, y0+10, 11, '#42bdb7');
+  const bw=w-78, bx=x0+12, by=y0+19;
+  ctx.fillStyle='#241a33'; ctx.fillRect(bx,by,bw,8);
+  const fr=Math.max(0,Math.min(1,S.sendMash/SEND_TARGET));
+  ctx.fillStyle= fr>0.66?'#ffad01':'#42bdb7'; ctx.fillRect(bx,by,Math.round(bw*fr),8);
+  ctx.strokeStyle='#000'; ctx.lineWidth=1; ctx.strokeRect(bx+.5,by+.5,bw-1,8);
+  const scl=1+S.sendPulse*0.45;                       // il badge SHIFT/X pulsa a ogni pressione
+  ctx.save(); ctx.translate(x0+w-38,y0+23); ctx.scale(scl,scl);
+  pixText(ctx,'SHIFT/\u2715',0,0,10, S.sendPulse>0.05?'#ffd76a':'#e6dfcc');
+  ctx.restore();
+  if(Math.sin(t*7)>0 || S.sendPulse>0.05) pixText(ctx,'MARTELLA RIPETUTAMENTE!', CW/2, y0+38, 9, '#ffad01');
+}
 function render(t){
   ctx.setTransform(RS,0,0,RS,0,0);
   ctx.clearRect(0,0,CW,CH);
@@ -4038,6 +4201,9 @@ function render(t){
       ctx.globalAlpha=1;
     }
   }
+  // banner dell'invio telematico (quando serve consegnare e lo sblocco è attivo)
+  if(S.mode==='play' && S.needExport && S.sendUnlocked && S.door.phase==='idle' && !S.dying && !S.paused)
+    drawSendBanner(t);
   // vignettatura (gradiente in cache: ricreato solo se cambia il canvas) — disattivabile dalle Opzioni
   if(OPT.vignette){
     if(!render._vg || render._vgW!==CW || render._vgH!==CH){
