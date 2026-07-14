@@ -6,45 +6,44 @@
 <title>Installa FARTFLIP sul tuo R1</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:#0a0a0b;color:#fff;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;}
-  .brand{font-size:11px;letter-spacing:.22em;color:#FE5000;text-transform:uppercase;margin-bottom:14px;}
-  h1{font-size:30px;font-weight:800;margin-bottom:6px;letter-spacing:1px;color:#FE5000;}
-  .sub{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:26px;text-align:center;max-width:280px;line-height:1.5;}
-  #qr{margin-bottom:18px;border-radius:14px;overflow:hidden;}
-  .url{font-size:10px;color:rgba(255,255,255,.32);word-break:break-all;text-align:center;max-width:300px;}
-  .note{margin-top:24px;font-size:11px;color:rgba(255,255,255,.45);max-width:320px;text-align:center;line-height:1.55;}
-  .note code{color:#FE5000;}
+  body{background:#0e0e10;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;}
+  .brand{font-size:11px;letter-spacing:.2em;color:#FE5000;text-transform:uppercase;margin-bottom:12px;}
+  h1{font-size:28px;font-weight:800;margin-bottom:6px;letter-spacing:.3px;color:#FE5000;}
+  .sub{font-size:12px;color:rgba(255,255,255,.55);margin-bottom:20px;text-align:center;max-width:290px;line-height:1.45;}
+  #qr{margin-bottom:16px;border-radius:12px;overflow:hidden;background:#fff;line-height:0;padding:0;}
+  .url{font-size:10px;color:rgba(255,255,255,.32);word-break:break-all;text-align:center;max-width:320px;}
+  .note{margin-top:20px;font-size:11px;color:rgba(255,255,255,.42);max-width:320px;text-align:center;line-height:1.5;}
+  .note code{color:#FE5000;font-family:ui-monospace,Menlo,Consolas,monospace;}
 </style>
 </head>
 <body>
   <div class="brand">rabbit r1 creation</div>
   <h1>FARTFLIP</h1>
-  <p class="sub">Inquadra questo QR con la fotocamera del tuo Rabbit R1 per installare il gioco.</p>
+  <p class="sub">Sull'R1: apri <b>Creations</b> &rarr; <b>add via QR code</b> &rarr; inquadra questo codice.</p>
   <div id="qr"></div>
   <div class="url" id="url-label"></div>
-  <p class="note">Prima imposta qui sotto l'URL pubblico dove hai caricato <code>fartflip.html</code>. Dopo una modifica, cambia <code>?v=1</code> in <code>?v=2</code> e riscansiona.</p>
+  <p class="note">Per aggiornare la app dopo una modifica: aggiungi <code>?v=2</code> in fondo all'URL nello script e rigenera il QR.</p>
 
   <script src="https://unpkg.com/qr-code-styling@1.6.0/lib/qr-code-styling.js"></script>
   <script>
-    // ▼▼▼ IMPOSTA QUI l'URL pubblico del gioco ▼▼▼
-    var creationUrl = 'https://davidemorabito.com/r1/fartflip/fartflip.html?v=1';
-    // ▲▲▲
-
+    var creationUrl = 'https://davidemorabito.com/r1/fartflip/fartflip.html';
     document.getElementById('url-label').textContent = creationUrl;
     var qrData = JSON.stringify({
       title: "FARTFLIP",
       url: creationUrl,
-      description: "Runner: corri, tocca per saltare (scoreggia!), tocca in aria per il doppio salto a backflip e schiva i nemici.",
+      description: "Runner: salta, doppio salto a scoreggia.",
       iconUrl: "",
       themeColor: "#FE5000"
     });
     var qrCode = new QRCodeStyling({
-      width:260, height:260, data:qrData,
-      dotsOptions:{ color:"#FE5000", type:"rounded" },
-      backgroundOptions:{ color:"#0a0a0b" },
-      cornersSquareOptions:{ color:"#ffffff", type:"extra-rounded" },
-      cornersDotOptions:{ color:"#FE5000" }
+      width:300, height:300, margin:16,
+      data:qrData,
+      qrOptions:{ errorCorrectionLevel:"L" },
+      dotsOptions:{ color:"#000000", type:"square" },
+      backgroundOptions:{ color:"#ffffff" },
+      cornersSquareOptions:{ color:"#000000", type:"square" },
+      cornersDotOptions:{ color:"#000000" }
     });
     qrCode.append(document.getElementById('qr'));
   </script>
