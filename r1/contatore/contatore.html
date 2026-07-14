@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=240, initial-scale=1.0, user-scalable=no">
+<title>Contatore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1A2F45; --navy-lo:#14263a; --navy-2:#2B4868;
+    --amber:#FFAD01; --amber-glow:rgba(255,173,1,.16);
+    --muted:rgba(255,255,255,.36);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
+    -webkit-touch-callout:none;user-select:none;}
+  html{background:#000;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+  body{
+    width:240px;height:282px;overflow:hidden;position:relative;
+    background:radial-gradient(120% 90% at 50% 36%,#20374f 0%,var(--navy) 46%,var(--navy-lo) 100%);
+    color:var(--amber);
+    font-family:'Jost',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    display:flex;flex-direction:column;cursor:pointer;
+    box-shadow:0 0 0 1px rgba(255,255,255,.05),0 24px 70px rgba(0,0,0,.6);
+  }
+  body.shake{animation:shake .36s ease;}
+  @keyframes shake{
+    10%{transform:translateX(-4px)}30%{transform:translateX(5px)}
+    50%{transform:translateX(-4px)}70%{transform:translateX(4px)}
+    90%{transform:translateX(-2px)}100%{transform:translateX(0)}
+  }
+  .top{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px 0;}
+  .cerchio{width:12px;height:12px;border-radius:50%;flex:0 0 auto;
+    background:linear-gradient(135deg,var(--amber) 0 50%,var(--navy-2) 50% 100%);
+    box-shadow:0 0 0 1px rgba(0,0,0,.25);}
+  .ctrls{display:flex;gap:6px;}
+  .pill{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.14);
+    border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.03em;padding:4px 9px;
+    font-family:inherit;line-height:1;white-space:nowrap;}
+  .pill.on{border-color:var(--amber);color:var(--amber);background:rgba(255,173,1,.12);}
+  .progress{flex:0 0 auto;height:4px;margin:7px 12px 0;border-radius:3px;
+    background:rgba(255,255,255,.08);overflow:hidden;display:none;}
+  .progress.show{display:block;}
+  .bar{height:100%;width:0;border-radius:3px;background:var(--amber);
+    box-shadow:0 0 8px rgba(255,173,1,.5);transition:width .18s ease;}
+  .mid{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .glow{position:absolute;width:180px;height:180px;border-radius:50%;
+    background:radial-gradient(circle,var(--amber-glow) 0%,rgba(255,173,1,0) 68%);
+    opacity:.9;transition:transform .12s ease;pointer-events:none;}
+  .burst{position:absolute;width:56px;height:56px;border-radius:50%;border:3px solid var(--amber);
+    opacity:0;pointer-events:none;}
+  .burst.go{animation:burst .55s ease-out;}
+  @keyframes burst{0%{opacity:.85;transform:scale(.4)}100%{opacity:0;transform:scale(2.4)}}
+  .count{position:relative;font-weight:800;color:var(--amber);line-height:.95;
+    font-variant-numeric:tabular-nums;letter-spacing:-.02em;
+    text-shadow:0 0 22px rgba(255,173,1,.28);transition:transform .09s ease;}
+  .count.bump{transform:scale(1.12);}
+  .goaltxt{margin-top:10px;font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--muted);
+    font-variant-numeric:tabular-nums;display:none;}
+  .goaltxt.show{display:block;}
+  .goaltxt.hit{color:var(--amber);}
+  .hint{margin-top:8px;font-size:11px;letter-spacing:.18em;color:var(--muted);
+    text-transform:uppercase;transition:opacity .35s ease;}
+  .hint.gone{opacity:0;}
+  .legend{flex:0 0 auto;text-align:center;padding:0 6px 7px;}
+  .legend .wm{display:block;font-size:9px;letter-spacing:.16em;color:var(--muted);
+    text-transform:lowercase;font-weight:600;margin-bottom:3px;}
+  .legend .keys{font-size:8px;letter-spacing:.03em;color:rgba(255,255,255,.28);}
+  .legend .keys b{color:rgba(255,255,255,.5);font-weight:600;}
+  .toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);
+    background:rgba(0,0,0,.6);color:var(--amber);font-size:12px;font-weight:700;letter-spacing:.16em;
+    text-transform:uppercase;padding:8px 16px;border-radius:22px;border:1px solid rgba(255,173,1,.5);
+    opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;z-index:40;}
+  .toast.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+</style>
+</head>
+<body>
+  <div class="top" id="top">
+    <span class="cerchio"></span>
+    <div class="ctrls">
+      <button class="pill" id="stepPill">&times;1</button>
+      <button class="pill" id="targetPill">&#9678; off</button>
+    </div>
+  </div>
+  <div class="progress" id="progress"><div class="bar" id="bar"></div></div>
+  <div class="mid">
+    <div class="glow" id="glow"></div>
+    <div class="burst" id="burst"></div>
+    <div class="count" id="count">0</div>
+    <div class="goaltxt" id="goaltxt"></div>
+    <div class="hint" id="hint">toccami</div>
+  </div>
+  <div class="legend">
+    <span class="wm">davide / morabito</span>
+    <span class="keys"><b>tocca</b> +step &middot; <b>rotella</b> &plusmn;1 &middot; <b>click</b> &minus;step &middot; <b>tieni</b> &#8635; azzera</span>
+  </div>
+  <div class="toast" id="toast">traguardo</div>
+
+<script>
+(function(){
+  "use strict";
+  var KEY="tapcount_r1_v2";
+  var STEPS=[1,2,5,10];
+  var TARGETS=[0,10,25,50,100];
+  var count=0, stepIdx=0, targetIdx=0, firstDone=false, celebrated=false;
+
+  try{
+    var raw=JSON.parse(localStorage.getItem(KEY)||"null");
+    if(raw){
+      if(typeof raw.count==="number")count=raw.count;
+      if(typeof raw.stepIdx==="number")stepIdx=raw.stepIdx;
+      if(typeof raw.targetIdx==="number")targetIdx=raw.targetIdx;
+    }
+  }catch(e){}
+
+  var $=function(id){return document.getElementById(id);};
+  var elCount=$("count"),elHint=$("hint"),elGlow=$("glow"),elBurst=$("burst"),elToast=$("toast");
+  var elStep=$("stepPill"),elTarget=$("targetPill"),elProg=$("progress"),elBar=$("bar"),elGoal=$("goaltxt");
+
+  function step(){return STEPS[stepIdx];}
+  function target(){return TARGETS[targetIdx];}
+
+  var saveT=null;
+  function save(){clearTimeout(saveT);saveT=setTimeout(function(){
+    try{localStorage.setItem(KEY,JSON.stringify({count:count,stepIdx:stepIdx,targetIdx:targetIdx}));}catch(e){}
+  },250);}
+
+  function fontFor(len){return len<=2?104:len===3?88:len===4?68:len===5?54:44;}
+
+  function render(){
+    var s=String(count);
+    elCount.textContent=s;
+    elCount.style.fontSize=fontFor(s.length)+"px";
+    elStep.textContent="\u00D7"+step();
+    var tg=target();
+    if(tg>0){
+      elTarget.textContent="\u25CE "+tg;
+      elTarget.classList.add("on");
+    }else{
+      elTarget.textContent="\u25CE off";
+      elTarget.classList.remove("on");
+    }
+    updateProgress();
+  }
+
+  function updateProgress(){
+    var tg=target();
+    if(tg>0){
+      elProg.classList.add("show");
+      var pct=Math.min(1,count/tg)*100;
+      elBar.style.width=pct+"%";
+      elGoal.textContent=count+" / "+tg;
+      elGoal.classList.add("show");
+      elGoal.classList.toggle("hit",count>=tg);
+    }else{
+      elProg.classList.remove("show");
+      elGoal.classList.remove("show","hit");
+    }
+  }
+
+  function bump(){
+    elCount.classList.remove("bump");
+    void elCount.offsetWidth;
+    elCount.classList.add("bump");
+    elGlow.style.transform="scale(1.12)";
+    clearTimeout(bump._t);
+    bump._t=setTimeout(function(){elCount.classList.remove("bump");elGlow.style.transform="scale(1)";},95);
+  }
+
+  var toastT=null;
+  function toast(txt){
+    elToast.textContent=txt;
+    elToast.classList.add("show");
+    clearTimeout(toastT);
+    toastT=setTimeout(function(){elToast.classList.remove("show");},900);
+  }
+
+  function celebrate(){
+    document.body.classList.remove("shake");void document.body.offsetWidth;
+    document.body.classList.add("shake");
+    elBurst.classList.remove("go");void elBurst.offsetWidth;
+    elBurst.classList.add("go");
+    toast("traguardo");
+  }
+
+  function hideHint(){if(firstDone)return;firstDone=true;elHint.classList.add("gone");}
+
+  function apply(n){
+    count=Math.max(0,Math.min(99999,n));
+    var tg=target();
+    if(tg>0){
+      if(count>=tg){ if(!celebrated){celebrated=true;render();save();bump();celebrate();return;} }
+      else{celebrated=false;}
+    }
+    render();save();bump();
+  }
+  function inc(){hideHint();apply(count+step());}
+  function dec(){hideHint();apply(count-step());}
+  function fineUp(){hideHint();apply(count+1);}
+  function fineDown(){hideHint();apply(count-1);}
+  function reset(){hideHint();count=0;celebrated=false;render();save();bump();toast("azzerato");}
+
+  function cycleStep(){stepIdx=(stepIdx+1)%STEPS.length;render();save();}
+  function cycleTarget(){
+    targetIdx=(targetIdx+1)%TARGETS.length;
+    celebrated=(target()>0 && count>=target()); // non ri-festeggia se sei gia' oltre
+    render();save();
+  }
+
+  // --- top bar = zona controlli (non conta) ---
+  $("top").addEventListener("pointerdown",function(e){
+    e.stopPropagation();
+    if(e.target.closest("#stepPill"))cycleStep();
+    else if(e.target.closest("#targetPill"))cycleTarget();
+  });
+
+  // --- tocco schermo = +step ---
+  document.addEventListener("pointerdown",inc);
+
+  // --- hardware R1 ---
+  window.addEventListener("scrollUp",fineUp);
+  window.addEventListener("scrollDown",fineDown);
+  window.addEventListener("sideClick",dec);
+  window.addEventListener("longPressStart",reset);
+
+  // --- fallback tastiera (test desktop) ---
+  document.addEventListener("keydown",function(e){
+    if(e.key==="ArrowUp"){e.preventDefault();fineUp();}
+    else if(e.key==="ArrowDown"){e.preventDefault();fineDown();}
+    else if(e.key==="Backspace"){e.preventDefault();dec();}
+    else if(e.key==="r"||e.key==="R"||e.key==="Escape"){reset();}
+    else if(e.key==="s"||e.key==="S"){cycleStep();}
+    else if(e.key==="t"||e.key==="T"){cycleTarget();}
+    else if(e.key==="Enter"||e.key===" "){if(!e.repeat){e.preventDefault();inc();}}
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

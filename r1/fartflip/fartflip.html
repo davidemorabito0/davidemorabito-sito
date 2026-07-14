@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=240, initial-scale=1.0, user-scalable=no">
+<title>FARTFLIP</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
+    -webkit-touch-callout:none;user-select:none;}
+  html{background:#000;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+  body{width:240px;height:282px;overflow:hidden;background:#0a0a0b;cursor:pointer;
+    box-shadow:0 0 0 1px rgba(255,255,255,.05),0 24px 70px rgba(0,0,0,.6);}
+  canvas{display:block;width:240px;height:282px;image-rendering:pixelated;}
+</style>
+</head>
+<body>
+<canvas id="c" width="240" height="282"></canvas>
+<script>
+(function(){
+  "use strict";
+  var W=240,H=282;
+  var cv=document.getElementById("c"),ctx=cv.getContext("2d");
+  ctx.imageSmoothingEnabled=false;
+
+  // palette (stile Rabbit: nero + arancione, minimal)
+  var BG="#0a0a0b", ORANGE="#FE5000", ORANGE_DK="#b83a00", WHITE="#f2f2f2",
+      FACE="#f4eee4", GREY="#c9c9cf", GREY_DK="#83838a", GREEN="#a7d18a", INK="#0a0a0b";
+
+  var GROUND_Y=238, PW=22, PH=30, PX=44;
+  var GRAV=0.85, JUMP_V=-12.5, DJUMP_V=-11.2;
+  var TOP_MARGIN=2, GLIDE_FALL=1.4, GLIDE_MAX=120; // planata: discesa lenta, max ~2s a 60fps
+
+  var best=0;
+  try{var b=parseInt(localStorage.getItem("fartflip_best")||"0",10);if(!isNaN(b))best=b;}catch(e){}
+
+  var state="ready"; // ready | play | over
+  var py,vy,grounded,jumps,flipT,flipDur,legTimer;
+  var enemies,parts,worldSpeed,distNext,scoreF,score,groundOff,bgOff,deathFlash,overLock,t0,lastMile,scorePulse;
+  var holding=false, gliding=false, prevGliding=false, glideTrail=0, glideFrames=0;
+
+  function reset(){
+    py=GROUND_Y-PH; vy=0; grounded=true; jumps=0; flipT=0; flipDur=30; legTimer=0;
+    enemies=[]; parts=[]; worldSpeed=3.2; distNext=90; scoreF=0; score=0;
+    groundOff=0; bgOff=0; deathFlash=0; lastMile=0; scorePulse=0;
+    gliding=false; prevGliding=false; glideTrail=0; glideFrames=0; stopGlideSfx();
+  }
+  reset();
+
+  // ---- audio + aptico ----
+  var actx=null, unlocked=false;
+  function ac(){try{if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();}catch(e){}return actx;}
+  function unlockAudio(){
+    var c=ac(); if(!c||unlocked)return; unlocked=true;
+    try{var b=c.createBuffer(1,1,22050),s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0);}catch(e){}
+  }
+  function vibe(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+
+  // salto singolo: "pft" corto e acuto
+  function sfxJump(){
+    var c=ac(); if(!c)return; var t=c.currentTime;
+    var o=c.createOscillator(), g=c.createGain(), lp=c.createBiquadFilter();
+    o.type="sawtooth";
+    o.frequency.setValueAtTime(190,t);
+    o.frequency.exponentialRampToValueAtTime(95,t+0.11);
+    lp.type="lowpass"; lp.frequency.value=780;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.24,t+0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.14);
+    o.connect(lp); lp.connect(g); g.connect(c.destination);
+    o.start(t); o.stop(t+0.16);
+  }
+  // doppio salto: "BRRRAAAP" lungo, basso e ballonzolante
+  function sfxDouble(){
+    var c=ac(); if(!c)return; var t=c.currentTime, dur=0.34;
+    var o=c.createOscillator(), g=c.createGain(), lp=c.createBiquadFilter();
+    o.type="sawtooth";
+    o.frequency.setValueAtTime(150,t);
+    o.frequency.exponentialRampToValueAtTime(42,t+dur);
+    var lfo=c.createOscillator(), lg=c.createGain();
+    lfo.type="square"; lfo.frequency.value=23; lg.gain.value=26;
+    lfo.connect(lg); lg.connect(o.frequency);
+    lp.type="lowpass"; lp.frequency.value=430;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.34,t+0.012);
+    g.gain.exponentialRampToValueAtTime(0.14,t+dur*0.6);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(lp); lp.connect(g); g.connect(c.destination);
+    o.start(t); o.stop(t+dur+0.03); lfo.start(t); lfo.stop(t+dur+0.03);
+  }
+  // tick premio al traguardo punti
+  function sfxTick(){
+    var c=ac(); if(!c)return; var t=c.currentTime;
+    var o=c.createOscillator(), g=c.createGain();
+    o.type="triangle";
+    o.frequency.setValueAtTime(880,t); o.frequency.exponentialRampToValueAtTime(1320,t+0.06);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.13,t+0.006); g.gain.exponentialRampToValueAtTime(0.0001,t+0.12);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.13);
+  }
+
+  // planata: sibilo continuo di scoreggia
+  var glideNode=null, glideGain=null, glideWob=null;
+  function startGlideSfx(){
+    var c=ac(); if(!c||glideNode)return;
+    try{
+      glideNode=c.createOscillator(); glideGain=c.createGain();
+      var lp=c.createBiquadFilter();
+      glideNode.type="sawtooth"; glideNode.frequency.value=68;
+      glideWob=c.createOscillator(); var wg=c.createGain();
+      glideWob.type="sine"; glideWob.frequency.value=9; wg.gain.value=6;
+      glideWob.connect(wg); wg.connect(glideNode.frequency);
+      lp.type="lowpass"; lp.frequency.value=360;
+      glideGain.gain.value=0.0001;
+      glideNode.connect(lp); lp.connect(glideGain); glideGain.connect(c.destination);
+      glideNode.start(); glideWob.start();
+      glideGain.gain.linearRampToValueAtTime(0.07,c.currentTime+0.08);
+    }catch(e){}
+  }
+  function stopGlideSfx(){
+    if(!glideNode)return;
+    var n=glideNode, w=glideWob, g=glideGain;
+    try{ var c=ac(), t=c?c.currentTime:0;
+      if(g&&c){ g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value,t); g.gain.linearRampToValueAtTime(0.0001,t+0.06); }
+    }catch(e){}
+    setTimeout(function(){ try{n.stop();}catch(e){} try{if(w)w.stop();}catch(e){} },90);
+    glideNode=null; glideGain=null; glideWob=null;
+  }
+
+  function puff(power){
+    var n=power>1?11:6, fx=PX+3, fy=py+PH-3;
+    for(var i=0;i<n;i++){
+      parts.push({
+        x:fx+(Math.random()*6-3), y:fy+(Math.random()*4-2),
+        vx:-(1+Math.random()*2.2)-worldSpeed*0.2, vy:(Math.random()*1.4-0.2),
+        r:2+Math.random()*3, life:1, dr:0.06+Math.random()*0.05
+      });
+    }
+  }
+
+  // ---- input ----
+  function jump(){
+    if(grounded){ vy=JUMP_V; grounded=false; jumps=1; sfxJump(); puff(1); vibe(12); }
+    else if(jumps<2){ vy=DJUMP_V; jumps=2; flipT=0.0001; sfxDouble(); puff(2); vibe([0,14,30,20]); }
+  }
+  function onTap(){
+    unlockAudio();
+    if(state==="ready"){ state="play"; t0=performance.now(); return; }
+    if(state==="play"){ jump(); return; }
+    if(state==="over" && overLock<=0){ reset(); state="play"; }
+  }
+  document.addEventListener("pointerdown",function(e){ holding=true; onTap(); });
+  document.addEventListener("pointerup",function(){ holding=false; });
+  document.addEventListener("pointercancel",function(){ holding=false; });
+  window.addEventListener("blur",function(){ holding=false; });
+  window.addEventListener("sideClick",onTap);
+  window.addEventListener("longPressStart",function(){ holding=true; onTap(); });
+  window.addEventListener("longPressEnd",function(){ holding=false; });
+  document.addEventListener("keydown",function(e){
+    if(e.key==="ArrowUp"||e.key===" "||e.key==="Enter"){ if(!e.repeat){e.preventDefault(); holding=true; onTap();} }
+  });
+  document.addEventListener("keyup",function(e){
+    if(e.key==="ArrowUp"||e.key===" "||e.key==="Enter"){ holding=false; }
+  });
+
+  function spawn(){
+    var r=Math.random(), eh = r<0.55?18 : r<0.85?24 : 30;
+    var ew=15+Math.floor(Math.random()*8);
+    enemies.push({x:W+Math.random()*18, w:ew, h:eh, ph:0, pt:0, extra:Math.random()*0.6});
+    var g=64 + worldSpeed*5 + Math.random()*80;
+    distNext=g;
+  }
+
+  function update(f){
+    // difficolta'
+    worldSpeed=3.2+Math.min(score*0.004,3.6);
+    groundOff=(groundOff+worldSpeed*f)% 16;
+    bgOff=(bgOff+worldSpeed*0.4*f)% 60;
+
+    // planata: dopo il doppio salto, tenendo premuto scende piano (max 2s, sempre a schermo)
+    var wantGlide = holding && jumps>=2 && !grounded && glideFrames < GLIDE_MAX;
+    gliding = wantGlide;
+    if(gliding){
+      glideFrames += f;
+      vy += (GLIDE_FALL - vy) * 0.18 * f;   // porta dolcemente a una discesa lenta, niente risalita
+    } else {
+      vy += GRAV*f;
+    }
+    py += vy*f;
+    // limite rigido: mai sopra il bordo, mai sotto il terreno
+    if(py < TOP_MARGIN){ py=TOP_MARGIN; if(vy<0) vy=0; }
+    if(py+PH>=GROUND_Y){ py=GROUND_Y-PH; vy=0; if(!grounded){grounded=true;jumps=0;} glideFrames=0; }
+    if(grounded){ legTimer+=f*(0.5+worldSpeed*0.12); }
+    if(flipT>0){ flipT+=f; if(flipT>=flipDur) flipT=0; }
+    // scia + sibilo della planata
+    if(gliding){
+      glideTrail+=f;
+      if(glideTrail>=5){ glideTrail=0;
+        parts.push({x:PX+3+(Math.random()*4-2),y:py+PH-2,vx:-(0.6+Math.random()*1.2)-worldSpeed*0.15,vy:(Math.random()*0.6+0.1),r:1.5+Math.random()*2,life:1,dr:0.08+Math.random()*0.05});
+      }
+    }
+    if(gliding&&!prevGliding) startGlideSfx();
+    if(!gliding&&prevGliding) stopGlideSfx();
+    prevGliding=gliding;
+
+    // enemies
+    distNext-=worldSpeed*f;
+    if(distNext<=0) spawn();
+    for(var i=enemies.length-1;i>=0;i--){
+      var e=enemies[i];
+      e.x-=(worldSpeed+e.extra)*f;
+      e.pt+=f; if(e.pt>5){e.pt=0;e.ph=e.ph?0:1;}
+      if(e.x+e.w< -4) enemies.splice(i,1);
+    }
+    // collision
+    var pb={x:PX+3,y:py+3,w:PW-6,h:PH-5};
+    for(var j=0;j<enemies.length;j++){
+      var en=enemies[j], ey=GROUND_Y-en.h;
+      var eb={x:en.x+2,y:ey+2,w:en.w-4,h:en.h-3};
+      if(pb.x<eb.x+eb.w && pb.x+pb.w>eb.x && pb.y<eb.y+eb.h && pb.y+pb.h>eb.y){
+        die(); return;
+      }
+    }
+    // particles
+    for(var k=parts.length-1;k>=0;k--){
+      var p=parts[k];
+      p.x+=p.vx*f; p.y+=p.vy*f; p.vy+=0.02*f; p.r+=0.12*f; p.life-=p.dr*f;
+      if(p.life<=0) parts.splice(k,1);
+    }
+    // score
+    scoreF+=worldSpeed*f*0.12; score=Math.floor(scoreF);
+    // traguardo punti ogni 100: vibrazione + tick + pulse
+    var m=Math.floor(score/100);
+    if(m>lastMile){ lastMile=m; scorePulse=1; vibe(16); sfxTick(); }
+  }
+
+  function die(){
+    deathFlash=6; overLock=22; state="over";
+    gliding=false; prevGliding=false; stopGlideSfx();
+    if(score>best){ best=score; try{localStorage.setItem("fartflip_best",String(best));}catch(e){} }
+  }
+
+  // ---- drawing ----
+  function drawGround(){
+    ctx.fillStyle=ORANGE; ctx.fillRect(0,GROUND_Y,W,2);
+    ctx.fillStyle="#141416"; ctx.fillRect(0,GROUND_Y+2,W,H-GROUND_Y-2);
+    ctx.fillStyle=ORANGE_DK;
+    for(var x=-16+(-groundOff|0); x<W; x+=16){ ctx.fillRect(x,GROUND_Y+5,7,2); }
+    // sfondo minimale: puntini lontani
+    ctx.fillStyle="#17171a";
+    for(var b=-60+(-bgOff|0); b<W; b+=60){ ctx.fillRect(b+10,60,2,2); ctx.fillRect(b+34,96,2,2); ctx.fillRect(b+50,44,2,2); }
+  }
+
+  function drawPlayer(px,pyy,angle,phase,gnd,gliding){
+    ctx.save();
+    ctx.translate(px+PW/2,pyy+PH/2);
+    ctx.rotate(angle);
+    ctx.translate(-PW/2,-PH/2);
+    // capelli spettinati
+    ctx.fillStyle=ORANGE;
+    ctx.fillRect(5,0,3,3); ctx.fillRect(10,-2,3,4); ctx.fillRect(15,0,3,3);
+    // faccia
+    ctx.fillStyle=FACE; ctx.fillRect(4,2,14,11);
+    // occhi da pazzo (grandi, pupille storte)
+    ctx.fillStyle=WHITE; ctx.fillRect(6,4,4,4); ctx.fillRect(12,4,4,4);
+    ctx.fillStyle=INK;   ctx.fillRect(7,6,2,2); ctx.fillRect(14,4,2,2);
+    // ghigno maniacale
+    ctx.fillStyle=INK; ctx.fillRect(6,10,10,3);
+    ctx.fillStyle=FACE; ctx.fillRect(8,11,1,1); ctx.fillRect(11,11,1,1); ctx.fillRect(14,11,1,1);
+    // corpo
+    ctx.fillStyle=ORANGE; ctx.fillRect(5,13,12,10);
+    // braccia
+    ctx.fillStyle=ORANGE_DK;
+    if(gliding){ ctx.fillRect(-3,14,8,3); ctx.fillRect(17,14,8,3); } // ali spiegate
+    else{ ctx.fillRect(3,14,3,7); ctx.fillRect(16,14,3,7); }
+    // gambe
+    ctx.fillStyle=ORANGE;
+    if(gliding){ ctx.fillRect(8,23,3,7); ctx.fillRect(12,23,3,7); } // gambe raccolte
+    else if(gnd){
+      if(phase===0){ ctx.fillRect(6,23,3,7); ctx.fillRect(13,23,3,5); }
+      else{ ctx.fillRect(6,23,3,5); ctx.fillRect(13,23,3,7); }
+    }else{ ctx.fillRect(5,23,3,6); ctx.fillRect(14,23,3,6); }
+    ctx.restore();
+  }
+
+  function drawEnemy(e){
+    var ey=GROUND_Y-e.h, ew=e.w, eh=e.h, ex=e.x;
+    ctx.fillStyle=GREY; ctx.fillRect(ex,ey,ew,eh);
+    ctx.fillStyle=GREY_DK;
+    if(e.ph){ ctx.fillRect(ex+2,ey+eh-3,3,3); ctx.fillRect(ex+ew-5,ey+eh-3,3,3); }
+    else{ ctx.fillRect(ex+1,ey+eh-3,3,3); ctx.fillRect(ex+ew-4,ey+eh-3,3,3); }
+    // sopracciglia arrabbiate
+    ctx.fillRect(ex+2,ey+2,4,1); ctx.fillRect(ex+ew-6,ey+2,4,1);
+    // occhi arancioni cattivi
+    ctx.fillStyle=ORANGE; ctx.fillRect(ex+3,ey+4,3,3); ctx.fillRect(ex+ew-6,ey+4,3,3);
+    ctx.fillStyle=INK; ctx.fillRect(ex+4,ey+5,1,1); ctx.fillRect(ex+ew-5,ey+5,1,1);
+    // bocca a zanne
+    ctx.fillStyle=INK; ctx.fillRect(ex+3,ey+eh-9,ew-6,2);
+    ctx.fillStyle=GREY; ctx.fillRect(ex+5,ey+eh-9,1,2); ctx.fillRect(ex+8,ey+eh-9,1,2); ctx.fillRect(ex+11,ey+eh-9,1,2);
+  }
+
+  function drawParts(){
+    for(var i=0;i<parts.length;i++){
+      var p=parts[i];
+      ctx.globalAlpha=Math.max(0,p.life)*0.7;
+      ctx.fillStyle=GREEN;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.283); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+  }
+
+  function drawHUD(){
+    ctx.textBaseline="top";
+    var sc=String(score).padStart(4,"0");
+    if(scorePulse>0){
+      ctx.save();
+      var s=1+Math.max(0,scorePulse)*0.5;
+      ctx.translate(W-8,8); ctx.scale(s,s);
+      ctx.font="800 12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+      ctx.textAlign="right"; ctx.fillStyle=ORANGE; ctx.fillText(sc,0,0);
+      ctx.restore();
+    }else{
+      ctx.font="700 12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+      ctx.textAlign="right"; ctx.fillStyle=WHITE; ctx.fillText(sc,W-8,8);
+    }
+    ctx.font="700 12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+    ctx.textAlign="left"; ctx.fillStyle="rgba(255,255,255,.4)"; ctx.fillText("BEST "+best,8,8);
+    ctx.textAlign="left";
+  }
+
+  function centerText(txt,y,color,size,weight){
+    ctx.font=(weight||"700")+" "+size+"px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+    ctx.textAlign="center"; ctx.textBaseline="alphabetic"; ctx.fillStyle=color;
+    ctx.fillText(txt,W/2,y); ctx.textAlign="left";
+  }
+
+  var blink=0;
+  function loop(now){
+    var dt=now-(loop.last||now); loop.last=now;
+    var f=Math.max(0.1,Math.min(2.5,dt/16.67));
+    blink+=f;
+
+    if(state==="play") update(f);
+    if(overLock>0) overLock-=f;
+    if(scorePulse>0) scorePulse-=0.05*f;
+
+    // render
+    ctx.fillStyle=BG; ctx.fillRect(0,0,W,H);
+    drawGround();
+
+    if(state==="ready"){
+      drawPlayer(PX,GROUND_Y-PH,0,(Math.floor(blink/18)%2),true,false);
+      centerText("FARTFLIP",118,ORANGE,26,"800");
+      centerText("doppio salto = backflip a scoreggia",142,"rgba(255,255,255,.55)",9,"600");
+      centerText("poi tieni premuto = planata",156,"rgba(255,255,255,.4)",9,"600");
+      if(Math.floor(blink/28)%2===0) centerText("TAP PER GIOCARE",210,WHITE,13,"700");
+      drawHUD();
+    } else if(state==="play"){
+      for(var i=0;i<enemies.length;i++) drawEnemy(enemies[i]);
+      var ang = gliding ? 0 : (flipT>0 ? -(flipT/flipDur)*6.283 : 0);
+      drawPlayer(PX,py,ang,(Math.floor(legTimer/1)%2),grounded,gliding);
+      drawParts();
+      drawHUD();
+    } else { // over
+      for(var k=0;k<enemies.length;k++) drawEnemy(enemies[k]);
+      drawPlayer(PX,py,0,0,true,false);
+      drawParts();
+      if(deathFlash>0){ ctx.globalAlpha=deathFlash/6*0.6; ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1; deathFlash-=f; }
+      ctx.fillStyle="rgba(10,10,11,.55)"; ctx.fillRect(0,86,W,110);
+      centerText("GAME OVER",118,ORANGE,22,"800");
+      centerText("SCORE "+String(score).padStart(4,"0"),144,WHITE,13,"700");
+      centerText("BEST  "+String(best).padStart(4,"0"),162,"rgba(255,255,255,.45)",12,"700");
+      if(overLock<=0 && Math.floor(blink/28)%2===0) centerText("TAP PER RIPROVARE",210,WHITE,12,"700");
+      drawHUD();
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

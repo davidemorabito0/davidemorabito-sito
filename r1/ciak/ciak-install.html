@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Installa Ciak sul tuo R1</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#0e0e10;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;}
+  .brand{font-size:11px;letter-spacing:.2em;color:#FFAD01;text-transform:uppercase;margin-bottom:14px;}
+  h1{font-size:28px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px;}
+  .sub{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:26px;text-align:center;max-width:280px;line-height:1.45;}
+  #qr{margin-bottom:18px;border-radius:14px;overflow:hidden;}
+  .url{font-size:10px;color:rgba(255,255,255,.28);word-break:break-all;text-align:center;max-width:300px;}
+  .note{margin-top:24px;font-size:11px;color:rgba(255,255,255,.4);max-width:320px;text-align:center;line-height:1.55;}
+  .note code{color:#FFAD01;font-family:ui-monospace,Menlo,Consolas,monospace;}
+</style>
+</head>
+<body>
+  <div class="brand">davide / morabito</div>
+  <h1>Ciak</h1>
+  <p class="sub">Inquadra questo QR con la fotocamera del tuo Rabbit R1 per installare la creation.</p>
+  <div id="qr"></div>
+  <div class="url" id="url-label"></div>
+  <p class="note">Prima imposta qui sotto l'URL pubblico dove hai caricato <code>ciak.html</code> (GitHub Pages, Netlify o davidemorabito.com). Dopo una modifica, cambia <code>?v=1</code> in <code>?v=2</code> e riscansiona per forzare l'aggiornamento.</p>
+
+  <script src="https://unpkg.com/qr-code-styling@1.6.0/lib/qr-code-styling.js"></script>
+  <script>
+    // ▼▼▼ IMPOSTA QUI l'URL pubblico della creation ▼▼▼
+    var creationUrl = 'https://davidemorabito.com/ciak/ciak.html?v=1';
+    // ▲▲▲
+
+    document.getElementById('url-label').textContent = creationUrl;
+    var qrData = JSON.stringify({
+      title: "Ciak",
+      url: creationUrl,
+      description: "Ciak digitale da set: scena, inquadratura, take. Rotella per il take, tasto laterale per il ciak con flash e beep di sync.",
+      iconUrl: "",
+      themeColor: "#FFAD01"
+    });
+    var qrCode = new QRCodeStyling({
+      width:260, height:260, data:qrData,
+      dotsOptions:{ color:"#FFAD01", type:"rounded" },
+      backgroundOptions:{ color:"#0e0e10" },
+      cornersSquareOptions:{ color:"#ffffff", type:"extra-rounded" },
+      cornersDotOptions:{ color:"#FFAD01" }
+    });
+    qrCode.append(document.getElementById('qr'));
+  </script>
+</body>
+</html>
