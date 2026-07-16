@@ -176,18 +176,23 @@
     toastT=setTimeout(function(){elToast.classList.remove("show");},900);
   }
 
+  function vibe(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+
   function celebrate(){
     document.body.classList.remove("shake");void document.body.offsetWidth;
     document.body.classList.add("shake");
     elBurst.classList.remove("go");void elBurst.offsetWidth;
     elBurst.classList.add("go");
+    vibe([0,20,40,25]);
     toast("traguardo");
   }
 
   function hideHint(){if(firstDone)return;firstDone=true;elHint.classList.add("gone");}
 
   function apply(n){
+    var old=count;
     count=Math.max(0,Math.min(99999,n));
+    if(count>old) vibe(15);   // ogni aumento del numero vibra
     var tg=target();
     if(tg>0){
       if(count>=tg){ if(!celebrated){celebrated=true;render();save();bump();celebrate();return;} }
