@@ -33,6 +33,14 @@
     {n:"LUNA",  c:"#8B5CF6", d:"#5B32B0", f:"#EFE6FB", hair:"flat",  eyes:"sleepy", mouth:"smirk"},
     {n:"MENTA", c:"#2FD37E", d:"#179153", f:"#E7FAF0", hair:"tuft",  eyes:"wide",   mouth:"tongue"}
   ];
+  var DIFFS=[
+    {n:"FACILE",    sp:0,   gap:1.00, pads:false, d:"per iniziare"},
+    {n:"MEDIA",     sp:0.6, gap:0.80, pads:false, d:"piu' veloce, piu' nemici"},
+    {n:"DIFFICILE", sp:1.2, gap:0.66, pads:true,  d:"pedane di scatto!"}
+  ];
+  var diff=0;
+  try{ var df0=parseInt(localStorage.getItem("fartflip_diff")||"0",10); if(!isNaN(df0)&&df0>=0&&df0<3) diff=df0; }catch(e){}
+  function setDiff(i){ diff=(i+DIFFS.length)%DIFFS.length; try{localStorage.setItem("fartflip_diff",String(diff));}catch(e){} }
   var skin=0;
   try{ var sk0=parseInt(localStorage.getItem("fartflip_skin")||"0",10); if(!isNaN(sk0)&&sk0>=0&&sk0<SKINS.length) skin=sk0; }catch(e){}
   function setSkin(i){ skin=(i+SKINS.length)%SKINS.length; try{localStorage.setItem("fartflip_skin",String(skin));}catch(e){} }
@@ -40,14 +48,15 @@
   var GROUND_Y=238, PW=22, PH=30, PX=44;
   var GRAV=0.85, JUMP_V=-12.5, DJUMP_V=-11.2;
   var TOP_MARGIN=2, GLIDE_FALL=1.4, GLIDE_MAX=120; // planata: max ~2s, sempre a schermo
-  var MAX_LIVES=3, HURT_TIME=1.15, INV_TIME=7;     // vite, invulnerabilita' dopo il colpo, power-up
+  var MAX_LIVES=6, HURT_TIME=1.15, INV_TIME=7;     // vite in MEZZI cuori (6 = 3 cuori)
+  var HEARTS=3;                                    // cuori mostrati nell'HUD
   var BOX_PER_POWER=15;                            // power-up ogni 15 box saltati
   var LEVEL_BOXES=25;                              // box da saltare per completare un livello
   var MAX_LEVEL=10;                                // ultimo livello: si arriva a casa (gabinetto)
   var SPEED_START=2.5, SPEED_RAMP=0.0016, SPEED_CAP=5.5; // sale a lungo, cap alto + bonus livello
   var POWER_MUL=2.0;                               // durante l'invincibilita' i box arrivano al 200%
   var PUNCH_MAX=1, SUPER_MAX=5;                    // 1 pugno / 5 scoregge potenziate
-  var START_LIVES=1, HEART_EVERY=7;                // si parte con 1 vita, cuore ogni 7 box
+  var START_LIVES=2, HEART_EVERY=7;                // si parte con 1 cuore intero (2 meta')
   var SUPER_JUMP_V=-13.0, SUPER_DJUMP_V=-11.5, SUPER_GRAV=0.42; // salti lunghi e fluttuanti
 
   var best=0;
@@ -59,7 +68,7 @@
   var deathFlash,overLock,lastMile,scorePulse,hitFlash;
   var lives,hurtT,invT,boxSince,heartSince,speedMul,punchCharges,superJumps,superFlight;
   var punchT,punchX,punchY,trickPose,flipDir,flipTurns,level,lvlBoxes,levelT,bullets,countT,lastCount;
-  var introT,winT,goal;
+  var introT,winT,goal,pads,dashT,deadT;
   var holding=false, gliding=false, prevGliding=false, glideTrail=0, glideFrames=0;
 
   function reset(){
@@ -70,7 +79,7 @@
     punchCharges=0; superJumps=0; superFlight=false;
     punchT=0; punchX=0; punchY=0; trickPose=null; flipDir=-1; flipTurns=1;
     level=1; lvlBoxes=0; levelT=0; bullets=[]; countT=0; lastCount=9;
-    introT=0; winT=0; goal=null;
+    introT=0; winT=0; goal=null; pads=[]; dashT=0; deadT=0;
     gliding=false; prevGliding=false; glideTrail=0; glideFrames=0; stopGlideSfx();
   }
 
@@ -244,6 +253,15 @@
       o.connect(g); g.connect(c.destination); o.start(tt); o.stop(tt+0.32);
     });
     sfxFlush();
+  }
+  function sfxDash(){
+    var c=ac(); if(!c)return; var t=c.currentTime;
+    var o=c.createOscillator(), g=c.createGain(), bp=c.createBiquadFilter();
+    o.type="sawtooth";
+    o.frequency.setValueAtTime(220,t); o.frequency.exponentialRampToValueAtTime(1500,t+0.22);
+    bp.type="bandpass"; bp.frequency.value=1100; bp.Q.value=1.5;
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.2,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.26);
+    o.connect(bp); bp.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.28);
   }
   function sfxHeart(){
     var c=ac(); if(!c)return; var t=c.currentTime;
@@ -480,7 +498,7 @@
            l===MAX_LEVEL?"ultimo sforzo: CASA!" : "sempre piu' veloce!";
   }
   function startFinale(){
-    enemies=[]; powers=[]; bullets=[]; goal={x:W+60};
+    enemies=[]; powers=[]; bullets=[]; pads=[]; goal={x:W+60};
     levelT=70; sfxLevel(); vibe([0,30,50,30]);
   }
   function win(){
@@ -491,7 +509,7 @@
   }
   function levelUp(){
     level++; lvlBoxes=0; levelT=95;
-    enemies=[]; powers=[]; bullets=[]; distNext=170;
+    enemies=[]; powers=[]; bullets=[]; pads=[]; distNext=170;
     sfxLevel(); vibe([0,30,50,30,50,40]);
   }
 
@@ -550,6 +568,13 @@
     punchCharges--; scoreF+=25; scorePulse=1;
     sfxPunch(); vibe([0,25,35,25]);
   }
+  function diffTap(e){
+    var rct = cv.getBoundingClientRect ? cv.getBoundingClientRect() : {top:0,height:H};
+    var yy=(((e&&e.clientY)||0)-rct.top)*(H/(rct.height||H));
+    if(yy<70){ state="ready"; return; }                    // torna indietro
+    var i = yy<128 ? 0 : yy<184 ? 1 : 2;
+    setDiff(i); startIntro();
+  }
   function startIntro(){
     unlockAudio(); reset(); state="intro"; introT=10.0; sfxGroan();
   }
@@ -560,7 +585,7 @@
     var rct = cv.getBoundingClientRect ? cv.getBoundingClientRect() : {top:0,height:H};
     var yy=(((e&&e.clientY)||0)-rct.top)*(H/(rct.height||H));
     if(yy>118 && yy<206){ setSkin(skin+1); sfxTick(); return; }
-    startIntro();
+    state="diff";
   }
   function onTap(){
     unlockAudio();
@@ -571,7 +596,9 @@
   document.addEventListener("pointerdown",function(e){
     if(state==="entry"){ entryTap(e); return; }
     if(state==="ready"){ readyTap(e); return; }
+    if(state==="diff"){ diffTap(e); return; }
     if(state==="intro"){ startCountdown(); return; }
+    if(state==="dead"){ return; }
     if(state==="win"){ return; }
     holding=true; onTap();
   });
@@ -580,17 +607,22 @@
   window.addEventListener("blur",function(){ holding=false; });
   window.addEventListener("sideClick",function(){
     if(state==="entry"){ entryConfirm(); }
-    else if(state==="ready"){ startIntro(); }
+    else if(state==="ready"){ state="diff"; }
+    else if(state==="diff"){ startIntro(); }
     else if(state==="intro"){ startCountdown(); }
     else onTap();
   });
   window.addEventListener("scrollUp",function(){
     if(state==="entry") entryChange(1);
     else if(state==="ready"){ setSkin(skin+1); sfxTick(); }
+    else if(state==="diff"){ setDiff(diff-1); sfxTick(); }
+    else if(state==="play"){ jump(); }          // si gioca anche senza touch
   });
   window.addEventListener("scrollDown",function(){
     if(state==="entry") entryChange(-1);
     else if(state==="ready"){ setSkin(skin-1); sfxTick(); }
+    else if(state==="diff"){ setDiff(diff+1); sfxTick(); }
+    else if(state==="play"){ jump(); }
   });
   window.addEventListener("longPressStart",function(){ if(state==="entry")return; holding=true; onTap(); });
   window.addEventListener("longPressEnd",function(){ holding=false; });
@@ -598,6 +630,12 @@
     if(state==="ready"){
       if(e.key==="ArrowUp"){ e.preventDefault(); setSkin(skin+1); sfxTick(); return; }
       if(e.key==="ArrowDown"){ e.preventDefault(); setSkin(skin-1); sfxTick(); return; }
+      if(e.key==="Enter"||e.key===" "){ e.preventDefault(); state="diff"; return; }
+      return;
+    }
+    if(state==="diff"){
+      if(e.key==="ArrowUp"){ e.preventDefault(); setDiff(diff-1); sfxTick(); return; }
+      if(e.key==="ArrowDown"){ e.preventDefault(); setDiff(diff+1); sfxTick(); return; }
       if(e.key==="Enter"||e.key===" "){ e.preventDefault(); startIntro(); return; }
       return;
     }
@@ -631,7 +669,8 @@
     else if(t==="shoot"){ e.h=24+Math.floor(Math.random()*7); e.w=17+Math.floor(Math.random()*6); }
     else { var q=Math.random(); e.h=q<0.55?18:q<0.85?24:30; e.w=15+Math.floor(Math.random()*8); }
     enemies.push(e);
-    distNext = 80 + e.w + worldSpeed*8 + Math.random()*90;
+    distNext = (80 + e.w + worldSpeed*8 + Math.random()*90) * DIFFS[diff].gap;
+    if(DIFFS[diff].pads && Math.random()<0.32) pads.push({x:W+34+Math.random()*40, used:false});
   }
   function spawnPower(){
     var r=Math.random();
@@ -644,9 +683,10 @@
 
   function update(f){
     var dt=f/60;
-    var baseSpeed = SPEED_START + levelBonus(level) + Math.min(lvlBoxes*0.03, 0.9);
-    var targetMul = invT>0 ? POWER_MUL : 1;
-    var rate = invT>0 ? 0.09 : 0.035;              // accelera in fretta, rallenta dolcemente
+    var baseSpeed = SPEED_START + DIFFS[diff].sp + levelBonus(level) + Math.min(lvlBoxes*0.03, 0.9);
+    if(dashT>0) dashT-=f/60;
+    var targetMul = Math.max(invT>0?POWER_MUL:1, dashT>0?1.9:1);
+    var rate = (invT>0||dashT>0) ? 0.12 : 0.035;   // accelera in fretta, rallenta dolcemente
     speedMul += (targetMul-speedMul)*rate*f;
     worldSpeed = baseSpeed * speedMul;
     groundOff=(groundOff+worldSpeed*f)%16;
@@ -746,13 +786,24 @@
         } else if(pw.kind==="super"){
           superJumps=SUPER_MAX; sparks(SUPER,16,pw.x,cy); sfxPower(); vibe([0,20,30,20]);
         } else if(pw.kind==="heart"){
-          lives=Math.min(MAX_LIVES,lives+1); sparks(HEART,14,pw.x,cy); sfxHeart(); vibe([0,20,40,20]);
+          lives=Math.min(MAX_LIVES,lives+1); sparks(HEART,14,pw.x,cy); sfxHeart(); vibe([0,20,40,20]);   // mezzo cuore
         } else {
           invT=INV_TIME; beatMode="power"; sparks(GOLD,16,pw.x,cy); sfxPower(); vibe([0,25,40,25,40,30]);
         }
         powers.splice(p,1); continue;
       }
       if(pw.x< -14) powers.splice(p,1);
+    }
+
+    // pedane di scatto (solo difficile)
+    for(var pi=pads.length-1;pi>=0;pi--){
+      var pd=pads[pi];
+      pd.x-=worldSpeed*f;
+      if(pd.x<-30){ pads.splice(pi,1); continue; }
+      if(!pd.used && grounded && pd.x<=PX+PW && pd.x+26>=PX){
+        pd.used=true; dashT=1.5; sfxDash(); vibe([0,25,25,25]);
+        sparks(GOLD,10,PX+PW/2,GROUND_Y-4);
+      }
     }
 
     // proiettili
@@ -812,7 +863,7 @@
   }
 
   function hurt(){
-    lives--; hurtT=HURT_TIME; hitFlash=7;
+    lives-=2; hurtT=HURT_TIME; hitFlash=7;   // un colpo = un cuore intero
     sfxHurt(); vibe([0,35,60,35]);
     sparks(ORANGE,10,PX+PW/2,py+PH/2);
     if(vy>0) vy=-5.2;
@@ -820,9 +871,9 @@
   }
 
   function die(){
-    deathFlash=6; state="entry"; entryLock=26;
-    entryIdx=0; entryL=[0,0,0]; savedIdx=-1;
+    deathFlash=6; state="dead"; deadT=3.2;
     gliding=false; prevGliding=false; stopGlideSfx(); stopBeat(); beatMode="normal";
+    sfxGroan();
     if(score>best){ best=score; try{localStorage.setItem("fartflip_best",String(best));}catch(e){} }
   }
 
@@ -883,7 +934,11 @@
     var body2= inv ? ORANGE : S.d;
     drawFace(S,body);
     ctx.fillStyle=body; ctx.fillRect(5,13,12,10);
-    if(pose==="tuck"){
+    if(pose==="squat"){
+      ctx.fillStyle=body2; ctx.fillRect(1,16,4,3); ctx.fillRect(17,16,4,3);
+      ctx.fillStyle=body;  ctx.fillRect(4,23,5,4); ctx.fillRect(13,23,5,4);
+      ctx.fillRect(3,26,6,3); ctx.fillRect(13,26,6,3);
+    }else if(pose==="tuck"){
       ctx.fillStyle=body2; ctx.fillRect(2,14,4,4); ctx.fillRect(16,14,4,4);
       ctx.fillStyle=body;  ctx.fillRect(6,21,4,5); ctx.fillRect(12,21,4,5);
     }else if(pose==="star"){
@@ -1015,6 +1070,48 @@
     ctx.textAlign="center"; ctx.fillText("CASA",x+16,by-52); ctx.textAlign="left";
   }
 
+  function drawPad(pd){
+    var y=GROUND_Y-7, x=pd.x;
+    ctx.fillStyle = pd.used ? "#6B5A2A" : GOLD;
+    ctx.fillRect(x,y,26,7);
+    ctx.fillStyle=INK;
+    for(var i=0;i<3;i++){
+      var ax=x+4+i*7;
+      ctx.fillRect(ax,y+2,2,1); ctx.fillRect(ax+1,y+3,2,1); ctx.fillRect(ax,y+4,2,1);
+    }
+    if(!pd.used){
+      ctx.save(); ctx.globalAlpha=0.25+Math.sin(Date.now()*0.01)*0.15;
+      ctx.fillStyle=GOLD; ctx.fillRect(x,y-3,26,2);
+      ctx.restore();
+    }
+  }
+  function drawSpeedLines(){
+    if(dashT<=0) return;
+    ctx.save(); ctx.globalAlpha=Math.min(0.5,dashT*0.4);
+    ctx.fillStyle=GOLD;
+    for(var i=0;i<6;i++){
+      var ly=40+((i*47+(Date.now()*0.6)%240)%180);
+      ctx.fillRect((i*53+(Date.now()*0.9)%240)%W, ly, 26, 1);
+    }
+    ctx.restore();
+  }
+  function drawPoop(cx,by,g){
+    if(g<=0) return;
+    var h=Math.max(2,Math.round(11*g));
+    ctx.fillStyle="#6B4423";
+    ctx.fillRect(cx-9,by-4,18,4);
+    if(h>4){ ctx.fillStyle="#7C5230"; ctx.fillRect(cx-6,by-8,12,4); }
+    if(h>8){ ctx.fillStyle="#8A5C36"; ctx.fillRect(cx-3,by-11,6,3); ctx.fillRect(cx-1,by-13,2,2); }
+    if(g>=1){
+      ctx.save();
+      ctx.globalAlpha=0.20+Math.sin(Date.now()*0.006)*0.10;
+      ctx.fillStyle="#9BCB6A";
+      ctx.beginPath(); ctx.arc(cx-12,by-16,4,0,6.283); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+11,by-20,3,0,6.283); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx+1,by-24,3.5,0,6.283); ctx.fill();
+      ctx.restore();
+    }
+  }
   function drawPunch(){
     if(punchT<=0) return;
     var a=Math.max(0,punchT/0.2), r=8+(1-a)*16;
@@ -1040,13 +1137,25 @@
     ctx.globalAlpha=1;
   }
 
-  function drawHeart(x,y,filled){
-    ctx.fillStyle = filled ? ORANGE : "rgba(255,255,255,.16)";
+  function heartShape(x,y){
     ctx.fillRect(x+1,y,2,1); ctx.fillRect(x+4,y,2,1);
     ctx.fillRect(x,y+1,7,2);
     ctx.fillRect(x+1,y+3,5,1);
     ctx.fillRect(x+2,y+4,3,1);
     ctx.fillRect(x+3,y+5,1,1);
+  }
+  function drawHeart(x,y,fill){        // 0 vuoto, 1 mezzo, 2 pieno
+    ctx.fillStyle="rgba(255,255,255,.16)";
+    heartShape(x,y);
+    if(fill>0){
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y-1, fill===1?3.5:8, 9);
+      ctx.clip();
+      ctx.fillStyle=ORANGE;
+      heartShape(x,y);
+      ctx.restore();
+    }
   }
 
   function drawHUD(){
@@ -1066,7 +1175,7 @@
     ctx.font="700 12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
     ctx.textAlign="left"; ctx.fillStyle="rgba(255,255,255,.4)"; ctx.fillText("BEST "+best,8,8);
     // cuori
-    for(var i=0;i<MAX_LIVES;i++) drawHeart(8+i*11,24,i<lives);
+    for(var i=0;i<HEARTS;i++) drawHeart(8+i*11,24,Math.max(0,Math.min(2,lives-i*2)));
     ctx.font="700 8px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
     ctx.fillStyle="rgba(255,255,255,.5)"; ctx.fillText("LV "+level,8,35);
     // stato power-up (impilati) oppure progresso verso il prossimo
@@ -1107,6 +1216,12 @@
       if(introT<=4.2 && introT+f/60>4.2) sfxDouble();
       if(introT<=0) startCountdown();
     }
+    if(state==="dead"){
+      var pd0=deadT; deadT-=f/60;
+      if(pd0>2.2 && deadT<=2.2){ sfxSuper(); vibe([0,70,40,70]); }
+      if(pd0>1.1 && deadT<=1.1){ sfxVoice(); }
+      if(deadT<=0){ state="entry"; entryLock=22; entryIdx=0; entryL=[0,0,0]; savedIdx=-1; }
+    }
     if(state==="win"){
       winT-=f/60;
       if(winT<=0){ state="entry"; entryLock=22; entryIdx=0; entryL=[0,0,0]; savedIdx=-1; }
@@ -1140,9 +1255,46 @@
       drawPreview(W/2,158,1.7,blink);
       centerText(SKINS[skin].n,196,SKINS[skin].c,11,"800");
       centerText("\u25c0  rotella / tocca: cambia skin  \u25b6",208,"rgba(255,255,255,.4)",8,"600");
-      if(Math.floor(blink/28)%2===0) centerText("TASTO CENTRALE PER GIOCARE",234,WHITE,11,"700");
-      centerText("doppio salto = figura + verso \u00b7 tieni = planata",252,"rgba(255,255,255,.3)",8,"600");
+      if(Math.floor(blink/28)%2===0) centerText("TASTO CENTRALE PER CONTINUARE",234,WHITE,11,"700");
+      centerText("si gioca anche senza touch: tasto + rotella",252,"rgba(255,255,255,.3)",8,"600");
       centerText("salta in testa ai nemici \u00b7 raccogli i cuori",264,"rgba(255,255,255,.3)",8,"600");
+    } else if(state==="diff"){
+      centerText("DIFFICOLTA'",34,ORANGE,18,"800");
+      centerText("come vuoi soffrire?",50,"rgba(255,255,255,.4)",9,"600");
+      for(var di=0;di<DIFFS.length;di++){
+        var sel=(di===diff), yy0=72+di*56;
+        ctx.fillStyle= sel ? "rgba(254,80,0,.14)" : "rgba(255,255,255,.04)";
+        ctx.fillRect(20,yy0,W-40,46);
+        ctx.strokeStyle= sel ? ORANGE : "rgba(255,255,255,.10)";
+        ctx.lineWidth= sel?2:1; ctx.strokeRect(20,yy0,W-40,46);
+        centerText(DIFFS[di].n, yy0+22, sel?ORANGE:"rgba(255,255,255,.75)", sel?16:14, "800");
+        centerText(DIFFS[di].d, yy0+37, sel?"rgba(255,255,255,.65)":"rgba(255,255,255,.35)", 8.5, "600");
+        // pallini di intensita'
+        for(var dj=0;dj<3;dj++){
+          ctx.fillStyle = dj<=di ? (sel?ORANGE:"rgba(255,255,255,.5)") : "rgba(255,255,255,.13)";
+          ctx.fillRect(W-46+dj*7, yy0+20, 4,4);
+        }
+      }
+      if(Math.floor(blink/28)%2===0) centerText("tocca una scelta \u00b7 tasto centrale = conferma",256,WHITE,9,"700");
+      centerText("rotella: cambia \u00b7 in alto: indietro",268,"rgba(255,255,255,.32)",8,"600");
+    } else if(state==="dead"){
+      drawGround();
+      for(var dk=0;dk<enemies.length;dk++) drawEnemy(enemies[dk]);
+      // fase 1: in piedi che trema | fase 2-3: accovacciato e... troppo tardi
+      var ph = deadT>2.2 ? 0 : deadT>1.1 ? 1 : 2;
+      var sx = ph===0 ? PX+Math.sin(blink*0.9)*1.5 : PX;
+      var sy = ph===0 ? GROUND_Y-PH : GROUND_Y-PH+7;
+      drawPlayer(sx,sy,0,0,true,false,false,false,blink,ph===0?null:"squat");
+      if(ph>=1){
+        var grow = ph===1 ? (2.2-deadT)/1.1 : 1;
+        drawPoop(PX+PW/2-1, GROUND_Y, Math.min(1,grow));
+      }
+      drawParts();
+      if(deathFlash>0){ ctx.globalAlpha=deathFlash/6*0.5; ctx.fillStyle="#fff"; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1; deathFlash-=f; }
+      ctx.fillStyle="rgba(10,10,11,.55)"; ctx.fillRect(0,58,W,60);
+      centerText(ph===0?"OH NO...":ph===1?"NON CE LA FACCIO!":"TROPPO TARDI",84,ORANGE,ph===2?20:17,"800");
+      centerText(ph===2?"non sei arrivato al gabinetto":"...",104,"rgba(255,255,255,.6)",9,"700");
+      drawHUD();
     } else if(state==="intro"){
       // incipit della storia (10s, si puo' saltare)
       var idx = introT>7.0?0 : introT>4.5?1 : introT>2.0?2 : 3;
@@ -1198,6 +1350,8 @@
     } else if(state==="play"){
       for(var i=0;i<powers.length;i++) drawPower(powers[i]);
       for(var j=0;j<enemies.length;j++) drawEnemy(enemies[j]);
+      for(var pj=0;pj<pads.length;pj++) drawPad(pads[pj]);
+      drawSpeedLines();
       if(goal) drawToilet(goal.x);
       drawBullets();
       drawPunch();
