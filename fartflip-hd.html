@@ -1053,6 +1053,40 @@
   function stopBeat(){ beatOn=false; if(beatTimer){clearInterval(beatTimer);beatTimer=null;} }
 
   // ---- classifica + iniziali + livelli ----
+  // ---- CLASSIFICA MONDIALE (Supabase) ----
+  // 1) crea la tabella con l'SQL fornito  2) incolla qui sotto URL e anon key del tuo progetto
+  var SB_URL="https://zqtfsqdlnznhxcqmftsm.supabase.co";
+  var SB_KEY="sb_publishable_RSTnHhVljX08FDAem8DVgg_qJjCq0OL";
+  function NET_ON(){ return SB_URL!=="" && SB_KEY!=="" && typeof fetch==="function"; }
+  var worldScores=null, worldBusy=false, worldErr=false, lastSent=-1, lastName="";
+  function sbFetchTop(){
+    if(!NET_ON()||worldBusy) return;
+    worldBusy=true; worldErr=false;
+    var done=false;
+    var tmr=setTimeout(function(){ if(!done){ done=true; worldBusy=false; worldErr=true; } },6000);
+    try{
+      fetch(SB_URL+"/rest/v1/fartflip_scores?mode=eq.sfida&select=name,score,skin&order=score.desc&limit=10",
+        {headers:{apikey:SB_KEY, Authorization:"Bearer "+SB_KEY}})
+      .then(function(r){ return r.json(); })
+      .then(function(rows){
+        if(done)return; done=true; clearTimeout(tmr); worldBusy=false;
+        worldScores=(rows||[]).map(function(r2){ return {n:r2.name, s:r2.score, k:(r2.skin||0)}; });
+      })
+      .catch(function(){ if(done)return; done=true; clearTimeout(tmr); worldBusy=false; worldErr=true; });
+    }catch(e){ done=true; clearTimeout(tmr); worldBusy=false; worldErr=true; }
+  }
+  function sbSubmit(nm,sc,k){
+    if(!NET_ON()||sc<=0||sc===lastSent) return;
+    lastSent=sc;
+    try{
+      fetch(SB_URL+"/rest/v1/fartflip_scores",
+        {method:"POST",
+         headers:{apikey:SB_KEY, Authorization:"Bearer "+SB_KEY, "Content-Type":"application/json", "Prefer":"return=minimal"},
+         body:JSON.stringify({name:nm, score:sc, skin:k, mode:"sfida"})})
+      .then(function(){ worldScores=null; worldBusy=false; sbFetchTop(); })
+      .catch(function(){});
+    }catch(e){}
+  }
   var AB="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   var entryL=[0,0,0], entryIdx=0, entryLock=0, savedIdx=-1;
   function loadScores(){ try{ return JSON.parse(localStorage.getItem("fartflip_scores")||"[]"); }catch(e){ return []; } }
@@ -1087,6 +1121,8 @@
     savedIdx=-1;
     for(var i=0;i<scores.length;i++){ if(scores[i].n===name && scores[i].s===score){ savedIdx=i; break; } }
     saveScoresLS(scores);
+    lastName=name;
+    if(mode==="sfida") sbSubmit(name,score,skin);
     state="over"; overLock=18;
   }
   function entryTap(e){
@@ -1254,6 +1290,7 @@
     if(!TRACK) TRACK=buildTrack();
     mode="sfida";                        // la difficolta' scelta per ARCADE resta intatta
     unlockAudio(); reset(); state="count"; countT=3.0; lastCount=4;
+    sbFetchTop();                        // precarica la classifica mondiale
   }
   function modeTap(e){
     var q=canvasPos(e);
@@ -2739,7 +2776,8 @@
         }else{
           centerText("SFIDA", yy0+24, sel?GOLD:"rgba(255,255,255,.8)", 17,"800");
           centerText("tracciato fisso di 2 minuti", yy0+42,"rgba(255,255,255,.55)",8.5,"600");
-          centerText("uguale per tutti \u00b7 nessun caso", yy0+56,"rgba(255,255,255,.4)",8,"600");
+          centerText((worldScores&&worldScores.length>0)?("RECORD MONDO: "+worldScores[0].n+" "+pad4(worldScores[0].s)):"uguale per tutti \u00b7 nessun caso",
+            yy0+56,(worldScores&&worldScores.length>0)?GOLD:"rgba(255,255,255,.4)",8,"600");
           if(ghost) centerText("record: "+(ghost.n||"???")+"  "+pad4(ghost.sc), yy0+70, GOLD,9,"800");
           else centerText("nessun record: fai il primo!", yy0+70,"rgba(255,255,255,.32)",8,"600");
         }
@@ -3137,10 +3175,16 @@
       ctx.fillStyle="rgba(10,10,11,.75)"; ctx.fillRect(0,50,W,186);
       centerText("GAME OVER",74,ORANGE,18,"800");
       centerText("SCORE "+pad4(score)+"   BEST "+pad4(best),94,WHITE,10,"700");
-      centerText("CLASSIFICA",114,"rgba(255,255,255,.5)",9,"700");
-      for(var si=0;si<scores.length;si++){
-        drawScoreRow(si+1,scores[si],133+si*16, si===savedIdx?GOLD:"rgba(255,255,255,.8)", si===savedIdx);
+      var wb=(mode==="sfida" && worldScores && worldScores.length>0);
+      centerText(wb?"CLASSIFICA MONDIALE":"CLASSIFICA",114,"rgba(255,255,255,.5)",9,"700");
+      var rows=wb?worldScores:scores, myR=-1;
+      if(wb){ for(var wi=0;wi<rows.length;wi++){ if(rows[wi].n===lastName && rows[wi].s===score){ myR=wi; break; } } }
+      else myR=savedIdx;
+      for(var si=0;si<Math.min(rows.length,5);si++){
+        drawScoreRow(si+1,rows[si],133+si*16, si===myR?GOLD:"rgba(255,255,255,.8)", si===myR);
       }
+      if(wb && myR>=0) centerText("SEI "+(myR+1)+"\u00b0 AL MONDO!",236,GOLD,9,"800");
+      else if(mode==="sfida" && NET_ON() && worldErr) centerText("mondo offline \u00b7 classifica locale",236,"rgba(255,255,255,.35)",7,"600");
       if(overLock<=0 && Math.floor(blink/28)%2===0) centerText("TAP PER RIPROVARE",248,WHITE,12,"700");
     }
     hdFrameEnd();
@@ -3149,6 +3193,7 @@
 
   try{ fitScreen(); }catch(e){}
   reset();
+  sbFetchTop();
   requestAnimationFrame(loop);
 })();
 </script>
