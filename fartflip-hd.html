@@ -1177,10 +1177,12 @@
   }
   function entryTap(e){
     if(entryLock>0)return;
-    var y=canvasPos(e).y;
-    if(y<138) entryChange(1);          // tutta la zona sopra le lettere, frecce comprese
-    else if(y>178) entryChange(-1);    // tutta la zona sotto, freccia giu' compresa
-    else entryConfirm();               // solo la fascia delle lettere
+    var q=canvasPos(e);
+    if(q.y<138){ entryChange(1); return; }    // sopra le lettere: avanti nell'alfabeto
+    if(q.y>178){ entryChange(-1); return; }   // sotto: indietro nell'alfabeto
+    var li = (q.x < W/2-22) ? 0 : (q.x < W/2+22) ? 1 : 2;
+    if(li!==entryIdx){ entryIdx=li; sfxTick(); return; }   // tocca un'altra lettera: la correggi
+    entryConfirm();                                        // tocca quella attiva: conferma
   }
   function sfxLevel(){
     var c=ac(); if(!c)return; var t=c.currentTime;
@@ -1347,6 +1349,13 @@
     else if(r===3){ trickPose="tuck"; }                                   // raccolto
     else if(r===4){ trickPose="star"; }                                   // a stella
     else { trickPose="sit"; }                                             // seduto in aria
+    if(grindCount>0){                       // trick durante una catena: continua e vale punti
+      grindCount++; grindT=1.5;
+      var tp2=10*grindCount*DM();
+      scoreF+=tp2; scorePulse=1;
+      pops.push({x:PX+PW/2, y:py-4, txt:"+"+tp2, col:GOLD, t:1});
+      sfxGrind(grindCount); comboAdd();
+    }
   }
 
   // fuoco dell'invincibilita': un tocco = una palla di fuoco (3 colpi distruggono un nemico)
@@ -1358,7 +1367,7 @@
   }
   // picchiata = tecnica: si esegue solo nella finestra dell'apice (sbrilluccichio sotto il piede)
   function diveWindow(){
-    return state==="play" && !paused && !grounded && jetT<=0 && !diveDone && Math.abs(vy)<GRAV*1.6;
+    return state==="play" && !paused && !grounded && jetT<=0 && !diveDone && Math.abs(vy)<GRAV*3.4;
   }
   function execDive(){
     diveDone=true; diveBuf=0;
@@ -1373,7 +1382,7 @@
     if(state!=="play" || paused || grounded || jetT>0 || diveDone) return;
     jumpBuf=0;                                 // uno swipe in giu' non e' mai un salto
     if(diveWindow() || gliding){ execDive(); }
-    else if(vy<0){ diveBuf=0.12; }             // troppo presto: memorizzato fino all'apice
+    else if(vy<0){ diveBuf=0.22; }             // troppo presto: memorizzato fino all'apice
   }
   function requestJump(){
     if(state!=="play" || paused || jetT>0) return;
@@ -1576,24 +1585,31 @@
     var JUMP = A || Bb || UP || B(7) || B(6);
     padHold = A || Bb;
 
+    var LEFT  = B(14) || (ax[0]!==undefined && ax[0]<-0.55);
+    var RIGHT = B(15) || (ax[0]!==undefined && ax[0]>0.55);
     var eJump=padEdge("jump",JUMP), eA=padEdge("a",A), eStart=padEdge("start",START);
     var eUp=padEdge("up",UP), eDown=padEdge("down",DOWN);
+    var eLeft=padEdge("left",LEFT), eRight=padEdge("right",RIGHT), eB=padEdge("b",Bb);
 
     if(state==="ready"){
-      if(eUp){ setSkin(skin+1); sfxTick(); }
-      if(eDown){ setSkin(skin-1); sfxTick(); }
+      if(readyIdle>=8 && (eA||eStart||eB||eUp||eDown||eLeft||eRight)){ readyIdle=0; sfxTick(); return; }
+      if(eUp||eRight){ setSkin(skin+1); sfxTick(); }
+      if(eDown||eLeft){ setSkin(skin-1); sfxTick(); }
       if(eA||eStart){ state="mode"; }
     } else if(state==="mode"){
-      if(eUp||eDown){ modeSel=1-modeSel; sfxTick(); }
-      if(eA||eStart){ if(modeSel===0){ mode="arcade"; state="diff"; } else startSfida(); }
+      if(eUp||eDown||eLeft||eRight){ modeSel=1-modeSel; sfxTick(); }
+      if(eB){ state="ready"; sfxTick(); }
+      else if(eA||eStart){ if(modeSel===0){ mode="arcade"; state="diff"; } else startSfida(); }
     } else if(state==="diff"){
       if(eUp){ setDiff(diff-1); sfxTick(); }
       if(eDown){ setDiff(diff+1); sfxTick(); }
-      if(eA||eStart){ mode="arcade"; startIntro(); }
+      if(eB){ state="mode"; sfxTick(); }
+      else if(eA||eStart){ mode="arcade"; startIntro(); }
     } else if(state==="intro"){
-      if(eA||eStart) startTutorial();
+      if(eB){ state=(mode==="sfida")?"mode":"diff"; sfxTick(); }
+      else if(eA||eStart) startTutorial();
     } else if(state==="tutorial"){
-      if(eStart){ stopJetSfx(); startCountdown(); }
+      if(eStart||eA||eB){ stopJetSfx(); startCountdown(); }
     } else if(state==="play"){
       if(eStart) togglePause();
       else if(paused){ if(eA) togglePause(); }
@@ -1604,6 +1620,8 @@
     } else if(state==="entry"){
       if(eUp) entryChange(1);
       if(eDown) entryChange(-1);
+      if(eLeft||eB){ if(entryIdx>0){ entryIdx--; sfxTick(); } }
+      if(eRight){ if(entryIdx<2){ entryIdx++; sfxTick(); } }
       if(eA||eStart) entryConfirm();
     } else if(state==="win"){
       if(eA||eStart||eJump||eUp||eDown) winTap();
@@ -1637,6 +1655,9 @@
     if(state==="entry"){
       if(e.key==="ArrowUp"){ e.preventDefault(); entryChange(1); }
       else if(e.key==="ArrowDown"){ e.preventDefault(); entryChange(-1); }
+      else if(e.key==="ArrowLeft"){ e.preventDefault(); if(entryIdx>0){ entryIdx--; sfxTick(); } }
+      else if(e.key==="ArrowRight"){ e.preventDefault(); if(entryIdx<2){ entryIdx++; sfxTick(); } }
+      else if(e.key==="Backspace"){ e.preventDefault(); if(entryIdx>0){ entryIdx--; sfxTick(); } }
       else if(e.key==="Enter"||e.key===" "){ e.preventDefault(); entryConfirm(); }
       else if(/^[a-zA-Z]$/.test(e.key)){ entryL[entryIdx]=AB.indexOf(e.key.toUpperCase()); entryConfirm(); }
       return;
@@ -1673,12 +1694,13 @@
                   type:e.t, off:0, vy:0, dash:0, jt:26+((e.d)%40), fire:16+((e.d)%26)});
   }
   function spawnTrain(){
-    var n = 2+Math.floor(Math.random()*3);              // 2..4 nemici attaccati
+    var n = 3+Math.floor(Math.random()*3);              // 3..5 nemici attaccati
+    if(Math.random()<0.38) n += 2+Math.floor(Math.random()*3);   // ogni tanto una fila lunghissima
     var h = [16,20,24][Math.floor(Math.random()*3)];    // stessa altezza = piattaforma continua
     var id = ++trainId;
     var x = W+Math.random()*14;
     for(var i=0;i<n;i++){
-      var w = 20+Math.floor(Math.random()*10);
+      var w = 24+Math.floor(Math.random()*12);
       enemies.push({x:x, w:w, h:h, ph:0, pt:0, extra:0, ridden:false, passed:false,
                     type:"base", off:0, vy:0, dash:0, jt:99999, fire:99999,
                     train:id, tfirst:(i===0), tlast:(i===n-1)});
@@ -1701,7 +1723,7 @@
     return Math.min(0.75, b*(diff===0?0.72:1) + (diff===1?0.08:diff===2?0.16:0));
   }
   function spawn(){
-    if(level>=5 && Math.random()<(diff===0?0.26:0.38)){ spawnTrain(); return; }
+    if(level>=4 && Math.random()<(diff===0?0.30:0.42)){ spawnTrain(); return; }
     var r=Math.random(), t;
     if(level<=1) t="base";
     else if(level===2) t=(r<0.7?"wide":"base");
@@ -1885,7 +1907,7 @@
           py=ey-PH; vy=0; grounded=true; jumps=0; glideFrames=0; superFlight=false; trickPose=null; flipT=0;
           riding=true;
           if(!en.ridden){
-            en.ridden=true; grindCount++; grindT=0.85;
+            en.ridden=true; grindCount++; grindT=1.7;
             scoreF += 10*grindCount*DM();
             sfxGrind(grindCount); vibe(10);
             sparks(en.train?GOLD:GREY, 4+Math.min(grindCount,4), PX+PW/2, ey);
@@ -2027,7 +2049,7 @@
             py=ey2-PH; vy=0; grounded=true; jumps=0; glideFrames=0; superFlight=false; trickPose=null; flipT=0;
             riding=true;
             if(!e2.ridden){
-              e2.ridden=true; grindCount++; grindT=0.85;
+              e2.ridden=true; grindCount++; grindT=1.7;
               scoreF += 10*grindCount*DM();
               sfxGrind(grindCount); vibe(10);
               sparks(e2.train?GOLD:GREY, 4+Math.min(grindCount,4), PX+PW/2, ey2);
@@ -2827,7 +2849,7 @@
         if(tutDidJump && !tutDidDouble && !tutGround() && tutVy>-3.2) tutJump();
       } else if(tutStep===2){
         if(!tutDidJump && o.x<PX+44 && tutGround()) tutJump();
-        if(tutDidJump && !tutDove && tutApexHold<=0 && !tutGround() && Math.abs(tutVy)<GRAV*1.6){
+        if(tutDidJump && !tutDove && tutApexHold<=0 && !tutGround() && Math.abs(tutVy)<GRAV*3.4){
           tutApexHold=1.25; tutCue=0.9;      // sospeso all'apice: il mondo si ferma, guarda la freccia
         }
       } else if(tutStep===3){
@@ -3379,7 +3401,9 @@
       }
       if(grindCount>=2 && grindT>0){
         ctx.save(); ctx.globalAlpha=Math.min(1,grindT*2);
-        centerText("GRIND x"+grindCount, py-8<20?38:py-8, GOLD, 13, "800");
+        var gy0=py-8<28?38:py-8;
+        centerText("GRIND x"+grindCount, gy0, GOLD, 13, "800");
+        centerText("+"+(25*grindCount*grindCount*DM()), gy0+12, SUPER, 10, "800");
         ctx.restore();
       }
       if(trickT>0){
@@ -3432,7 +3456,7 @@
         }
       }
       ctx.textAlign="left";
-      centerText("tocca alto/basso: cambia lettera",216,"rgba(255,255,255,.45)",8,"600");
+      centerText("alto/basso: cambia lettera \u00b7 lati: scegli",216,"rgba(255,255,255,.45)",8,"600");
       centerText("tocca al centro: conferma",228,"rgba(255,255,255,.45)",8,"600");
       centerText("(sull'R1: rotella + tasto laterale)",240,"rgba(255,255,255,.35)",8,"600");
     } else if(state==="over"){
