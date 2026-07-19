@@ -32,7 +32,7 @@
   var twk=[], streaks=[], scrFar=0, scrMid=0, scrNear=0;
   var hdWasG=true, hdLandT=0, hdFaceMood="norm", hdCyc=0, winPoop=false;
   var comboN=0, comboT=0, comboPulse=0, nearCd=0, slowMoT=0, flashT=0, kfreezeT=0, shakeT=0, rings=[];
-  var introPh=-1, introTyped=0, touchY0=0, diveDone=false;
+  var introPh=-1, introTyped=0, touchY0=0, diveDone=false, diveBuf=0, apexDing=false;
 
   function mkCanvas(w,h){ var c=document.createElement("canvas"); c.width=Math.max(1,Math.round(w)); c.height=Math.max(1,Math.round(h)); return c; }
   function hexA(h,a){ var n=parseInt(h.slice(1),16); return "rgba("+((n>>16)&255)+","+((n>>8)&255)+","+(n&255)+","+a+")"; }
@@ -876,6 +876,14 @@
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.07,t+0.015); g.gain.exponentialRampToValueAtTime(0.0001,t+0.17);
     o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.19);
   }
+  // ting dell'apice: la finestra della picchiata e' aperta
+  function sfxApex(){
+    var c=ac(); if(!c)return; var t=c.currentTime;
+    var o=c.createOscillator(), g=c.createGain();
+    o.type="sine"; o.frequency.value=1250;
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.045,t+0.005); g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.06);
+  }
   function sfxInvEnd(){
     var c=ac(); if(!c)return; var t=c.currentTime;
     var o=c.createOscillator(), g=c.createGain();
@@ -1190,15 +1198,24 @@
     fires.push({x:PX+PW-2, y:py+PH*0.45, vx:7, t:0});
     sfxFire(); vibe(10);
   }
-  // picchiata: swipe giu' / freccia giu' / dpad giu' in volo -> scendi di colpo
-  function dive(){
-    if(state!=="play" || paused || grounded || jetT>0 || diveDone) return;
-    diveDone=true;
+  // picchiata = tecnica: si esegue solo nella finestra dell'apice (sbrilluccichio sotto il piede)
+  function diveWindow(){
+    return state==="play" && !paused && !grounded && jetT<=0 && !diveDone && Math.abs(vy)<GRAV*1.6;
+  }
+  function execDive(){
+    diveDone=true; diveBuf=0;
+    jumpBuf=0; coyote=0;                       // niente rimbalzo all'atterraggio
     if(vy<12) vy=12;
     glideFrames=GLIDE_MAX; superFlight=false; trickPose=null; flipT=0;
     sfxDive(); vibe(12);
     for(var i=0;i<4;i++) parts.push({x:PX+3+Math.random()*(PW-6), y:py+4+Math.random()*8,
       vx:(Math.random()*1-0.5), vy:-(1.2+Math.random()*1.2), r:1.4+Math.random()*1.4, life:1, dr:0.09, c:"#cfe0ff"});
+  }
+  function dive(){
+    if(state!=="play" || paused || grounded || jetT>0 || diveDone) return;
+    jumpBuf=0;                                 // uno swipe in giu' non e' mai un salto
+    if(diveWindow() || gliding){ execDive(); }
+    else if(vy<0){ diveBuf=0.12; }             // troppo presto: memorizzato fino all'apice
   }
   function requestJump(){
     if(state!=="play" || paused || jetT>0) return;
@@ -1568,7 +1585,9 @@
 
     var prevBottom=py+PH;
     riding=false;
-    if(grounded) diveDone=false;
+    if(grounded){ diveDone=false; diveBuf=0; apexDing=false; }
+    if(diveBuf>0){ diveBuf-=dt; if(diveWindow()) execDive(); }
+    if(!apexDing && diveWindow()){ apexDing=true; sfxApex(); }
 
     // jetpack a peto: vola in quota per 4 secondi, poi ricade
     if(jetT>0){
@@ -2162,6 +2181,14 @@
     ctx.translate(-PW/2,-PH/2);
     drawBody(phase,gnd,glid,inv,tt,pose);
     ctx.restore();
+    if(state==="play" && !blinkOff && diveWindow() && !gliding){
+      var fxp=px+PW-5, fyp=pyy+PH+1.5;
+      var sg2=ctx.createRadialGradient(fxp,fyp,0.3,fxp,fyp,6);
+      sg2.addColorStop(0,"rgba(255,255,255,.95)"); sg2.addColorStop(0.4,"rgba(255,194,74,.7)"); sg2.addColorStop(1,"rgba(255,194,74,0)");
+      ctx.fillStyle=sg2; ctx.beginPath(); ctx.arc(fxp,fyp,6,0,6.283); ctx.fill();
+      ctx.strokeStyle="#FFFFFF"; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(fxp-4,fyp); ctx.lineTo(fxp+4,fyp); ctx.moveTo(fxp,fyp-4); ctx.lineTo(fxp,fyp+4); ctx.stroke();
+    }
     if(inv){
       var ga=(0.22*Math.min(1,invT/1.5)).toFixed(3);
       var gg=ctx.createRadialGradient(px+PW/2,pyy+PH/2,4,px+PW/2,pyy+PH/2,26);
