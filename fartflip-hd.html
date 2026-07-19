@@ -32,7 +32,7 @@
   var twk=[], streaks=[], scrFar=0, scrMid=0, scrNear=0;
   var hdWasG=true, hdLandT=0, hdFaceMood="norm", hdCyc=0, winPoop=false;
   var comboN=0, comboT=0, comboPulse=0, nearCd=0, slowMoT=0, flashT=0, kfreezeT=0, shakeT=0, rings=[];
-  var introPh=-1, introTyped=0, touchY0=0, diveDone=false, diveBuf=0, apexDing=false;
+  var introPh=-1, introTyped=0, touchY0=0, diveDone=false, diveBuf=0, apexDing=false, readyIdle=0;
 
   function mkCanvas(w,h){ var c=document.createElement("canvas"); c.width=Math.max(1,Math.round(w)); c.height=Math.max(1,Math.round(h)); return c; }
   function hexA(h,a){ var n=parseInt(h.slice(1),16); return "rgba("+((n>>16)&255)+","+((n>>8)&255)+","+(n&255)+","+a+")"; }
@@ -1089,9 +1089,11 @@
   }
   var AB="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   var entryL=[0,0,0], entryIdx=0, entryLock=0, savedIdx=-1;
-  function loadScores(){ try{ return JSON.parse(localStorage.getItem("fartflip_scores")||"[]"); }catch(e){ return []; } }
-  function saveScoresLS(a){ try{ localStorage.setItem("fartflip_scores",JSON.stringify(a)); }catch(e){} }
-  var scores=loadScores();
+  function loadScoresK(k){ try{ return JSON.parse(localStorage.getItem(k)||"[]"); }catch(e){ return []; } }
+  function saveScoresK(k,a){ try{ localStorage.setItem(k,JSON.stringify(a)); }catch(e){} }
+  var scoresA=loadScoresK("fartflip_scores");        // ARCADE (chiave storica)
+  var scoresS=loadScoresK("fartflip_scores_sfida");  // SFIDA locale
+  function curScores(){ return mode==="sfida" ? scoresS : scoresA; }
   function loadGhost(){ try{ return JSON.parse(localStorage.getItem("fartflip_ghost")||"null"); }catch(e){ return null; } }
   function saveGhost(g){ try{ localStorage.setItem("fartflip_ghost",JSON.stringify(g)); }catch(e){} }
   ghost=loadGhost(); ghostOn=!!ghost; pendGhost=null;
@@ -1115,12 +1117,14 @@
       pendGhost.n=name; ghost=pendGhost; saveGhost(ghost); ghostOn=true;
     }
     pendGhost=null;
-    scores.push({n:name,s:score,k:skin});
-    scores.sort(function(a,b){ return b.s-a.s; });
-    scores=scores.slice(0,5);
+    var lst=curScores();
+    lst.push({n:name,s:score,k:skin});
+    lst.sort(function(a,b){ return b.s-a.s; });
+    lst=lst.slice(0,5);
+    if(mode==="sfida") scoresS=lst; else scoresA=lst;
     savedIdx=-1;
-    for(var i=0;i<scores.length;i++){ if(scores[i].n===name && scores[i].s===score){ savedIdx=i; break; } }
-    saveScoresLS(scores);
+    for(var i=0;i<lst.length;i++){ if(lst[i].n===name && lst[i].s===score){ savedIdx=i; break; } }
+    saveScoresK(mode==="sfida"?"fartflip_scores_sfida":"fartflip_scores", lst);
     lastName=name;
     if(mode==="sfida") sbSubmit(name,score,skin);
     state="over"; overLock=18;
@@ -1295,17 +1299,19 @@
   function modeTap(e){
     var q=canvasPos(e);
     if(q.x<18 || q.x>W-18){ return; }                  // fuori dai riquadri: ignora
-    if(q.y>=70 && q.y<=152){ mode="arcade"; state="diff"; return; }   // riquadro ARCADE
-    if(q.y>=162 && q.y<=244){ startSfida(); return; }                 // riquadro SFIDA
     if(q.y<60){ state="ready"; return; }                              // in alto: indietro
-    // qualsiasi altro punto: sposta solo la selezione, non avvia nulla
-    modeSel = (q.y<157)?0:1; sfxTick();
+    var hit = (q.y>=70 && q.y<=152) ? 0 : (q.y>=162 && q.y<=244) ? 1 : -1;
+    if(hit<0){ modeSel=(q.y<157)?0:1; sfxTick(); return; }   // fuori dai riquadri: sposta la scelta
+    if(hit!==modeSel){ modeSel=hit; sfxTick(); return; }     // 1o tocco: seleziona e basta
+    if(modeSel===0){ mode="arcade"; state="diff"; }          // 2o tocco sullo stesso: si parte
+    else startSfida();
   }
   function diffTap(e){
     var yy=canvasPos(e).y;
     if(yy<70){ state="ready"; return; }                    // torna indietro
     var i = yy<128 ? 0 : yy<184 ? 1 : 2;
-    setDiff(i); startIntro();
+    if(i!==diff){ setDiff(i); sfxTick(); return; }         // 1o tocco: seleziona e basta
+    startIntro();                                          // 2o tocco sulla stessa: si parte
   }
   function startIntro(){
     unlockAudio(); reset(); state="intro"; introT=10.0; introPh=-1; introTyped=0; sfxGroan();
@@ -1356,6 +1362,7 @@
     sfxTick();
   }
   function readyTap(e){
+    if(readyIdle>=5){ readyIdle=0; sfxTick(); return; }   // il pannello si chiude col primo tocco
     var yy=canvasPos(e).y;
     if(yy>118 && yy<206){ setSkin(skin+1); sfxTick(); return; }
     state="mode";
@@ -1483,6 +1490,7 @@
 
   document.addEventListener("keydown",function(e){
     if(state==="ready"){
+      if(readyIdle>=5){ readyIdle=0; sfxTick(); e.preventDefault(); return; }
       if(e.key==="ArrowUp"){ e.preventDefault(); setSkin(skin+1); sfxTick(); return; }
       if(e.key==="ArrowDown"){ e.preventDefault(); setSkin(skin-1); sfxTick(); return; }
       if(e.key==="Enter"||e.key===" "){ e.preventDefault(); state="mode"; return; }
@@ -2095,6 +2103,7 @@
     var bob = (gnd&&!pose&&!glid) ? -Math.abs(Math.sin(cyc))*0.8 : 0;
 
     ctx.save();
+    var bA=ctx.globalAlpha;              // rispetta la trasparenza ereditata (es. fantasma al 15%)
     ctx.translate(0,bob);
 
     // sciarpa (dietro al corpo)
@@ -2104,7 +2113,7 @@
       var wob=Math.sin(tt*0.22 - si*0.95)*(0.7+si*0.55)*(glid?1.7:1);
       ctx.lineTo(5.6-si*3.0, 14.6+si*0.35+wob-(glid?si*1.15:0));
     }
-    ctx.globalAlpha=0.95; ctx.stroke(); ctx.globalAlpha=1;
+    ctx.globalAlpha=bA*0.95; ctx.stroke(); ctx.globalAlpha=bA;
 
     // arto/gamba dietro
     if(pose==="squat"){
@@ -2740,24 +2749,52 @@
       ctx.translate(PX+PW/2,py+PH/2); ctx.scale(zz,zz); ctx.translate(-(PX+PW/2),-(py+PH/2));
     }
     drawGround();
+    if(state!=="ready") readyIdle=0;
 
     if(state==="ready"){
-      centerText("FARTFLIP",26,ORANGE,20,"800");
-      centerText("CLASSIFICA",40,"rgba(255,255,255,.45)",8,"700");
-      if(scores.length===0){
-        centerText("nessun punteggio: sei il primo!",58,"rgba(255,255,255,.35)",9,"600");
-      }else{
-        for(var ri=0;ri<scores.length;ri++){
-          drawScoreRow(ri+1,scores[ri],55+ri*12, ri===0?GOLD:"rgba(255,255,255,.75)", ri===0);
+      readyIdle+=f/60;
+      if(readyIdle>=5 && readyIdle-f/60<5) sbFetchTop();
+      var attract=(readyIdle>=5);
+      if(attract){ ctx.fillStyle="rgba(4,4,8,.38)"; ctx.fillRect(0,0,W,H); }
+      // titolo con alone caldo
+      centerText("FARTFLIP",30,"rgba(254,80,0,.30)",23.5,"800");
+      centerText("FARTFLIP",30,ORANGE,22,"800");
+      // record subito sotto il titolo, nei colori delle modalita'
+      var rA=scoresA[0]||null;
+      var rS=(worldScores&&worldScores[0])?worldScores[0]:(scoresS[0]||null);
+      centerText("RECORD ARCADE  "+(rA?(rA.n+" "+pad4(rA.s)):"---"),48, rA?ORANGE:"rgba(255,255,255,.28)",9.5,"800");
+      centerText("RECORD SFIDA   "+(rS?(rS.n+" "+pad4(rS.s)):"---"),62, rS?GOLD:"rgba(255,255,255,.28)",9.5,"800");
+      ctx.fillStyle="rgba(255,255,255,.10)"; ctx.fillRect(40,73,W-80,1);
+      if(!attract){
+        centerText("salta in testa ai nemici \u00b7 raccogli i cuori",86,"rgba(255,255,255,.30)",7.5,"600");
+        drawPreview(W/2,138,1.9,blink);
+        centerText(SKINS[skin].n,182,SKINS[skin].c,12,"800");
+        centerText("\u25c0  rotella / tocca: cambia skin  \u25b6",195,"rgba(255,255,255,.4)",8,"600");
+        if(Math.floor(blink/28)%2===0) centerText("TASTO CENTRALE PER CONTINUARE",214,WHITE,11,"700");
+        centerText(padOn?"controller collegato: A = salta \u00b7 START = pausa":"senza touch: ROTELLA = salto (piu' reattiva del tasto)",228,padOn?SUPER:"rgba(255,255,255,.3)",7.5,"600");
+      } else {
+        // il personaggio continua a correre al centro, le top 5 ai suoi lati
+        drawPreview(W/2,148,1.75,blink);
+        var colXA=52, colXS=188;
+        ctx.fillStyle="rgba(8,8,12,.55)";
+        ctx.fillRect(colXA-44,90,88,96); ctx.fillRect(colXS-44,90,88,96);
+        ctx.strokeStyle="rgba(255,255,255,.10)"; ctx.lineWidth=1;
+        ctx.strokeRect(colXA-44,90,88,96); ctx.strokeRect(colXS-44,90,88,96);
+        ctx.textAlign="center";
+        ctx.font="800 9.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+        ctx.fillStyle=ORANGE; ctx.fillText("ARCADE",colXA,104);
+        ctx.fillStyle=GOLD;   ctx.fillText((worldScores&&worldScores.length>0)?"SFIDA \u00b7 MONDO":"SFIDA",colXS,104);
+        ctx.font="700 8px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+        var LA=scoresA, LS=(worldScores&&worldScores.length>0)?worldScores:scoresS;
+        for(var qa=0;qa<5;qa++){
+          var ya=119+qa*13;
+          if(LA[qa]){ ctx.fillStyle=(qa===0)?ORANGE:"rgba(255,255,255,.85)"; ctx.fillText((qa+1)+". "+LA[qa].n+" "+pad4(LA[qa].s),colXA,ya); }
+          else { ctx.fillStyle="rgba(255,255,255,.16)"; ctx.fillText((qa+1)+". ---",colXA,ya); }
+          if(LS[qa]){ ctx.fillStyle=(qa===0)?GOLD:"rgba(255,255,255,.85)"; ctx.fillText((qa+1)+". "+LS[qa].n+" "+pad4(LS[qa].s),colXS,ya); }
+          else { ctx.fillStyle="rgba(255,255,255,.16)"; ctx.fillText((qa+1)+". ---",colXS,ya); }
         }
+        if(Math.floor(blink/28)%2===0) centerText("tocca per tornare",214,"rgba(255,255,255,.5)",8,"600");
       }
-      ctx.fillStyle="rgba(255,255,255,.10)"; ctx.fillRect(28,114,W-56,1);
-      drawPreview(W/2,158,1.7,blink);
-      centerText(SKINS[skin].n,196,SKINS[skin].c,11,"800");
-      centerText("\u25c0  rotella / tocca: cambia skin  \u25b6",208,"rgba(255,255,255,.4)",8,"600");
-      if(Math.floor(blink/28)%2===0) centerText("TASTO CENTRALE PER CONTINUARE",234,WHITE,11,"700");
-      centerText(padOn?"controller collegato: A = salta \u00b7 START = pausa":"senza touch: ROTELLA = salto (piu' reattiva del tasto)",252,padOn?SUPER:"rgba(255,255,255,.3)",8,"600");
-      centerText("salta in testa ai nemici \u00b7 raccogli i cuori",264,"rgba(255,255,255,.3)",8,"600");
     } else if(state==="mode"){
       centerText("MODALITA'",34,ORANGE,18,"800");
       centerText("come vuoi giocare?",50,"rgba(255,255,255,.4)",9,"600");
@@ -2776,13 +2813,20 @@
         }else{
           centerText("SFIDA", yy0+24, sel?GOLD:"rgba(255,255,255,.8)", 17,"800");
           centerText("tracciato fisso di 2 minuti", yy0+42,"rgba(255,255,255,.55)",8.5,"600");
-          centerText((worldScores&&worldScores.length>0)?("RECORD MONDO: "+worldScores[0].n+" "+pad4(worldScores[0].s)):"uguale per tutti \u00b7 nessun caso",
-            yy0+56,(worldScores&&worldScores.length>0)?GOLD:"rgba(255,255,255,.4)",8,"600");
-          if(ghost) centerText("record: "+(ghost.n||"???")+"  "+pad4(ghost.sc), yy0+70, GOLD,9,"800");
+          centerText("uguale per tutti \u00b7 nessun caso", yy0+56,"rgba(255,255,255,.4)",8,"600");
+          if(ghost) centerText("batti il fantasma del record!", yy0+70,"rgba(255,255,255,.32)",8,"600");
           else centerText("nessun record: fai il primo!", yy0+70,"rgba(255,255,255,.32)",8,"600");
         }
+        if(sel){                                     // gia' scelta: il secondo tocco la avvia
+          var bw2=152, bx2=W/2-bw2/2, by2=yy0+74, bc2=(mi===0)?ORANGE:GOLD;
+          ctx.fillStyle="#0b0b0e"; ctx.fillRect(bx2,by2,bw2,15);
+          ctx.strokeStyle=bc2; ctx.lineWidth=1; ctx.strokeRect(bx2,by2,bw2,15);
+          ctx.globalAlpha=0.6+0.4*Math.sin(blink*0.13);
+          centerText("TOCCA ANCORA PER INIZIARE",by2+11,bc2,8,"800");
+          ctx.globalAlpha=1;
+        }
       }
-      if(Math.floor(blink/28)%2===0) centerText("tocca DENTRO un riquadro per iniziare",260,WHITE,9,"700");
+      if(Math.floor(blink/28)%2===0) centerText("tocca per scegliere \u00b7 poi tocca ancora",260,WHITE,8.5,"700");
       centerText("rotella/pad per scegliere \u00b7 A o tasto = conferma",272,"rgba(255,255,255,.32)",8,"600");
     } else if(state==="diff"){
       centerText("DIFFICOLTA'",34,ORANGE,18,"800");
@@ -2801,8 +2845,14 @@
           ctx.fillRect(W-46+dj*7, yy0+20, 4,4);
         }
       }
-      if(Math.floor(blink/28)%2===0) centerText("tocca una scelta \u00b7 tasto centrale = conferma",256,WHITE,9,"700");
-      centerText("rotella: cambia \u00b7 in alto: indietro",268,"rgba(255,255,255,.32)",8,"600");
+      var by3=233, bw3=152, bx3=W/2-bw3/2;
+      ctx.fillStyle="#0b0b0e"; ctx.fillRect(bx3,by3,bw3,14);
+      ctx.strokeStyle=ORANGE; ctx.lineWidth=1; ctx.strokeRect(bx3,by3,bw3,14);
+      ctx.globalAlpha=0.6+0.4*Math.sin(blink*0.13);
+      centerText("TOCCA ANCORA PER INIZIARE",by3+10,ORANGE,8,"800");
+      ctx.globalAlpha=1;
+      if(Math.floor(blink/28)%2===0) centerText("tocca per scegliere \u00b7 poi tocca ancora",258,WHITE,8.5,"700");
+      centerText("rotella: cambia \u00b7 in alto: indietro",270,"rgba(255,255,255,.32)",8,"600");
     } else if(state==="dead"){
       var ph = deadT>2.2 ? 0 : deadT>1.1 ? 1 : 2;
       // scossone verde/marrone nell'istante della cacca
@@ -3172,20 +3222,20 @@
       for(var k2=0;k2<enemies.length;k2++) drawEnemy(enemies[k2]);
       drawPlayer(PX,py,0,0,true,false,false,false,blink,null);
       drawParts();
-      ctx.fillStyle="rgba(10,10,11,.75)"; ctx.fillRect(0,50,W,186);
-      centerText("GAME OVER",74,ORANGE,18,"800");
-      centerText("SCORE "+pad4(score)+"   BEST "+pad4(best),94,WHITE,10,"700");
+      ctx.fillStyle="rgba(10,10,11,.78)"; ctx.fillRect(0,44,W,206);
+      centerText("GAME OVER",64,ORANGE,16,"800");
+      centerText("SCORE "+pad4(score)+"   BEST "+pad4(best),80,WHITE,9,"700");
       var wb=(mode==="sfida" && worldScores && worldScores.length>0);
-      centerText(wb?"CLASSIFICA MONDIALE":"CLASSIFICA",114,"rgba(255,255,255,.5)",9,"700");
-      var rows=wb?worldScores:scores, myR=-1;
+      centerText(wb?"CLASSIFICA MONDIALE":("CLASSIFICA "+(mode==="sfida"?"SFIDA":"ARCADE")),96,"rgba(255,255,255,.5)",9,"700");
+      var rows=wb?worldScores:curScores(), myR=-1;
       if(wb){ for(var wi=0;wi<rows.length;wi++){ if(rows[wi].n===lastName && rows[wi].s===score){ myR=wi; break; } } }
       else myR=savedIdx;
-      for(var si=0;si<Math.min(rows.length,5);si++){
-        drawScoreRow(si+1,rows[si],133+si*16, si===myR?GOLD:"rgba(255,255,255,.8)", si===myR);
+      for(var si=0;si<Math.min(rows.length,10);si++){
+        drawScoreRow(si+1,rows[si],110+si*13, si===myR?GOLD:"rgba(255,255,255,.8)", si===myR);
       }
-      if(wb && myR>=0) centerText("SEI "+(myR+1)+"\u00b0 AL MONDO!",236,GOLD,9,"800");
-      else if(mode==="sfida" && NET_ON() && worldErr) centerText("mondo offline \u00b7 classifica locale",236,"rgba(255,255,255,.35)",7,"600");
-      if(overLock<=0 && Math.floor(blink/28)%2===0) centerText("TAP PER RIPROVARE",248,WHITE,12,"700");
+      if(wb && myR>=0) centerText("SEI "+(myR+1)+"\u00b0 AL MONDO!",244,GOLD,9,"800");
+      else if(mode==="sfida" && NET_ON() && worldErr) centerText("mondo offline \u00b7 classifica locale",244,"rgba(255,255,255,.35)",7,"600");
+      if(overLock<=0 && Math.floor(blink/28)%2===0) centerText("TAP PER RIPROVARE",262,WHITE,11,"700");
     }
     hdFrameEnd();
     requestAnimationFrame(loop);
