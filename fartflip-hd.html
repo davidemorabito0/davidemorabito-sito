@@ -310,7 +310,7 @@
     {n:"MENTA", c:"#2FD37E", d:"#179153", f:"#E7FAF0", hair:"tuft",  eyes:"wide",   mouth:"tongue"},
     {n:"BRACE", c:"#C2261E", d:"#660D08", f:"#FFD9C9", hair:"mohawk", eyes:"angry", mouth:"fang",     puff:"#FF7A18", boot:"boots"},
     {n:"GELO",  c:"#4FC3F7", d:"#12547F", f:"#EAF9FF", hair:"horns",  eyes:"visor", mouth:"flatline", puff:"#8FE9FF", boot:"skates", skate:1},
-    {n:"ORO",   c:"#FFC24A", d:"#9A6606", f:"#FFF6E0", hair:"crown",  eyes:"wide",  mouth:"grin",     puff:"#FFDA7A", boot:"skate"}
+    {n:"ORO",   c:"#FFC24A", d:"#9A6606", f:"#FFF6E0", hair:"crown",  eyes:"wide",  mouth:"grin",     puff:"#FFDA7A", boot:"skate", ride:1}
   ];
   // ---- sblocchi: le ultime tre skin si conquistano giocando ----
   var UNL={l5:0,c10:0,sq:0};
@@ -428,7 +428,7 @@
   var punchT,punchX,punchY,trickPose,flipDir,flipTurns,level,lvlBoxes,levelT,lvlHold,bullets,countT,lastCount;
   var introT,winT,goal,pads,dashT,deadT,jumpBuf,coyote;
   var tutT,tutStep,tutObj,tutPy,tutVy,tutJumps,tutLeg,tutGlideF,tutGliding,tutAutoHold,tutCue;
-  var tutJetTgt=140, tutJetCue=0, tutJetCueT=0;
+  var tutJetTgt=140, tutJetCue=0, tutJetCueT=0, tutHang=false;
   var dist,trackI,ghRec,ghLast,ghost,ghostOn,pendGhost,finish;
   var tutDidJump,tutDidDouble,tutJet,tutOut,tutOk,tutApexHold,tutDove;
   var grindCount,grindT,riding,trickN,trickBonus,trickT,trainId;
@@ -447,7 +447,7 @@
     introT=0; winT=0; goal=null; pads=[]; dashT=0; deadT=0; jumpBuf=0; coyote=0;
     dist=0; trackI=0; ghRec=[]; ghLast=0; finish=false;
     tutT=0; tutStep=0; tutObj=null; tutPy=0; tutVy=0; tutJumps=0; tutLeg=0; tutGlideF=0;
-    tutJetTgt=TUT_JET_Y; tutJetCue=0; tutJetCueT=0;
+    tutJetTgt=TUT_JET_Y; tutJetCue=0; tutJetCueT=0; tutHang=false;
     tutGliding=false; tutAutoHold=0; tutDidJump=false; tutDidDouble=false; tutJet=0; tutOut=0; tutOk=false; tutCue=0;
     grindCount=0; grindT=0; riding=false; trickN=0; trickBonus=0; trickT=0; trainId=0;
     comboN=0; comboT=0; comboPulse=0; nearCd=0; slowMoT=0; flashT=0; kfreezeT=0; shakeT=0; rings=[];
@@ -1613,7 +1613,7 @@
     if(lvlPerfect) addPts(100,HEART);          // livello finito con 3 cuori pieni
     level++; lvlBoxes=0; levelT=95; lvlHold=180;   // 3 secondi senza nuovi nemici
     if(level===tpLevel && !tpDone) tpT=4+Math.random()*9;   // rotolo di carta in arrivo
-    if(level>=5 && !UNL.l5){ UNL.l5=1; if(newUnl.indexOf(3)<0) newUnl.push(3); }
+    if(level>=5 && !UNL.l5){ UNL.l5=1; unlockNow(3); }
     powers=[]; bullets=[]; pads=[]; distNext=170;  // i nemici in campo restano e scorrono via
     shakeT=0.16; sfxFanfare();
     for(var cf=0;cf<44;cf++){
@@ -1754,7 +1754,7 @@
     var cx=en.x+en.w/2, cy=ey+en.h/2;
     enemies.splice(idx,1); lvlBoxes++;
     stSquash++; UNL.sq++;
-    if(UNL.sq===50 && newUnl.indexOf(5)<0) newUnl.push(5);
+    if(UNL.sq===50) unlockNow(5);
     var sp2=10*DM();
     scoreF+=sp2; scorePulse=1;
     addPop({x:cx, y:ey-6, txt:"+"+sp2, col:GREEN, t:1});
@@ -1870,6 +1870,20 @@
   }
   function inOptBtn(e){
     var q=canvasPos(e); return q.x>W-32 && q.y<30;
+  }
+  // anteprima che rispetta sempre il blocco: silhouette + lucchetto se non e' sbloccata
+  function drawPreviewSafe(x,y,sc,b){
+    if(!skinLocked(skin)){ drawPreview(x,y,sc,b); return; }
+    var S0=SKINS[skin], bc=S0.c, bd=S0.d, bf=S0.f;
+    S0.c="#2b2b34"; S0.d="#1b1b23"; S0.f="#3b3b47";
+    drawPreview(x,y,sc,b);
+    S0.c=bc; S0.d=bd; S0.f=bf;
+    ctx.save(); ctx.globalAlpha=0.92;
+    ctx.strokeStyle="#f2f2f2"; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.arc(x,y-4,6.5,Math.PI,0); ctx.stroke();
+    ctx.fillStyle="#f2f2f2"; ctx.fillRect(x-10,y-2,20,15);
+    ctx.fillStyle="#0a0a0b"; ctx.fillRect(x-1.5,y+3,3,6);
+    ctx.restore();
   }
   function drawOptBtn(){
     var x=W-26, y=8;
@@ -2395,7 +2409,10 @@
           addPts(PTS_HEART,HEART);   // mezzo cuore: nessun blocco
         } else {
           invT=INV_TIME; beatMode="power"; sparks(GOLD,24,pw.x,cy); sfxPower(); vibe([0,25,40,25,40,30]);
-          if(!fireHintOff) fireHintT=3.4;
+          if(!fireHintOff){
+            fireHintT=INV_TIME;                                  // resta finche' non spari
+            hitStop(GOLD,"TOCCA PER SPARARE!",0.6,2.0);          // fermo immagine: impossibile non vederlo
+          }
           addPts(PTS_INV,GOLD); hitStop(GOLD,"INVINCIBILE",1.0,3.2);
         }
         powers.splice(p,1); continue;
@@ -2404,7 +2421,13 @@
         powers.splice(p,1); tpDone=false; tpT=1.5+Math.random()*2.5;   // power-up in corso: il rotolo torna dopo
         continue;
       }
-      if(pw.x< -14) powers.splice(p,1);
+      if(pw.x< -14){
+        if(pw.kind==="tp" && !pw.got){       // carta igienica mancata
+          addPop({x:W/2, y:112, txt:"Oh no...", col:"#FFFFFF", t:1});
+          sfxNo();
+        }
+        powers.splice(p,1);
+      }
     }
 
     for(var qi=pops.length-1;qi>=0;qi--){
@@ -2586,9 +2609,19 @@
     if(comboN>stCombo) stCombo=comboN;
     if(comboN>=3) sfxComboTick(comboN);
   }
+  function unlockNow(idx){
+    if(newUnl.indexOf(idx)>=0) return;
+    newUnl.push(idx);
+    hitStop(SKINS[idx].c, "SKIN SBLOCCATA: "+SKINS[idx].n+"!", 0.8, 2.2);
+    sfxFanfare(); vibe([0,30,50,30,50,45]);
+    addPop({x:W/2, y:104, txt:"nuovo personaggio disponibile!", col:"#FFFFFF", t:1});
+    for(var u9=0;u9<26;u9++) parts.push({x:PX+PW/2+(Math.random()*30-15), y:py+PH/2+(Math.random()*24-12),
+      vx:(Math.random()*6-3), vy:-(1+Math.random()*4), r:1.4+Math.random()*2.4, life:1,
+      dr:0.02+Math.random()*0.03, c:(Math.random()<0.5)?SKINS[idx].c:GOLD});
+  }
   function chainStat(){
     if(grindCount>stChain) stChain=grindCount;
-    if(grindCount>=10 && !UNL.c10){ UNL.c10=1; if(newUnl.indexOf(4)<0) newUnl.push(4); }
+    if(grindCount>=10 && !UNL.c10){ UNL.c10=1; unlockNow(4); }
   }
   function comboCash(){
     if(comboN>=3){
@@ -2794,10 +2827,12 @@
     var cyc = hdCyc;               // fase di corsa accumulata in hdFrameBegin
     var swf=Math.sin(cyc), swb=Math.sin(cyc+3.14159);          // oscillazione gambe avanti/dietro
     var isk = !!S.skate;                                    // pattina invece di correre
+    var irid = !!S.ride;                                    // sta in piedi sullo skate, gambe ferme
+    var rsw = irid ? Math.sin(cyc*0.26) : 0;                // leggero equilibrio
     var pa  = isk ? (Math.sin(cyc*0.42)+1)/2 : 0;           // 0 = piede sotto, 1 = spinta indietro
     var skBX = 8.1-7.5*pa, skBY = 29.6-5.6*pa;              // piede che spinge
     var skFX = 10.6+pa*0.8, skFY = 29.6;                    // piede che scivola
-    var bob = (gnd&&!pose&&!glid) ? (isk ? -0.7*pa : -Math.abs(Math.sin(cyc))*0.8) : 0;
+    var bob = (gnd&&!pose&&!glid) ? (isk ? -0.7*pa : (irid ? -0.35-0.25*rsw : -Math.abs(Math.sin(cyc))*0.8)) : 0;
     var OV = devPoseOvr(pose,glid,gnd,isk);
     function limbData(d,w,cl){ if(d && d.length>=6) limb2(+d[0],+d[1],+d[2],+d[3],+d[4],+d[5],w,cl); else if(d) limb(+d[0],+d[1],+d[2],+d[3],w,cl); }
 
@@ -2830,6 +2865,7 @@
       if(glid && isk)    return [[3.2,24.2],[11.8,29.9]];
       if(glid)           return [[8.9,29.8],[8.9,29.8]];
       if(gnd && isk)     return [[skBX,skBY],[skFX,skFY]];
+      if(gnd && irid)    return [[8.2,29.6],[14.8,29.6]];
       if(gnd)            return [[9.6+4.4*swb, 29.5-Math.max(0,Math.cos(cyc+3.14159))*2.6],
                                  [12.4+4.4*swf,29.5-Math.max(0,Math.cos(cyc))*2.6]];
       return [[7.2,28.6],[14.8,28.2]];
@@ -2837,14 +2873,14 @@
     function drawFoot(i){
       var FP=feetPos(), fx=FP[i][0], fy=FP[i][1];
       if(S.boot==="boots"){
-        ctx.fillStyle="#26262c"; rrf(fx-3.3,fy-1.4,6.8,4.0,1.3);
+        ctx.fillStyle=S.d; rrf(fx-3.3,fy-1.4,6.8,4.0,1.3);
         ctx.fillStyle="#8f8f9b"; ctx.fillRect(fx-3.1,fy+2.2,6.4,1.0);
-        ctx.fillStyle="#C2261E"; ctx.fillRect(fx-1.2,fy-1.0,1.3,2.6);
+        ctx.fillStyle=S.c; ctx.fillRect(fx-1.2,fy-1.0,1.3,2.6);
         ctx.fillStyle="rgba(255,255,255,.18)"; ctx.fillRect(fx-3.1,fy-1.2,6.4,0.7);
       }else if(S.boot==="skates"){
-        ctx.fillStyle="#F2FBFF"; rrf(fx-1.9,fy-0.9,3.9,2.3,0.8);
-        ctx.fillStyle="#9ED8F0"; ctx.fillRect(fx-1.7,fy,3.6,0.5);
-        ctx.strokeStyle="#DFF6FF"; ctx.lineWidth=0.9; ctx.lineCap="round";
+        ctx.fillStyle=S.f; rrf(fx-1.9,fy-0.9,3.9,2.3,0.8);
+        ctx.fillStyle=S.c; ctx.fillRect(fx-1.7,fy,3.6,0.5);
+        ctx.strokeStyle=S.f; ctx.lineWidth=0.9; ctx.lineCap="round";
         ctx.beginPath();
         ctx.moveTo(fx-2.4,fy+2.3); ctx.lineTo(fx+2.2,fy+2.3);
         ctx.moveTo(fx-1.9,fy+2.3); ctx.lineTo(fx-1.9,fy+1.3);
@@ -2855,8 +2891,8 @@
     function drawBoard(){
       var FP=feetPos();
       var mx=(FP[0][0]+FP[1][0])/2, my=Math.max(FP[0][1],FP[1][1]);
-      ctx.fillStyle="#3a2a12"; rrf(mx-9.5,my+1.6,19,2.4,1.2);
-      ctx.fillStyle=GOLD;      ctx.fillRect(mx-8.4,my+1.9,16.8,1.0);
+      ctx.fillStyle=S.d;       rrf(mx-9.5,my+1.6,19,2.4,1.2);
+      ctx.fillStyle=S.c;       ctx.fillRect(mx-8.4,my+1.9,16.8,1.0);
       ctx.fillStyle="#8a8a95"; ctx.fillRect(mx-6.4,my+3.8,1.6,1.4); ctx.fillRect(mx+4.8,my+3.8,1.6,1.4);
       ctx.fillStyle="#e8e8f0";
       ctx.beginPath(); ctx.ellipse(mx-5.6,my+5.0,1.6,1.6,0,0,6.283); ctx.fill();
@@ -2888,6 +2924,8 @@
       limb2(10.0,22.6, 7.0,26.8, 3.2,24.2, 3.0, dark);     // gamba libera piegata dietro, punta alta
     }else if(glid){
       limb(9.6,23, 6.2,29.2, 3.0, dark);
+    }else if(gnd && irid){
+      limb2(9.8,22.6, 8.6,26.0, 8.2,29.6, 3.0, dark);       // piede posteriore piantato sulla tavola
     }else if(gnd && isk){
       limb2(10.2,22.6, (10.2+skBX)/2-0.6,26.2-1.4*pa, skBX,skBY, 3.0, dark);
     }else if(gnd){
@@ -2907,6 +2945,7 @@
     else if(pose==="grab"){ limb2(6.2,15.2, 3.2,18.6, 5.4,22.2, 2.5, dark); }
     else if(pose==="arab"){ limb(6.2,15.0, 12.6,9.4, 2.5, dark); }
     else if(pose==="fifth"){ limb2(6.2,15.0, 3.6,8.4, 8.2,2.8, 2.5, dark); }
+    else if(gnd && irid){ limb(6.0,15.4, 0.6,13.4+rsw*1.6, 2.5, dark); }
     else if(gnd && isk){ limb(6.0,15.4, 0.8,13.0+pa*2.2, 2.5, dark); }
     else if(pose==="sit"){ limb2(6.2,15.4, 6.8,19.4, 10.2,21.6, 2.5, dark); }
     else if(pose==="squat"){ limb2(6.2,16.2, 4.6,19.0, 8.2,20.2, 2.5, dark); }
@@ -2952,6 +2991,8 @@
       limb(12.0,22.6, 11.8,29.9, 3.0, base);               // gamba d'appoggio dritta sul pattino
     }else if(glid){
       limb(12.4,23, 8.9,29.8, 3.0, base);
+    }else if(gnd && irid){
+      limb2(12.6,22.6, 14.0,26.0, 14.8,29.6, 3.0, base);    // piede anteriore avanti, ginocchio morbido
     }else if(gnd && isk){
       limb2(11.6,22.6, 11.0,26.0, skFX,skFY, 3.0, base);
     }else if(gnd){
@@ -2972,6 +3013,7 @@
     else if(pose==="grab"){ limb2(15.8,15.2, 18.2,19.2, 16.2,22.6, 2.5, base); }
     else if(pose==="arab"){ limb(15.8,15.2, 24.2,13.2, 2.5, base); }
     else if(pose==="fifth"){ limb2(15.8,15.0, 18.4,8.4, 13.8,2.8, 2.5, base); }
+    else if(gnd && irid){ limb(16.0,15.4, 21.6,13.0-rsw*1.6, 2.5, base); }
     else if(gnd && isk){ limb(16.0,15.4, 21.4,13.4-pa*2.2, 2.5, base); }
     else if(pose==="sit"){ limb2(15.8,15.4, 16.4,19.4, 13.2,21.6, 2.5, base); }
     else if(pose==="squat"){ limb2(15.8,16.2, 17.4,19.0, 13.8,20.2, 2.5, base); }
@@ -3486,8 +3528,11 @@
         if(tutDidJump && !tutDidDouble && !tutGround() && tutVy>-3.2) tutJump();
       } else if(tutStep===2){
         if(!tutDidJump && o.x<PX+44 && tutGround()) tutJump();
-        if(tutDidJump && !tutDove && tutApexHold<=0 && !tutGround() && Math.abs(tutVy)<GRAV*3.4){
-          tutApexHold=1.25; tutCue=0.9;      // sospeso all'apice: il mondo si ferma, guarda la freccia
+        if(tutDidJump && !tutDove && !tutHang && tutApexHold<=0 && !tutGround() && Math.abs(tutVy)<GRAV*3.4){
+          tutHang=true;                      // resta sospeso: prima lascia passare l'ostacolo sotto
+        }
+        if(tutHang && (o.x+o.w) < PX-6){
+          tutHang=false; tutApexHold=1.25; tutCue=0.9;   // strada libera: il mondo si ferma, guarda la freccia
         }
       } else if(tutStep===3){
         if(!tutDidJump && o.x<PX+34 && tutGround()) tutJump();
@@ -3508,6 +3553,8 @@
           for(var dp=0;dp<4;dp++) parts.push({x:PX+3+Math.random()*(PW-6), y:tutPy+4+Math.random()*8,
             vx:(Math.random()*1-0.5), vy:-(1.2+Math.random()*1.2), r:1.4+Math.random()*1.4, life:1, dr:0.09, c:"#cfe0ff"});
         }
+      } else if(tutHang){
+        tutVy=0;                             // sospensione: l'ostacolo scorre via sotto i piedi
       } else if(tutJet>0){
         var pj9=tutJet;
         tutJet-=tdt;
@@ -3607,8 +3654,11 @@
       var attract=(readyIdle>=7);
       if(attract){ ctx.fillStyle="rgba(4,4,8,.38)"; ctx.fillRect(0,0,W,H); }
       // titolo con alone caldo
-      centerText("FARTFLIP",30,"rgba(254,80,0,.30)",23.5,"800");
-      centerText("FARTFLIP",30,ORANGE,22,"800");
+      ctx.save();
+      ctx.shadowColor="rgba(254,80,0,.60)"; ctx.shadowBlur=13; ctx.shadowOffsetX=0; ctx.shadowOffsetY=0;
+      centerText("FARTFLIP",30,ORANGE,22,"800");     // un solo tratto: l'alone e' un vero bagliore
+      ctx.shadowBlur=0;
+      ctx.restore();
       // record subito sotto il titolo, nei colori delle modalita'
       var rA=(worldA&&worldA[0])?worldA[0]:null;
       var rS=(worldS&&worldS[0])?worldS[0]:null;
@@ -3619,18 +3669,7 @@
         centerText("salta in testa ai nemici \u00b7 raccogli i cuori",84,"rgba(255,255,255,.30)",7.5,"600");
         var lk=skinLocked(skin);
         if(lockShake>0) lockShake-=f/60;
-        if(lk){
-          var S0=SKINS[skin], bc=S0.c, bd=S0.d, bf=S0.f;
-          S0.c="#2b2b34"; S0.d="#1b1b23"; S0.f="#3b3b47";
-          drawPreview(W/2,124,1.8,blink);
-          S0.c=bc; S0.d=bd; S0.f=bf;
-          ctx.save(); ctx.globalAlpha=0.92;
-          ctx.strokeStyle="#f2f2f2"; ctx.lineWidth=3;
-          ctx.beginPath(); ctx.arc(W/2,120,6.5,Math.PI,0); ctx.stroke();
-          ctx.fillStyle="#f2f2f2"; ctx.fillRect(W/2-10,122,20,15);
-          ctx.fillStyle="#0a0a0b"; ctx.fillRect(W/2-1.5,127,3,6);
-          ctx.restore();
-        } else drawPreview(W/2,124,1.8,blink);
+        drawPreviewSafe(W/2,124,1.8,blink);
         var arA=0.55+0.45*Math.sin(blink*0.11);
         drawSkinArrow(38,124,-1,arA); drawSkinArrow(W-38,124,1,arA);
         centerText(lk?(SKINS[skin].n+"  \u25a0"):SKINS[skin].n,170, lk?"rgba(255,255,255,.42)":SKINS[skin].c,13,"800");
@@ -3651,10 +3690,10 @@
         ctx.strokeStyle= lk?"rgba(255,255,255,.22)":ORANGE; ctx.lineWidth=2; ctx.strokeRect(pbX+sx2,pbY,pbW,pbH);
         centerText(lk?"SKIN BLOCCATA":"TOCCA QUI PER GIOCARE",pbY+17, lk?"rgba(255,255,255,.45)":WHITE,11,"800");
         drawOptBtn();
-        centerText(padOn?"controller collegato: A = salta \u00b7 START = pausa":"rotella: cambia skin \u00b7 tasto centrale: gioca",236,padOn?SUPER:"rgba(255,255,255,.3)",7.5,"600");
+        if(padOn) centerText("controller collegato: A = salta \u00b7 START = pausa",236,SUPER,7.5,"600");
       } else {
         // il personaggio continua a correre al centro, le top 5 ai suoi lati
-        drawPreview(W/2,148,1.75,blink);
+        drawPreviewSafe(W/2,148,1.75,blink);   // anche qui la skin bloccata resta in ombra
         var colXA=52, colXS=188;
         ctx.fillStyle="rgba(8,8,12,.55)";
         ctx.fillRect(colXA-44,90,88,96); ctx.fillRect(colXS-44,90,88,96);
@@ -3996,8 +4035,7 @@
       if(tutStep===3 && tutGliding) centerText("PLANATA!",120,PUNCH,14,"800");
       if(tutJet>0) centerText("JETPACK!",120,JET,15,"800");
 
-      centerText("TUTORIAL  "+Math.min(tutStep+1,TUT.length)+"/"+TUT.length,26,"rgba(255,255,255,.4)",9,"700");
-      centerText("guarda: giocherai tu dopo il 3-2-1",38,"rgba(255,255,255,.28)",8,"600");
+      centerText("TUTORIAL",26,"rgba(255,255,255,.4)",9,"700");
       ctx.font="700 8px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
       ctx.textAlign="right"; ctx.fillStyle="rgba(255,255,255,.45)"; ctx.fillText("salta \u25b8",W-6,18);
       ctx.textAlign="left";
