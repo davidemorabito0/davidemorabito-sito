@@ -4,11 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FARTFLIP">
+<meta name="theme-color" content="#04040a">
 <title>FARTFLIP HD</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
     -webkit-touch-callout:none;user-select:none;}
-  html,body{width:100%;height:100%;background:#04040a;overflow:hidden;}
+  html,body{width:100%;height:100vh;height:100dvh;background:#04040a;overflow:hidden;overscroll-behavior:none;}
   body{cursor:pointer;touch-action:none;}
   canvas{position:fixed;inset:0;display:block;background:#04040a;}
 </style>
@@ -32,7 +37,26 @@
   var twk=[], streaks=[], scrFar=0, scrMid=0, scrNear=0;
   var hdWasG=true, hdLandT=0, hdFaceMood="norm", hdCyc=0, winPoop=false;
   var comboN=0, comboT=0, comboPulse=0, nearCd=0, slowMoT=0, flashT=0, kfreezeT=0, shakeT=0, rings=[];
-  var grindFx=0, lvl10T=0;
+  var grindFx=0, lvl10T=0, skateFx=0;
+  // ---- FARTFLIP LAB (developer mode): override di pose, colori, audio ----
+  var POSE_OVR={}, LVL_OVR=null, DEV_BPM_OFF=0, DEV_SK=null, devPose=null, devZoom=6;
+  function applyMod(m){
+    m=m||{};
+    POSE_OVR=(m.poses&&typeof m.poses==="object")?m.poses:{};
+    LVL_OVR=(m.colors&&m.colors.slice)?m.colors.slice(0,10):null;
+    DEV_BPM_OFF=Math.max(-40,Math.min(40,(m.bpmOff|0)||0));
+    DEV_SK=(m.sk&&m.sk.slice)?m.sk.slice(0,6):null;
+  }
+  try{ var MOD0=JSON.parse(localStorage.getItem("fartflip_mod")||"null"); if(MOD0) applyMod(MOD0); }catch(e){}
+  function devPoseOvr(pose,glid,gnd,isk){
+    var key = pose ? pose : (glid ? (isk?"glide_skate":"glide") : (!gnd ? "air" : null));
+    if(!key) return null;
+    var A=POSE_OVR[String(skin)], B=POSE_OVR["*"];
+    return (A && A[key]) || (B && B[key]) || null;
+  }
+  var stSquash=0, stNear=0, stCombo=0, stChain=0, newUnl=[];
+  var lockShake=0, optSel=0, vibOn=1;
+  try{ vibOn=(localStorage.getItem("fartflip_vib")==="0")?0:1; }catch(e){}
   var winMash=0, winMashT=0, winMashDone=false, winTX=0, winSeatY=0;
   var WIN_GATE=6.35, WIN_MASH_N=16, MASH_DECAY=2.2;   // la barra cala se smetti di toccare
   var tpLevel=8, tpT=0, tpDone=false, tpGot=false;   // rotolo di carta igienica: +300 a fine partita
@@ -267,8 +291,28 @@
   var SKINS=[
     {n:"PAZZO", c:"#FE5000", d:"#B83A00", f:"#F4EEE4", hair:"spiky", eyes:"crazy",  mouth:"grin"},
     {n:"LUNA",  c:"#8B5CF6", d:"#5B32B0", f:"#EFE6FB", hair:"flat",  eyes:"sleepy", mouth:"smirk"},
-    {n:"MENTA", c:"#2FD37E", d:"#179153", f:"#E7FAF0", hair:"tuft",  eyes:"wide",   mouth:"tongue"}
+    {n:"MENTA", c:"#2FD37E", d:"#179153", f:"#E7FAF0", hair:"tuft",  eyes:"wide",   mouth:"tongue"},
+    {n:"BRACE", c:"#C2261E", d:"#660D08", f:"#FFD9C9", hair:"mohawk", eyes:"angry", mouth:"fang",     puff:"#FF7A18", boot:"boots"},
+    {n:"GELO",  c:"#4FC3F7", d:"#12547F", f:"#EAF9FF", hair:"horns",  eyes:"visor", mouth:"flatline", puff:"#8FE9FF", boot:"skates", skate:1},
+    {n:"ORO",   c:"#FFC24A", d:"#9A6606", f:"#FFF6E0", hair:"crown",  eyes:"wide",  mouth:"grin",     puff:"#FFDA7A", boot:"skate"}
   ];
+  // ---- sblocchi: le ultime tre skin si conquistano giocando ----
+  var UNL={l5:0,c10:0,sq:0};
+  try{ var uj=JSON.parse(localStorage.getItem("fartflip_unl")||"null"); if(uj&&typeof uj==="object"){ UNL.l5=uj.l5||0; UNL.c10=uj.c10||0; UNL.sq=uj.sq||0; } }catch(e){}
+  function saveUnl(){ try{ localStorage.setItem("fartflip_unl",JSON.stringify(UNL)); }catch(e){} }
+  function skinLocked(i){
+    if(i<3) return false;
+    if(i===3) return !UNL.l5;
+    if(i===4) return !UNL.c10;
+    return UNL.sq<50;
+  }
+  function unlockGoal(i){
+    return i===3 ? "arriva al livello 5"
+         : i===4 ? "catena di grind x10"
+         : "schiaccia 50 nemici ("+Math.min(UNL.sq,50)+"/50)";
+  }
+  function unlockedCount(){ var k=0; for(var i=0;i<SKINS.length;i++) if(!skinLocked(i)) k++; return k; }
+  function nextLockedIdx(){ for(var i=3;i<SKINS.length;i++) if(skinLocked(i)) return i; return -1; }
   var DIFFS=[
     {n:"FACILE",    sp:0,   gap:1.15, pads:false, d:"per iniziare"},
     {n:"MEDIA",     sp:0.6, gap:0.80, pads:false, d:"piu' veloce \u00b7 punti x2"},
@@ -280,7 +324,16 @@
   function setDiff(i){ diff=(i+DIFFS.length)%DIFFS.length; try{localStorage.setItem("fartflip_diff",String(diff));}catch(e){} }
   var skin=0;
   try{ var sk0=parseInt(localStorage.getItem("fartflip_skin")||"0",10); if(!isNaN(sk0)&&sk0>=0&&sk0<SKINS.length) skin=sk0; }catch(e){}
-  function setSkin(i){ skin=(i+SKINS.length)%SKINS.length; try{localStorage.setItem("fartflip_skin",String(skin));}catch(e){} }
+  function setSkin(i){
+    var n=SKINS.length;
+    skin=((i%n)+n)%n;                      // si scorrono anche le bloccate, per vederle
+    try{localStorage.setItem("fartflip_skin",String(skin));}catch(e){}
+  }
+  function firstFree(){ for(var i=0;i<SKINS.length;i++) if(!skinLocked(i)) return i; return 0; }
+  function tryPlay(){
+    if(skinLocked(skin)){ lockShake=0.55; sfxNo(); vibe([0,40,50,40]); return; }
+    state="mode";
+  }
 
   // ---------- MODALITA' SFIDA: tracciato fisso, uguale per tutti ----------
   var mode="arcade";                 // "arcade" (casuale) | "sfida" (tracciato fisso)
@@ -380,7 +433,8 @@
     tutGliding=false; tutAutoHold=0; tutDidJump=false; tutDidDouble=false; tutJet=0; tutOut=0; tutOk=false; tutCue=0;
     grindCount=0; grindT=0; riding=false; trickN=0; trickBonus=0; trickT=0; trainId=0;
     comboN=0; comboT=0; comboPulse=0; nearCd=0; slowMoT=0; flashT=0; kfreezeT=0; shakeT=0; rings=[];
-    grindFx=0; lvl10T=0;
+    grindFx=0; lvl10T=0; skateFx=0;
+    stSquash=0; stNear=0; stCombo=0; stChain=0; newUnl=[];
     winMash=0; winMashT=0; winMashDone=false;
     tpLevel=8+Math.floor(Math.random()*3); tpT=0; tpDone=false; tpGot=false;
     freezeT=0; freezeMax=0.22; freezeCol=GOLD; freezeTxt=""; freezePow=1; paused=false; pops=[];
@@ -391,11 +445,110 @@
   // ---- audio + aptico ----
   var actx=null, unlocked=false;
   function ac(){try{if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();}catch(e){}return actx;}
-  function unlockAudio(){
-    var c=ac(); if(!c||unlocked)return; unlocked=true;
-    try{var b=c.createBuffer(1,1,22050),s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0);}catch(e){}
+  // ---- bus audio: limitatore + volume master ----
+  var masterG=null, masterC=null, masterFail=false, volIdx=2;
+  var VOLS=[0,0.45,1], VOLN=["MUTO","BASSO","NORMALE"];
+  try{ var vv=parseInt(localStorage.getItem("fartflip_vol")||"2",10); if(vv>=0&&vv<=2) volIdx=vv; }catch(e){}
+  function dest(){
+    var c=actx; if(!c) return null;
+    if(masterG) return masterC;
+    if(masterFail) return c.destination;
+    try{
+      masterC=c.createDynamicsCompressor();
+      masterC.threshold.value=-15; masterC.knee.value=26; masterC.ratio.value=12;
+      masterC.attack.value=0.004; masterC.release.value=0.18;
+      masterG=c.createGain(); masterG.gain.value=VOLS[volIdx];
+      masterC.connect(masterG); masterG.connect(c.destination);
+      return masterC;
+    }catch(e){ masterFail=true; masterG=null; return c.destination; }
   }
-  function vibe(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+  function setVol(i){
+    volIdx=((i%3)+3)%3;
+    try{ localStorage.setItem("fartflip_vol",String(volIdx)); }catch(e){}
+    if(masterG){ try{ masterG.gain.value=VOLS[volIdx]; }catch(e){} }
+  }
+  function unlockAudio(){
+    goFullscreen();
+    var c=ac(); if(!c||unlocked)return; unlocked=true;
+    try{var b=c.createBuffer(1,1,22050),s=c.createBufferSource();s.buffer=b;s.connect(dest());s.start(0);}catch(e){}
+  }
+  // icona dell'app: disegnata al volo, cosi' il file resta unico
+  function makeIcon(sz){
+    try{
+      var cn=document.createElement("canvas"); cn.width=sz; cn.height=sz;
+      var g=cn.getContext("2d"); if(!g) return null;
+      var u=sz/32;
+      g.fillStyle="#0a0a0b"; g.fillRect(0,0,sz,sz);
+      g.fillStyle="#FE5000"; g.fillRect(0,0,sz,u*1.6); g.fillRect(0,sz-u*1.6,sz,u*1.6);
+      g.fillStyle="#FE5000";
+      g.fillRect(u*8,u*5.4,u*3,u*4); g.fillRect(u*14,u*3.6,u*4,u*5.8); g.fillRect(u*21,u*5.4,u*3,u*4);
+      g.fillStyle="#F4EEE4"; g.fillRect(u*7,u*8.6,u*18,u*14);
+      g.fillStyle="#141418"; g.fillRect(u*11,u*12,u*3,u*4); g.fillRect(u*18,u*12,u*3,u*4);
+      g.fillStyle="#141418"; g.fillRect(u*11,u*18.4,u*10,u*2.6);
+      g.fillStyle="#FFFFFF"; g.fillRect(u*13,u*18.4,u*2,u*2.6); g.fillRect(u*17,u*18.4,u*2,u*2.6);
+      g.fillStyle="#FFC24A"; g.fillRect(u*5,u*22.8,u*22,u*2.6);
+      return cn.toDataURL("image/png");
+    }catch(e){ return null; }
+  }
+  (function appIcons(){
+    try{
+      var hd=document.head; if(!hd) return;
+      function lk(rel,href,sizes){
+        var l=document.createElement("link"); l.rel=rel; l.href=href;
+        if(sizes) l.setAttribute("sizes",sizes);
+        hd.appendChild(l);
+      }
+      var d180=makeIcon(180), d512=makeIcon(512);
+      if(d180){ lk("apple-touch-icon",d180,"180x180"); lk("icon",d180,"180x180"); }
+      if(d512){
+        var mf={name:"FARTFLIP",short_name:"FARTFLIP",display:"fullscreen",orientation:"any",
+                background_color:"#04040a",theme_color:"#04040a",start_url:".",
+                icons:[{src:d512,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
+        lk("manifest",URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:"application/manifest+json"})));
+      }
+    }catch(e){}
+  })();
+  // su telefono: schermo intero al primo tocco
+  var SFX_MAP={salto:sfxJump, doppio:sfxDouble, voce:sfxVoice, male:sfxHurt, morte:sfxGroan,
+    superpeto:sfxSuper, fuoco:sfxFirePop, pugno:sfxPunch, fanfara:sfxFanfare,
+    cacca:function(){sfxPoop(1.2);}, splat:sfxSplat, sciacquone:sfxFlush, tick:sfxTick,
+    pestata:sfxSquash, apice:sfxApex, whoosh:sfxWhoosh, livello:sfxLevel, rifiuto:sfxNo};
+  window.addEventListener("message", function(ev){
+    var d=ev&&ev.data; if(!d || d.ffl===undefined) return;
+    try{
+      if(d.ffl==="mod"){ applyMod(d.mod); try{localStorage.setItem("fartflip_mod",JSON.stringify(d.mod||{}));}catch(e2){} }
+      else if(d.ffl==="poses"){ POSE_OVR=(d.poses&&typeof d.poses==="object")?d.poses:{}; }
+      else if(d.ffl==="freeze"){
+        if(d.skin!==undefined) skin=(((d.skin|0)%SKINS.length)+SKINS.length)%SKINS.length;
+        devPose=String(d.pose||"air"); devZoom=Math.max(2,Math.min(10,+d.zoom||6)); state="devpose";
+      }
+      else if(d.ffl==="zoom"){ devZoom=Math.max(2,Math.min(10,+d.zoom||6)); }
+      else if(d.ffl==="unfreeze"){ if(state==="devpose"){ devPose=null; state="ready"; readyIdle=0; } }
+      else if(d.ffl==="skin"){ skin=(((d.skin|0)%SKINS.length)+SKINS.length)%SKINS.length; }
+      else if(d.ffl==="sfx"){ var fn9=SFX_MAP[String(d.name)]; if(fn9){ unlockAudio(); fn9(); } }
+      else if(d.ffl==="env"){ LVL_OVR=(d.colors&&d.colors.slice)?d.colors.slice(0,10):null; }
+      else if(d.ffl==="aud"){ DEV_BPM_OFF=Math.max(-40,Math.min(40,(d.bpmOff|0)||0)); DEV_SK=(d.sk&&d.sk.slice)?d.sk.slice(0,6):null; }
+    }catch(e){}
+  });
+  var fsTried=false;
+  function goFullscreen(){
+    if(fsTried) return; fsTried=true;
+    try{
+      var el=document.documentElement; if(!el) return;
+      var touch=("ontouchstart" in window)||(navigator.maxTouchPoints>0);
+      if(!touch || document.fullscreenElement) return;
+      var rq=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen;
+      if(rq) rq.call(el);
+    }catch(e){}
+  }
+  function vibe(p){ try{ if(vibOn && navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+  function sfxNo(){
+    var c=ac(); if(!c)return; var t=c.currentTime;
+    var o=c.createOscillator(), g=c.createGain();
+    o.type="square"; o.frequency.setValueAtTime(210,t); o.frequency.exponentialRampToValueAtTime(96,t+0.16);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.13,t+0.008); g.gain.exponentialRampToValueAtTime(0.0001,t+0.19);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.2);
+  }
 
   // salto singolo: "pft" corto e acuto
   function sfxJump(){
@@ -407,7 +560,7 @@
     g.gain.setValueAtTime(0.0001,t);
     g.gain.exponentialRampToValueAtTime(0.24,t+0.008);
     g.gain.exponentialRampToValueAtTime(0.0001,t+0.14);
-    o.connect(lp); lp.connect(g); g.connect(c.destination);
+    o.connect(lp); lp.connect(g); g.connect(dest());
     o.start(t); o.stop(t+0.16);
   }
   // doppio salto: "BRRRAAAP" lungo e basso
@@ -424,7 +577,7 @@
     g.gain.exponentialRampToValueAtTime(0.26,t+0.012);
     g.gain.exponentialRampToValueAtTime(0.14,t+dur*0.6);
     g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-    o.connect(lp); lp.connect(g); g.connect(c.destination);
+    o.connect(lp); lp.connect(g); g.connect(dest());
     o.start(t); o.stop(t+dur+0.03); lfo.start(t); lfo.stop(t+dur+0.03);
   }
   function sfxTick(){
@@ -433,7 +586,7 @@
     o.type="triangle";
     o.frequency.setValueAtTime(880,t); o.frequency.exponentialRampToValueAtTime(1320,t+0.06);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.13,t+0.006); g.gain.exponentialRampToValueAtTime(0.0001,t+0.12);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.13);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.13);
   }
   // testata sul nemico: "bonk" morbido
   function sfxStomp(){
@@ -442,7 +595,7 @@
     o.type="square";
     o.frequency.setValueAtTime(320,t); o.frequency.exponentialRampToValueAtTime(120,t+0.09);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.17,t+0.006); g.gain.exponentialRampToValueAtTime(0.0001,t+0.11);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.12);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.12);
   }
   // colpo subito: botta + lamento con la voce della skin
   function sfxHurt(){
@@ -451,11 +604,14 @@
     o.type="square";
     o.frequency.setValueAtTime(260,t); o.frequency.exponentialRampToValueAtTime(70,t+0.3);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.3,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.32);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.34);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.34);
     var L=[
       {f0:520,fe:190,d:0.26,f1:700, f2:1800,w:"sawtooth"},                 // PAZZO: "YEOW"
       {f0:165,fe:92, d:0.55,f1:300, f2:720, w:"sawtooth",vib:{f:6,d:8}},   // LUNA: "uuugh"
-      {f0:640,fe:330,d:0.24,f1:900, f2:2400,w:"square",  vib:{f:26,d:45}}  // MENTA: "aiii"
+      {f0:640,fe:330,d:0.24,f1:900, f2:2400,w:"square",  vib:{f:26,d:45}}, // MENTA: "aiii"
+      {f0:300,fe:110,d:0.36,f1:420, f2:1150,w:"sawtooth",vib:{f:8,d:12}},  // BRACE: ringhio
+      {f0:900,fe:520,d:0.30,f1:1600,f2:3400,w:"triangle",vib:{f:16,d:26}}, // GELO: brivido
+      {f0:587,fe:247,d:0.30,f1:820, f2:2200,w:"square",  vib:{f:7,d:14}}   // ORO: lamento nobile
     ];
     var v=L[skin]||L[0], tv=t+0.05;
     var vo=c.createOscillator(); vo.type=v.w;
@@ -472,7 +628,7 @@
     var w1=c.createGain(); w1.gain.value=1.5; var w2=c.createGain(); w2.gain.value=0.9;
     vo.connect(bq1); bq1.connect(w1); w1.connect(vg);
     vo.connect(bq2); bq2.connect(w2); w2.connect(vg);
-    vg.connect(c.destination);
+    vg.connect(dest());
     vg.gain.setValueAtTime(0.0001,tv);
     vg.gain.exponentialRampToValueAtTime(0.5,tv+0.02);
     vg.gain.exponentialRampToValueAtTime(0.0001,tv+v.d);
@@ -487,7 +643,7 @@
       g.gain.setValueAtTime(0.0001,tt);
       g.gain.exponentialRampToValueAtTime(0.2,tt+0.008);
       g.gain.exponentialRampToValueAtTime(0.0001,tt+0.16);
-      o.connect(g); g.connect(c.destination); o.start(tt); o.stop(tt+0.18);
+      o.connect(g); g.connect(dest()); o.start(tt); o.stop(tt+0.18);
     });
   }
   function sfxSpawnPower(){
@@ -498,7 +654,7 @@
       g.gain.setValueAtTime(0.0001,tt);
       g.gain.exponentialRampToValueAtTime(0.13,tt+0.01);
       g.gain.exponentialRampToValueAtTime(0.0001,tt+0.28);
-      o.connect(g); g.connect(c.destination); o.start(tt); o.stop(tt+0.3);
+      o.connect(g); g.connect(dest()); o.start(tt); o.stop(tt+0.3);
     });
   }
   function sfxPunch(){
@@ -511,12 +667,12 @@
     g.gain.setValueAtTime(0.0001,t);
     g.gain.exponentialRampToValueAtTime(0.34,t+0.005);
     g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);
-    o.connect(lp); lp.connect(g); g.connect(c.destination);
+    o.connect(lp); lp.connect(g); g.connect(dest());
     o.start(t); o.stop(t+0.2);
     var s=c.createBufferSource(), ng=c.createGain(), hp=c.createBiquadFilter();
     s.buffer=getNoise(c); hp.type="highpass"; hp.frequency.value=1200;
     ng.gain.setValueAtTime(0.2,t); ng.gain.exponentialRampToValueAtTime(0.0001,t+0.09);
-    s.connect(hp); hp.connect(ng); ng.connect(c.destination);
+    s.connect(hp); hp.connect(ng); ng.connect(dest());
     s.start(t); s.stop(t+0.1);
   }
   function sfxLeap(){
@@ -525,7 +681,7 @@
     o.type="triangle";
     o.frequency.setValueAtTime(170,t); o.frequency.exponentialRampToValueAtTime(430,t+0.12);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.12,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.16);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.18);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.18);
   }
   function sfxShoot(){
     var c=ac(); if(!c)return; var t=c.currentTime;
@@ -534,7 +690,7 @@
     o.frequency.setValueAtTime(900,t); o.frequency.exponentialRampToValueAtTime(180,t+0.16);
     bp.type="bandpass"; bp.frequency.value=900; bp.Q.value=3;
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.16,t+0.006); g.gain.exponentialRampToValueAtTime(0.0001,t+0.18);
-    o.connect(bp); bp.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.2);
+    o.connect(bp); bp.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.2);
   }
   function sfxCount(go){
     var c=ac(); if(!c)return; var t=c.currentTime;
@@ -543,11 +699,12 @@
     if(go) o.frequency.exponentialRampToValueAtTime(1568,t+0.14);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.2,t+0.008);
     g.gain.exponentialRampToValueAtTime(0.0001,t+(go?0.3:0.14));
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+(go?0.32:0.16));
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+(go?0.32:0.16));
   }
   function sfxGroan(){
     var c=ac(); if(!c)return; var t=c.currentTime;
-    var k=(skin===1)?0.78:(skin===2)?1.28:1.08;   // lamento di morte intonato sulla skin
+    var GK=[1.08,0.78,1.28,0.72,1.42,1.16];
+    var k=GK[skin]||1.08;                        // lamento di morte intonato sulla skin
     var o=c.createOscillator(); o.type="sawtooth";
     o.frequency.setValueAtTime(190*k,t); o.frequency.linearRampToValueAtTime(105*k,t+0.7);
     var g=c.createGain(); g.gain.value=0.0001;
@@ -556,7 +713,7 @@
     var g1=c.createGain(); g1.gain.value=1.4; var g2=c.createGain(); g2.gain.value=0.8;
     o.connect(b1); b1.connect(g1); g1.connect(g);
     o.connect(b2); b2.connect(g2); g2.connect(g);
-    g.connect(c.destination);
+    g.connect(dest());
     g.gain.setValueAtTime(0.0001,t);
     g.gain.exponentialRampToValueAtTime(0.42,t+0.06);
     g.gain.exponentialRampToValueAtTime(0.0001,t+0.72);
@@ -570,7 +727,7 @@
     g.gain.setValueAtTime(0.0001,t);
     g.gain.exponentialRampToValueAtTime(0.2,t+0.12);
     g.gain.exponentialRampToValueAtTime(0.0001,t+1.5);
-    sN.connect(bp); bp.connect(g); g.connect(c.destination);
+    sN.connect(bp); bp.connect(g); g.connect(dest());
     sN.start(t); sN.stop(t+1.55);
   }
   function sfxThud(){
@@ -578,11 +735,11 @@
     var o=c.createOscillator(), g=c.createGain();
     o.type="sine"; o.frequency.setValueAtTime(120,t); o.frequency.exponentialRampToValueAtTime(28,t+0.4);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.45,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+0.5);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.55);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.55);
     var sN=c.createBufferSource(), ng=c.createGain(), lp=c.createBiquadFilter();
     sN.buffer=getNoise(c); lp.type="lowpass"; lp.frequency.value=700;
     ng.gain.setValueAtTime(0.3,t); ng.gain.exponentialRampToValueAtTime(0.0001,t+0.35);
-    sN.connect(lp); lp.connect(ng); ng.connect(c.destination); sN.start(t); sN.stop(t+0.4);
+    sN.connect(lp); lp.connect(ng); ng.connect(dest()); sN.start(t); sN.stop(t+0.4);
   }
   function sfxWhoosh(){
     var c=ac(); if(!c)return; var t=c.currentTime;
@@ -590,7 +747,7 @@
     sN.buffer=getNoise(c);
     bp.type="bandpass"; bp.frequency.setValueAtTime(2600,t); bp.frequency.exponentialRampToValueAtTime(420,t+0.7); bp.Q.value=1.1;
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.22,t+0.15); g.gain.exponentialRampToValueAtTime(0.0001,t+0.75);
-    sN.connect(bp); bp.connect(g); g.connect(c.destination); sN.start(t); sN.stop(t+0.8);
+    sN.connect(bp); bp.connect(g); g.connect(dest()); sN.start(t); sN.stop(t+0.8);
   }
   function sfxWin(){
     var c=ac(); if(!c)return; var t=c.currentTime;
@@ -600,7 +757,7 @@
       g.gain.setValueAtTime(0.0001,tt);
       g.gain.exponentialRampToValueAtTime(0.2,tt+0.01);
       g.gain.exponentialRampToValueAtTime(0.0001,tt+0.3);
-      o.connect(g); g.connect(c.destination); o.start(tt); o.stop(tt+0.32);
+      o.connect(g); g.connect(dest()); o.start(tt); o.stop(tt+0.32);
     });
     sfxFlush();
   }
@@ -610,11 +767,11 @@
     var o=c.createOscillator(), g=c.createGain();
     o.type="square"; o.frequency.setValueAtTime(f0,t); o.frequency.exponentialRampToValueAtTime(f0*1.5,t+0.07);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.15,t+0.006); g.gain.exponentialRampToValueAtTime(0.0001,t+0.1);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.12);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.12);
     var sN=c.createBufferSource(), ng=c.createGain(), hp=c.createBiquadFilter();
     sN.buffer=getNoise(c); hp.type="highpass"; hp.frequency.value=3200;
     ng.gain.setValueAtTime(0.09,t); ng.gain.exponentialRampToValueAtTime(0.0001,t+0.12);
-    sN.connect(hp); hp.connect(ng); ng.connect(c.destination); sN.start(t); sN.stop(t+0.13);
+    sN.connect(hp); hp.connect(ng); ng.connect(dest()); sN.start(t); sN.stop(t+0.13);
   }
   function sfxDash(){
     var c=ac(); if(!c)return; var t=c.currentTime;
@@ -623,7 +780,7 @@
     o.frequency.setValueAtTime(220,t); o.frequency.exponentialRampToValueAtTime(1500,t+0.22);
     bp.type="bandpass"; bp.frequency.value=1100; bp.Q.value=1.5;
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.2,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.26);
-    o.connect(bp); bp.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.28);
+    o.connect(bp); bp.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.28);
   }
   function sfxHeart(){
     var c=ac(); if(!c)return; var t=c.currentTime;
@@ -633,7 +790,7 @@
       g.gain.setValueAtTime(0.0001,tt);
       g.gain.exponentialRampToValueAtTime(0.18,tt+0.008);
       g.gain.exponentialRampToValueAtTime(0.0001,tt+0.2);
-      o.connect(g); g.connect(c.destination); o.start(tt); o.stop(tt+0.22);
+      o.connect(g); g.connect(dest()); o.start(tt); o.stop(tt+0.22);
     });
   }
   // vocina del personaggio sul doppio salto (formanti = suona come una voce)
@@ -658,10 +815,29 @@
         {f0:330,f1:520,f2:1900,syl:[[0,0.10],[0.12,0.28]],up:1.7, w:"square",  vib:{f:24,d:36}},
         {f0:400,f1:700,f2:2500,syl:[[0,0.24]],            up:1.35,w:"sawtooth",vib:{f:30,d:50}},
         {f0:310,f1:480,f2:1700,syl:[[0,0.16]],            up:1.9, w:"square",  vib:{f:22,d:30}}
+      ],
+      [ // BRACE: ruggito roco e basso
+        {f0:150,f1:260,f2:620, syl:[[0,0.26]],            up:1.35,w:"sawtooth",vib:{f:11,d:14}},
+        {f0:132,f1:220,f2:540, syl:[[0,0.14],[0.16,0.34]],up:1.5, w:"sawtooth",vib:{f:9,d:18}},
+        {f0:175,f1:300,f2:700, syl:[[0,0.12],[0.15,0.24]],up:1.2, w:"square",  vib:{f:13,d:12}},
+        {f0:120,f1:240,f2:900, syl:[[0,0.30]],            up:1.7, w:"sawtooth"}
+      ],
+      [ // GELO: soffio cristallino, quasi piatto
+        {f0:620,f1:1500,f2:3400,syl:[[0,0.26]],           up:1.06,w:"triangle",vib:{f:3,d:6}},
+        {f0:700,f1:1800,f2:3900,syl:[[0,0.12],[0.16,0.30]],up:0.94,w:"triangle",vib:{f:4,d:9}},
+        {f0:560,f1:1300,f2:3100,syl:[[0,0.34]],           up:1.14,w:"sine",    vib:{f:2.5,d:5}},
+        {f0:820,f1:2100,f2:4200,syl:[[0,0.16]],           up:0.88,w:"triangle"}
+      ],
+      [ // ORO: squillo da fanfara
+        {f0:392,f1:700,f2:2100,syl:[[0,0.10],[0.12,0.28]],up:2.4, w:"square"},
+        {f0:523,f1:900,f2:2600,syl:[[0,0.22]],            up:1.5, w:"square",  vib:{f:7,d:16}},
+        {f0:349,f1:640,f2:1900,syl:[[0,0.09],[0.11,0.20],[0.22,0.34]],up:2.2,w:"triangle"},
+        {f0:659,f1:1100,f2:2900,syl:[[0,0.18]],           up:1.32,w:"square",  vib:{f:6,d:12}}
       ]
     ];
     var arr=PAL[skin]||PAL[0];
     var v=arr[Math.floor(Math.random()*arr.length)];
+    if(DEV_SK && DEV_SK[skin]){ var dk9=+DEV_SK[skin]||1; v={f0:v.f0*dk9,f1:v.f1*dk9,f2:v.f2*dk9,syl:v.syl,up:v.up,w:v.w,vib:v.vib}; }
     var end=v.syl[v.syl.length-1][1];
     var o=c.createOscillator(); o.type=v.w;
     o.frequency.setValueAtTime(v.f0,t);
@@ -681,7 +857,7 @@
     o.connect(b1); b1.connect(g1); g1.connect(g);
     o.connect(b2); b2.connect(g2); g2.connect(g);
     o.connect(dry); dry.connect(g);
-    g.connect(c.destination);
+    g.connect(dest());
     for(var i=0;i<v.syl.length;i++){
       var s0=v.syl[i][0], s1=v.syl[i][1];
       g.gain.setValueAtTime(0.0001,t+s0);
@@ -704,7 +880,7 @@
     g.gain.exponentialRampToValueAtTime(0.38,t+0.015);
     g.gain.exponentialRampToValueAtTime(0.16,t+dur*0.6);
     g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-    o.connect(lp); lp.connect(g); g.connect(c.destination);
+    o.connect(lp); lp.connect(g); g.connect(dest());
     o.start(t); o.stop(t+dur+0.03); lfo.start(t); lfo.stop(t+dur+0.03);
   }
   // scarica finale: lunga, bassa, con sputacchi (la teneva da 10 livelli)
@@ -727,14 +903,14 @@
     g.gain.exponentialRampToValueAtTime(0.18,t+dur*0.75);
     g.gain.exponentialRampToValueAtTime(0.40,t+dur*0.86);
     g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-    o.connect(lp); lp.connect(g); g.connect(c.destination);
+    o.connect(lp); lp.connect(g); g.connect(dest());
     o.start(t); o.stop(t+dur+0.05); lfo.start(t); lfo.stop(t+dur+0.05);
     var sb=c.createOscillator(), sg=c.createGain();
     sb.type="sine"; sb.frequency.setValueAtTime(44,t); sb.frequency.linearRampToValueAtTime(30,t+dur);
     sg.gain.setValueAtTime(0.0001,t);
     sg.gain.exponentialRampToValueAtTime(0.28,t+0.06);
     sg.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-    sb.connect(sg); sg.connect(c.destination); sb.start(t); sb.stop(t+dur+0.05);
+    sb.connect(sg); sg.connect(dest()); sb.start(t); sb.stop(t+dur+0.05);
     for(var i=0;i<14;i++){
       var tt=t+0.1+Math.random()*(dur-0.35);
       var n=c.createBufferSource(), ng=c.createGain(), nl=c.createBiquadFilter();
@@ -743,7 +919,7 @@
       ng.gain.setValueAtTime(0.0001,tt);
       ng.gain.exponentialRampToValueAtTime(0.10+Math.random()*0.10,tt+0.015);
       ng.gain.exponentialRampToValueAtTime(0.0001,tt+0.06+Math.random()*0.09);
-      n.connect(nl); nl.connect(ng); ng.connect(c.destination);
+      n.connect(nl); nl.connect(ng); ng.connect(dest());
       n.start(tt); n.stop(tt+0.2);
     }
   }
@@ -753,12 +929,12 @@
     var o=c.createOscillator(), g=c.createGain();
     o.type="sine"; o.frequency.setValueAtTime(120,t); o.frequency.exponentialRampToValueAtTime(38,t+0.16);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.4,t+0.012); g.gain.exponentialRampToValueAtTime(0.0001,t+0.2);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.22);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.22);
     var n=c.createBufferSource(), ng=c.createGain(), bp=c.createBiquadFilter();
     n.buffer=getNoise(c);
     bp.type="bandpass"; bp.frequency.setValueAtTime(900,t); bp.frequency.exponentialRampToValueAtTime(300,t+0.25); bp.Q.value=1.2;
     ng.gain.setValueAtTime(0.0001,t); ng.gain.exponentialRampToValueAtTime(0.26,t+0.02); ng.gain.exponentialRampToValueAtTime(0.0001,t+0.3);
-    n.connect(bp); bp.connect(ng); ng.connect(c.destination); n.start(t); n.stop(t+0.32);
+    n.connect(bp); bp.connect(ng); ng.connect(dest()); n.start(t); n.stop(t+0.32);
   }
   // sparo di fuoco: fwoosh corto
   function sfxFire(){
@@ -768,11 +944,11 @@
     o.frequency.setValueAtTime(300,t); o.frequency.exponentialRampToValueAtTime(950,t+0.09);
     bp.type="bandpass"; bp.frequency.value=1200; bp.Q.value=1.4;
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.14,t+0.008); g.gain.exponentialRampToValueAtTime(0.0001,t+0.12);
-    o.connect(bp); bp.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.13);
+    o.connect(bp); bp.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.13);
     var n=c.createBufferSource(), ng=c.createGain(), hp=c.createBiquadFilter();
     n.buffer=getNoise(c); hp.type="highpass"; hp.frequency.value=2400;
     ng.gain.setValueAtTime(0.06,t); ng.gain.exponentialRampToValueAtTime(0.0001,t+0.09);
-    n.connect(hp); hp.connect(ng); ng.connect(c.destination); n.start(t); n.stop(t+0.1);
+    n.connect(hp); hp.connect(ng); ng.connect(dest()); n.start(t); n.stop(t+0.1);
   }
   // impatto della palla di fuoco
   function sfxFirePop(){
@@ -781,7 +957,7 @@
     o.type="square";
     o.frequency.setValueAtTime(520,t); o.frequency.exponentialRampToValueAtTime(190,t+0.07);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.15,t+0.006); g.gain.exponentialRampToValueAtTime(0.0001,t+0.09);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.1);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.1);
   }
   // blip della combo che sale
   function sfxComboTick(n){
@@ -789,7 +965,7 @@
     var o=c.createOscillator(), g=c.createGain();
     o.type="square"; o.frequency.setValueAtTime(360+Math.min(n,10)*55,t);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.10,t+0.006); g.gain.exponentialRampToValueAtTime(0.0001,t+0.07);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.08);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.08);
   }
   // incasso della combo
   function sfxComboCash(){
@@ -800,7 +976,7 @@
       o.type="square"; o.frequency.value=N[i];
       var t0=t+i*0.09;
       g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(0.16,t0+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t0+0.12);
-      o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0+0.14);
+      o.connect(g); g.connect(dest()); o.start(t0); o.stop(t0+0.14);
     }
   }
   // sfioramento: whoosh che sale
@@ -810,11 +986,11 @@
     n.buffer=getNoise(c); n.loop=true;
     hp.type="highpass"; hp.frequency.setValueAtTime(800,t); hp.frequency.exponentialRampToValueAtTime(4500,t+0.22);
     ng.gain.setValueAtTime(0.0001,t); ng.gain.exponentialRampToValueAtTime(0.16,t+0.03); ng.gain.exponentialRampToValueAtTime(0.0001,t+0.25);
-    n.connect(hp); hp.connect(ng); ng.connect(c.destination); n.start(t); n.stop(t+0.27);
+    n.connect(hp); hp.connect(ng); ng.connect(dest()); n.start(t); n.stop(t+0.27);
     var o=c.createOscillator(), g=c.createGain();
     o.type="sine"; o.frequency.setValueAtTime(700,t); o.frequency.exponentialRampToValueAtTime(1500,t+0.18);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.08,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+0.2);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.22);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.22);
   }
   // tic-tic-tic: il power-up sta per finire
   function sfxTicks(dur){
@@ -825,7 +1001,7 @@
       var o=c.createOscillator(), g=c.createGain();
       o.type="square"; o.frequency.value=980;
       g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(0.09,t0+0.004); g.gain.exponentialRampToValueAtTime(0.0001,t0+0.035);
-      o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0+0.05);
+      o.connect(g); g.connect(dest()); o.start(t0); o.stop(t0+0.05);
     }
   }
   // fanfara di level-up: tre note che salgono
@@ -838,7 +1014,7 @@
       o.type=(i===3)?"triangle":"square"; o.frequency.value=N[i];
       g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(i===3?0.12:0.17,t0+0.012);
       g.gain.exponentialRampToValueAtTime(0.0001,t0+D[i]);
-      o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0+D[i]+0.02);
+      o.connect(g); g.connect(dest()); o.start(t0); o.stop(t0+D[i]+0.02);
       t0+=D[i]*0.92;
     }
   }
@@ -850,17 +1026,17 @@
     n.buffer=getNoise(c); n.loop=true;
     bp.type="bandpass"; bp.frequency.setValueAtTime(1400,t); bp.frequency.exponentialRampToValueAtTime(160,t+0.22); bp.Q.value=0.8;
     ng.gain.setValueAtTime(0.0001,t); ng.gain.exponentialRampToValueAtTime(0.5*k,t+0.008); ng.gain.exponentialRampToValueAtTime(0.0001,t+0.26);
-    n.connect(bp); bp.connect(ng); ng.connect(c.destination); n.start(t); n.stop(t+0.28);
+    n.connect(bp); bp.connect(ng); ng.connect(dest()); n.start(t); n.stop(t+0.28);
     var o=c.createOscillator(), g=c.createGain();
     o.type="square"; o.frequency.setValueAtTime(170,t); o.frequency.exponentialRampToValueAtTime(48,t+0.2);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.34*k,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.24);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.26);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.26);
     for(var i=0;i<3;i++){
       var t0=t+0.05+i*0.05+Math.random()*0.02;
       var o2=c.createOscillator(), g2=c.createGain();
       o2.type="square"; o2.frequency.value=500+Math.random()*900;
       g2.gain.setValueAtTime(0.0001,t0); g2.gain.exponentialRampToValueAtTime(0.10*k,t0+0.004); g2.gain.exponentialRampToValueAtTime(0.0001,t0+0.05);
-      o2.connect(g2); g2.connect(c.destination); o2.start(t0); o2.stop(t0+0.06);
+      o2.connect(g2); g2.connect(dest()); o2.start(t0); o2.stop(t0+0.06);
     }
   }
   // battitura del fumetto
@@ -869,7 +1045,7 @@
     var o=c.createOscillator(), g=c.createGain();
     o.type="square"; o.frequency.value=1050+Math.random()*350;
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.05,t+0.003); g.gain.exponentialRampToValueAtTime(0.0001,t+0.028);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.035);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.035);
   }
   // picchiata: whoosh che scende
   function sfxDive(){
@@ -878,11 +1054,11 @@
     n.buffer=getNoise(c); n.loop=true;
     hp.type="highpass"; hp.frequency.setValueAtTime(3200,t); hp.frequency.exponentialRampToValueAtTime(600,t+0.16);
     ng.gain.setValueAtTime(0.0001,t); ng.gain.exponentialRampToValueAtTime(0.16,t+0.02); ng.gain.exponentialRampToValueAtTime(0.0001,t+0.18);
-    n.connect(hp); hp.connect(ng); ng.connect(c.destination); n.start(t); n.stop(t+0.2);
+    n.connect(hp); hp.connect(ng); ng.connect(dest()); n.start(t); n.stop(t+0.2);
     var o=c.createOscillator(), g=c.createGain();
     o.type="sawtooth"; o.frequency.setValueAtTime(880,t); o.frequency.exponentialRampToValueAtTime(240,t+0.15);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.07,t+0.015); g.gain.exponentialRampToValueAtTime(0.0001,t+0.17);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.19);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.19);
   }
   // ting dell'apice: la finestra della picchiata e' aperta
   function sfxApex(){
@@ -890,14 +1066,14 @@
     var o=c.createOscillator(), g=c.createGain();
     o.type="sine"; o.frequency.value=1250;
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.009,t+0.005); g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.06);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.06);
   }
   function sfxInvEnd(){
     var c=ac(); if(!c)return; var t=c.currentTime;
     var o=c.createOscillator(), g=c.createGain();
     o.type="triangle"; o.frequency.setValueAtTime(700,t); o.frequency.exponentialRampToValueAtTime(300,t+0.2);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.12,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.22);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.24);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.24);
   }
 
   // planata: sibilo continuo
@@ -913,7 +1089,7 @@
       glideWob.connect(wg); wg.connect(glideNode.frequency);
       lp.type="lowpass"; lp.frequency.value=360;
       glideGain.gain.value=0.0001;
-      glideNode.connect(lp); lp.connect(glideGain); glideGain.connect(c.destination);
+      glideNode.connect(lp); lp.connect(glideGain); glideGain.connect(dest());
       glideNode.start(); glideWob.start();
       glideGain.gain.linearRampToValueAtTime(0.07,c.currentTime+0.08);
     }catch(e){}
@@ -930,7 +1106,7 @@
       jetWob.connect(wg); wg.connect(jetNode.frequency);
       lp.type="lowpass"; lp.frequency.value=520;
       jetGain.gain.value=0.0001;
-      jetNode.connect(lp); lp.connect(jetGain); jetGain.connect(c.destination);
+      jetNode.connect(lp); lp.connect(jetGain); jetGain.connect(dest());
       jetNode.start(); jetWob.start();
       jetGain.gain.linearRampToValueAtTime(0.16,c.currentTime+0.1);
     }catch(e){}
@@ -949,7 +1125,7 @@
       grMod.connect(mg); mg.connect(bp.frequency);
       grNode.connect(bp); bp.connect(grGain);
       grNode.connect(bp2); bp2.connect(grGain);
-      grGain.connect(c.destination);
+      grGain.connect(dest());
       grNode.start(); grMod.start();
       grGain.gain.linearRampToValueAtTime(0.13,c.currentTime+0.05);
     }catch(e){}
@@ -998,7 +1174,7 @@
     o.type="sine";
     o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(45,t+0.11);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.3,t+0.006); g.gain.exponentialRampToValueAtTime(0.0001,t+0.17);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.19);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.19);
   }
   function bHat(c,t,loud){
     var s=c.createBufferSource(), g=c.createGain(), hp=c.createBiquadFilter();
@@ -1006,7 +1182,7 @@
     hp.type="highpass"; hp.frequency.value=7000;
     g.gain.setValueAtTime(loud?0.07:0.035,t);
     g.gain.exponentialRampToValueAtTime(0.0001,t+0.035);
-    s.connect(hp); hp.connect(g); g.connect(c.destination);
+    s.connect(hp); hp.connect(g); g.connect(dest());
     s.start(t); s.stop(t+0.05);
   }
   function bBass(c,t,freq){
@@ -1014,33 +1190,33 @@
     o.type="square"; o.frequency.setValueAtTime(freq,t);
     lp.type="lowpass"; lp.frequency.value=500;
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.11,t+0.012); g.gain.exponentialRampToValueAtTime(0.0001,t+0.17);
-    o.connect(lp); lp.connect(g); g.connect(c.destination);
+    o.connect(lp); lp.connect(g); g.connect(dest());
     o.start(t); o.stop(t+0.19);
   }
   function bLead(c,t,freq){
     var o=c.createOscillator(), g=c.createGain();
     o.type="square"; o.frequency.setValueAtTime(freq,t);
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.075,t+0.005); g.gain.exponentialRampToValueAtTime(0.0001,t+0.1);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.12);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.12);
   }
   function beatLvlF(){
     if(mode==="sfida") return Math.min(10, 1+9*Math.max(0,dist)/TRACK_LEN);
     return level;
   }
-  function beatBPM(){ return Math.round(88+beatLvlF()*7); }   // L1 ~95 -> L10 ~158
+  function beatBPM(){ return Math.max(50,Math.round(88+beatLvlF()*7)+DEV_BPM_OFF); }   // L1 ~95 -> L10 ~158 (+offset Lab)
   function bSnare(c,t,soft){
     var s=c.createBufferSource(), g=c.createGain(), bp=c.createBiquadFilter();
     s.buffer=getNoise(c);
     bp.type="bandpass"; bp.frequency.value=1900; bp.Q.value=0.9;
     g.gain.setValueAtTime(soft?0.07:0.16,t);
     g.gain.exponentialRampToValueAtTime(0.0001,t+(soft?0.06:0.12));
-    s.connect(bp); bp.connect(g); g.connect(c.destination);
+    s.connect(bp); bp.connect(g); g.connect(dest());
     s.start(t); s.stop(t+0.14);
     if(!soft){
       var o=c.createOscillator(), og=c.createGain();
       o.type="triangle"; o.frequency.setValueAtTime(210,t); o.frequency.exponentialRampToValueAtTime(120,t+0.07);
       og.gain.setValueAtTime(0.0001,t); og.gain.exponentialRampToValueAtTime(0.10,t+0.005); og.gain.exponentialRampToValueAtTime(0.0001,t+0.09);
-      o.connect(og); og.connect(c.destination); o.start(t); o.stop(t+0.1);
+      o.connect(og); og.connect(dest()); o.start(t); o.stop(t+0.1);
     }
   }
   function beatAt(c,i,t){
@@ -1192,12 +1368,12 @@
       g.gain.setValueAtTime(0.0001,tt);
       g.gain.exponentialRampToValueAtTime(0.16,tt+0.01);
       g.gain.exponentialRampToValueAtTime(0.0001,tt+0.22);
-      o.connect(g); g.connect(c.destination); o.start(tt); o.stop(tt+0.24);
+      o.connect(g); g.connect(dest()); o.start(tt); o.stop(tt+0.24);
     });
   }
   var LVL_ACC=[[ORANGE,ORANGE_DK],[GOLD,"#B8862B"],["#FF4D6D","#A8324A"],
                ["#5AC8FF","#2E7FA8"],["#B57BFF","#6E43A8"],["#3ADFA0","#1E8F66"]];
-  function lvlAcc(){ return LVL_ACC[(level-1)%6][0]; }
+  function lvlAcc(){ if(LVL_OVR && LVL_OVR[level-1]) return LVL_OVR[level-1]; return LVL_ACC[(level-1)%6][0]; }
   function lvlAccDk(){ return LVL_ACC[(level-1)%6][1]; }
   function levelBonus(l){
     if(l<=4) return (l-1)*0.4;
@@ -1231,12 +1407,12 @@
       mashNode.type="sawtooth"; mashNode.frequency.value=48;
       mashLP.type="lowpass"; mashLP.frequency.value=170;
       mashGain.gain.value=0.0001;
-      mashNode.connect(mashLP); mashLP.connect(mashGain); mashGain.connect(c.destination);
+      mashNode.connect(mashLP); mashLP.connect(mashGain); mashGain.connect(dest());
       mashNode.start();
       mashNoise=c.createBufferSource(); mashNoise.buffer=getNoise(c); mashNoise.loop=true;
       mashNG=c.createGain(); mashNG.gain.value=0.0001;
       var bp=c.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=430; bp.Q.value=1.1;
-      mashNoise.connect(bp); bp.connect(mashNG); mashNG.connect(c.destination);
+      mashNoise.connect(bp); bp.connect(mashNG); mashNG.connect(dest());
       mashNoise.start();
     }catch(e){}
   }
@@ -1266,7 +1442,7 @@
     o.frequency.exponentialRampToValueAtTime(62+kk*105,t+0.09);
     lp.type="lowpass"; lp.frequency.value=430+kk*1500;
     g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.16+0.22*kk,t+0.006); g.gain.exponentialRampToValueAtTime(0.0001,t+0.11+0.06*kk);
-    o.connect(lp); lp.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.12);
+    o.connect(lp); lp.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.12);
   }
   function winBurst(){
     winMashDone=true; stopMashSfx();
@@ -1293,7 +1469,7 @@
       r:1+Math.random()*1.8, life:1, dr:0.06, c:(Math.random()<0.6)?"#7A4A21":"#9a6a33"});
   }
   function win(){
-    comboCash();
+    comboCash(); saveUnl();
     state="win"; winT=WIN_T;
     winMash=0; winMashT=0; winMashDone=false; stopMashSfx();
     if(tpGot){ scoreF+=300; score=Math.floor(scoreF); }   // bonus carta igienica scoreF+=500*DM(); score=Math.floor(scoreF);
@@ -1308,6 +1484,7 @@
     if(lvlPerfect) addPts(100,HEART);          // livello finito con 3 cuori pieni
     level++; lvlBoxes=0; levelT=95; lvlHold=180;   // 3 secondi senza nuovi nemici
     if(level===tpLevel && !tpDone) tpT=4+Math.random()*9;   // rotolo di carta in arrivo
+    if(level>=5 && !UNL.l5){ UNL.l5=1; if(newUnl.indexOf(3)<0) newUnl.push(3); }
     powers=[]; bullets=[]; pads=[]; distNext=170;  // i nemici in campo restano e scorrono via
     shakeT=0.16; sfxFanfare();
     for(var cf=0;cf<44;cf++){
@@ -1325,7 +1502,7 @@
       parts.push({
         x:fx+(Math.random()*6-3), y:fy+(Math.random()*4-2),
         vx:-(1+Math.random()*2.2)-worldSpeed*0.2, vy:(Math.random()*1.4-0.2),
-        r:2+Math.random()*3, life:1, dr:0.06+Math.random()*0.05, c:GREEN
+        r:2+Math.random()*3, life:1, dr:0.06+Math.random()*0.05, c:(SKINS[skin].puff||GREEN)
       });
     }
   }
@@ -1340,20 +1517,42 @@
   }
 
   // ---- input ----
-  function startTrick(){
-    var r=Math.floor(Math.random()*6);
+  function pickTrick(){
     trickPose=null; flipT=0; flipDir=-1; flipTurns=1; flipDur=30;
+    if(skin>=3){
+      var q=Math.floor(Math.random()*6);                                  // mosse esclusive
+      if(skin===3){                                                       // BRACE: doppie avvitate e dab
+        if(q<2){ flipT=0.0001; flipDir=-1; flipTurns=2; flipDur=44; }
+        else if(q<4){ trickPose="dab"; }
+        else { flipT=0.0001; flipDir=1; flipTurns=2; flipDur=46; }
+      } else if(skin===4){                                                // GELO: figure da pattinaggio + backflip
+        if(q<2){ trickPose="arab"; }                                      // arabesque
+        else if(q===2){ trickPose="fifth"; }                              // braccia sopra la testa
+        else if(q===3){ trickPose="split"; }                              // spirale a spaccata
+        else if(q===4){ flipT=0.0001; flipDir=-1; flipTurns=1; flipDur=34; }
+        else { flipT=0.0001; flipDir=-1; flipTurns=2; flipDur=48; }
+      } else {                                                            // ORO: avvitate e grab sullo skate
+        if(q<2){ flipT=0.0001; flipDir=-1; flipTurns=3; flipDur=56; }
+        else if(q<4){ trickPose="grab"; }
+        else { flipT=0.0001; flipDir=1; flipTurns=3; flipDur=58; }
+      }
+    } else {
+    var r=Math.floor(Math.random()*6);
     if(r===0){ flipT=0.0001; flipDir=-1; flipTurns=1; flipDur=32; }       // backflip
     else if(r===1){ flipT=0.0001; flipDir=1;  flipTurns=1; flipDur=34; }  // frontflip
     else if(r===2){ flipT=0.0001; flipDir=-1; flipTurns=1; flipDur=40; }  // backflip lento e plastico
     else if(r===3){ trickPose="tuck"; }                                   // raccolto
     else if(r===4){ trickPose="star"; }                                   // a stella
     else { trickPose="sit"; }                                             // seduto in aria
+    }
+  }
+  function startTrick(){
+    pickTrick();
     if(grindCount>0){                       // trick durante una catena: continua e vale punti
-      grindCount++; grindT=1.5;
+      grindCount++; grindT=1.5; chainStat();
       var tp2=10*grindCount*DM();
       scoreF+=tp2; scorePulse=1;
-      pops.push({x:PX+PW/2, y:py-4, txt:"+"+tp2, col:GOLD, t:1});
+      addPop({x:PX+PW/2, y:py-4, txt:"+"+tp2, col:GOLD, t:1});
       sfxGrind(grindCount); comboAdd();
     }
   }
@@ -1396,6 +1595,7 @@
       vy = sup?SUPER_JUMP_V:JUMP_V; grounded=false; coyote=0; jumps=1;
       if(sup){ superJumps--; superFlight=true; sfxSuper(); puff(3); vibe([0,18,25,18]); }
       else { sfxJump(); puff(1); vibe(12); }
+      if(skin>=3) pickTrick();              // le skin extra fanno una figura gia' al primo salto
     }
     else if(jumps<2){
       vy = sup?SUPER_DJUMP_V:DJUMP_V; jumps=2;
@@ -1405,6 +1605,37 @@
     }
   }
 
+  // pestata alla Super Mario: schiacci il nemico e rimbalzi
+  function squash(idx,ey){
+    var en=enemies[idx];
+    var cx=en.x+en.w/2, cy=ey+en.h/2;
+    enemies.splice(idx,1); lvlBoxes++;
+    stSquash++; UNL.sq++;
+    if(UNL.sq===50 && newUnl.indexOf(5)<0) newUnl.push(5);
+    var sp2=10*DM();
+    scoreF+=sp2; scorePulse=1;
+    addPop({x:cx, y:ey-6, txt:"+"+sp2, col:GREEN, t:1});
+    sparks(GREEN,10,cx,cy);
+    rings.push({x:cx, y:cy, r:2, life:1, col:GREEN});
+    // rimbalzo corto: si riparte subito e si puo' ancora fare il doppio salto
+    vy=-7.2; grounded=false; jumps=1; glideFrames=0; superFlight=false; trickPose=null; flipT=0;
+    diveDone=false; apexDing=false; jumpBuf=0;
+    if(grindCount>0) grindT=Math.max(grindT,1.4);   // la catena resta viva
+    comboAdd(); sfxSquash(); vibe([0,18,22,18]);
+  }
+  function sfxSquash(){
+    var c=ac(); if(!c)return; var t=c.currentTime;
+    var o=c.createOscillator(), g=c.createGain();
+    o.type="square";
+    o.frequency.setValueAtTime(760,t);
+    o.frequency.exponentialRampToValueAtTime(210,t+0.10);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.16,t+0.005); g.gain.exponentialRampToValueAtTime(0.0001,t+0.12);
+    o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.13);
+    var n=c.createBufferSource(), ng=c.createGain(), lp=c.createBiquadFilter();
+    n.buffer=getNoise(c); lp.type="lowpass"; lp.frequency.value=1400;
+    ng.gain.setValueAtTime(0.14,t); ng.gain.exponentialRampToValueAtTime(0.0001,t+0.08);
+    n.connect(lp); lp.connect(ng); ng.connect(dest()); n.start(t); n.stop(t+0.09);
+  }
   function punchEnemy(idx){
     var en=enemies[idx];
     punchX=en.x; punchY=GROUND_Y-(en.off||0)-en.h/2; punchT=0.2;
@@ -1413,7 +1644,7 @@
     enemies.splice(idx,1); lvlBoxes++;
     var ppts=25*DM();
     punchCharges--; scoreF+=ppts; scorePulse=1; comboAdd();
-    pops.push({x:en.x+en.w/2, y:punchY-10, txt:"PUGNO! +"+ppts, col:PUNCH, t:1});
+    addPop({x:en.x+en.w/2, y:punchY-10, txt:"PUGNO! +"+ppts, col:PUNCH, t:1});
     kfreezeT=0.06; slowMoT=0.30; shakeT=0.14; flashT=0.10;
     sfxPunch(); sfxBreak(1); vibe([0,45,50,45]);
   }
@@ -1482,6 +1713,36 @@
   function inPauseBtn(e){
     var q=canvasPos(e); return q.x>W-30 && q.y<28;
   }
+  function optsTap(e){
+    var q=canvasPos(e);
+    if(q.y<70){ state="ready"; readyIdle=0; sfxTick(); return; }
+    if(q.y>=98 && q.y<128){ optSel=0; setVol(volIdx+1); sfxTick(); return; }
+    if(q.y>=136 && q.y<166){ optSel=1; setVib(vibOn?0:1); sfxTick(); return; }
+    if(q.y>=186 && q.y<220){ state="ready"; readyIdle=0; sfxTick(); return; }
+  }
+  function setVib(v){
+    vibOn=v?1:0;
+    try{ localStorage.setItem("fartflip_vib",String(vibOn)); }catch(e){}
+    if(vibOn) vibe([0,25,30,25]);
+  }
+  function inOptBtn(e){
+    var q=canvasPos(e); return q.x>W-32 && q.y<30;
+  }
+  function drawOptBtn(){
+    var x=W-26, y=8;
+    ctx.save();
+    ctx.strokeStyle="rgba(255,255,255,.55)"; ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.arc(x,y,6,0,6.283); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x,y,2.2,0,6.283); ctx.stroke();
+    for(var i=0;i<4;i++){
+      var a=i*Math.PI/2+0.4;
+      ctx.beginPath();
+      ctx.moveTo(x+Math.cos(a)*6.5,y+Math.sin(a)*6.5);
+      ctx.lineTo(x+Math.cos(a)*9.5,y+Math.sin(a)*9.5);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
   function togglePause(){
     if(state!=="play") return;
     paused=!paused; holding=false;
@@ -1489,13 +1750,15 @@
     sfxTick();
   }
   function readyTap(e){
-    if(readyIdle>=8){ readyIdle=0; sfxTick(); return; }   // il pannello si chiude col primo tocco
+    if(readyIdle>=7){ readyIdle=0; sfxTick(); return; }   // il pannello si chiude col primo tocco
+    readyIdle=0;                       // ogni tocco rimanda l'attesa
     var q=canvasPos(e);
     if(q.y>96 && q.y<192){
       if(q.x<W/2-30) setSkin(skin-1); else setSkin(skin+1);
       sfxTick(); return;
     }
-    state="mode";
+    if(inOptBtn(e)){ optSel=0; state="opts"; sfxTick(); return; }
+    tryPlay();
   }
   function onTap(){
     unlockAudio();
@@ -1505,15 +1768,21 @@
     if(state==="over" && overLock<=0){ state="ready"; }
   }
   document.addEventListener("pointerdown",function(e){
+    if(state==="devpose"){ return; }
     if(state==="entry"){ entryTap(e); return; }
     if(state==="ready"){ readyTap(e); return; }
+    if(state==="opts"){ optsTap(e); return; }
     if(state==="mode"){ modeTap(e); return; }
     if(state==="diff"){ diffTap(e); return; }
     if(state==="intro"){ startTutorial(); return; }
     if(state==="tutorial"){ if(inPauseBtn(e)){ stopJetSfx(); startCountdown(); } return; }   // solo dimostrazione
     if(state==="dead"){ return; }
     if(state==="play"){
-      if(paused){ togglePause(); return; }        // in pausa: un tocco riprende
+      if(paused){
+        var pq=canvasPos(e);
+        if(pq.y>160 && pq.y<184){ setVol(volIdx+1); sfxTick(); return; }   // fascia volume
+        togglePause(); return;                     // altrove: riprende
+      }
       if(inPauseBtn(e)){ togglePause(); return; } // angolo in alto a destra
     }
     if(state==="win"){ winTap(); return; }                    // scena finale: tocca a raffica
@@ -1529,7 +1798,7 @@
   window.addEventListener("blur",function(){ holding=false; });
   window.addEventListener("sideClick",function(){
     if(state==="entry"){ entryConfirm(); }
-    else if(state==="ready"){ state="mode"; }
+    else if(state==="ready"){ if(readyIdle>=7){ readyIdle=0; sfxTick(); } else { readyIdle=0; tryPlay(); } }
     else if(state==="mode"){ if(modeSel===0){ mode="arcade"; state="diff"; } else startSfida(); }
     else if(state==="diff"){ mode="arcade"; startIntro(); }
     else if(state==="intro"){ startTutorial(); }
@@ -1539,7 +1808,7 @@
   });
   window.addEventListener("scrollUp",function(){
     if(state==="entry") entryChange(1);
-    else if(state==="ready"){ setSkin(skin+1); sfxTick(); }
+    else if(state==="ready"){ if(readyIdle>=7){ readyIdle=0; sfxTick(); } else { readyIdle=0; setSkin(skin+1); sfxTick(); } }
     else if(state==="mode"){ modeSel=1-modeSel; sfxTick(); }
     else if(state==="diff"){ setDiff(diff-1); sfxTick(); }
     else if(state==="win"){ winTap(); }
@@ -1548,7 +1817,7 @@
   window.addEventListener("scrollDown",function(){
     if(state==="win"){ winTap(); return; }
     if(state==="entry") entryChange(-1);
-    else if(state==="ready"){ setSkin(skin-1); sfxTick(); }
+    else if(state==="ready"){ if(readyIdle>=7){ readyIdle=0; sfxTick(); } else { readyIdle=0; setSkin(skin-1); sfxTick(); } }
     else if(state==="mode"){ modeSel=1-modeSel; sfxTick(); }
     else if(state==="diff"){ setDiff(diff+1); sfxTick(); }
     else if(state==="play" && !paused){ requestJump(); }
@@ -1592,10 +1861,12 @@
     var eLeft=padEdge("left",LEFT), eRight=padEdge("right",RIGHT), eB=padEdge("b",Bb);
 
     if(state==="ready"){
-      if(readyIdle>=8 && (eA||eStart||eB||eUp||eDown||eLeft||eRight)){ readyIdle=0; sfxTick(); return; }
+      if(readyIdle>=7 && (eA||eStart||eB||eUp||eDown||eLeft||eRight)){ readyIdle=0; sfxTick(); return; }
+      if(eA||eStart||eB||eUp||eDown||eLeft||eRight||eJump) readyIdle=0;   // pad attivo: attesa azzerata
       if(eUp||eRight){ setSkin(skin+1); sfxTick(); }
       if(eDown||eLeft){ setSkin(skin-1); sfxTick(); }
-      if(eA||eStart){ state="mode"; }
+      if(eA||eStart){ tryPlay(); }
+      if(eB){ optSel=0; state="opts"; sfxTick(); }
     } else if(state==="mode"){
       if(eUp||eDown||eLeft||eRight){ modeSel=1-modeSel; sfxTick(); }
       if(eB){ state="ready"; sfxTick(); }
@@ -1608,6 +1879,16 @@
     } else if(state==="intro"){
       if(eB){ state=(mode==="sfida")?"mode":"diff"; sfxTick(); }
       else if(eA||eStart) startTutorial();
+    } else if(state==="opts"){
+      if(eUp){ optSel=(optSel+2)%3; sfxTick(); }
+      if(eDown){ optSel=(optSel+1)%3; sfxTick(); }
+      if(eB){ state="ready"; readyIdle=0; sfxTick(); }
+      else if(eA||eStart||eLeft||eRight){
+        if(optSel===0) setVol(volIdx+(eLeft?-1:1));
+        else if(optSel===1) setVib(vibOn?0:1);
+        else { state="ready"; readyIdle=0; }
+        sfxTick();
+      }
     } else if(state==="tutorial"){
       if(eStart||eA||eB){ stopJetSfx(); startCountdown(); }
     } else if(state==="play"){
@@ -1632,10 +1913,12 @@
 
   document.addEventListener("keydown",function(e){
     if(state==="ready"){
-      if(readyIdle>=8){ readyIdle=0; sfxTick(); e.preventDefault(); return; }
+      if(readyIdle>=7){ readyIdle=0; sfxTick(); e.preventDefault(); return; }
+      readyIdle=0;                     // ogni tasto rimanda l'attesa
       if(e.key==="ArrowUp"){ e.preventDefault(); setSkin(skin+1); sfxTick(); return; }
       if(e.key==="ArrowDown"){ e.preventDefault(); setSkin(skin-1); sfxTick(); return; }
-      if(e.key==="Enter"||e.key===" "){ e.preventDefault(); state="mode"; return; }
+      if(e.key==="Enter"||e.key===" "){ e.preventDefault(); tryPlay(); return; }
+      if(e.key==="o"||e.key==="O"){ e.preventDefault(); optSel=0; state="opts"; sfxTick(); return; }
       return;
     }
     if(state==="mode"){
@@ -1647,6 +1930,19 @@
       if(e.key==="ArrowUp"){ e.preventDefault(); setDiff(diff-1); sfxTick(); return; }
       if(e.key==="ArrowDown"){ e.preventDefault(); setDiff(diff+1); sfxTick(); return; }
       if(e.key==="Enter"||e.key===" "){ e.preventDefault(); startIntro(); return; }
+      return;
+    }
+    if(state==="opts"){
+      e.preventDefault();
+      if(e.key==="ArrowUp"){ optSel=(optSel+2)%3; sfxTick(); }
+      else if(e.key==="ArrowDown"){ optSel=(optSel+1)%3; sfxTick(); }
+      else if(e.key==="Escape"||e.key==="Backspace"){ state="ready"; readyIdle=0; sfxTick(); }
+      else if(e.key==="Enter"||e.key===" "||e.key==="ArrowLeft"||e.key==="ArrowRight"){
+        if(optSel===0) setVol(volIdx+(e.key==="ArrowLeft"?-1:1));
+        else if(optSel===1) setVib(vibOn?0:1);
+        else { state="ready"; readyIdle=0; }
+        sfxTick();
+      }
       return;
     }
     if(state==="win"){ e.preventDefault(); winTap(); return; }
@@ -1663,6 +1959,7 @@
       return;
     }
     if(state==="play" && !paused && e.key==="ArrowDown"){ e.preventDefault(); dive(); return; }
+    if(e.key==="m"||e.key==="M"){ e.preventDefault(); setVol(volIdx+1); sfxTick(); return; }
     if(e.key==="p"||e.key==="P"||e.key==="Escape"){ e.preventDefault(); togglePause(); return; }
     if(state==="play" && paused){ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); togglePause(); } return; }
     if(e.key==="ArrowUp"||e.key===" "||e.key==="Enter"){ if(!e.repeat){e.preventDefault(); holding=true; onTap();} }
@@ -1723,7 +2020,8 @@
     return Math.min(0.75, b*(diff===0?0.72:1) + (diff===1?0.08:diff===2?0.16:0));
   }
   function spawn(){
-    if(level>=4 && Math.random()<(diff===0?0.30:0.42)){ spawnTrain(); return; }
+    var trP=(level<=3)?(diff===0?0.16:0.22):(diff===0?0.30:0.42);   // un assaggio gia' dal livello 2
+    if(level>=2 && Math.random()<trP){ spawnTrain(); return; }
     var r=Math.random(), t;
     if(level<=1) t="base";
     else if(level===2) t=(r<0.7?"wide":"base");
@@ -1866,9 +2164,9 @@
       if(!e.passed && e.x+e.w < PX){        // box saltato
         e.passed=true;
         if(e.ng!==undefined && e.ng<=5 && !e.ridden && nearCd<=0 && invT<=0 && hurtT<=0){
-          nearCd=0.6;
+          nearCd=0.6; stNear++;
           var nmp=15*DM(); scoreF+=nmp; scorePulse=1;
-          pops.push({x:PX+PW/2, y:py-8, txt:"PER UN PELO! +"+nmp, col:"#FFFFFF", t:1});
+          addPop({x:W/2, y:Math.max(46,py-8), txt:"PER UN PELO! +"+nmp, col:"#FFFFFF", t:1});
           sfxNear(); vibe([0,15,20,15]); comboAdd();
         }
         lvlBoxes++;                          // il progresso di livello conta sempre
@@ -1904,10 +2202,13 @@
             }
             break;
           }
+          if(en.type==="hop" || en.type==="leap" || en.type==="fly"){
+            squash(s,ey); break;                     // saltatori e volanti: si schiacciano
+          }
           py=ey-PH; vy=0; grounded=true; jumps=0; glideFrames=0; superFlight=false; trickPose=null; flipT=0;
           riding=true;
           if(!en.ridden){
-            en.ridden=true; grindCount++; grindT=1.7;
+            en.ridden=true; grindCount++; grindT=1.7; chainStat();
             scoreF += 10*grindCount*DM();
             sfxGrind(grindCount); vibe(10);
             sparks(en.train?GOLD:GREY, 4+Math.min(grindCount,4), PX+PW/2, ey);
@@ -1934,12 +2235,12 @@
           superJumps=SUPER_MAX; sparks(SUPER,16,pw.x,cy); sfxPower(); vibe([0,20,30,20]);
           addPts(PTS_SUPER,SUPER); hitStop(SUPER,"SUPER SALTO",0.40,1.3);
         } else if(pw.kind==="jet"){
-          jetT=JET_TIME; jumps=2; grounded=false; superFlight=false; startJetSfx();
+          jetT=JET_TIME; jumps=2; grounded=false; superFlight=false; trickPose=null; flipT=0; startJetSfx();
           sparks(JET,18,pw.x,cy); sfxPower(); vibe([0,20,30,20,30,25]);
           addPts(PTS_JET,JET); hitStop(JET,"JETPACK!",0.40,1.5);
         } else if(pw.kind==="tp"){
           tpGot=true; sparks("#FFFFFF",22,pw.x,cy); sfxPower(); vibe([0,30,45,30]);
-          pops.push({x:pw.x, y:cy-12, txt:"+300 A FINE PARTITA", col:"#FFFFFF", t:1});
+          addPop({x:pw.x, y:cy-12, txt:"+300 A FINE PARTITA", col:"#FFFFFF", t:1});
           hitStop("#FFFFFF","CARTA IGIENICA!",0.55,1.8);
         } else if(pw.kind==="heart"){
           lives=Math.min(MAX_LIVES,lives+1); sparks(HEART,14,pw.x,cy); sfxHeart(); vibe([0,20,40,20]);
@@ -1995,7 +2296,7 @@
           punchX=bl.x; punchY=bl.y; punchT=0.2; sparks(PUNCH,10,bl.x,bl.y);
           var bpts=15*DM();
           punchCharges--; scoreF+=bpts; scorePulse=1; comboAdd();
-          pops.push({x:bl.x, y:bl.y-8, txt:"PUGNO! +"+bpts, col:PUNCH, t:1});
+          addPop({x:bl.x, y:bl.y-8, txt:"PUGNO! +"+bpts, col:PUNCH, t:1});
           kfreezeT=0.05; shakeT=0.10;
           sfxPunch(); sfxBreak(0.7); vibe([0,25,30,25]);
         } else { hurt(); }
@@ -2024,7 +2325,7 @@
             enemies.splice(ej,1); lvlBoxes++;      // il nemico distrutto conta come progresso
             var fpts=20*DM();
             scoreF+=fpts; scorePulse=1;
-            pops.push({x:en2.x+en2.w/2, y:efy-4, txt:"+"+fpts, col:GOLD, t:1});
+            addPop({x:en2.x+en2.w/2, y:efy-4, txt:"+"+fpts, col:GOLD, t:1});
             kfreezeT=0.08; shakeT=0.12;
             rings.push({x:en2.x+en2.w/2, y:efy+en2.h/2, r:3, life:1});
             comboAdd();
@@ -2045,11 +2346,14 @@
         var eb={x:e2.x+2,y:ey2+3,w:e2.w-4,h:e2.h-4};
         if(pb.x<eb.x+eb.w && pb.x+pb.w>eb.x && pb.y<eb.y+eb.h && pb.y+pb.h>eb.y){
           // aggancio di bordo: sfiori la testa di un nemico SENZA spuntoni -> ci sali sopra, niente danno
+          if(!e2.spike && (e2.type==="hop"||e2.type==="leap") && vy>0 && py+PH-ey2<=9){
+            squash(j,ey2); break;                    // sfiori la testa di un saltatore: lo schiacci
+          }
           if(!e2.spike && (e2.off||0)<=0 && py+PH-ey2<=9){
             py=ey2-PH; vy=0; grounded=true; jumps=0; glideFrames=0; superFlight=false; trickPose=null; flipT=0;
             riding=true;
             if(!e2.ridden){
-              e2.ridden=true; grindCount++; grindT=1.7;
+              e2.ridden=true; grindCount++; grindT=1.7; chainStat();
               scoreF += 10*grindCount*DM();
               sfxGrind(grindCount); vibe(10);
               sparks(e2.train?GOLD:GREY, 4+Math.min(grindCount,4), PX+PW/2, ey2);
@@ -2071,11 +2375,20 @@
       pt.x+=pt.vx*f; pt.y+=pt.vy*f; pt.vy+=0.02*f; pt.r+=0.1*f; pt.life-=pt.dr*f;
       if(pt.life<=0) parts.splice(k,1);
     }
+    // spruzzi di ghiaccio dei pattini
+    if(SKINS[skin].skate && grounded){
+      skateFx+=f;
+      if(skateFx>=4){ skateFx=0;
+        parts.push({x:PX+15+(Math.random()*4-2), y:GROUND_Y-2,
+          vx:-(1.2+Math.random()*1.8)-worldSpeed*0.2, vy:-(Math.random()*0.9),
+          r:0.9+Math.random()*1.3, life:1, dr:0.09+Math.random()*0.05, c:"#DFF6FF"});
+      }
+    }
     // scia planata
     if(gliding){
       glideTrail+=f;
       if(glideTrail>=5){ glideTrail=0;
-        parts.push({x:PX+3+(Math.random()*4-2),y:py+PH-2,vx:-(0.6+Math.random()*1.2)-worldSpeed*0.15,vy:(Math.random()*0.6+0.1),r:1.5+Math.random()*2,life:1,dr:0.08+Math.random()*0.05,c:GREEN});
+        parts.push({x:PX+3+(Math.random()*4-2),y:py+PH-2,vx:-(0.6+Math.random()*1.2)-worldSpeed*0.15,vy:(Math.random()*0.6+0.1),r:1.5+Math.random()*2,life:1,dr:0.08+Math.random()*0.05,c:(SKINS[skin].puff||GREEN)});
       }
     }
     if(gliding&&!prevGliding) startGlideSfx();
@@ -2092,7 +2405,23 @@
   function addPts(n,col){
     n=n*DM();
     scoreF=Math.max(0,scoreF+n); score=Math.floor(scoreF);
-    pops.push({x:PX+PW/2, y:py-2, txt:(n>0?"+":"")+n, col:col||WHITE, t:1});
+    addPop({x:PX+PW/2, y:py-2, txt:(n>0?"+":"")+n, col:col||WHITE, t:1});
+  }
+  // i popup non si sovrappongono: si accodano verso l'alto, massimo sei alla volta
+  function addPop(o){
+    var yy=o.y;
+    for(var g=0; g<4; g++){
+      var clash=false;
+      for(var i=0;i<pops.length;i++){
+        var q=pops[i];
+        if(q.t>0.42 && Math.abs(q.x-o.x)<52 && Math.abs(q.y-yy)<13){ clash=true; break; }
+      }
+      if(!clash) break;
+      yy-=14;
+    }
+    o.y=yy;
+    while(pops.length>=6) pops.shift();
+    pops.push(o);
   }
   function hitStop(col,txt,dur,pw){
     freezeMax=dur||0.22; freezeT=freezeMax; freezeCol=col; freezeTxt=txt; freezePow=pw||1;
@@ -2105,13 +2434,18 @@
   }
   function comboAdd(){
     comboN++; comboT=3.0; comboPulse=1;
+    if(comboN>stCombo) stCombo=comboN;
     if(comboN>=3) sfxComboTick(comboN);
+  }
+  function chainStat(){
+    if(grindCount>stChain) stChain=grindCount;
+    if(grindCount>=10 && !UNL.c10){ UNL.c10=1; if(newUnl.indexOf(4)<0) newUnl.push(4); }
   }
   function comboCash(){
     if(comboN>=3){
       var cb=12*comboN*DM();
       scoreF+=cb; scorePulse=1;
-      pops.push({x:PX+PW/2, y:py-6, txt:"COMBO x"+comboN+" +"+cb, col:GOLD, t:1});
+      addPop({x:PX+PW/2, y:py-6, txt:"COMBO x"+comboN+" +"+cb, col:GOLD, t:1});
       sfxComboCash();
     }
     comboN=0; comboT=0;
@@ -2126,7 +2460,9 @@
     if(lives<=0) die();
   }
 
+  function dieSaveUnl(){ saveUnl(); }
   function die(){
+    dieSaveUnl();
     deathFlash=6; state="dead"; deadT=3.2;
     if(mode==="sfida") keepGhost();
     gliding=false; prevGliding=false; stopGlideSfx(); stopJetSfx(); jetT=0; stopBeat(); beatMode="normal";
@@ -2155,7 +2491,7 @@
 
   function drawFace(S,hairCol){
     var strain=(hdFaceMood==="strain");
-    var blMod=blink%210, closed=strain||(blMod<4);
+    var blMod=blink%210, closed=strain||(blMod<4 && S.eyes!=="visor");
     // testa
     ctx.fillStyle=S.f; rrf(3,0.6,16,12.6,3.6);
     ctx.fillStyle="rgba(255,255,255,.16)"; rrf(4,1.2,14,3.4,2.4);          // luce in alto
@@ -2174,6 +2510,28 @@
       rrf(2.5,-1.6,17,4.6,2.4);
       rrf(2.5,0.6,2.6,6.6,1.3); rrf(16.9,0.6,2.6,6.6,1.3);                 // ciocche laterali
       ctx.fillStyle="rgba(255,255,255,.14)"; rrf(4.4,-0.9,9,1.4,0.7);
+    }else if(S.hair==="mohawk"){
+      ctx.beginPath();
+      ctx.moveTo(8.2,2.6); ctx.lineTo(9.2,-4.8); ctx.lineTo(10.8,1.0);
+      ctx.lineTo(12.2,-6.4); ctx.lineTo(13.6,0.8);
+      ctx.lineTo(14.8,-4.2); ctx.lineTo(16.0,2.6); ctx.closePath(); ctx.fill();
+      ctx.fillStyle=hexA("#000000",0.20); ctx.fillRect(8.2,1.7,7.8,1.0);
+      ctx.fillStyle=hexA("#FFB46A",0.55); ctx.fillRect(9.6,-3.4,1.0,3.0); ctx.fillRect(13.0,-3.0,1.0,2.6);
+    }else if(S.hair==="horns"){
+      ctx.beginPath(); ctx.moveTo(3.4,3.2); ctx.lineTo(0.0,-4.4); ctx.lineTo(6.6,0.8); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(18.6,3.2); ctx.lineTo(22.0,-4.4); ctx.lineTo(15.4,0.8); ctx.closePath(); ctx.fill();
+      rrf(4.4,-1.0,13.2,3.2,1.6);
+      ctx.fillStyle="rgba(255,255,255,.30)"; rrf(6.0,-0.4,9.2,1.2,0.6);
+      ctx.fillStyle="rgba(255,255,255,.45)";
+      ctx.beginPath(); ctx.moveTo(2.6,1.4); ctx.lineTo(0.9,-2.6); ctx.lineTo(4.4,0.4); ctx.closePath(); ctx.fill();
+    }else if(S.hair==="crown"){
+      ctx.beginPath();
+      ctx.moveTo(3.8,1.8); ctx.lineTo(5.2,-4.4); ctx.lineTo(7.8,-0.8);
+      ctx.lineTo(11.0,-5.8); ctx.lineTo(14.2,-0.8); ctx.lineTo(16.8,-4.4);
+      ctx.lineTo(18.2,1.8); ctx.closePath(); ctx.fill();
+      ctx.fillStyle="rgba(255,255,255,.42)"; ctx.fillRect(4.2,0.5,13.6,1.1);
+      ctx.fillStyle="#FF5A6E";
+      ctx.beginPath(); ctx.ellipse(11,-0.4,0.9,0.9,0,0,6.283); ctx.fill();
     }else{
       rrf(6.4,-0.6,9.4,2.6,1.3);
       ctx.beginPath(); ctx.moveTo(10.6,0.2);
@@ -2206,6 +2564,17 @@
       ctx.strokeStyle="rgba(0,0,0,.28)"; ctx.lineWidth=0.6;
       ctx.beginPath(); ctx.moveTo(exL-1.8,ey+2.3); ctx.lineTo(exL+1.8,ey+2.3); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(exR-1.8,ey+2.3); ctx.lineTo(exR+1.8,ey+2.3); ctx.stroke();
+    }else if(S.eyes==="angry"){
+      eye(exL,2.3,2.4,0.4,0.5,1.15); eye(exR,2.3,2.4,-0.4,0.5,1.15);
+      ctx.fillStyle=hexA(hairCol,0.95);
+      ctx.beginPath(); ctx.moveTo(exL-2.8,ey-3.4); ctx.lineTo(exL+2.4,ey-0.9); ctx.lineTo(exL+2.4,ey-2.8); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(exR+2.8,ey-3.4); ctx.lineTo(exR-2.4,ey-0.9); ctx.lineTo(exR-2.4,ey-2.8); ctx.closePath(); ctx.fill();
+    }else if(S.eyes==="visor"){
+      ctx.fillStyle="rgba(8,18,28,.94)"; rrf(4.4,4.2,13.2,4.4,2.1);
+      ctx.fillStyle=hexA("#BFF3FF",0.95); ctx.fillRect(6.0,5.3,3.2,1.1);
+      ctx.fillStyle=hexA("#7FE3F5",0.9);  ctx.fillRect(11.8,5.3,4.4,1.1);
+      ctx.strokeStyle=hexA(hairCol,0.9); ctx.lineWidth=0.8; rrp(ctx,4.4,4.2,13.2,4.4,2.1); ctx.stroke();
+      ctx.fillStyle="rgba(255,255,255,.30)"; ctx.fillRect(5.4,4.6,11,0.8);
     }else{
       eye(exL,2.7,2.8,0,0.2,1.35); eye(exR,2.7,2.8,0,0.2,1.35);
     }
@@ -2240,6 +2609,17 @@
       ctx.strokeStyle=INK; ctx.lineWidth=1.15;
       ctx.beginPath(); ctx.moveTo(8.2,11.3); ctx.quadraticCurveTo(11.6,12.4,14.6,10.5); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(14.6,10.5); ctx.lineTo(15.4,11.2); ctx.stroke();
+    }else if(S.mouth==="fang"){
+      ctx.fillStyle=INK;
+      ctx.beginPath(); ctx.moveTo(6.6,9.9); ctx.quadraticCurveTo(11,13.4,15.4,9.9); ctx.closePath(); ctx.fill();
+      ctx.fillStyle="#fff";
+      ctx.beginPath(); ctx.moveTo(7.9,10.1); ctx.lineTo(9.1,10.1); ctx.lineTo(8.5,12.5); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(12.9,10.1); ctx.lineTo(14.1,10.1); ctx.lineTo(13.5,12.5); ctx.closePath(); ctx.fill();
+    }else if(S.mouth==="flatline"){
+      ctx.strokeStyle=INK; ctx.lineWidth=1.25;
+      ctx.beginPath(); ctx.moveTo(7.6,11.0); ctx.lineTo(14.4,11.0); ctx.stroke();
+      ctx.fillStyle=hexA("#BFF3FF",0.85);
+      ctx.fillRect(8.4,11.7,1.1,1.7); ctx.fillRect(12.5,11.7,1.1,1.7);
     }else{
       ctx.fillStyle=INK; ctx.beginPath(); ctx.ellipse(11,10.9,2.7,1.9,0,0,6.283); ctx.fill();
       ctx.fillStyle="#FF6B8A"; rrp(ctx,9.6,10.9,2.9,3.4,1.4); ctx.fill();   // linguaccia
@@ -2264,7 +2644,13 @@
     hdFaceMood = (pose==="squat" || (pose==="sit" && winPoop)) ? "strain" : "norm";
     var cyc = hdCyc;               // fase di corsa accumulata in hdFrameBegin
     var swf=Math.sin(cyc), swb=Math.sin(cyc+3.14159);          // oscillazione gambe avanti/dietro
-    var bob = (gnd&&!pose&&!glid) ? -Math.abs(Math.sin(cyc))*0.8 : 0;
+    var isk = !!S.skate;                                    // pattina invece di correre
+    var pa  = isk ? (Math.sin(cyc*0.42)+1)/2 : 0;           // 0 = piede sotto, 1 = spinta indietro
+    var skBX = 8.1-7.5*pa, skBY = 29.6-5.6*pa;              // piede che spinge
+    var skFX = 10.6+pa*0.8, skFY = 29.6;                    // piede che scivola
+    var bob = (gnd&&!pose&&!glid) ? (isk ? -0.7*pa : -Math.abs(Math.sin(cyc))*0.8) : 0;
+    var OV = devPoseOvr(pose,glid,gnd,isk);
+    function limbData(d,w,cl){ if(d && d.length>=6) limb2(+d[0],+d[1],+d[2],+d[3],+d[4],+d[5],w,cl); else if(d) limb(+d[0],+d[1],+d[2],+d[3],w,cl); }
 
     ctx.save();
     var bA=ctx.globalAlpha;              // rispetta la trasparenza ereditata (es. fantasma al 15%)
@@ -2279,28 +2665,103 @@
     }
     ctx.globalAlpha=bA*0.95; ctx.stroke(); ctx.globalAlpha=bA;
 
+    // calzature delle skin extra: stivali, pattini, skate
+    function feetPos(){
+      if(OV && OV.feet) return OV.feet;
+      if(pose==="squat") return [[5.6,29.4],[15.4,29.4]];
+      if(pose==="tuck")  return [[10.2,19.8],[12.0,19.6]];
+      if(pose==="star")  return [[2.4,29.4],[19.6,29.4]];
+      if(pose==="sit")   return [[16.6,29.0],[20.2,29.0]];
+      if(pose==="dab")   return [[6.2,29.2],[16.2,29.2]];
+      if(pose==="split") return [[1.2,17.2],[21.6,28.6]];
+      if(pose==="pirou") return [[10.6,29.8],[12.0,20.4]];
+      if(pose==="arab")  return [[-3.0,13.8],[13.2,29.9]];
+      if(pose==="fifth") return [[9.8,29.9],[12.4,29.9]];
+      if(pose==="grab")  return [[5.0,27.8],[17.0,27.8]];
+      if(glid && isk)    return [[3.2,24.2],[11.8,29.9]];
+      if(glid)           return [[8.9,29.8],[8.9,29.8]];
+      if(gnd && isk)     return [[skBX,skBY],[skFX,skFY]];
+      if(gnd)            return [[9.6+4.4*swb, 29.5-Math.max(0,Math.cos(cyc+3.14159))*2.6],
+                                 [12.4+4.4*swf,29.5-Math.max(0,Math.cos(cyc))*2.6]];
+      return [[7.2,28.6],[14.8,28.2]];
+    }
+    function drawFoot(i){
+      var FP=feetPos(), fx=FP[i][0], fy=FP[i][1];
+      if(S.boot==="boots"){
+        ctx.fillStyle="#26262c"; rrf(fx-3.3,fy-1.4,6.8,4.0,1.3);
+        ctx.fillStyle="#8f8f9b"; ctx.fillRect(fx-3.1,fy+2.2,6.4,1.0);
+        ctx.fillStyle="#C2261E"; ctx.fillRect(fx-1.2,fy-1.0,1.3,2.6);
+        ctx.fillStyle="rgba(255,255,255,.18)"; ctx.fillRect(fx-3.1,fy-1.2,6.4,0.7);
+      }else if(S.boot==="skates"){
+        ctx.fillStyle="#F2FBFF"; rrf(fx-1.9,fy-0.9,3.9,2.3,0.8);
+        ctx.fillStyle="#9ED8F0"; ctx.fillRect(fx-1.7,fy,3.6,0.5);
+        ctx.strokeStyle="#DFF6FF"; ctx.lineWidth=0.9; ctx.lineCap="round";
+        ctx.beginPath();
+        ctx.moveTo(fx-2.4,fy+2.3); ctx.lineTo(fx+2.2,fy+2.3);
+        ctx.moveTo(fx-1.9,fy+2.3); ctx.lineTo(fx-1.9,fy+1.3);
+        ctx.moveTo(fx+1.7,fy+2.3); ctx.lineTo(fx+1.7,fy+1.3);
+        ctx.stroke();
+      }
+    }
+    function drawBoard(){
+      var FP=feetPos();
+      var mx=(FP[0][0]+FP[1][0])/2, my=Math.max(FP[0][1],FP[1][1]);
+      ctx.fillStyle="#3a2a12"; rrf(mx-9.5,my+1.6,19,2.4,1.2);
+      ctx.fillStyle=GOLD;      ctx.fillRect(mx-8.4,my+1.9,16.8,1.0);
+      ctx.fillStyle="#8a8a95"; ctx.fillRect(mx-6.4,my+3.8,1.6,1.4); ctx.fillRect(mx+4.8,my+3.8,1.6,1.4);
+      ctx.fillStyle="#e8e8f0";
+      ctx.beginPath(); ctx.ellipse(mx-5.6,my+5.0,1.6,1.6,0,0,6.283); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(mx+5.6,my+5.0,1.6,1.6,0,0,6.283); ctx.fill();
+    }
+
     // arto/gamba dietro
-    if(pose==="squat"){
+    if(OV && OV.bl){ limbData(OV.bl,3.0,dark); }else if(pose==="squat"){
       limb2(9,22.5, 4.2,25.5, 5.6,29.4, 3.1, dark);
     }else if(pose==="tuck"){
       limb2(9,22, 7.2,18.6, 10.2,19.8, 3.0, dark);
     }else if(pose==="star"){
       limb(9,22.5, 2.4,29.4, 3.0, dark);
+    }else if(pose==="dab"){
+      limb2(9,22.5, 7.4,26.2, 6.2,29.2, 3.0, dark);
+    }else if(pose==="split"){
+      limb(9,22.5, 1.2,17.2, 3.0, dark);
+    }else if(pose==="pirou"){
+      limb(9.8,22.5, 10.6,29.8, 3.0, dark);
+    }else if(pose==="grab"){
+      limb2(9,22.5, 6.0,25.4, 5.0,27.8, 3.0, dark);
+    }else if(pose==="arab"){
+      limb(9,22.2, -3.0,13.8, 3.0, dark);
+    }else if(pose==="fifth"){
+      limb(9.4,22.5, 9.8,29.9, 3.0, dark);
     }else if(pose==="sit"){
       limb2(9,23, 15.5,24.5, 16.6,29.0, 3.0, dark);
+    }else if(glid && isk){
+      limb2(10.0,22.6, 7.0,26.8, 3.2,24.2, 3.0, dark);     // gamba libera piegata dietro, punta alta
     }else if(glid){
       limb(9.6,23, 6.2,29.2, 3.0, dark);
+    }else if(gnd && isk){
+      limb2(10.2,22.6, (10.2+skBX)/2-0.6,26.2-1.4*pa, skBX,skBY, 3.0, dark);
     }else if(gnd){
       var blift=Math.max(0,Math.cos(cyc+3.14159))*2.6;
       limb2(9.6,22.6, 9.6+2.2*swb,26.0, 9.6+4.4*swb,29.5-blift, 3.0, dark);
     }else{
       limb2(9.6,22.6, 8.0,26.4, 7.2,28.6, 3.0, dark);
     }
+    if(S.boot && S.boot!=="skate") drawFoot(0);
     // braccio dietro
-    if(pose==="star"){ limb(6.2,15.2, -1.8,9.8, 2.5, dark); }
+    if(OV && OV.ba){ limbData(OV.ba,2.5,dark); }
+    else if(pose==="star"){ limb(6.2,15.2, -1.8,9.8, 2.5, dark); }
     else if(pose==="tuck"){ limb2(6.2,15.2, 4.6,18.6, 7.6,20.4, 2.5, dark); }
+    else if(pose==="dab"){ limb2(6.2,15.2, 1.2,10.8, -1.8,7.4, 2.5, dark); }
+    else if(pose==="split"){ limb(6.2,15.2, -1.4,11.4, 2.5, dark); }
+    else if(pose==="pirou"){ limb(6.0,15.2, -2.8,12.6, 2.5, dark); }
+    else if(pose==="grab"){ limb2(6.2,15.2, 3.2,18.6, 5.4,22.2, 2.5, dark); }
+    else if(pose==="arab"){ limb(6.2,15.0, 12.6,9.4, 2.5, dark); }
+    else if(pose==="fifth"){ limb2(6.2,15.0, 3.6,8.4, 8.2,2.8, 2.5, dark); }
+    else if(gnd && isk){ limb(6.0,15.4, 0.8,13.0+pa*2.2, 2.5, dark); }
     else if(pose==="sit"){ limb2(6.2,15.4, 6.8,19.4, 10.2,21.6, 2.5, dark); }
     else if(pose==="squat"){ limb2(6.2,16.2, 4.6,19.0, 8.2,20.2, 2.5, dark); }
+    else if(glid && isk){ limb2(6.2,15.2, 4.2,18.6, 8.8,16.8, 2.5, dark); }
     else if(glid){ limb(6.0,15.4, -2.6,14.4, 2.6, dark); }
     else if(gnd){ limb2(6.4,15.2, 6.4+2.4*swf,17.6, 6.4+3.0*swf,19.8, 2.5, dark); }
     else { limb2(6.2,15.2, 4.0,12.8, 3.2,10.6, 2.5, dark); }
@@ -2315,7 +2776,7 @@
     ctx.strokeStyle="rgba(8,6,12,.5)"; ctx.lineWidth=0.7; rrp(ctx,4.5,12.5,13,11.6,4.2); ctx.stroke();
 
     // gamba davanti
-    if(pose==="squat"){
+    if(OV && OV.fl){ limbData(OV.fl,3.0,base); }else if(pose==="squat"){
       limb2(13,22.5, 17.8,25.5, 15.4,29.4, 3.1, base);
       ctx.fillStyle=dark;                                                    // ginocchia larghe
       ctx.beginPath(); ctx.ellipse(4.6,25.8,1.9,1.9,0,0,6.283); ctx.fill();
@@ -2324,21 +2785,48 @@
       limb2(13,22, 14.6,18.4, 12.0,19.6, 3.0, base);
     }else if(pose==="star"){
       limb(13,22.5, 19.6,29.4, 3.0, base);
+    }else if(pose==="dab"){
+      limb2(13,22.5, 15.0,26.2, 16.2,29.2, 3.0, base);
+    }else if(pose==="split"){
+      limb(13,22.5, 21.6,28.6, 3.0, base);
+    }else if(pose==="pirou"){
+      limb2(12.6,22.5, 15.0,19.2, 12.0,20.4, 3.0, base);
+    }else if(pose==="grab"){
+      limb2(13,22.5, 16.0,25.4, 17.0,27.8, 3.0, base);
+    }else if(pose==="arab"){
+      limb(12.8,22.5, 13.2,29.9, 3.0, base);
+    }else if(pose==="fifth"){
+      limb(12.6,22.5, 12.4,29.9, 3.0, base);
     }else if(pose==="sit"){
       limb2(13,23, 19.2,24.8, 20.2,29.0, 3.0, base);
+    }else if(glid && isk){
+      limb(12.0,22.6, 11.8,29.9, 3.0, base);               // gamba d'appoggio dritta sul pattino
     }else if(glid){
       limb(12.4,23, 8.9,29.8, 3.0, base);
+    }else if(gnd && isk){
+      limb2(11.6,22.6, 11.0,26.0, skFX,skFY, 3.0, base);
     }else if(gnd){
       var flift=Math.max(0,Math.cos(cyc))*2.6;
       limb2(12.4,22.6, 12.4+2.2*swf,26.0, 12.4+4.4*swf,29.5-flift, 3.0, base);
     }else{
       limb2(12.4,22.6, 13.8,26.2, 14.8,28.2, 3.0, base);
     }
+    if(S.boot==="skate") drawBoard();
+    else if(S.boot) drawFoot(1);
     // braccio davanti
-    if(pose==="star"){ limb(15.8,15.2, 23.8,9.8, 2.5, base); }
+    if(OV && OV.fa){ limbData(OV.fa,2.5,base); }
+    else if(pose==="star"){ limb(15.8,15.2, 23.8,9.8, 2.5, base); }
     else if(pose==="tuck"){ limb2(15.8,15.2, 17.4,18.6, 14.4,20.4, 2.5, base); }
+    else if(pose==="dab"){ limb2(15.8,15.2, 12.2,13.0, 8.4,11.2, 2.5, base); }
+    else if(pose==="split"){ limb(15.8,15.2, 22.6,11.4, 2.5, base); }
+    else if(pose==="pirou"){ limb(16.0,15.2, 24.8,12.6, 2.5, base); }
+    else if(pose==="grab"){ limb2(15.8,15.2, 18.2,19.2, 16.2,22.6, 2.5, base); }
+    else if(pose==="arab"){ limb(15.8,15.2, 24.2,13.2, 2.5, base); }
+    else if(pose==="fifth"){ limb2(15.8,15.0, 18.4,8.4, 13.8,2.8, 2.5, base); }
+    else if(gnd && isk){ limb(16.0,15.4, 21.4,13.4-pa*2.2, 2.5, base); }
     else if(pose==="sit"){ limb2(15.8,15.4, 16.4,19.4, 13.2,21.6, 2.5, base); }
     else if(pose==="squat"){ limb2(15.8,16.2, 17.4,19.0, 13.8,20.2, 2.5, base); }
+    else if(glid && isk){ limb(15.8,15.4, 23.2,17.2, 2.5, base); }
     else if(glid){ limb(16.0,15.4, 24.6,14.4, 2.6, base); }
     else if(gnd){ limb2(15.6,15.2, 15.6+2.4*swb,17.6, 15.6+3.0*swb,19.8, 2.5, base); }
     else { limb2(15.8,15.2, 18.0,12.8, 18.8,10.6, 2.5, base); }
@@ -2956,8 +3444,8 @@
 
     if(state==="ready"){
       readyIdle+=f/60;
-      if(readyIdle>=8 && readyIdle-f/60<8) sbFetchTop();
-      var attract=(readyIdle>=8);
+      if(readyIdle>=7 && readyIdle-f/60<7) sbFetchTop();
+      var attract=(readyIdle>=7);
       if(attract){ ctx.fillStyle="rgba(4,4,8,.38)"; ctx.fillRect(0,0,W,H); }
       // titolo con alone caldo
       centerText("FARTFLIP",30,"rgba(254,80,0,.30)",23.5,"800");
@@ -2970,16 +3458,40 @@
       ctx.fillStyle="rgba(255,255,255,.10)"; ctx.fillRect(40,73,W-80,1);
       if(!attract){
         centerText("salta in testa ai nemici \u00b7 raccogli i cuori",84,"rgba(255,255,255,.30)",7.5,"600");
-        drawPreview(W/2,124,1.8,blink);
+        var lk=skinLocked(skin);
+        if(lockShake>0) lockShake-=f/60;
+        if(lk){
+          var S0=SKINS[skin], bc=S0.c, bd=S0.d, bf=S0.f;
+          S0.c="#2b2b34"; S0.d="#1b1b23"; S0.f="#3b3b47";
+          drawPreview(W/2,124,1.8,blink);
+          S0.c=bc; S0.d=bd; S0.f=bf;
+          ctx.save(); ctx.globalAlpha=0.92;
+          ctx.strokeStyle="#f2f2f2"; ctx.lineWidth=3;
+          ctx.beginPath(); ctx.arc(W/2,120,6.5,Math.PI,0); ctx.stroke();
+          ctx.fillStyle="#f2f2f2"; ctx.fillRect(W/2-10,122,20,15);
+          ctx.fillStyle="#0a0a0b"; ctx.fillRect(W/2-1.5,127,3,6);
+          ctx.restore();
+        } else drawPreview(W/2,124,1.8,blink);
         var arA=0.55+0.45*Math.sin(blink*0.11);
         drawSkinArrow(38,124,-1,arA); drawSkinArrow(W-38,124,1,arA);
-        centerText(SKINS[skin].n,170,SKINS[skin].c,13,"800");
-        centerText("tocca le frecce: cambia personaggio",184,"rgba(255,255,255,.45)",8,"600");
+        centerText(lk?(SKINS[skin].n+"  \u25a0"):SKINS[skin].n,170, lk?"rgba(255,255,255,.42)":SKINS[skin].c,13,"800");
+        var nx=nextLockedIdx();
+        if(lk){
+          ctx.save(); ctx.globalAlpha=(lockShake>0)?(0.5+0.5*Math.sin(blink*0.9)):1;
+          centerText("SBLOCCA: "+unlockGoal(skin),184,GOLD,8,"800");
+          ctx.restore();
+        } else {
+          centerText(nx<0 ? ("tutte le skin sbloccate: "+SKINS.length+"/"+SKINS.length)
+                          : ("SKIN "+unlockedCount()+"/"+SKINS.length+" \u00b7 prossima: "+SKINS[nx].n),
+            184, nx<0?SUPER:"rgba(255,255,255,.45)",8,"600");
+        }
         var pbW=182, pbX=W/2-pbW/2, pbY=196, pbH=26;
-        ctx.fillStyle="rgba(254,80,0,"+(0.16+0.12*Math.sin(blink*0.12)).toFixed(3)+")";
-        ctx.fillRect(pbX,pbY,pbW,pbH);
-        ctx.strokeStyle=ORANGE; ctx.lineWidth=2; ctx.strokeRect(pbX,pbY,pbW,pbH);
-        centerText("TOCCA QUI PER GIOCARE",pbY+17,WHITE,11,"800");
+        var sx2=(lockShake>0)?Math.sin(blink*1.6)*3:0;
+        ctx.fillStyle= lk?"rgba(255,255,255,.05)":"rgba(254,80,0,"+(0.16+0.12*Math.sin(blink*0.12)).toFixed(3)+")";
+        ctx.fillRect(pbX+sx2,pbY,pbW,pbH);
+        ctx.strokeStyle= lk?"rgba(255,255,255,.22)":ORANGE; ctx.lineWidth=2; ctx.strokeRect(pbX+sx2,pbY,pbW,pbH);
+        centerText(lk?"SKIN BLOCCATA":"TOCCA QUI PER GIOCARE",pbY+17, lk?"rgba(255,255,255,.45)":WHITE,11,"800");
+        drawOptBtn();
         centerText(padOn?"controller collegato: A = salta \u00b7 START = pausa":"rotella: cambia skin \u00b7 tasto centrale: gioca",236,padOn?SUPER:"rgba(255,255,255,.3)",7.5,"600");
       } else {
         // il personaggio continua a correre al centro, le top 5 ai suoi lati
@@ -3232,6 +3744,7 @@
         centerText("TOCCA VELOCISSIMO!",36,ORANGE,17,"800");
         ctx.restore();
         centerText(mp>0.7?"ci siamo... sta per esplodere!":(mp<0.12?"tocca senza fermarti!":"spingi!! liberati di tutto!"),50,"rgba(255,255,255,.6)",8.5,"600");
+        if(!tpGot) centerText("Oh no! Manca la carta igienica...",82,"rgba(255,190,150,.75)",8,"700");
         var mbW=182, mbX=W/2-mbW/2;
         ctx.fillStyle="rgba(255,255,255,.10)"; ctx.fillRect(mbX,58,mbW,13);
         ctx.fillStyle=(mp>0.7)?"#9a6a33":ORANGE; ctx.fillRect(mbX,58,mbW*mp,13);
@@ -3317,16 +3830,55 @@
       ctx.textAlign="left";
       ctx.fillStyle="rgba(255,255,255,.12)"; ctx.fillRect(30,270,W-60,2);
       ctx.fillStyle=ORANGE; ctx.fillRect(30,270,(W-60)*Math.min(1,tutStep/TUT.length+(tutOk?1:0)),2);
+    } else if(state==="devpose"){
+      ctx.fillStyle="rgba(4,4,8,.45)"; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle="rgba(255,255,255,.06)"; ctx.lineWidth=1;
+      for(var dgx=0;dgx<=W;dgx+=12){ ctx.beginPath(); ctx.moveTo(dgx,0); ctx.lineTo(dgx,H); ctx.stroke(); }
+      for(var dgy=0;dgy<=H;dgy+=12){ ctx.beginPath(); ctx.moveTo(0,dgy); ctx.lineTo(W,dgy); ctx.stroke(); }
+      var dvG=(devPose==="glide"||devPose==="glide_skate");
+      var dvGnd=(devPose==="run"||devPose==="skate");
+      var dvPose=(dvG||dvGnd||devPose==="air")?null:devPose;
+      ctx.save();
+      ctx.translate(W/2,168); ctx.scale(devZoom,devZoom); ctx.translate(-11,-15);
+      drawPlayer(0,0,0,(Math.floor(blink/9)%2),dvGnd,dvG,false,false,blink,dvPose);
+      ctx.restore();
+      centerText("ANTEPRIMA POSA: "+devPose+" \u00b7 "+SKINS[skin].n,24,GOLD,9,"800");
+      centerText("modifica dal FARTFLIP LAB",252,"rgba(255,255,255,.35)",8,"600");
+    } else if(state==="opts"){
+      ctx.fillStyle="rgba(4,4,8,.62)"; ctx.fillRect(0,0,W,H);
+      centerText("OPZIONI",46,ORANGE,20,"800");
+      centerText("si regolano prima di giocare",62,"rgba(255,255,255,.35)",8,"600");
+      var oR=[["VOLUME",VOLN[volIdx], volIdx===0?"rgba(255,255,255,.4)":GOLD],
+              ["VIBRAZIONE", vibOn?"SI":"NO", vibOn?SUPER:"rgba(255,255,255,.4)"]];
+      for(var oi=0;oi<2;oi++){
+        var oy=98+oi*38, osel=(optSel===oi);
+        ctx.fillStyle= osel?"rgba(254,80,0,.12)":"rgba(255,255,255,.04)";
+        ctx.fillRect(24,oy,W-48,30);
+        ctx.strokeStyle= osel?ORANGE:"rgba(255,255,255,.10)";
+        ctx.lineWidth= osel?2:1; ctx.strokeRect(24,oy,W-48,30);
+        ctx.font="800 10px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+        ctx.textBaseline="alphabetic";
+        ctx.textAlign="left";  ctx.fillStyle="rgba(255,255,255,.75)"; ctx.fillText(oR[oi][0],38,oy+19);
+        ctx.textAlign="right"; ctx.fillStyle=oR[oi][2];               ctx.fillText(oR[oi][1],W-38,oy+19);
+        ctx.textAlign="left";
+      }
+      var oby=188, osel2=(optSel===2);
+      ctx.fillStyle= osel2?"rgba(254,80,0,.12)":"rgba(255,255,255,.04)";
+      ctx.fillRect(66,oby,W-132,28);
+      ctx.strokeStyle= osel2?ORANGE:"rgba(255,255,255,.10)";
+      ctx.lineWidth= osel2?2:1; ctx.strokeRect(66,oby,W-132,28);
+      centerText("INDIETRO",oby+18,WHITE,11,"800");
+      centerText("tocca una riga per cambiarla",232,"rgba(255,255,255,.32)",8,"600");
     } else if(state==="count"){
       drawPlayer(PX,GROUND_Y-PH,0,(Math.floor(blink/18)%2),true,false,false,false,blink,null);
-      centerText("PRONTO?",96,"rgba(255,255,255,.6)",12,"700");
+      centerText("PRONTO?",84,"rgba(255,255,255,.6)",12,"700");
       var cn2=Math.max(1,Math.ceil(countT));
       var frac=countT-Math.floor(countT);
       ctx.save();
       ctx.globalAlpha=0.45+frac*0.55;
-      centerText(String(cn2),168,ORANGE,72,"800");
+      centerText(String(cn2),152,ORANGE,72,"800");
       ctx.restore();
-      centerText((mode==="sfida"?"SFIDA \u00b7 tracciato fisso":"ARCADE \u00b7 livello 1")+" \u00b7 "+SKINS[skin].n,206,mode==="sfida"?GOLD:SKINS[skin].c,9,"700");
+      centerText((mode==="sfida"?"SFIDA \u00b7 tracciato fisso":"ARCADE \u00b7 livello 1")+" \u00b7 "+SKINS[skin].n,184,mode==="sfida"?GOLD:SKINS[skin].c,9,"700");
       drawHUD();
     } else if(state==="play"){
       for(var i=0;i<powers.length;i++) drawPower(powers[i]);
@@ -3368,7 +3920,7 @@
       var ang = gliding ? 0 : (flipT>0 ? flipDir*(flipT/flipDur)*6.283*flipTurns : 0);
       var warnEnd = (invT>0 && invT<1.5) || (jetT>0 && jetT<2.0);
       var blinkOff = (hurtT>0 && Math.floor(blink/3)%2===0) || (warnEnd && Math.floor(blink/4)%2===0);
-      drawPlayer(PX,py,ang,(Math.floor(legTimer/1)%2),grounded,gliding,blinkOff,invT>0,blink,gliding?null:trickPose);
+      drawPlayer(PX,py,ang,(Math.floor(legTimer/1)%2),grounded,gliding,blinkOff,invT>0,blink,(gliding||jetT>0)?null:trickPose);
       if(mode==="sfida" && ghostOn && ghost && ghost.d){
         var gi=Math.floor(dist/GH_STEP);
         if(gi<ghost.d.length){
@@ -3419,8 +3971,11 @@
         centerText("PAUSA",112,ORANGE,26,"800");
         centerText(mode==="sfida"?"SFIDA \u00b7 tracciato fisso":"LIVELLO "+level+" \u00b7 "+DIFFS[diff].n,134,"rgba(255,255,255,.55)",10,"700");
         centerText("SCORE "+pad4(score),150,WHITE,11,"700");
-        if(Math.floor(blink/26)%2===0) centerText("tocca per riprendere",190,WHITE,11,"700");
-        centerText("(o tasto laterale)",204,"rgba(255,255,255,.4)",9,"600");
+        ctx.fillStyle="rgba(255,255,255,.06)"; ctx.fillRect(44,162,W-88,20);
+        ctx.strokeStyle="rgba(255,255,255,.20)"; ctx.lineWidth=1; ctx.strokeRect(44,162,W-88,20);
+        centerText("VOLUME: "+VOLN[volIdx],176, volIdx===0?"rgba(255,255,255,.4)":GOLD,10,"800");
+        if(Math.floor(blink/26)%2===0) centerText("tocca per riprendere",202,WHITE,11,"700");
+        centerText("(o tasto laterale)",214,"rgba(255,255,255,.4)",9,"600");
         drawPauseBtn();
       }
       if(levelT>0 && !paused){
@@ -3465,16 +4020,24 @@
       drawParts();
       ctx.fillStyle="rgba(10,10,11,.78)"; ctx.fillRect(0,44,W,206);
       centerText("GAME OVER",64,ORANGE,16,"800");
-      centerText("SCORE "+pad4(score)+"   BEST "+pad4(best),80,WHITE,9,"700");
-      centerText("CLASSIFICA MONDIALE \u00b7 "+(mode==="sfida"?"SFIDA":"ARCADE"),96,"rgba(255,255,255,.5)",9,"700");
+      centerText("SCORE "+pad4(score)+"   BEST "+pad4(best),78,WHITE,9,"700");
+      centerText("COMBO MAX x"+stCombo+"  \u00b7  CATENA x"+stChain,92,"rgba(255,255,255,.55)",8,"700");
+      centerText("SCHIACCIATI "+stSquash+"  \u00b7  PER UN PELO "+stNear+"  \u00b7  "+Math.floor(dist/100)+"0m",102,"rgba(255,255,255,.45)",8,"600");
+      if(newUnl.length>0){
+        ctx.save(); ctx.globalAlpha=0.6+0.4*Math.sin(blink*0.3);
+        centerText("NUOVA SKIN: "+SKINS[newUnl[0]].n+"!",116,SKINS[newUnl[0]].c,11,"800");
+        ctx.restore();
+      }
+      centerText("CLASSIFICA MONDIALE \u00b7 "+(mode==="sfida"?"SFIDA":"ARCADE"),(newUnl.length>0?130:118),"rgba(255,255,255,.5)",9,"700");
       var rows=worldFor(mode)||[], myR=-1;
       for(var wi=0;wi<rows.length;wi++){ if(rows[wi].n===lastName && rows[wi].s===score){ myR=wi; break; } }
-      for(var si=0;si<Math.min(rows.length,10);si++){
-        drawScoreRow(si+1,rows[si],110+si*13, si===myR?GOLD:"rgba(255,255,255,.8)", si===myR);
+      var rowY0=(newUnl.length>0?144:132);
+      for(var si=0;si<Math.min(rows.length,7);si++){
+        drawScoreRow(si+1,rows[si],rowY0+si*13, si===myR?GOLD:"rgba(255,255,255,.8)", si===myR);
       }
       if(rows.length===0){
         centerText(worldBusy?"carico la classifica mondiale...":(worldErr?"mondo non raggiungibile":"nessun punteggio: sei il primo!"),
-          150,"rgba(255,255,255,.4)",9,"600");
+          rowY0+8,"rgba(255,255,255,.4)",9,"600");
       }
       if(myR>=0) centerText("SEI "+(myR+1)+"\u00b0 AL MONDO!",244,GOLD,9,"800");
       else if(rows.length>0) centerText("in classifica ci sono i migliori del mondo",244,"rgba(255,255,255,.35)",7,"600");
