@@ -11,7 +11,7 @@
 <style>
   :root{
     color-scheme:light dark;
-    --paper:#F1ECE1; --card:#FBFAF5; --ink:#1C1813; --amber:#EC8A5C; --petrol:#35555C;
+    --paper:#F1ECE1; --card:#FBFAF5; --ink:#1C1813; --amber:#E8672B; --petrol:#35555C;
     --muted:#7C7367; --muted2:#A99F90; --line:#E7DFCF; --green:#3FAE5A; --red:#C4553F;
   }
   /* blocca il dark forzato della WebView: resta crema anche in dark mode */
@@ -39,16 +39,49 @@
   .wm b{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:19px;letter-spacing:-.012em;}
   .wm b i{color:var(--amber);font-style:normal;}
   .wm span{font-size:8px;letter-spacing:.30em;text-transform:uppercase;color:var(--muted2);margin-top:3px;}
-  .mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 10px;}
+  .mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 10px;
+    position:relative;animation:breathe 5.2s ease-in-out infinite;}
+  /* aura che si dilata e si restringe: il respiro */
+  .aura{position:absolute;width:150px;height:150px;border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle, rgba(232,103,43,.34) 0%, rgba(232,103,43,0) 70%);
+    animation:aura 5.2s ease-in-out infinite;}
+  .aura.slow{animation-duration:5.2s;}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.022)}}
+  @keyframes aura{0%,100%{opacity:.45;transform:scale(.86)}50%{opacity:.95;transform:scale(1.12)}}
+  /* tre puntini: la pagina "pensa" */
+  .think{display:flex;gap:5px;justify-content:center;margin-top:10px;height:5px;}
+  .think i{width:4px;height:4px;border-radius:50%;background:var(--muted2);display:block;
+    animation:think 1.6s ease-in-out infinite;}
+  .think i:nth-child(2){animation-delay:.22s;}
+  .think i:nth-child(3){animation-delay:.44s;}
+  @keyframes think{0%,100%{opacity:.25;transform:translateY(0)}45%{opacity:.9;transform:translateY(-3px)}}
+  /* battito continuo del pallino live */
+  .live.beat{animation:beat 3s ease-out infinite;}
+  @keyframes beat{0%{box-shadow:0 0 0 0 rgba(63,174,90,.45)}
+                  55%{box-shadow:0 0 0 7px rgba(63,174,90,0)}
+                  100%{box-shadow:0 0 0 0 rgba(63,174,90,0)}}
+  /* filo del tempo: si riempie fino al prossimo aggiornamento */
+  .tick{position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--amber);opacity:.85;}
+  .tick.run{animation:tick 15s linear forwards;}
+  @keyframes tick{from{width:0}to{width:100%}}
+  /* quando sta caricando, il respiro accelera */
+  body.busy .mid{animation-duration:1.6s;}
+  body.busy .aura{animation-duration:1.6s;}
+  body.busy .think i{animation-duration:.7s;}
+  @media (prefers-reduced-motion: reduce){
+    .mid,.aura,.think i,.live.beat,.tick.run{animation:none!important;}
+  }
   .label{font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted);
     font-weight:600;margin-bottom:0;}
-  .today{font-family:"Fraunces",Georgia,serif;font-weight:600;color:var(--amber);line-height:.9;
+  .today{font-family:"Fraunces",Georgia,serif;font-weight:700;color:var(--amber);line-height:.9;
+    text-shadow:0 0 18px rgba(232,103,43,.20);
     font-variant-numeric:tabular-nums;letter-spacing:-.02em;transition:transform .12s ease;}
   .today.bump{transform:scale(1.05);}
   .pill{margin-top:14px;display:inline-flex;align-items:center;gap:7px;
     background:rgba(28,24,19,.055);border:1px solid var(--line);border-radius:999px;
     padding:6px 13px;font-size:12px;color:var(--muted);white-space:nowrap;}
   .pill svg{width:14px;height:14px;color:var(--amber);flex:none;}
+  .pill{box-shadow:inset 0 0 0 1px rgba(232,103,43,.10);}
   .pill b{color:var(--petrol);font-weight:700;font-variant-numeric:tabular-nums;}
   .foot{flex:0 0 auto;text-align:center;padding:0 10px 9px;font-size:8.5px;
     letter-spacing:.04em;color:var(--muted2);}
@@ -60,18 +93,21 @@
 </head>
 <body>
   <div class="top">
-    <span class="live" id="live"></span>
+    <span class="live beat" id="live"></span>
     <span class="wm"><b>mostra<i>MI</i></b><span>Milano · counter</span></span>
   </div>
   <div class="mid">
+    <span class="aura"></span>
     <div class="label">Utenti oggi</div>
     <div class="today" id="today">—</div>
     <div class="pill">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       <b id="monthN">—</b>&nbsp;utenti questo mese
     </div>
+    <div class="think"><i></i><i></i><i></i></div>
   </div>
   <div class="foot" id="foot">tocca per aggiornare</div>
+  <div class="tick" id="tick"></div>
 
 <script>
 (function(){
@@ -107,14 +143,24 @@
     return isNaN(n)?0:n;
   }
 
-  function loading(){ elLive.className="live"; elFoot.innerHTML='<span class="spin"></span>carico…'; }
+  function loading(){ elLive.className="live beat"; document.body.classList.add("busy");
+    elFoot.innerHTML='<span class="spin"></span>carico…'; }
   function ok(){
+    document.body.classList.remove("busy");
     elLive.className="live pulse";
-    setTimeout(function(){ elLive.className="live"; }, 520);
+    setTimeout(function(){ elLive.className="live beat"; }, 520);
+    restartTick();
     elFoot.textContent="aggiornato "+timeNow()+" · tocca per aggiornare";
   }
-  function err(t){ elLive.className="live err"; elFoot.innerHTML='<span class="msg">'+t+'</span>'; }
+  function err(t){ document.body.classList.remove("busy"); elLive.className="live err";
+    elFoot.innerHTML='<span class="msg">'+t+'</span>'; restartTick(); }
 
+  var elTick=$("tick");
+  function restartTick(){
+    elTick.classList.remove("run");
+    void elTick.offsetWidth;      // riavvia l'animazione
+    elTick.classList.add("run");
+  }
   var busy=false;
   async function load(){
     if(busy) return; busy=true;
@@ -138,7 +184,7 @@
   document.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){e.preventDefault();load();} });
 
   load();
-  setInterval(load, 60000);
+  setInterval(load, 15000);   // aggiornamento ogni 15 secondi
 })();
 </script>
 </body>
