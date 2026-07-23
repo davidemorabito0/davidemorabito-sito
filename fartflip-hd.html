@@ -1779,16 +1779,17 @@
     ng.gain.setValueAtTime(0.14,t); ng.gain.exponentialRampToValueAtTime(0.0001,t+0.08);
     n.connect(lp); lp.connect(ng); ng.connect(dest()); n.start(t); n.stop(t+0.09);
   }
-  function punchEnemy(idx){
+  function punchEnemy(idx,free){
     var en=enemies[idx];
     punchX=en.x; punchY=GROUND_Y-(en.off||0)-en.h/2; punchT=0.2;
     sparks(PUNCH,16,en.x,punchY);
     rings.push({x:en.x+en.w/2, y:punchY, r:3, life:1, col:PUNCH});
     enemies.splice(idx,1); lvlBoxes++;
     var ppts=25*DM();
-    punchCharges--; scoreF+=ppts; scorePulse=1; comboAdd();
+    if(!free) punchCharges--;
+    scoreF+=ppts; scorePulse=1; comboAdd();
     addPop({x:en.x+en.w/2, y:punchY-10, txt:"PUGNO! +"+ppts, col:PUNCH, t:1});
-    kfreezeT=0.06; slowMoT=0.30; shakeT=0.14; flashT=0.10;
+    kfreezeT=0.06; slowMoT=free?Math.max(slowMoT,0.10):0.30; shakeT=0.14; flashT=free?0.06:0.10;
     sfxPunch(); sfxBreak(1); vibe([0,45,50,45]);
   }
   function startSfida(){
@@ -2342,7 +2343,7 @@
       if(e.x+e.w< -4) enemies.splice(i,1);
     }
 
-    if(mode!=="sfida" && levelT<=0 && !goal){
+    if(mode!=="sfida" && levelT<=0 && !goal && invT<=0){   // da invincibile il livello non finisce: distruggi!
       if(level<MAX_LEVEL){ if(lvlBoxes>=levelBoxes(level)) levelUp(); }
       else if(lvl10T>=LVL10_TIME) startFinale();   // livello finale: durata standard
     }
@@ -2409,6 +2410,7 @@
           addPts(PTS_HEART,HEART);   // mezzo cuore: nessun blocco
         } else {
           invT=INV_TIME; beatMode="power"; sparks(GOLD,24,pw.x,cy); sfxPower(); vibe([0,25,40,25,40,30]);
+          if(jetT>0){ jetT=0; stopJetSfx(); vy=0.5; glideFrames=0; }   // il jetpack cede il posto al fuoco
           if(!fireHintOff){
             fireHintT=INV_TIME;                                  // resta finche' non spari
             hitStop(GOLD,"TOCCA PER SPARARE!",0.6,2.0);          // fermo immagine: impossibile non vederlo
@@ -2490,25 +2492,33 @@
       if(!fdead) for(var ej=0;ej<enemies.length;ej++){
         var en2=enemies[ej], efy=GROUND_Y-en2.h-(en2.off||0);
         if(fb.x+3>en2.x && fb.x-3<en2.x+en2.w && fb.y+3>efy && fb.y-3<efy+en2.h){
-          en2.fhp=(en2.fhp===undefined?2:en2.fhp)-1;
-          sparks(ORANGE,6,fb.x,fb.y); sfxFirePop(); vibe(8);
-          if(en2.fhp<=0){
-            sparks(GOLD,12,en2.x+en2.w/2,efy+en2.h/2);
-            enemies.splice(ej,1); lvlBoxes++;      // il nemico distrutto conta come progresso
-            var fpts=20*DM();
-            scoreF+=fpts; scorePulse=1;
-            addPop({x:en2.x+en2.w/2, y:efy-4, txt:"+"+fpts, col:GOLD, t:1});
-            kfreezeT=0.08; shakeT=0.12;
-            rings.push({x:en2.x+en2.w/2, y:efy+en2.h/2, r:3, life:1});
-            comboAdd();
-            sfxPunch(); vibe([0,20,25,20]);
-          }
+          // un colpo = un'uccisione
+          sparks(ORANGE,6,fb.x,fb.y); sfxFirePop();
+          sparks(GOLD,12,en2.x+en2.w/2,efy+en2.h/2);
+          enemies.splice(ej,1); lvlBoxes++;      // il nemico distrutto conta come progresso
+          var fpts=20*DM();
+          scoreF+=fpts; scorePulse=1;
+          addPop({x:en2.x+en2.w/2, y:efy-4, txt:"+"+fpts, col:GOLD, t:1});
+          kfreezeT=0.08; shakeT=0.12;
+          rings.push({x:en2.x+en2.w/2, y:efy+en2.h/2, r:3, life:1});
+          comboAdd();
+          sfxPunch(); vibe([0,20,25,20]);
           fdead=true; break;
         }
       }
       if(fdead || fb.x>W+24) fires.splice(fi,1);
     }
 
+    // da invincibile chi ti tocca viene sfondato a pugni: sei una furia
+    if(invT>0){
+      var pbi={x:PX+2,y:py+2,w:PW-4,h:PH-2};
+      for(var ji=enemies.length-1;ji>=0;ji--){
+        var ei=enemies[ji], eyi=GROUND_Y-ei.h-(ei.off||0);
+        if(pbi.x<ei.x+ei.w-1 && pbi.x+pbi.w>ei.x+1 && pbi.y<eyi+ei.h-1 && pbi.y+pbi.h>eyi+1){
+          punchEnemy(ji,true);
+        }
+      }
+    }
     // urto laterale: se hai il pugno lo usa in automatico, altrimenti perdi una vita
     if(invT<=0 && hurtT<=0){
       var pb={x:PX+4,y:py+4,w:PW-8,h:PH-6};
@@ -4099,18 +4109,34 @@
       if(goal) drawToilet(goal.x);
       drawBullets();
       drawFires();
+      var bnY=32;                          // pila verticale: le scritte in alto non si sovrappongono mai
+      function claimY(y0,down){                 // scansa anche i popup fluttuanti vicini al giocatore
+        var y=y0;
+        for(var cci=0;cci<3;cci++){
+          var clash=false;
+          for(var pgi=0;pgi<pops.length;pgi++){
+            var pq=pops[pgi];
+            if(pq.t>0.42 && Math.abs(pq.x-(PX+PW/2))<58 && Math.abs(pq.y-y)<15){ clash=true; break; }
+          }
+          if(!clash) break;
+          y += down?15:-15;
+        }
+        return y;
+      }
       if(comboN>=2 && comboT>0){
         ctx.save();
         ctx.globalAlpha=Math.min(1,comboT/0.6);
-        centerText("COMBO x"+comboN,52,GOLD,Math.round(12+Math.max(0,comboPulse)*6),"800");
+        var cbY=claimY(bnY,true); bnY=cbY+18;
+        centerText("COMBO x"+comboN,cbY,GOLD,Math.round(12+Math.max(0,comboPulse)*6),"800");
         var cbw=56*Math.max(0,comboT)/3;
         ctx.globalAlpha=Math.min(0.8,comboT/0.6);
-        ctx.fillStyle=GOLD; ctx.fillRect(W/2-cbw/2,60,cbw,1.6);
+        ctx.fillStyle=GOLD; ctx.fillRect(W/2-cbw/2,cbY+8,cbw,1.6);
         ctx.restore();
       }
       if(invT>0 && invT>INV_TIME-2.4){
+        var tsY=claimY(bnY,true); bnY=tsY+16;
         ctx.globalAlpha=0.65+0.35*Math.sin(blink*0.4);
-        centerText("TOCCA E SPARA!",78,GOLD,12,"800");
+        centerText("TOCCA E SPARA!",tsY,GOLD,12,"800");
         ctx.globalAlpha=1;
       }
       drawPunch();
@@ -4175,15 +4201,17 @@
       }
       if(grindCount>=2 && grindT>0){
         ctx.save(); ctx.globalAlpha=Math.min(1,grindT*2);
-        var gy0=py-8<28?38:py-8;
+        var gNearTop=((py-8)<(bnY+10) || trickT>0), gy0;   // sotto la pila gia' usata da combo/fuoco, o se sta per comparire anche TRICK
+        if(gNearTop){ gy0=claimY(bnY,true); bnY=gy0+26; } else gy0=claimY(py-8,false);
         centerText("GRIND x"+grindCount, gy0, GOLD, 13, "800");
         centerText("+"+(25*grindCount*grindCount*DM()), gy0+12, SUPER, 10, "800");
         ctx.restore();
       }
       if(trickT>0){
         ctx.save(); ctx.globalAlpha=Math.min(1,trickT*1.6);
-        centerText("TRICK x"+trickN, 62, GOLD, 20, "800");
-        centerText("+"+trickBonus, 80, SUPER, 13, "800");
+        var trY=claimY(bnY,true); bnY=trY+32;
+        centerText("TRICK x"+trickN, trY, GOLD, 20, "800");
+        centerText("+"+trickBonus, trY+18, SUPER, 13, "800");
         ctx.restore();
       }
       if(hitFlash>0){ ctx.globalAlpha=hitFlash/7*0.35; ctx.fillStyle="#ff3b30"; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1; }
