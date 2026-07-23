@@ -1859,8 +1859,14 @@
       for(var i=0;i<8;i++) parts.push({x:PX+3,y:tutPy+PH-3,vx:-(1+Math.random()*2),vy:Math.random()*1.2-0.2,r:2+Math.random()*3,life:1,dr:0.06,c:GREEN});
     }
   }
+  // doppio tocco: due tocchi entro ~0,4 s (blink avanza di ~1 per frame in ogni stato)
+  var lastTapB=-999;
+  function isDoubleTap(){
+    if(blink-lastTapB < 24){ lastTapB=-999; return true; }
+    lastTapB=blink; return false;
+  }
   function startCountdown(){
-    state="count"; countT=3.0; lastCount=4;
+    state="count"; countT=3.0; lastCount=4; lastTapB=-999;
   }
   function canvasPos(e){
     return { x: (((e&&e.clientX)||0)-OX)/S,
@@ -1945,7 +1951,8 @@
     if(state==="mode"){ modeTap(e); return; }
     if(state==="diff"){ diffTap(e); return; }
     if(state==="intro"){ startTutorial(); return; }
-    if(state==="tutorial"){ if(inPauseBtn(e)){ stopJetSfx(); startCountdown(); } return; }   // solo dimostrazione
+    if(state==="tutorial"){ if(inPauseBtn(e) || isDoubleTap()){ stopJetSfx(); startCountdown(); } return; }   // guarda e basta, o doppio tocco per saltare
+    if(state==="count"){ if(isDoubleTap()) countT=0; return; }   // doppio tocco: si parte subito
     if(state==="dead"){ return; }
     if(state==="play"){
       if(paused){
