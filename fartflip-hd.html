@@ -39,8 +39,8 @@
   var comboN=0, comboT=0, comboPulse=0, nearCd=0, slowMoT=0, flashT=0, kfreezeT=0, shakeT=0, rings=[];
   var grindFx=0, lvl10T=0, skateFx=0;
   var jetTgt=JET_Y, jetHintT=0, fireHintT=0, fireHintOff=false, fireShots=0;
-  var FLIP_TIME=10, FLIP_BONUS=5/3;                 // sottosopra: 10 s, punti +2/3
-  var flipW=0, flipAmt=0;                            // timer e animazione del ribaltamento
+  var FLIP_TIME=10, FLIP_BONUS=5/3, FLIP_SETTLE=1.0;   // sottosopra: 10 s (ultimo 1 s di assestamento), punti +2/3
+  var flipW=0, flipAmt=0, flipSettle=0;              // timer, animazione e assestamento finale del ribaltamento
   try{ fireHintOff=(localStorage.getItem("fartflip_firehint")==="1"); }catch(e){}
   // ---- FARTFLIP LAB (developer mode): override di pose, colori, audio ----
   var POSE_OVR={}, LVL_OVR=null, DEV_BPM_OFF=0, DEV_SK=null, devPose=null, devZoom=6;
@@ -413,7 +413,7 @@
       if(e.t==="train") gap+=70;
       d+=gap;
       // power-up e cuori a intervalli fissi
-      if(d>pk+1450){ pk=d; out.push({d:Math.round(d-40), t:"power", k:["inv","punch","super","jet"][Math.floor(r()*4)], y:132+Math.floor(r()*30)}); }
+      if(d>pk+1450){ pk=d; out.push({d:Math.round(d-40), t:"power", k:["inv","punch","iron","jet"][Math.floor(r()*4)], y:132+Math.floor(r()*30)}); }
       if(d>hk+2100){ hk=d; out.push({d:Math.round(d-40), t:"heart", y:140+Math.floor(r()*26)}); }
     }
     out.sort(function(a,b){ return a.d-b.d; });
@@ -430,13 +430,13 @@
   var MAX_LEVEL=10;                                // ultimo livello: si arriva a casa (gabinetto)
   var SPEED_START=2.5, SPEED_RAMP=0.0016, SPEED_CAP=5.5; // sale a lungo, cap alto + bonus livello
   var POWER_MUL=2.0;                               // durante l'invincibilita' i box arrivano al 200%
-  var PTS_DJUMP=8, PTS_DIVE=4, PTS_HURT=-80, PTS_INV=200, PTS_PUNCH=100, PTS_SUPER=120, PTS_HEART=60, PTS_JET=180, PTS_FLIP=220;
+  var PTS_DJUMP=8, PTS_DIVE=4, PTS_HURT=-80, PTS_INV=200, PTS_PUNCH=100, PTS_IRON=120, PTS_HEART=60, PTS_JET=180, PTS_FLIP=220;
   var JET_TIME=4.0, JET_Y=76;                      // sprint volante col peto
   var TUT_JUMP_V=-10.5, TUT_DJUMP_V=-8.5, TUT_JET_Y=140; // scavalcano gli ostacoli restando sotto le scritte
   var WIN_T=12.0;                                  // scena finale col gabinetto gigante
-  var PUNCH_MAX=1, SUPER_MAX=5;                    // 1 pugno / 5 scoregge potenziate
+  var PUNCH_MAX=1;                                 // una carica di pugno
   var START_LIVES=3, HEART_EVERY=7;                // si parte con 1 cuore e mezzo (3 meta')
-  var SUPER_JUMP_V=-12.4, SUPER_DJUMP_V=-9.5, SUPER_GRAV=0.55;  // piu' alto e piu' lungo, ma controllabile
+  var SUPER_GRAV=0.55;                             // discesa lenta col jetpack
 
   var best=0;
   try{var b=parseInt(localStorage.getItem("fartflip_best")||"0",10);if(!isNaN(b))best=b;}catch(e){}
@@ -445,7 +445,7 @@
   var py,vy,grounded,jumps,flipT,flipDur,legTimer;
   var enemies,parts,powers,worldSpeed,distNext,scoreF,score,groundOff,bgOff;
   var deathFlash,overLock,lastMile,scorePulse,hitFlash;
-  var lives,hurtT,invT,boxSince,heartSince,speedMul,punchCharges,superJumps,superFlight;
+  var lives,hurtT,invT,boxSince,heartSince,speedMul,punchCharges,ironShoes,superFlight;
   var punchT,punchX,punchY,trickPose,flipDir,flipTurns,level,lvlBoxes,levelT,lvlHold,bullets,countT,lastCount;
   var introT,winT,goal,pads,dashT,deadT,jumpBuf,coyote;
   var tutT,tutStep,tutObj,tutPy,tutVy,tutJumps,tutLeg,tutGlideF,tutGliding,tutAutoHold,tutCue;
@@ -462,7 +462,7 @@
     enemies=[]; parts=[]; powers=[]; fires=[]; fireCd=0; worldSpeed=SPEED_START; distNext=150; scoreF=0; score=0;
     groundOff=0; bgOff=0; deathFlash=0; lastMile=0; scorePulse=0; hitFlash=0;
     lives=START_LIVES; hurtT=0; invT=0; boxSince=0; heartSince=0; speedMul=1; beatMode="normal";
-    punchCharges=0; superJumps=0; superFlight=false;
+    punchCharges=0; ironShoes=0; superFlight=false;
     punchT=0; punchX=0; punchY=0; trickPose=null; flipDir=-1; flipTurns=1;
     level=1; lvlBoxes=0; levelT=0; lvlHold=0; bullets=[]; countT=0; lastCount=9;
     introT=0; winT=0; goal=null; pads=[]; dashT=0; deadT=0; jumpBuf=0; coyote=0; airTapT=0;
@@ -473,7 +473,7 @@
     grindCount=0; grindT=0; riding=false; trickN=0; trickBonus=0; trickT=0; trainId=0;
     comboN=0; comboT=0; comboPulse=0; nearCd=0; slowMoT=0; flashT=0; kfreezeT=0; shakeT=0; rings=[];
     grindFx=0; lvl10T=0; skateFx=0;
-    jetTgt=JET_Y; jetHintT=0; fireHintT=0; flipW=0; flipAmt=0;
+    jetTgt=JET_Y; jetHintT=0; fireHintT=0; flipW=0; flipAmt=0; flipSettle=0;
     stSquash=0; stNear=0; stCombo=0; stChain=0; newUnl=[];
     winMash=0; winMashT=0; winMashDone=false;
     tpLevel=8+Math.floor(Math.random()*3); tpT=0; tpDone=false; tpGot=false;
@@ -1043,6 +1043,23 @@
     o.start(t); o.stop(t+end+0.06);
   }
   // super scoreggia: piu' lunga, piu' bassa, piu' grassa
+  function sfxIron(){                                  // clangore metallico: lo scudo para uno spuntone
+    var c=ac(); if(!c)return; var t=c.currentTime;
+    [1200,1760,2640].forEach(function(fq,i){          // rintocchi metallici sovrapposti
+      var o=c.createOscillator(), g=c.createGain(), bp=c.createBiquadFilter();
+      o.type="square"; o.frequency.setValueAtTime(fq,t);
+      o.frequency.exponentialRampToValueAtTime(fq*0.5,t+0.28);
+      bp.type="bandpass"; bp.Q.value=6; bp.frequency.value=fq;
+      g.gain.setValueAtTime(0.0001,t);
+      g.gain.exponentialRampToValueAtTime(0.16/(i+1),t+0.005);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+0.30+i*0.06);
+      o.connect(bp); bp.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.4);
+    });
+    var n=c.createBufferSource(), ng=c.createGain(), hp=c.createBiquadFilter();
+    n.buffer=getNoise(c); hp.type="highpass"; hp.frequency.value=2600;
+    ng.gain.setValueAtTime(0.22,t); ng.gain.exponentialRampToValueAtTime(0.0001,t+0.12);
+    n.connect(hp); hp.connect(ng); ng.connect(dest()); n.start(t); n.stop(t+0.14);
+  }
   function sfxSuper(){
     var c=ac(); if(!c)return; var t=c.currentTime, dur=0.55;
     var o=c.createOscillator(), g=c.createGain(), lp=c.createBiquadFilter();
@@ -1803,18 +1820,15 @@
     else jumpBuf=0.20;              // input in anticipo: lo eseguo appena atterro
   }
   function jump(){
-    var sup = superJumps>0;
     if(grounded || coyote>0){
-      vy = sup?SUPER_JUMP_V:JUMP_V; grounded=false; coyote=0; jumps=1;
-      if(sup){ superJumps--; superFlight=true; sfxSuper(); puff(3); vibe([0,18,25,18]); }
-      else { sfxJump(); puff(1); vibe(12); }
+      vy = JUMP_V; grounded=false; coyote=0; jumps=1;
+      sfxJump(); puff(1); vibe(12);
       if(skin>=3) pickTrick();              // le skin extra fanno una figura gia' al primo salto
     }
     else if(jumps<2){
-      vy = sup?SUPER_DJUMP_V:DJUMP_V; jumps=2;
+      vy = DJUMP_V; jumps=2;
       startTrick(); sfxVoice(); addPts(PTS_DJUMP,WHITE);
-      if(sup){ superJumps--; superFlight=true; sfxSuper(); puff(3); vibe([0,20,28,20]); }
-      else { sfxDouble(); puff(2); vibe([0,14,30,20]); }
+      sfxDouble(); puff(2); vibe([0,14,30,20]);
     }
   }
 
@@ -2247,15 +2261,21 @@
                     train:id, tfirst:(i===0), tlast:(i===n-1)});
       x += w;                                           // nessuno spazio: sono attaccati
     }
-    // sopra la fila a volte arrivano dei volanti: mentre cavalchi devi saltarli
-    var span = x-(W+7);
-    var nf = (Math.random() < (level>=6?0.6:0.45)*(diff===0?0.7:1)) ? (level>=6 && Math.random()<(diff===0?0.30:0.45) ? 2 : 1) : 0;
-    for(var k=0;k<nf;k++){
-      enemies.push({x:W+18+span*(0.42+k*0.34), w:15+Math.floor(Math.random()*6), h:13,
-                    ph:0, pt:0, extra:0, ridden:false, passed:false, type:"fly",
-                    off:34+Math.random()*16, vy:0, dash:0, jt:99999, fire:99999});
+    var right = x;                                       // fine esatta della fila
+    // sopra la fila: cubi verdi RIALZATI. Col grind ci passi sotto; se salti e ci sbatti ti fanno male;
+    // se ci atterri sopra li schiacci. Sono ancorati alla fila, cosi' non si sovrappongono ad altri cubi.
+    var topY = h + 12;                                   // altezza del vano: il giocatore (PH=30) ci passa sotto
+    var ng = (Math.random() < (level>=6?0.6:0.45)*(diff===0?0.7:1)) ? (level>=6 && Math.random()<(diff===0?0.30:0.45) ? 2 : 1) : 0;
+    var span = right-(W+7);
+    for(var k=0;k<ng;k++){
+      var gw=15+Math.floor(Math.random()*6);
+      enemies.push({x:W+22+span*(0.40+k*0.36), w:gw, h:15,
+                    ph:0, pt:0, extra:0, ridden:false, passed:false, type:"hop",
+                    off:topY, vy:0, dash:0, jt:99999, fire:99999,
+                    overTrain:id});                       // legato alla fila: e' il cubo verde sospeso
     }
-    distNext = (120 + worldSpeed*9 + Math.random()*70) * DIFFS[diff].gap;
+    // stacco netto dal prossimo ostacolo: la fila (coi suoi cubi verdi) resta un blocco a se'
+    distNext = (150 + worldSpeed*10 + Math.random()*80) * DIFFS[diff].gap;
   }
   function spikeChance(){
     var b = level===1 ? 0.08 : level===2 ? 0.13 : level===3 ? 0.19 : level===4 ? 0.25 :
@@ -2288,7 +2308,7 @@
   function spawnPower(){
     var r=Math.random(), kind;
     if(mode!=="sfida" && level>=3 && flipW<=0 && r<0.16) kind="flip";          // sottosopra: dal livello 3
-    else kind = r<0.2 ? "inv" : r<0.47 ? "punch" : r<0.74 ? "super" : "jet";   // invincibilita' 1 su 5
+    else kind = r<0.2 ? "inv" : r<0.47 ? "punch" : r<0.74 ? "iron" : "jet";   // invincibilita' 1 su 5
     powers.push({x:W+10, y:132+Math.random()*30, t:0, got:false, kind:kind}); // altezza media, prendibile
   }
   function spawnHeart(){
@@ -2308,7 +2328,12 @@
     bgOff=(bgOff+worldSpeed*0.4*f)%60;
 
     if(hurtT>0) hurtT-=dt;
-    if(flipW>0){ flipW-=dt; if(flipW<=0){ flipW=0; sfxFlipWorld(); vibe([0,50,40,90]); shakeT=Math.max(shakeT,0.22); } }
+    if(flipW>0){
+      flipW-=dt;
+      if(flipW<=FLIP_SETTLE && flipSettle<=0){ flipSettle=FLIP_SETTLE; }   // ultimo secondo: assestamento
+      if(flipW<=0){ flipW=0; sfxFlipWorld(); vibe([0,50,40,90]); shakeT=Math.max(shakeT,0.22); }
+    }
+    if(flipSettle>0){ flipSettle-=dt; if(distNext<(60*f)) distNext=60; }   // ripartenza morbida dopo l'assestamento
     if(mode!=="sfida" && level===MAX_LEVEL && !goal) lvl10T+=dt;
     if(tpT>0){
       tpT-=dt;
@@ -2381,15 +2406,27 @@
     } else {
       if(levelT>0) levelT-=f;
       if(lvlHold>0) lvlHold-=f;
-      if(levelT<=0 && lvlHold<=0 && !goal){
+      if(levelT<=0 && lvlHold<=0 && !goal && flipSettle<=0){   // nell'assestamento del sottosopra: niente spawn
         distNext-=worldSpeed*f;
-        if(distNext<=0) spawn();
+        if(distNext<=0){
+          var rightMost=-1e9;                    // bordo destro del cubo a terra piu' avanzato (anche fuori schermo)
+          for(var ri=0;ri<enemies.length;ri++){
+            var re=enemies[ri];
+            if((re.off||0)>2) continue;           // i cubi sospesi non contano per lo spazio a terra
+            if(re.x+re.w>rightMost) rightMost=re.x+re.w;
+          }
+          // un nuovo ostacolo nasce fino a x=W+32; serve un varco netto dopo l'ultimo cubo esistente
+          if(rightMost <= W-42) spawn();
+          else distNext = 8;                      // aspetta che il varco si liberi
+        }
       }
     }
     for(var i=enemies.length-1;i>=0;i--){
       var e=enemies[i];
       e.x-=(worldSpeed+e.extra)*f;
-      if(e.type==="hop"){                   // saltella sul posto
+      if(e.overTrain){                      // cubo verde sospeso sopra la fila: resta fermo in alto
+        /* nessun rimbalzo: la quota e' fissa */
+      }else if(e.type==="hop"){             // saltella sul posto
         if(e.off<=0){ e.jt-=f; if(e.jt<=0){ e.vy=3.2+Math.random()*1.4; e.jt=45+Math.random()*75; } }
         if(e.vy>0 || e.off>0){ e.off+=e.vy*f; e.vy-=0.28*f; if(e.off<=0){ e.off=0; e.vy=0; } }
       }else if(e.type==="leap"){            // ti salta addosso
@@ -2479,9 +2516,11 @@
         if(pw.kind==="punch"){
           punchCharges=PUNCH_MAX; sparks(PUNCH,16,pw.x,cy); sfxPower(); vibe([0,20,30,20]);
           addPts(PTS_PUNCH,PUNCH); hitStop(PUNCH,"PUGNO",0.40,1.3);
-        } else if(pw.kind==="super"){
-          superJumps=SUPER_MAX; sparks(SUPER,16,pw.x,cy); sfxPower(); vibe([0,20,30,20]);
-          addPts(PTS_SUPER,SUPER); hitStop(SUPER,"SUPER SALTO",0.40,1.3);
+        } else if(pw.kind==="iron"){
+          ironShoes++;
+          sparks(SUPER,18,pw.x,cy); sfxIron(); vibe([0,30,25,45]);
+          addPts(PTS_IRON,SUPER); hitStop(SUPER,"SCARPE DI PIOMBO",0.40,1.3);
+          addPop({x:W/2, y:120, txt:"scudo: pari uno spuntone", col:SUPER, t:1});
         } else if(pw.kind==="jet"){
           jetT=JET_TIME; jumps=2; grounded=false; superFlight=false; trickPose=null; flipT=0; jetTgt=JET_Y; jetHintT=2.6; startJetSfx();
           sparks(JET,18,pw.x,cy); sfxPower(); vibe([0,20,30,20,30,25]);
@@ -2625,7 +2664,9 @@
           // (a caduta veloce un solo frame puo' far sprofondare ben oltre la tolleranza di 9 px)
           var fromAbove = (pyPrev+PH) <= ey2+2;
           // aggancio di bordo: sfiori la testa di un nemico SENZA spuntoni -> ci sali sopra, niente danno
-          if(!e2.spike && (e2.type==="hop"||e2.type==="leap") && vy>0 && (py+PH-ey2<=9 || fromAbove)){
+          // (per un cubo sospeso serve arrivarci davvero dall'alto: se ci sbatti sotto ti fa male)
+          var headOk = fromAbove || (py+PH-ey2<=9 && ((e2.off||0)<=0 || pyPrev+PH<=ey2+9));
+          if(!e2.spike && (e2.type==="hop"||e2.type==="leap") && vy>0 && headOk){
             squash(j,ey2); break;                    // sfiori la testa di un saltatore: lo schiacci
           }
           if(!e2.spike && (e2.off||0)<=0 && (py+PH-ey2<=9 || fromAbove)){
@@ -2638,6 +2679,17 @@
               sparks(e2.train?GOLD:GREY, 4+Math.min(grindCount,4), PX+PW/2, ey2);
               comboAdd();
             }
+            break;
+          }
+          if(e2.spike && ironShoes>0){                // scarpe di piombo: parano UNO spuntone
+            ironShoes--;
+            e2.spike=false;                          // lo spuntone si spezza
+            sparks(SUPER,20,PX+PW/2,ey2); sfxIron();
+            kfreezeT=0.07; shakeT=0.14; flashT=0.08; vibe([0,35,25,50]);
+            rings.push({x:PX+PW/2, y:ey2, r:3, life:1, col:SUPER});
+            addPop({x:PX+PW/2, y:ey2-12, txt:"PARATO!", col:SUPER, t:1});
+            if(vy>0 && (py+PH-ey2<=10 || fromAbove)){ squash(j,ey2); }   // se stavo scendendo lo schiaccio
+            else { py=ey2-PH; vy=0; grounded=true; jumps=0; superFlight=false; }
             break;
           }
           if(punchCharges>0){ punchEnemy(j); }
@@ -3224,12 +3276,16 @@
   function drawEnemy(e){
     var off=e.off||0;
     var ey=GROUND_Y-e.h-off, ew=e.w, eh=e.h, ex=e.x;
-    var bodyC = e.type==="wide" ? "#8F9BB0" : e.type==="hop" ? "#D9C79E" :
+    var green = !!e.overTrain;                      // cubo verde sospeso sopra la fila
+    var bodyC = green ? "#6FE05A" : e.type==="wide" ? "#8F9BB0" : e.type==="hop" ? "#D9C79E" :
                 e.type==="leap" ? "#C48CE8" : e.type==="shoot" ? "#E8A33D" :
                 e.type==="fly"  ? "#7FE3D0" : GREY;
-    var darkC = e.type==="wide" ? "#5C6B85" : e.type==="hop" ? "#A08D5F" :
+    var darkC = green ? "#2E9E3A" : e.type==="wide" ? "#5C6B85" : e.type==="hop" ? "#A08D5F" :
                 e.type==="leap" ? "#7B4DA8" : e.type==="shoot" ? "#A06B18" :
                 e.type==="fly"  ? "#3E9E8E" : GREY_DK;
+    if(green){                                       // ombra proiettata sulla fila: si vede che e' sospeso
+      ctx.fillStyle="rgba(0,0,0,.28)"; ctx.fillRect(ex+2,GROUND_Y-e.off+e.h+1,ew-4,2);
+    }
     var eyeC  = e.type==="wide" ? GOLD : e.type==="hop" ? "#FF4D6D" :
                 e.type==="shoot" ? "#FF4D6D" : ORANGE;
     if(off>1){ ctx.fillStyle="rgba(0,0,0,.45)"; ctx.fillRect(ex+2,GROUND_Y-2,ew-4,2); }
@@ -3271,7 +3327,7 @@
 
   function drawPower(pw){
     var cy=pw.y+Math.sin(pw.t*0.055)*13;
-    var col = pw.kind==="punch"?PUNCH : pw.kind==="super"?SUPER : pw.kind==="heart"?HEART : pw.kind==="jet"?JET : pw.kind==="tp"?"#FFFFFF" : pw.kind==="flip"?"#C8A2FF" : GOLD;
+    var col = pw.kind==="punch"?PUNCH : pw.kind==="iron"?SUPER : pw.kind==="heart"?HEART : pw.kind==="jet"?JET : pw.kind==="tp"?"#FFFFFF" : pw.kind==="flip"?"#C8A2FF" : GOLD;
     ctx.save();
     ctx.globalAlpha=0.28+Math.sin(pw.t*0.2)*0.12;
     ctx.fillStyle=col;
@@ -3300,10 +3356,10 @@
       ctx.fillRect(pw.x-1,cy-5,2,6);
       ctx.fillRect(pw.x-3,cy-1,6,2);
       ctx.fillStyle="#8BE05A"; ctx.fillRect(pw.x-2,cy+2,4,3);
-    }else if(pw.kind==="super"){           // icona: freccia su
-      ctx.fillRect(pw.x-1,cy-4,2,8);
-      ctx.fillRect(pw.x-3,cy-2,2,2); ctx.fillRect(pw.x+1,cy-2,2,2);
-      ctx.fillRect(pw.x-2,cy-4,4,2);
+    }else if(pw.kind==="iron"){            // icona: stivale/scarpa
+      ctx.fillRect(pw.x-3,cy-4,4,6);         // gambale
+      ctx.fillRect(pw.x-3,cy+1,8,3);         // suola in avanti
+      ctx.fillStyle="#3A4A5A"; ctx.fillRect(pw.x-3,cy+3,8,1);   // piombo
     }else if(pw.kind==="tp"){              // icona: rotolo di carta igienica
       ctx.fillStyle="#FFFFFF"; ctx.fillRect(pw.x-5,cy-4,10,7);
       ctx.fillStyle=INK; ctx.fillRect(pw.x-2,cy-3,4,5);
@@ -3560,10 +3616,10 @@
       ctx.fillStyle=GOLD; ctx.fillRect(x,row-1,bw*(invT/INV_TIME),3); row+=9;
     }
     if(punchCharges>0){ ctx.fillStyle=PUNCH; ctx.fillText(punchCharges>1?("PUGNO x"+punchCharges):"PUGNO",W-32,row); row+=10; }
-    if(superJumps>0){ ctx.fillStyle=SUPER; ctx.fillText("SUPER x"+superJumps,W-32,row); row+=10; }
+    if(ironShoes>0){ ctx.fillStyle=SUPER; ctx.fillText(ironShoes>1?("SCARPE x"+ironShoes):"SCARPE",W-32,row); row+=10; }
     if(jetT>0){ ctx.fillStyle=(jetT<2.0 && Math.floor(blink/4)%2===0)?"rgba(87,242,201,.25)":JET;
       ctx.fillText("JET "+jetT.toFixed(1)+"s",W-32,row); row+=10; }
-    if(invT<=0 && punchCharges<=0 && superJumps<=0 && jetT<=0){
+    if(invT<=0 && punchCharges<=0 && ironShoes<=0 && jetT<=0){
       ctx.fillStyle="rgba(255,255,255,.34)";
       ctx.fillText(boxSince+"/"+BOX_PER_POWER,W-32,22);
     }
@@ -3742,7 +3798,7 @@
     else if(NET_ON() && !worldBusy && (state==="ready"||state==="mode"||state==="over")) sbFetchTop();
     if(jetHintT>0) jetHintT-=f/60;
     if(fireHintT>0) fireHintT-=f/60;
-    var fTgt=(state==="play" && flipW>0)?1:0;          // il ribaltamento entra ed esce in ~0,35 s
+    var fTgt=(state==="play" && flipW>FLIP_SETTLE)?1:0;   // si raddrizza gia' nell'ultimo secondo, per atterrare sicuri
     if(flipAmt!==fTgt){ var fst=f/21; flipAmt += (fTgt>flipAmt)?Math.min(fst,fTgt-flipAmt):-Math.min(fst,flipAmt-fTgt); }
     var inHome9=(state==="ready"||state==="mode"||state==="diff"||state==="opts");
     if(inHome9 && MENU.mode!=="off" && unlocked) startMenuMusic();
