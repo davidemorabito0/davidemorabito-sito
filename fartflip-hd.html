@@ -1398,6 +1398,17 @@
   // 1) crea la tabella con l'SQL fornito  2) incolla qui sotto URL e anon key del tuo progetto
   var SB_URL="https://zqtfsqdlnznhxcqmftsm.supabase.co";
   var SB_KEY="sb_publishable_RSTnHhVljX08FDAem8DVgg_qJjCq0OL";
+  // ---- conteggio partite (non blocca nulla, fallisce in silenzio) ----
+  function pingPlay(){
+    try{
+      if(!NET_ON()) return;
+      fetch(SB_URL+"/rest/v1/pings",{ method:"POST", keepalive:true,
+        headers:{ "Content-Type":"application/json", apikey:SB_KEY,
+                  Authorization:"Bearer "+SB_KEY, Prefer:"return=minimal" },
+        body: JSON.stringify({ app:"fartflip", mode:mode, diff:DIFFS[diff].n })
+      }).catch(function(){});
+    }catch(e){}
+  }
   function NET_ON(){ return SB_URL!=="" && SB_KEY!=="" && typeof fetch==="function"; }
   // le classifiche sono SEMPRE mondiali: nessun punteggio locale viene mai mostrato
   var worldS=null, worldA=null, worldBusy=false, worldErr=false, netCd=0, lastSent=-1, lastName="";
@@ -3642,7 +3653,7 @@
       countT-=f/60;
       var cn=Math.ceil(countT);
       if(cn!==lastCount){ lastCount=cn; if(cn>0) sfxCount(false); }
-      if(countT<=0){ state="play"; startBeat(); sfxCount(true); }
+      if(countT<=0){ state="play"; startBeat(); sfxCount(true); pingPlay(); }
     }
     if(state==="play" && !paused){
       if(freezeT>0) freezeT-=f/60;      // hit-stop: il mondo si ferma un istante
