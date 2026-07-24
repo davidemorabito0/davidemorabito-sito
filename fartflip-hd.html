@@ -1839,7 +1839,7 @@
     enemies.splice(idx,1); lvlBoxes++;
     stSquash++; UNL.sq++;
     if(UNL.sq===50) unlockNow(5);
-    var sp2=PT(10);
+    var sp2=PT(15);                                 // pestata sulla testa: 15 punti (x moltiplicatore)
     scoreF+=sp2; scorePulse=1;
     addPop({x:cx, y:ey-6, txt:"+"+sp2, col:GREEN, t:1});
     sparks(GREEN,10,cx,cy);
@@ -2040,10 +2040,13 @@
   document.addEventListener("pointermove",function(e){
     if(!holding || state!=="play" || paused) return;
     var dyv=(((e&&e.clientY)||0)-touchY0);
-    if(dyv>28){
+    // col mondo sottosopra la picchiata "in basso" si fa scorrendo il dito verso l'ALTO
+    var flipped = flipAmt>0.5;
+    var diveDir = flipped ? -1 : 1;               // direzione dello swipe che innesca la picchiata
+    if(dyv*diveDir>28){
       if(jetT>0){ touchY0=(e&&e.clientY)||0; jetMove(1); }   // col jetpack lo swipe e' ripetibile
-      else { touchY0=1e9; dive(); }
-    } else if(dyv<-28 && jetT>0){ airTapT=0; touchY0=(e&&e.clientY)||0; jetMove(-1); }
+      else { touchY0=(diveDir>0?1e9:-1e9); dive(); }
+    } else if(dyv*diveDir<-28 && jetT>0){ airTapT=0; touchY0=(e&&e.clientY)||0; jetMove(-1); }
   });
   document.addEventListener("pointerup",function(){ holding=false; flushAirTap(); });
   document.addEventListener("pointercancel",function(){ holding=false; airTapT=0; });
