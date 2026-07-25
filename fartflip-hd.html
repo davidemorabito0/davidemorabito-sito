@@ -37,6 +37,17 @@
   var twk=[], streaks=[], scrFar=0, scrMid=0, scrNear=0;
   var hdWasG=true, hdLandT=0, hdFaceMood="norm", hdCyc=0, winPoop=false;
   var comboN=0, comboT=0, comboPulse=0, nearCd=0, slowMoT=0, flashT=0, kfreezeT=0, shakeT=0, rings=[];
+  var heat=0, heatFxT=0;                             // calore combo: sale giocando bene, scende fermi, azzera se colpiti
+  // ============ MUSICA DEL MENU ============
+  // Incollare qui il data URI completo dell'MP3 ("data:audio/mpeg;base64,....""):
+  // suona in loop SOLO nelle schermate del menu e si ferma quando parte la partita.
+  // Vuoto = silenzio (nessun placeholder sonoro).
+  var MENU_MP3="";
+  // =========================================
+  var GAME_VER="2.43";                               // mostrata in basso a destra, solo nel menu
+  var BOOT_T=2.0, bootT=BOOT_T;                      // finto caricamento all'avvio
+  var BOOT_MSGS=["calibrazione flatulenze...","pressurizzazione del gabinetto...",
+                 "lucidatura dei cubi...","interrogazione dei nemici...","collaudo degli spuntoni..."];
   var grindFx=0, lvl10T=0, skateFx=0;
   var jetTgt=JET_Y, jetHintT=0, fireHintT=0, fireHintOff=false, fireShots=0;
   var FLIP_TIME=10, FLIP_BONUS=5/3, FLIP_SETTLE=1.0;   // sottosopra: 10 s (ultimo 1 s di assestamento), punti +2/3
@@ -52,10 +63,10 @@
     DEV_SK=(m.sk&&m.sk.slice)?m.sk.slice(0,6):null;
     SFX_OVR=(m.sfx&&typeof m.sfx==="object")?m.sfx:{};
     var mm=m.menu||{};
-    MENU.mode=(mm.mode==="loop"||mm.mode==="smp")?mm.mode:"off";
+    MENU.mode=(mm.mode==="loop"||mm.mode==="smp")?mm.mode:(MENU_MP3?"smp":"off");
     MENU.vol=(mm.vol===undefined)?0.5:Math.max(0,Math.min(1,+mm.vol||0));
     MENU.bpm=Math.max(60,Math.min(160,(mm.bpm|0)||96));
-    MENU.smp=(typeof mm.smp==="string")?mm.smp:null;
+    MENU.smp=(typeof mm.smp==="string")?mm.smp:(MENU_MP3||null);
     stopMenuMusic();
     if(m.env&&typeof m.env==="object") setEnvFrom(m.env); else resetEnv();
   }
@@ -322,7 +333,7 @@
 
   var SKINS=[
     {n:"COOLO", c:"#FE5000", d:"#B83A00", f:"#F4EEE4", hair:"spiky", eyes:"crazy",  mouth:"grin"},
-    {n:"VIOLO", c:"#8B5CF6", d:"#5B32B0", f:"#EFE6FB", hair:"flat",  eyes:"sleepy", mouth:"smirk"},
+    {n:"VIOLA", c:"#8B5CF6", d:"#5B32B0", f:"#EFE6FB", hair:"flat",  eyes:"sleepy", mouth:"smirk"},
     {n:"MENTA", c:"#2FD37E", d:"#179153", f:"#E7FAF0", hair:"tuft",  eyes:"wide",   mouth:"tongue"},
     {n:"BRACE", c:"#C2261E", d:"#660D08", f:"#FFD9C9", hair:"mohawk", eyes:"angry", mouth:"fang",     puff:"#FF7A18", boot:"boots"},
     {n:"GELA",  c:"#4FC3F7", d:"#12547F", f:"#EAF9FF", hair:"horns",  eyes:"visor", mouth:"flatline", puff:"#8FE9FF", boot:"skates", skate:1},
@@ -346,7 +357,7 @@
   function unlockedCount(){ var k=0; for(var i=0;i<SKINS.length;i++) if(!skinLocked(i)) k++; return k; }
   function nextLockedIdx(){ for(var i=3;i<SKINS.length;i++) if(skinLocked(i)) return i; return -1; }
   var DIFFS=[
-    {n:"FACILE",    sp:0,   gap:1.15, pads:false, d:"per iniziare"},
+    {n:"FACILE",    sp:0,   gap:1.15, pads:false, d:"per iniziare \u00b7 punti x1"},
     {n:"MEDIA",     sp:0.6, gap:0.80, pads:false, d:"piu' veloce \u00b7 punti x2"},
     {n:"DIFFICILE", sp:1.2, gap:0.66, pads:true,  d:"pedane di scatto \u00b7 punti x3"}
   ];
@@ -356,7 +367,20 @@
     var b = (mode==="sfida") ? 1 : (diff===2?3:diff===1?2:1);
     return (flipW>0) ? b*FLIP_BONUS : b;             // sottosopra: tutto vale 2/3 in piu'
   }
-  function PT(n){ return Math.round(n*DM()); }       // punti assegnati e mostrati: sempre interi
+  function heatLvl(){ return heat>=90?3 : heat>=60?2 : heat>=25?1 : 0; }
+  var HEAT_MULS=[1,1.25,1.5,2], HEAT_PCT=["","+25%","+50%","+100%"];
+  function heatMul(){ return HEAT_MULS[heatLvl()]; }
+  function heatAdd(x){
+    if(state!=="play") return;
+    var l0=heatLvl();
+    heat=Math.min(100,heat+x);
+    var l1=heatLvl();
+    if(l1>l0){                                       // soglia superata: si sente
+      heatFxT=1;                                     // niente scritta: lo dicono la barra e il suono
+      sfxComboTick(3+l1); vibe([0,18,22,18+l1*10]);
+    }
+  }
+  function PT(n){ return Math.round(n*DM()*heatMul()); }   // punti assegnati e mostrati: sempre interi
   function DMtxt(){ return String(Math.round(DM())); }   // moltiplicatore mostrato sempre intero (mai virgole)
   function setDiff(i){ diff=(i+DIFFS.length)%DIFFS.length; try{localStorage.setItem("fartflip_diff",String(diff));}catch(e){} }
   var skin=0;
@@ -431,7 +455,7 @@
   var SPEED_START=2.5, SPEED_RAMP=0.0016, SPEED_CAP=5.5; // sale a lungo, cap alto + bonus livello
   var POWER_MUL=2.0;                               // durante l'invincibilita' i box arrivano al 200%
   var PTS_DJUMP=8, PTS_DIVE=4, PTS_HURT=-80, PTS_INV=200, PTS_PUNCH=100, PTS_IRON=120, PTS_HEART=60, PTS_JET=180, PTS_FLIP=220;
-  var JET_TIME=4.0, JET_Y=76;                      // sprint volante col peto
+  var JET_TIME=4.0, JET_Y=124;                     // sprint volante col peto: quota dei power-up
   var TUT_JUMP_V=-10.5, TUT_DJUMP_V=-8.5, TUT_JET_Y=140; // scavalcano gli ostacoli restando sotto le scritte
   var WIN_T=12.0;                                  // scena finale col gabinetto gigante
   var PUNCH_MAX=1;                                 // una carica di pugno
@@ -441,7 +465,7 @@
   var best=0;
   try{var b=parseInt(localStorage.getItem("fartflip_best")||"0",10);if(!isNaN(b))best=b;}catch(e){}
 
-  var state="ready"; // ready | play | over
+  var state="boot"; // boot | ready | play | over
   var py,vy,grounded,jumps,flipT,flipDur,legTimer;
   var enemies,parts,powers,worldSpeed,distNext,scoreF,score,groundOff,bgOff;
   var deathFlash,overLock,lastMile,scorePulse,hitFlash;
@@ -453,13 +477,13 @@
   var dist,trackI,ghRec,ghLast,ghost,ghostOn,pendGhost,finish;
   var tutDidJump,tutDidDouble,tutJet,tutOut,tutOk,tutApexHold,tutDove;
   var grindCount,grindT,riding,trickN,trickBonus,trickT,trainId;
-  var fires,fireCd;
+  var fires,fireCd,puffT=0;                          // puffT: contrazione del sedere dopo lo sparo
   var freezeT,freezeMax,freezeCol,freezeTxt,freezePow,paused,pops,jetT,jetPuff;
   var holding=false, gliding=false, prevGliding=false, glideTrail=0, glideFrames=0;
 
   function reset(){
     py=GROUND_Y-PH; vy=0; grounded=true; jumps=0; flipT=0; flipDur=30; legTimer=0;
-    enemies=[]; parts=[]; powers=[]; fires=[]; fireCd=0; worldSpeed=SPEED_START; distNext=150; scoreF=0; score=0;
+    enemies=[]; parts=[]; powers=[]; fires=[]; fireCd=0; puffT=0; worldSpeed=SPEED_START; distNext=150; scoreF=0; score=0;
     groundOff=0; bgOff=0; deathFlash=0; lastMile=0; scorePulse=0; hitFlash=0;
     lives=START_LIVES; hurtT=0; invT=0; boxSince=0; heartSince=0; speedMul=1; beatMode="normal";
     punchCharges=0; ironShoes=0; superFlight=false;
@@ -471,7 +495,7 @@
     tutJetTgt=TUT_JET_Y; tutJetCue=0; tutJetCueT=0; tutHang=false;
     tutGliding=false; tutAutoHold=0; tutDidJump=false; tutDidDouble=false; tutJet=0; tutOut=0; tutOk=false; tutCue=0;
     grindCount=0; grindT=0; riding=false; trickN=0; trickBonus=0; trickT=0; trainId=0;
-    comboN=0; comboT=0; comboPulse=0; nearCd=0; slowMoT=0; flashT=0; kfreezeT=0; shakeT=0; rings=[];
+    comboN=0; comboT=0; comboPulse=0; nearCd=0; slowMoT=0; flashT=0; kfreezeT=0; shakeT=0; rings=[]; heat=0; heatFxT=0;
     grindFx=0; lvl10T=0; skateFx=0;
     jetTgt=JET_Y; jetHintT=0; fireHintT=0; flipW=0; flipAmt=0; flipSettle=0;
     stSquash=0; stNear=0; stCombo=0; stChain=0; newUnl=[];
@@ -635,7 +659,7 @@
     return false; }
 
   // ---------- FARTFLIP LAB: musica del menu' ----------
-  var MENU={mode:"off",vol:0.5,bpm:96,smp:null};
+  var MENU={mode:(MENU_MP3?"smp":"off"),vol:0.5,bpm:96,smp:(MENU_MP3||null)};
   var menuTimer=null, menuNext=0, menuStep=0, menuSrc=null, menuGain=null;
   var MENU_B=[45,45,40,40,41,41,43,43];
   var MENU_M=[69,null,72,74,null,76,74,72,69,null,67,69,null,64,null,null];
@@ -757,7 +781,7 @@
     o.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.34);
     var L=[
       {f0:520,fe:190,d:0.26,f1:700, f2:1800,w:"sawtooth"},                 // COOLO: "YEOW"
-      {f0:165,fe:92, d:0.55,f1:300, f2:720, w:"sawtooth",vib:{f:6,d:8}},   // VIOLO: "uuugh"
+      {f0:165,fe:92, d:0.55,f1:300, f2:720, w:"sawtooth",vib:{f:6,d:8}},   // VIOLA: "uuugh"
       {f0:640,fe:330,d:0.24,f1:900, f2:2400,w:"square",  vib:{f:26,d:45}}, // MENTA: "aiii"
       {f0:300,fe:110,d:0.36,f1:420, f2:1150,w:"sawtooth",vib:{f:8,d:12}},  // BRACE: ringhio
       {f0:900,fe:520,d:0.30,f1:1600,f2:3400,w:"triangle",vib:{f:16,d:26}}, // GELA: brivido
@@ -970,7 +994,7 @@
     });
   }
   // vocina del personaggio sul doppio salto (formanti = suona come una voce)
-  // ogni skin ha la sua voce: COOLO acuto e matto, VIOLO bassa e pigra, MENTA squillante con la lingua che frulla
+  // ogni skin ha la sua voce: COOLO acuto e matto, VIOLA bassa e pigra, MENTA squillante con la lingua che frulla
   function sfxVoice(){
     var c=ac(); if(!c)return; var t=c.currentTime+0.05;
     var PAL=[
@@ -980,7 +1004,7 @@
         {f0:300,f1:340,f2:980, syl:[[0,0.10],[0.12,0.22],[0.24,0.36]],up:2.0,w:"square"},
         {f0:420,f1:320,f2:2350,syl:[[0,0.18]],            up:2.1, w:"sawtooth"}
       ],
-      [ // VIOLO
+      [ // VIOLA
         {f0:205,f1:290,f2:780, syl:[[0,0.32]],            up:0.62,w:"sawtooth",vib:{f:5,d:9}},
         {f0:230,f1:420,f2:930, syl:[[0,0.16],[0.22,0.44]],up:0.74,w:"sawtooth"},
         {f0:190,f1:310,f2:700, syl:[[0,0.40]],            up:0.85,w:"sawtooth",vib:{f:4,d:7}},
@@ -1043,7 +1067,18 @@
     o.start(t); o.stop(t+end+0.06);
   }
   // super scoreggia: piu' lunga, piu' bassa, piu' grassa
-  function sfxIron(){                                  // clangore metallico: lo scudo para uno spuntone
+  function ironParry(idx,ey,landing){                // le scarpe di piombo parano: consumo unico, clangore
+    ironShoes--;
+    var en9=enemies[idx];
+    en9.spike=false;                                  // lo spuntone si spezza
+    sparks(SUPER,22,PX+PW/2,ey); sfxIron();
+    kfreezeT=0.08; shakeT=0.16; flashT=0.09; vibe([0,40,25,60]);
+    rings.push({x:PX+PW/2, y:ey, r:3, life:1, col:SUPER});
+    addPop({x:PX+PW/2, y:ey-12, txt:"PARATO!", col:SUPER, t:1});
+    if(landing){ squash(idx,ey); }                    // arrivavi dall'alto: lo schiacci pure
+    else { py=ey-PH; vy=0; grounded=true; jumps=0; superFlight=false; }
+  }
+  function sfxIron(){                                  // clangore metallico FORTE: lo scudo para uno spuntone
     var c=ac(); if(!c)return; var t=c.currentTime;
     [1200,1760,2640].forEach(function(fq,i){          // rintocchi metallici sovrapposti
       var o=c.createOscillator(), g=c.createGain(), bp=c.createBiquadFilter();
@@ -1051,13 +1086,13 @@
       o.frequency.exponentialRampToValueAtTime(fq*0.5,t+0.28);
       bp.type="bandpass"; bp.Q.value=6; bp.frequency.value=fq;
       g.gain.setValueAtTime(0.0001,t);
-      g.gain.exponentialRampToValueAtTime(0.16/(i+1),t+0.005);
+      g.gain.exponentialRampToValueAtTime(0.30/(i+1),t+0.005);
       g.gain.exponentialRampToValueAtTime(0.0001,t+0.30+i*0.06);
       o.connect(bp); bp.connect(g); g.connect(dest()); o.start(t); o.stop(t+0.4);
     });
     var n=c.createBufferSource(), ng=c.createGain(), hp=c.createBiquadFilter();
     n.buffer=getNoise(c); hp.type="highpass"; hp.frequency.value=2600;
-    ng.gain.setValueAtTime(0.22,t); ng.gain.exponentialRampToValueAtTime(0.0001,t+0.12);
+    ng.gain.setValueAtTime(0.36,t); ng.gain.exponentialRampToValueAtTime(0.0001,t+0.12);
     n.connect(hp); hp.connect(ng); ng.connect(dest()); n.start(t); n.stop(t+0.14);
   }
   function sfxSuper(){
@@ -1768,7 +1803,10 @@
     if(fireHintT>0.6) fireHintT=0.6;
     if(fireCd>0 || fires.length>=30) return;
     fireCd=4;
-    fires.push({x:PX+PW-2, y:py+PH*0.45, vx:7, t:0});
+    var bx9=PX+PW-1, by9=py+21.2;                     // bocca da fuoco: le chiappe
+    fires.push({x:bx9, y:by9, vx:7, t:0});
+    puffT=0.22;                                       // strizzata + faccia sotto sforzo
+    sparks("#BFE06A",6,bx9,by9);                      // sbuffo di gas che resta indietro
     sfxFire(); vibe(10);
   }
   // picchiata = tecnica: si esegue solo nella finestra dell'apice (sbrilluccichio sotto il piede)
@@ -1780,7 +1818,7 @@
     jumpBuf=0; coyote=0;                       // niente rimbalzo all'atterraggio
     if(vy<12) vy=12;
     glideFrames=GLIDE_MAX; superFlight=false; trickPose=null; flipT=0;
-    addPts(PTS_DIVE,"#cfe0ff");                // la picchiata premia: x1/x2/x3 per difficolta'
+    addPts(PTS_DIVE,"#cfe0ff"); heatAdd(6);    // la picchiata premia: x1/x2/x3 per difficolta'
     sfxDive(); vibe(12);
     for(var i=0;i<4;i++) parts.push({x:PX+3+Math.random()*(PW-6), y:py+4+Math.random()*8,
       vx:(Math.random()*1-0.5), vy:-(1.2+Math.random()*1.2), r:1.4+Math.random()*1.4, life:1, dr:0.09, c:"#cfe0ff"});
@@ -1827,7 +1865,7 @@
     }
     else if(jumps<2){
       vy = DJUMP_V; jumps=2;
-      startTrick(); sfxVoice(); addPts(PTS_DJUMP,WHITE);
+      startTrick(); sfxVoice(); addPts(PTS_DJUMP,WHITE); heatAdd(4);
       sfxDouble(); puff(2); vibe([0,14,30,20]);
     }
   }
@@ -2016,6 +2054,7 @@
     if(state==="over" && overLock<=0){ state="ready"; }
   }
   document.addEventListener("pointerdown",function(e){
+    if(state==="boot"){ unlockAudio(); return; }     // il caricamento non si salta
     if(state==="devpose"){ return; }
     if(state==="entry"){ entryTap(e); return; }
     if(state==="ready"){ readyTap(e); return; }
@@ -2230,8 +2269,8 @@
   });
 
   function spawnFromTrack(e){
-    if(e.t==="power"){ powers.push({x:W+10, y:e.y, t:0, got:false, kind:e.k}); return; }
-    if(e.t==="heart"){ powers.push({x:W+10, y:e.y, t:0, got:false, kind:"heart"}); return; }
+    if(e.t==="power"){ pushPower(e.y, e.k); return; }
+    if(e.t==="heart"){ pushPower(e.y, "heart"); return; }
     if(e.t==="train"){
       var id=++trainId, x=W+8, wsum=0;
       for(var i=0;i<e.n;i++){
@@ -2308,14 +2347,25 @@
     distNext = (80 + e.w + worldSpeed*8 + Math.random()*90) * DIFFS[diff].gap;
     if(DIFFS[diff].pads && Math.random()<0.32) pads.push({x:W+34+Math.random()*40, used:false});
   }
+  function pushPower(y,kind){                      // se ne sta nascendo un altro, questo va SOPRA, non addosso
+    var near=null;
+    for(var i=powers.length-1;i>=0;i--){
+      var q=powers[i];
+      if(q.got) continue;
+      if(q.x>W-46){ near=q; break; }
+    }
+    var t0=0;
+    if(near){ y=Math.max(102, near.y-30); t0=near.t; }   // stessa fase: ondeggiano insieme, distanza costante
+    powers.push({x:W+10, y:y, t:t0, got:false, kind:kind});
+  }
   function spawnPower(){
     var r=Math.random(), kind;
     if(mode!=="sfida" && level>=3 && flipW<=0 && r<0.16) kind="flip";          // sottosopra: dal livello 3
     else kind = r<0.2 ? "inv" : r<0.47 ? "punch" : r<0.74 ? "iron" : "jet";   // invincibilita' 1 su 5
-    powers.push({x:W+10, y:132+Math.random()*30, t:0, got:false, kind:kind}); // altezza media, prendibile
+    pushPower(132+Math.random()*30, kind);          // altezza media, prendibile
   }
   function spawnHeart(){
-    powers.push({x:W+10, y:140+Math.random()*26, t:0, got:false, kind:"heart"});
+    pushPower(140+Math.random()*26, "heart");
   }
 
   function update(f){
@@ -2334,7 +2384,11 @@
     if(flipW>0){
       flipW-=dt;
       if(flipW<=FLIP_SETTLE && flipSettle<=0){ flipSettle=FLIP_SETTLE; }   // ultimo secondo: assestamento
-      if(flipW<=0){ flipW=0; sfxFlipWorld(); vibe([0,50,40,90]); shakeT=Math.max(shakeT,0.22); }
+      if(flipW<=0){ flipW=0; sfxFlipWorld(); vibe([0,50,40,90]); shakeT=Math.max(shakeT,0.22);
+        if(py>70) vy=-Math.min(15.5, Math.sqrt(2*GRAV*(py-64)));   // slancio continuo fino al soffitto: nessun salto di posizione
+        grounded=false; riding=false; jumps=2; glideFrames=0; superFlight=false; trickPose=null; flipT=0; diveDone=false;
+        flashT=Math.max(flashT,0.10);                 // lo sbalzo e' voluto: si vede il lampo
+      }
     }
     if(flipSettle>0){ flipSettle-=dt; if(distNext<(60*f)) distNext=60; }   // ripartenza morbida dopo l'assestamento
     if(mode!=="sfida" && level===MAX_LEVEL && !goal) lvl10T+=dt;
@@ -2342,10 +2396,12 @@
       tpT-=dt;
       if(tpT<=0 && !tpDone){
         if(jetT>0 || invT>0) tpT=0.6;          // con jetpack o invincibilita' non si salta: aspetta
-        else { tpDone=true; powers.push({x:W+10, y:104+Math.random()*34, t:0, got:false, kind:"tp"}); }
+        else { tpDone=true; pushPower(104+Math.random()*34, "tp"); }
       }
     }
     if(nearCd>0) nearCd-=dt;
+    if(heat>0){ heat=Math.max(0, heat - dt*((grounded&&!riding)?7:3.5)); }  // il calore evapora se non alimentato
+    if(heatFxT>0) heatFxT-=dt;
     if(comboPulse>0) comboPulse-=dt*2.2;
     if(comboT>0){ comboT-=dt; if(comboT<=0) comboCash(); }
     for(var ri=rings.length-1;ri>=0;ri--){ var rg0=rings[ri]; rg0.r+=2.6*f; rg0.life-=0.07*f; if(rg0.life<=0) rings.splice(ri,1); }
@@ -2445,14 +2501,15 @@
         }
       }
       e.pt+=f; if(e.pt>5){e.pt=0;e.ph=e.ph?0:1;}
-      if(!e.passed && !grounded && e.x < PX+PW && e.x+e.w > PX && py+PH <= GROUND_Y-e.h-(e.off||0)){
-        var ngap=(GROUND_Y-e.h-(e.off||0))-(py+PH);
+      if(!e.passed && !grounded && vy<=0 && e.x < PX+PW && e.x+e.w > PX && py+PH <= GROUND_Y-e.h-(e.off||0)){
+        var ngap=(GROUND_Y-e.h-(e.off||0))-(py+PH);   // solo in salita o all'apice: atterrare accanto non e' un pelo
         e.ng=(e.ng===undefined)?ngap:Math.min(e.ng,ngap);
       }
       if(!e.passed && e.x+e.w < PX){        // box saltato
         e.passed=true;
         if(e.ng!==undefined && e.ng<=5 && !e.ridden && nearCd<=0 && invT<=0 && hurtT<=0){
           nearCd=0.6; stNear++;
+          slowMoT=Math.max(slowMoT,0.18); heatAdd(12);   // brivido: il tempo rallenta un attimo
           var nmp=PT(15); scoreF+=nmp; scorePulse=1;
           addPop({x:W/2, y:Math.max(46,py-8), txt:"PER UN PELO! +"+nmp, col:"#FFFFFF", t:1});
           sfxNear(); vibe([0,15,20,15]); comboAdd();
@@ -2483,7 +2540,8 @@
         var en=enemies[s], ey=GROUND_Y-en.h-(en.off||0);
         var overX = (PX+3 < en.x+en.w-2) && (PX+PW-3 > en.x+2);
         if(overX && prevBottom<=ey+6 && py+PH>=ey){
-          if(en.spike && invT<=0){                  // spuntoni: non ci si atterra sopra
+          if(en.spike && invT<=0){                  // spuntoni: non ci si atterra sopra...
+            if(ironShoes>0){ ironParry(s,ey,true); break; }   // ...tranne con le scarpe di piombo!
             if(hurtT<=0){
               if(punchCharges>0) punchEnemy(s);
               else hurt();
@@ -2520,7 +2578,7 @@
           punchCharges=PUNCH_MAX; sparks(PUNCH,16,pw.x,cy); sfxPower(); vibe([0,20,30,20]);
           addPts(PTS_PUNCH,PUNCH); hitStop(PUNCH,"PUGNO",0.40,1.3);
         } else if(pw.kind==="iron"){
-          ironShoes++;
+          ironShoes=1;                            // scudo singolo: non si accumula
           sparks(SUPER,18,pw.x,cy); sfxIron(); vibe([0,30,25,45]);
           addPts(PTS_IRON,SUPER); hitStop(SUPER,"SCARPE DI PIOMBO",0.40,1.3);
           addPop({x:W/2, y:120, txt:"scudo: pari uno spuntone", col:SUPER, t:1});
@@ -2614,6 +2672,7 @@
 
     // palle di fuoco del giocatore (solo durante l'invincibilita')
     if(fireCd>0) fireCd-=f;
+    if(puffT>0) puffT-=f/60;
     for(var fi=fires.length-1;fi>=0;fi--){
       var fb=fires[fi]; fb.x+=fb.vx*f; fb.t+=f; fb.y+=Math.sin(fb.t*0.6)*0.3*f;
       var fdead=false;
@@ -2685,14 +2744,7 @@
             break;
           }
           if(e2.spike && ironShoes>0){                // scarpe di piombo: parano UNO spuntone
-            ironShoes--;
-            e2.spike=false;                          // lo spuntone si spezza
-            sparks(SUPER,20,PX+PW/2,ey2); sfxIron();
-            kfreezeT=0.07; shakeT=0.14; flashT=0.08; vibe([0,35,25,50]);
-            rings.push({x:PX+PW/2, y:ey2, r:3, life:1, col:SUPER});
-            addPop({x:PX+PW/2, y:ey2-12, txt:"PARATO!", col:SUPER, t:1});
-            if(vy>0 && (py+PH-ey2<=10 || fromAbove)){ squash(j,ey2); }   // se stavo scendendo lo schiaccio
-            else { py=ey2-PH; vy=0; grounded=true; jumps=0; superFlight=false; }
+            ironParry(j,ey2, vy>0 && (py+PH-ey2<=10 || fromAbove));
             break;
           }
           if(punchCharges>0){ punchEnemy(j); }
@@ -2737,7 +2789,7 @@
   }
 
   function addPts(n,col){
-    n=Math.round(n*DM());
+    n=Math.round(n*DM()*heatMul());
     scoreF=Math.max(0,scoreF+n); score=Math.floor(scoreF);
     addPop({x:PX+PW/2, y:py-2, txt:(n>0?"+":"")+n, col:col||WHITE, t:1});
   }
@@ -2767,6 +2819,7 @@
     sparks(GOLD,14,PX+PW/2,py+PH);
   }
   function comboAdd(){
+    heatAdd(10);                                     // ogni azione della catena scalda
     comboN++; comboT=3.0; comboPulse=1;
     if(comboN>stCombo) stCombo=comboN;
     if(comboN>=3) sfxComboTick(comboN);
@@ -2796,6 +2849,8 @@
   }
   function comboBreak(){ comboN=0; comboT=0; }
   function hurt(){
+    if(heat>=25) addPop({x:W/2, y:142, txt:"calore perso...", col:"rgba(255,255,255,.7)", t:1});
+    heat=0; heatFxT=0;
     comboBreak();
     lives-=2; hurtT=HURT_TIME; hitFlash=7; grindCount=0; grindT=0; addPts(PTS_HURT,"#FF6B5E");   // un colpo = un cuore intero
     sfxHurt(); vibe([0,35,60,35]);
@@ -2985,7 +3040,7 @@
     var S=SKINS[skin];
     var base = inv ? (Math.floor(tt/5)%2 ? GOLD : "#FFF6DC") : S.c;
     var dark = inv ? "#C77800" : S.d;
-    hdFaceMood = (pose==="squat" || (pose==="sit" && winPoop)) ? "strain" : "norm";
+    hdFaceMood = (pose==="squat" || (pose==="sit" && winPoop) || puffT>0) ? "strain" : "norm";
     var cyc = hdCyc;               // fase di corsa accumulata in hdFrameBegin
     var swf=Math.sin(cyc), swb=Math.sin(cyc+3.14159);          // oscillazione gambe avanti/dietro
     var isk = !!S.skate;                                    // pattina invece di correre
@@ -3029,7 +3084,7 @@
       if(gnd && isk)     return [[skBX,skBY],[skFX,skFY]];
       if(gnd && irid)    return [[8.2,29.6],[14.8,29.6]];
       if(gnd)            return [[9.6+4.4*swb, 29.5-Math.max(0,Math.cos(cyc+3.14159))*2.6],
-                                 [12.4+4.4*swf,29.5-Math.max(0,Math.cos(cyc))*2.6]];
+                                 [11.0+4.4*swf,29.5-Math.max(0,Math.cos(cyc))*2.6]];
       return [[7.2,28.6],[14.8,28.2]];
     }
     function drawFoot(i){
@@ -3113,7 +3168,7 @@
     else if(pose==="squat"){ limb2(6.2,16.2, 4.6,19.0, 8.2,20.2, 2.5, dark); }
     else if(glid && isk){ limb2(6.2,15.2, 4.2,18.6, 8.8,16.8, 2.5, dark); }
     else if(glid){ limb(6.0,15.4, -2.6,14.4, 2.6, dark); }
-    else if(gnd){ limb2(6.4,15.2, 6.4+2.4*swf,17.6, 6.4+3.0*swf,19.8, 2.5, dark); }
+    else if(gnd){ limb2(7.4,15.2, 7.4+2.4*swf,17.6, 7.4+3.0*swf,19.8, 2.5, dark); }   // spunta dietro nell'oscillazione
     else { limb2(6.2,15.2, 4.0,12.8, 3.2,10.6, 2.5, dark); }
 
     // busto
@@ -3159,7 +3214,7 @@
       limb2(11.6,22.6, 11.0,26.0, skFX,skFY, 3.0, base);
     }else if(gnd){
       var flift=Math.max(0,Math.cos(cyc))*2.6;
-      limb2(12.4,22.6, 12.4+2.2*swf,26.0, 12.4+4.4*swf,29.5-flift, 3.0, base);
+      limb2(11.0,22.6, 11.0+2.2*swf,26.0, 11.0+4.4*swf,29.5-flift, 3.0, base);   // anca al centro del corpo
     }else{
       limb2(12.4,22.6, 13.8,26.2, 14.8,28.2, 3.0, base);
     }
@@ -3181,7 +3236,10 @@
     else if(pose==="squat"){ limb2(15.8,16.2, 17.4,19.0, 13.8,20.2, 2.5, base); }
     else if(glid && isk){ limb(15.8,15.4, 23.2,17.2, 2.5, base); }
     else if(glid){ limb(16.0,15.4, 24.6,14.4, 2.6, base); }
-    else if(gnd){ limb2(15.6,15.2, 15.6+2.4*swb,17.6, 15.6+3.0*swb,19.8, 2.5, base); }
+    else if(gnd){                                      // spalla a sinistra del centro: passa sul petto, quindi ha il contorno
+      limb2(8.8,15.2, 8.8+2.4*swb,17.6, 8.8+3.0*swb,19.8, 3.5, hexA("#08060C",0.45));
+      limb2(8.8,15.2, 8.8+2.4*swb,17.6, 8.8+3.0*swb,19.8, 2.5, base);
+    }
     else { limb2(15.8,15.2, 18.0,12.8, 18.8,10.6, 2.5, base); }
 
     // testa
@@ -3226,6 +3284,9 @@
       }
     }
     var lean=(state==="play"&&gnd&&angle===0&&!pose&&!glid)?Math.min(0.10,Math.max(0,(worldSpeed-3)*0.022)):0;
+    if(inv && state==="play" && gnd && angle===0 && !pose && !glid){
+      lean = -0.15 - Math.abs(Math.sin(hdCyc))*0.03;   // si inarca all'indietro: cammina col sedere avanti
+    }
     ctx.save();
     ctx.translate(px+PW/2,pyy+PH/2);
     ctx.rotate(angle+lean);
@@ -3372,6 +3433,14 @@
     }
   }
 
+  function drawVersion(){                              // versione sempre visibile, in basso a destra
+    ctx.save();
+    ctx.font="700 7px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+    ctx.textAlign="right"; ctx.textBaseline="alphabetic";
+    ctx.fillStyle="rgba(0,0,0,.35)"; ctx.fillText(GAME_VER,W-6.5,H-5.5);
+    ctx.fillStyle="rgba(255,255,255,.34)"; ctx.fillText(GAME_VER,W-7,H-6);
+    ctx.restore();
+  }
   function drawFires(){
     for(var i=0;i<fires.length;i++){
       var fb=fires[i];
@@ -3599,27 +3668,31 @@
     }
     ctx.font="700 12px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
     ctx.textAlign="left"; ctx.fillStyle="rgba(255,255,255,.4)"; ctx.fillText("BEST "+best,8,8);
-    if(DM()>1){
-      ctx.font="800 9px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
-      ctx.textAlign="right"; ctx.fillStyle=GOLD; ctx.fillText("x"+DMtxt(),W-32,-2+22);
-    }
     // cuori
     for(var i=0;i<HEARTS;i++) drawHeart(8+i*11,24,Math.max(0,Math.min(2,lives-i*2)));
     ctx.font="700 8px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
     ctx.fillStyle="rgba(255,255,255,.5)"; ctx.fillText(mode==="sfida"?"SFIDA":"LV "+level,8,35);
+    if(heat>0){                                      // calore combo: solo la barra, sotto LV
+      var hl=heatLvl(), hw=44, hy=46;
+      var hcol = hl===3?"#FF4D2E" : hl===2?"#FF9430" : hl===1?GOLD : "rgba(255,255,255,.55)";
+      var puls = (hl===3 && Math.floor(blink/4)%2===0) || heatFxT>0.5;
+      ctx.fillStyle="rgba(255,255,255,.14)"; ctx.fillRect(8,hy,hw,3);
+      ctx.globalAlpha = puls?1:0.85;
+      ctx.fillStyle=hcol; ctx.fillRect(8,hy,hw*(heat/100),3);
+      ctx.globalAlpha=1;
+    }
     // stato power-up (impilati) oppure progresso verso il prossimo
-    var row=22;
+    var row=32;                                      // sotto al punteggio (che pulsando si allarga) e al moltiplicatore
     ctx.font="700 8px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
     ctx.textAlign="right";
-    if(invT>0){
+    if(invT>0){                                      // solo la barra: il tempo che resta si legge da quella
       var bw=44, x=W-32-bw;
+      ctx.fillStyle="rgba(255,255,255,.15)"; ctx.fillRect(x,row,bw,3);
       ctx.fillStyle=(invT<1.5 && Math.floor(blink/4)%2===0)?"rgba(255,194,74,.25)":GOLD;
-      ctx.fillText("INVINCIBILE",W-32,row); row+=10;
-      ctx.fillStyle="rgba(255,255,255,.15)"; ctx.fillRect(x,row-1,bw,3);
-      ctx.fillStyle=GOLD; ctx.fillRect(x,row-1,bw*(invT/INV_TIME),3); row+=9;
+      ctx.fillRect(x,row,bw*(invT/INV_TIME),3); row+=11;
     }
     if(punchCharges>0){ ctx.fillStyle=PUNCH; ctx.fillText(punchCharges>1?("PUGNO x"+punchCharges):"PUGNO",W-32,row); row+=10; }
-    if(ironShoes>0){ ctx.fillStyle=SUPER; ctx.fillText(ironShoes>1?("SCARPE x"+ironShoes):"SCARPE",W-32,row); row+=10; }
+    if(ironShoes>0){ ctx.fillStyle=SUPER; ctx.fillText("SCARPE",W-32,row); row+=10; }
     if(jetT>0){ ctx.fillStyle=(jetT<2.0 && Math.floor(blink/4)%2===0)?"rgba(87,242,201,.25)":JET;
       ctx.fillText("JET "+jetT.toFixed(1)+"s",W-32,row); row+=10; }
     if(invT<=0 && punchCharges<=0 && ironShoes<=0 && jetT<=0){
@@ -3803,6 +3876,7 @@
     if(fireHintT>0) fireHintT-=f/60;
     var fTgt=(state==="play" && flipW>FLIP_SETTLE)?1:0;   // si raddrizza gia' nell'ultimo secondo, per atterrare sicuri
     if(flipAmt!==fTgt){ var fst=f/21; flipAmt += (fTgt>flipAmt)?Math.min(fst,fTgt-flipAmt):-Math.min(fst,flipAmt-fTgt); }
+    if(state==="boot"){ bootT-=f/60; if(bootT<=0){ bootT=0; state="ready"; readyIdle=0; } }
     var inHome9=(state==="ready"||state==="mode"||state==="diff"||state==="opts");
     if(inHome9 && MENU.mode!=="off" && unlocked) startMenuMusic();
     else if(!inHome9 && (menuTimer||menuSrc)) stopMenuMusic();
@@ -3821,7 +3895,19 @@
     fwBegin(); drawGround(); fwEnd();
     if(state!=="ready") readyIdle=0;
 
-    if(state==="ready"){
+    if(state==="boot"){
+      ctx.fillStyle="rgba(5,7,14,.88)"; ctx.fillRect(0,0,W,H);          // velo scuro sul mondo
+      centerText("FARTFLIP",104,ORANGE,26,"800");
+      centerText("HD",122,"rgba(255,255,255,.55)",10,"800");
+      var bp=1-bootT/BOOT_T;                                            // avanzamento a scatti, "sta elaborando"
+      var bpr=bp<0.30?bp*2.2 : bp<0.52?0.66 : 0.66+(bp-0.52)*0.71;
+      var pct=Math.min(100,Math.round(bpr*100));
+      ctx.fillStyle="rgba(255,255,255,.12)"; ctx.fillRect(48,150,W-96,6);
+      ctx.fillStyle=ORANGE; ctx.fillRect(48,150,(W-96)*Math.min(1,bpr),6);
+      centerText(pct+"%",170,"rgba(255,255,255,.8)",10,"800");
+      var bmi=Math.floor((BOOT_T-bootT)/0.45)%BOOT_MSGS.length;
+      centerText(BOOT_MSGS[bmi],188,"rgba(255,255,255,.42)",8,"600");
+    } else if(state==="ready"){
       readyIdle+=f/60;
       if(readyIdle>=7 && readyIdle-f/60<7) sbFetchTop();
       var attract=(readyIdle>=7);
@@ -4291,18 +4377,12 @@
       if(comboN>=2 && comboT>0){
         ctx.save();
         ctx.globalAlpha=Math.min(1,comboT/0.6);
-        var cbY=claimY(bnY,true); bnY=cbY+18;
-        centerText("COMBO x"+comboN,cbY,GOLD,Math.round(12+Math.max(0,comboPulse)*6),"800");
-        var cbw=56*Math.max(0,comboT)/3;
+        var cbY=claimY(bnY,true); bnY=cbY+15;
+        centerText("COMBO x"+comboN,cbY,GOLD,Math.round(9+Math.max(0,comboPulse)*4),"800");
+        var cbw=42*Math.max(0,comboT)/3;
         ctx.globalAlpha=Math.min(0.8,comboT/0.6);
         ctx.fillStyle=GOLD; ctx.fillRect(W/2-cbw/2,cbY+8,cbw,1.6);
         ctx.restore();
-      }
-      if(invT>0 && invT>INV_TIME-2.4){
-        var tsY=claimY(bnY,true); bnY=tsY+16;
-        ctx.globalAlpha=0.65+0.35*Math.sin(blink*0.4);
-        centerText("TOCCA E SPARA!",tsY,GOLD,12,"800");
-        ctx.globalAlpha=1;
       }
       fwBegin();
       drawPunch();
@@ -4376,7 +4456,7 @@
       }
       if(trickT>0){
         ctx.save(); ctx.globalAlpha=Math.min(1,trickT*1.6);
-        var trY=claimY(bnY,true); bnY=trY+32;
+        var trY=claimY(Math.max(bnY,88),true); bnY=trY+32;    // mai sull'HUD in alto
         centerText("TRICK x"+trickN, trY, GOLD, 20, "800");
         centerText("+"+trickBonus, trY+18, SUPER, 13, "800");
         ctx.restore();
@@ -4460,6 +4540,7 @@
       else if(rows.length>0) centerText("in classifica ci sono i migliori del mondo",244,"rgba(255,255,255,.35)",7,"600");
       if(overLock<=0 && Math.floor(blink/28)%2===0) centerText("TAP PER RIPROVARE",262,WHITE,11,"700");
     }
+    if(state==="boot"||state==="ready"||state==="mode"||state==="diff"||state==="opts") drawVersion();
     hdFrameEnd();
     requestAnimationFrame(loop);
   }
