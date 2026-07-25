@@ -44,7 +44,7 @@
   // Vuoto = silenzio (nessun placeholder sonoro).
   var MENU_MP3="";
   // =========================================
-  var GAME_VER="2.45";                               // mostrata in basso a destra, solo nel menu
+  var GAME_VER="2.50";                               // mostrata in basso a destra, solo nel menu
   var BOOT_T=2.0, bootT=BOOT_T;                      // finto caricamento all'avvio
   var BOOT_MSGS=["calibrazione flatulenze...","pressurizzazione del gabinetto...",
                  "lucidatura dei cubi...","interrogazione dei nemici...","collaudo degli spuntoni..."];
@@ -398,6 +398,33 @@
 
   // ---------- MODALITA' SFIDA: tracciato fisso, uguale per tutti ----------
   var mode="arcade";                 // "arcade" (casuale) | "sfida" (tracciato fisso)
+  // ---------- MODALITA' FESTA: 2-4 giocatori a turni, stesso telefono ----------
+  var PARTY="#57F2C9";               // colore della modalita' festa
+  var party=null, partySel=2;        // {n, i, scores[]}
+  function partyStart(n){
+    party={n:n, i:0, scores:[], sel:0};
+    mode="arcade"; startTurn();
+  }
+  function partyName(i){ return "G"+(i+1); }
+  function startTurn(){
+    unlockAudio(); reset(); state="turno"; turnT=0;
+  }
+  function partyScore(){                             // fine turno: registra e mostra la classifica
+    if(!party) return false;
+    party.scores[party.i]=score;
+    state="festa";
+    return true;
+  }
+  function partyNext(){
+    if(!party) return;
+    if(party.i < party.n-1){ party.i++; startTurn(); }
+    else { party.done=true; }
+  }
+  function partyWinner(){
+    var best=-1, wi=0;
+    for(var i=0;i<party.n;i++){ var sc=(party.scores[i]===undefined?-1:party.scores[i]); if(sc>best){ best=sc; wi=i; } }
+    return wi;
+  }
   var TRACK_LEN=30000;               // ~2 minuti di percorso
   var GH_STEP=16;                    // il fantasma viene campionato ogni 16px
   function mulberry32(a){            // generatore pseudo-casuale deterministico
@@ -455,6 +482,9 @@
   var SPEED_START=2.5, SPEED_RAMP=0.0016, SPEED_CAP=5.5; // sale a lungo, cap alto + bonus livello
   var POWER_MUL=2.0;                               // durante l'invincibilita' i box arrivano al 200%
   var PTS_DJUMP=8, PTS_DIVE=4, PTS_HURT=-80, PTS_INV=200, PTS_PUNCH=100, PTS_IRON=120, PTS_HEART=60, PTS_JET=180, PTS_FLIP=220;
+  // ---------- METEO: pioggia, nebbia, temporale. Casuale, mai ai primi due livelli ----------
+  var WX_FROM_LEVEL=3;                             // prima di qui il cielo resta sereno
+  var wxKind="", wxT=0, wxNext=0, wxAmt=0, wxDrops=[], wxFog=[], wxFlash=0, wxBolt=0;
   var POW_Y0=132, POW_Y1=162;                      // fascia in cui nascono i power-up
   var JET_TIME=4.0, JET_Y=(POW_Y0+POW_Y1)/2-PH/2;  // il jetpack vola col corpo centrato in quella fascia
   var TUT_JUMP_V=-10.5, TUT_DJUMP_V=-8.5, TUT_JET_Y=140; // scavalcano gli ostacoli restando sotto le scritte
@@ -472,7 +502,7 @@
   var deathFlash,overLock,lastMile,scorePulse,hitFlash;
   var lives,hurtT,invT,boxSince,heartSince,speedMul,punchCharges,ironShoes,superFlight;
   var punchT,punchX,punchY,trickPose,flipDir,flipTurns,level,lvlBoxes,levelT,lvlHold,bullets,countT,lastCount;
-  var introT,winT,goal,pads,dashT,deadT,jumpBuf,coyote;
+  var introT,winT,goal,pads,dashT,deadT,jumpBuf,coyote,turnT=0;
   var tutT,tutStep,tutObj,tutPy,tutVy,tutJumps,tutLeg,tutGlideF,tutGliding,tutAutoHold,tutCue;
   var tutJetTgt=140, tutJetCue=0, tutJetCueT=0, tutHang=false;
   var dist,trackI,ghRec,ghLast,ghost,ghostOn,pendGhost,finish;
@@ -499,6 +529,8 @@
     comboN=0; comboT=0; comboPulse=0; nearCd=0; slowMoT=0; flashT=0; kfreezeT=0; shakeT=0; rings=[]; heat=0; heatFxT=0;
     grindFx=0; lvl10T=0; skateFx=0;
     jetTgt=JET_Y; jetHintT=0; fireHintT=0; flipW=0; flipAmt=0; flipSettle=0;
+    wxKind=""; wxT=0; wxAmt=0; wxFlash=0; wxBolt=0; wxDrops=[]; wxFog=[];
+    wxNext=8+Math.random()*14;
     stSquash=0; stNear=0; stCombo=0; stChain=0; newUnl=[];
     winMash=0; winMashT=0; winMashDone=false;
     tpLevel=8+Math.floor(Math.random()*3); tpT=0; tpDone=false; tpGot=false;
@@ -1079,6 +1111,21 @@
     if(landing){ squash(idx,ey); }                    // arrivavi dall'alto: lo schiacci pure
     else { py=ey-PH; vy=0; grounded=true; jumps=0; superFlight=false; }
   }
+  function sfxThunder(){                               // tuono: rombo basso e lungo
+    var c=ac(); if(!c)return; var t=c.currentTime;
+    var n=c.createBufferSource(), ng=c.createGain(), lp=c.createBiquadFilter();
+    n.buffer=getNoise(c); n.loop=true;
+    lp.type="lowpass"; lp.frequency.setValueAtTime(320,t); lp.frequency.exponentialRampToValueAtTime(90,t+1.1);
+    ng.gain.setValueAtTime(0.0001,t);
+    ng.gain.exponentialRampToValueAtTime(0.20,t+0.05);
+    ng.gain.exponentialRampToValueAtTime(0.0001,t+1.2);
+    n.connect(lp); lp.connect(ng); ng.connect(dest()); n.start(t); n.stop(t+1.3);
+    var o=c.createOscillator(), og=c.createGain();
+    o.type="sine"; o.frequency.setValueAtTime(70,t); o.frequency.exponentialRampToValueAtTime(34,t+0.9);
+    og.gain.setValueAtTime(0.0001,t); og.gain.exponentialRampToValueAtTime(0.16,t+0.04);
+    og.gain.exponentialRampToValueAtTime(0.0001,t+1.0);
+    o.connect(og); og.connect(dest()); o.start(t); o.stop(t+1.1);
+  }
   function sfxIron(){                                  // clangore metallico FORTE: lo scudo para uno spuntone
     var c=ac(); if(!c)return; var t=c.currentTime;
     [1200,1760,2640].forEach(function(fq,i){          // rintocchi metallici sovrapposti
@@ -1588,7 +1635,7 @@
     for(var i=0;i<lst.length;i++){ if(lst[i].n===name && lst[i].s===score){ savedIdx=i; break; } }
     saveScoresK(mode==="sfida"?"fartflip_scores_sfida":"fartflip_scores", lst);
     lastName=name;
-    sbSubmit(name,score,skin,mode);        // ogni partita finisce nella classifica mondiale
+    if(!party) sbSubmit(name,score,skin,mode);   // in festa la classifica e' quella del tavolo, non quella mondiale
     state="over"; overLock=18;
   }
   function entryTap(e){
@@ -1924,12 +1971,36 @@
   function modeTap(e){
     var q=canvasPos(e);
     if(q.x<18 || q.x>W-18){ return; }                  // fuori dai riquadri: ignora
-    if(q.y<60){ state="ready"; return; }                              // in alto: indietro
-    var hit = (q.y>=70 && q.y<=152) ? 0 : (q.y>=162 && q.y<=244) ? 1 : -1;
-    if(hit<0){ modeSel=(q.y<157)?0:1; sfxTick(); return; }   // fuori dai riquadri: sposta la scelta
-    if(hit!==modeSel){ modeSel=hit; sfxTick(); return; }     // 1o tocco: seleziona e basta
-    if(modeSel===0){ mode="arcade"; state="diff"; }          // 2o tocco sullo stesso: si parte
-    else startSfida();
+    if(q.y<56){ state="ready"; return; }                              // in alto: indietro
+    var hit=-1;
+    for(var mi9=0;mi9<3;mi9++){ var y9=64+mi9*68; if(q.y>=y9 && q.y<=y9+60) hit=mi9; }
+    if(hit<0){ modeSel=(q.y<130)?0:(q.y<198?1:2); sfxTick(); return; }  // fuori dai riquadri: sposta la scelta
+    if(hit!==modeSel){ modeSel=hit; sfxTick(); return; }                // 1o tocco: seleziona e basta
+    modeGo();
+  }
+  function modeGo(){
+    if(modeSel===0){ mode="arcade"; state="diff"; }
+    else if(modeSel===1) startSfida();
+    else { party=null; partySel=2; state="festaN"; sfxTick(); }
+  }
+  function festaNTap(e){
+    var q=canvasPos(e);
+    if(q.y<56){ state="mode"; sfxTick(); return; }        // in alto: indietro
+    var hit=-1;
+    for(var k9=0;k9<3;k9++){ var y9=76+k9*50; if(q.y>=y9 && q.y<=y9+42) hit=k9+2; }
+    if(hit<0) return;
+    if(hit!==partySel){ partySel=hit; sfxTick(); return; }  // 1o tocco: scegli quanti siete
+    partyStart(partySel);                                   // 2o tocco: si comincia
+  }
+  function festaTap(e){
+    if(!party){ state="ready"; return; }
+    if(!party.done){ partyNext(); return; }                 // tocca: passa il telefono
+    var q=canvasPos(e);
+    if(q.y>=232){
+      if(q.x<W/2){ partyStart(party.n); }                   // rivincita, stessi giocatori
+      else { party=null; state="ready"; readyIdle=0; }
+      sfxTick(); return;
+    }
   }
   function diffTap(e){
     var yy=canvasPos(e).y;
@@ -2061,11 +2132,15 @@
     if(state==="ready"){ readyTap(e); return; }
     if(state==="opts"){ optsTap(e); return; }
     if(state==="mode"){ modeTap(e); return; }
+    if(state==="festaN"){ festaNTap(e); return; }
+    if(state==="turno"){ if(turnT>0.5) startCountdown(); return; }
+    if(state==="festa"){ festaTap(e); return; }
     if(state==="diff"){ diffTap(e); return; }
     if(state==="intro"){ startTutorial(); return; }
     if(state==="tutorial"){ if(inPauseBtn(e) || isDoubleTap()){ stopJetSfx(); startCountdown(); } return; }   // guarda e basta, o doppio tocco per saltare
     if(state==="count"){ if(isDoubleTap()) countT=0; return; }   // doppio tocco: si parte subito
     if(state==="dead"){ return; }
+    if(state==="over" && overLock<=0 && inShareBtn(e)){ shareCard(); return; }   // il bottone non fa ripartire
     if(state==="play"){
       if(paused){
         var pq=canvasPos(e);
@@ -2108,7 +2183,7 @@
   window.addEventListener("scrollUp",function(){
     if(state==="entry") entryChange(1);
     else if(state==="ready"){ if(readyIdle>=7){ readyIdle=0; sfxTick(); } else { readyIdle=0; setSkin(skin+1); sfxTick(); } }
-    else if(state==="mode"){ modeSel=1-modeSel; sfxTick(); }
+    else if(state==="mode"){ modeSel=(modeSel+2)%3; sfxTick(); }
     else if(state==="diff"){ setDiff(diff-1); sfxTick(); }
     else if(state==="win"){ winTap(); }
     else if(state==="play" && !paused){ if(jetT>0) jetMove(-1); else requestJump(); }   // rotella su = salto o quota su
@@ -2117,7 +2192,7 @@
     if(state==="win"){ winTap(); return; }
     if(state==="entry") entryChange(-1);
     else if(state==="ready"){ if(readyIdle>=7){ readyIdle=0; sfxTick(); } else { readyIdle=0; setSkin(skin-1); sfxTick(); } }
-    else if(state==="mode"){ modeSel=1-modeSel; sfxTick(); }
+    else if(state==="mode"){ modeSel=(modeSel+1)%3; sfxTick(); }
     else if(state==="diff"){ setDiff(diff+1); sfxTick(); }
     else if(state==="play" && !paused){ if(jetT>0) jetMove(1); else requestJump(); }
   });
@@ -2167,9 +2242,10 @@
       if(eA||eStart){ tryPlay(); }
       if(eB){ optSel=0; state="opts"; sfxTick(); }
     } else if(state==="mode"){
-      if(eUp||eDown||eLeft||eRight){ modeSel=1-modeSel; sfxTick(); }
+      if(eUp||eLeft){ modeSel=(modeSel+2)%3; sfxTick(); }
+      if(eDown||eRight){ modeSel=(modeSel+1)%3; sfxTick(); }
       if(eB){ state="ready"; sfxTick(); }
-      else if(eA||eStart){ if(modeSel===0){ mode="arcade"; state="diff"; } else startSfida(); }
+      else if(eA||eStart){ modeGo(); }
     } else if(state==="diff"){
       if(eUp){ setDiff(diff-1); sfxTick(); }
       if(eDown){ setDiff(diff+1); sfxTick(); }
@@ -2222,8 +2298,9 @@
       return;
     }
     if(state==="mode"){
-      if(e.key==="ArrowUp"||e.key==="ArrowDown"){ e.preventDefault(); modeSel=1-modeSel; sfxTick(); return; }
-      if(e.key==="Enter"||e.key===" "){ e.preventDefault(); if(modeSel===0){ mode="arcade"; state="diff"; } else startSfida(); return; }
+      if(e.key==="ArrowUp"){ e.preventDefault(); modeSel=(modeSel+2)%3; sfxTick(); return; }
+      if(e.key==="ArrowDown"){ e.preventDefault(); modeSel=(modeSel+1)%3; sfxTick(); return; }
+      if(e.key==="Enter"||e.key===" "){ e.preventDefault(); modeGo(); return; }
       return;
     }
     if(state==="diff"){
@@ -2359,6 +2436,152 @@
     if(near){ y=Math.max(102, near.y-30); t0=near.t; }   // stessa fase: ondeggiano insieme, distanza costante
     powers.push({x:W+10, y:y, t:t0, got:false, kind:kind});
   }
+  function wxStart(){                                // sceglie e prepara il fenomeno
+    var r=Math.random();
+    wxKind = r<0.44 ? "pioggia" : r<0.74 ? "nebbia" : "temporale";
+    wxT = (wxKind==="nebbia") ? 14+Math.random()*10 : 12+Math.random()*10;
+    wxBolt = 1.2+Math.random()*2.2;
+    var n = (wxKind==="nebbia") ? 0 : (wxKind==="temporale" ? 80 : 54);
+    wxDrops=[];
+    for(var i=0;i<n;i++) wxDrops.push({x:Math.random()*(W+60)-30, y:Math.random()*H,
+      v:5.5+Math.random()*3.5, l:4+Math.random()*5, a:0.25+Math.random()*0.35});
+    wxFog=[];
+    if(wxKind!=="pioggia"){
+      for(var j=0;j<4;j++) wxFog.push({y:70+j*44+Math.random()*16, x:Math.random()*W, v:0.25+j*0.16, h:26+Math.random()*18});
+    }
+  }
+  function wxUpdate(f){
+    var dt9=f/60;
+    var attivo = (state==="play" && !paused && mode!=="sfida" && level>=WX_FROM_LEVEL);
+    if(attivo){
+      if(wxKind===""){ wxNext-=dt9; if(wxNext<=0){ wxStart(); } }
+      else {
+        wxT-=dt9;
+        if(wxT<=0){ wxKind=""; wxNext=16+Math.random()*22; }      // torna sereno, poi ci riprova
+        if(wxKind==="temporale"){
+          wxBolt-=dt9;
+          if(wxBolt<=0 && wxAmt>0.5){ wxBolt=1.6+Math.random()*3.4; wxFlash=1; sfxThunder(); }
+        }
+      }
+    } else if(state!=="play"){ wxKind=""; wxAmt=0; }
+    var tgt = (wxKind!=="" && attivo) ? Math.min(1, wxT<1.2 ? wxT/1.2 : 1) : 0;   // entra e sfuma
+    wxAmt += (tgt-wxAmt)*Math.min(1,0.03*f);
+    if(wxFlash>0) wxFlash=Math.max(0,wxFlash-0.09*f);
+    if(wxAmt>0.01){
+      for(var i=0;i<wxDrops.length;i++){
+        var d=wxDrops[i];
+        d.y += d.v*f; d.x -= (1.6+worldSpeed*0.22)*f;              // il vento segue la corsa
+        if(d.y>H+6 || d.x<-34){ d.y=-8-Math.random()*40; d.x=Math.random()*(W+80)-20; }
+      }
+      for(var j=0;j<wxFog.length;j++){
+        var g=wxFog[j];
+        g.x -= (g.v+worldSpeed*0.10)*f;
+        if(g.x < -W) g.x += W*2;
+      }
+    }
+  }
+  function drawWeather(){
+    if(wxAmt<=0.01) return;
+    ctx.save();
+    if(wxKind==="nebbia" || wxFog.length){                          // banchi di nebbia che scorrono
+      for(var j=0;j<wxFog.length;j++){
+        var g=wxFog[j];
+        ctx.globalAlpha=wxAmt*0.16;
+        ctx.fillStyle="#cfd8ea";
+        ctx.fillRect(g.x, g.y, W, g.h);
+        ctx.fillRect(g.x+W*2, g.y, W, g.h);
+      }
+      if(wxKind==="nebbia"){ ctx.globalAlpha=wxAmt*0.10; ctx.fillStyle="#dfe6f2"; ctx.fillRect(0,0,W,H); }
+    }
+    if(wxDrops.length){                                             // pioggia obliqua
+      ctx.strokeStyle="#bcd2ee"; ctx.lineWidth=1;
+      for(var i=0;i<wxDrops.length;i++){
+        var d=wxDrops[i];
+        ctx.globalAlpha=wxAmt*d.a;
+        ctx.beginPath(); ctx.moveTo(d.x,d.y); ctx.lineTo(d.x+2.2,d.y-d.l); ctx.stroke();
+      }
+    }
+    if(wxFlash>0){ ctx.globalAlpha=Math.min(0.34,wxFlash*0.34); ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,W,H); }
+    ctx.restore();
+    ctx.globalAlpha=1;
+  }
+  // ---------- SCHEDA DA CONDIVIDERE: il canvas diventa un\'immagine ----------
+  var shareMsg="", shareMsgT=0;
+  function shareCard(){
+    var CW=540, CH=760;
+    var cc=mkCanvas(CW,CH), g=cc.getContext("2d");
+    if(!g) return;
+    var oldCtx=ctx;
+    try{
+      g.fillStyle="#0a0a12"; g.fillRect(0,0,CW,CH);
+      var sky=g.createLinearGradient(0,0,0,CH*0.55);
+      sky.addColorStop(0,"#141a34"); sky.addColorStop(1,"#0a0a12");
+      g.fillStyle=sky; g.fillRect(0,0,CW,CH*0.55);
+      for(var i=0;i<60;i++){                                  // stelline
+        g.globalAlpha=0.12+Math.random()*0.4; g.fillStyle="#fff";
+        g.fillRect(Math.random()*CW, Math.random()*CH*0.5, 2, 2);
+      }
+      g.globalAlpha=1;
+      function txt(t,x,y,col,size,w,al){
+        g.font=(w||"800")+" "+size+"px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+        g.textAlign=al||"center"; g.textBaseline="alphabetic"; g.fillStyle=col; g.fillText(t,x,y);
+      }
+      txt("FARTFLIP",CW/2,86,ORANGE,52);
+      txt("HD",CW/2,116,"rgba(255,255,255,.55)",20);
+      txt(mode==="sfida"?"SFIDA":("ARCADE \u00b7 "+DIFFS[diff].n),CW/2,150,"rgba(255,255,255,.5)",16,"700");
+      // personaggio, disegnato col motore del gioco
+      ctx=g;
+      g.save();
+      g.translate(CW/2-PW*3.4/2, 186); g.scale(3.4,3.4);
+      drawBody(0,true,false,false,0,null);
+      g.restore();
+      ctx=oldCtx;
+      txt(SKINS[skin].n,CW/2,306,SKINS[skin].c,20);
+      txt("PUNTEGGIO",CW/2,360,"rgba(255,255,255,.45)",16,"700");
+      txt(String(score),CW/2,424,GOLD,66);
+      var righe=[["COMBO MAX","x"+stCombo],["CATENA","x"+stChain],["SCHIACCIATI",String(stSquash)],
+                 ["PER UN PELO",String(stNear)],["DISTANZA",Math.floor(dist/100)+"0 m"]];
+      for(var r=0;r<righe.length;r++){
+        var ry=486+r*40;
+        g.globalAlpha=(r%2)?0.05:0.09; g.fillStyle="#ffffff"; g.fillRect(60,ry-20,CW-120,32); g.globalAlpha=1;
+        txt(righe[r][0],76,ry,"rgba(255,255,255,.55)",17,"700","left");
+        txt(righe[r][1],CW-76,ry,"#ffffff",19,"800","right");
+      }
+      txt("giocaci anche tu",CW/2,CH-46,"rgba(255,255,255,.35)",15,"700");
+      txt("FARTFLIP HD \u00b7 "+GAME_VER,CW/2,CH-22,"rgba(255,255,255,.22)",13,"700");
+    }catch(e){ ctx=oldCtx; }
+    ctx=oldCtx;
+    var nome="fartflip-"+score+".png";
+    function fallback(){
+      try{
+        var url=cc.toDataURL("image/png");
+        var a=document.createElement("a"); a.href=url; a.download=nome;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        shareMsg="immagine salvata"; shareMsgT=2.2;
+      }catch(e2){ shareMsg="non riesco a creare l\'immagine"; shareMsgT=2.2; }
+    }
+    try{
+      if(cc.toBlob){
+        cc.toBlob(function(b){
+          if(!b){ fallback(); return; }
+          try{
+            var file=new File([b],nome,{type:"image/png"});
+            if(navigator.canShare && navigator.canShare({files:[file]}) && navigator.share){
+              navigator.share({files:[file], title:"FARTFLIP HD", text:"Ho fatto "+score+" punti su FARTFLIP HD!"})
+                .then(function(){ shareMsg="condivisa!"; shareMsgT=2.2; })
+                .catch(function(){});
+            } else fallback();
+          }catch(e3){ fallback(); }
+        },"image/png");
+      } else fallback();
+    }catch(e4){ fallback(); }
+    sfxTick(); vibe(12);
+  }
+  function shareBtn(){ return {x:14, y:250, w:104, h:20}; }
+  function inShareBtn(e){
+    var q=canvasPos(e), b=shareBtn();
+    return q.x>=b.x-4 && q.x<=b.x+b.w+4 && q.y>=b.y-6 && q.y<=b.y+b.h+6;
+  }
   function spawnPower(){
     var r=Math.random(), kind;
     if(mode!=="sfida" && level>=3 && flipW<=0 && r<0.16) kind="flip";          // sottosopra: dal livello 3
@@ -2400,6 +2623,7 @@
         else { tpDone=true; pushPower(104+Math.random()*34, "tp"); }
       }
     }
+    wxUpdate(f);
     if(nearCd>0) nearCd-=dt;
     if(heat>0){ heat=Math.max(0, heat - dt*((grounded&&!riding)?7:3.5)); }  // il calore evapora se non alimentato
     if(heatFxT>0) heatFxT-=dt;
@@ -3705,6 +3929,11 @@
     ctx.textAlign="left";
   }
 
+  function centerTextAt(txt,x,y,color,size,weight){
+    ctx.font=(weight||"700")+" "+size+"px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+    ctx.textAlign="center"; ctx.textBaseline="alphabetic"; ctx.fillStyle=color;
+    ctx.fillText(txt,x,y); ctx.textAlign="left";
+  }
   function centerText(txt,y,color,size,weight){
     ctx.font=(weight||"700")+" "+size+"px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
     ctx.textAlign="center"; ctx.textBaseline="alphabetic"; ctx.fillStyle=color;
@@ -3729,7 +3958,10 @@
       var pd0=deadT; deadT-=f/60;
       if(pd0>2.2 && deadT<=2.2){ sfxSuper(); vibe([0,70,40,70]); }
       if(pd0>1.1 && deadT<=1.1){ sfxVoice(); }
-      if(deadT<=0){ state="entry"; entryLock=22; entryIdx=0; entryL=[0,0,0]; savedIdx=-1; }
+      if(deadT<=0){
+        if(party){ partyScore(); }                   // in festa il nome non serve: conta la classifica del tavolo
+        else { state="entry"; entryLock=22; entryIdx=0; entryL=[0,0,0]; savedIdx=-1; }
+      }
     }
     if(state==="win"){
       if(!winMashDone && (WIN_T-winT)>=WIN_GATE){
@@ -3756,7 +3988,10 @@
         var wp2=parts[wq]; wp2.x+=wp2.vx*f; wp2.y+=wp2.vy*f; wp2.vy+=0.02*f; wp2.r+=0.1*f; wp2.life-=wp2.dr*f;
         if(wp2.life<=0) parts.splice(wq,1);
       }
-      if(winT<=0){ state="entry"; entryLock=22; entryIdx=0; entryL=[0,0,0]; savedIdx=-1; }
+      if(winT<=0){
+        if(party){ partyScore(); }
+        else { state="entry"; entryLock=22; entryIdx=0; entryL=[0,0,0]; savedIdx=-1; }
+      }
     }
     if(state==="tutorial"){
       var tdt=f/60, tsp=2.4;
@@ -3878,6 +4113,7 @@
     var fTgt=(state==="play" && flipW>FLIP_SETTLE)?1:0;   // si raddrizza gia' nell'ultimo secondo, per atterrare sicuri
     if(flipAmt!==fTgt){ var fst=f/21; flipAmt += (fTgt>flipAmt)?Math.min(fst,fTgt-flipAmt):-Math.min(fst,flipAmt-fTgt); }
     if(state==="boot"){ bootT-=f/60; if(bootT<=0){ bootT=0; state="ready"; readyIdle=0; } }
+    if(state==="turno") turnT+=f/60;
     var inHome9=(state==="ready"||state==="mode"||state==="diff"||state==="opts");
     if(inHome9 && MENU.mode!=="off" && unlocked) startMenuMusic();
     else if(!inHome9 && (menuTimer||menuSrc)) stopMenuMusic();
@@ -3978,27 +4214,29 @@
     } else if(state==="mode"){
       centerText("MODALITA'",34,ORANGE,18,"800");
       centerText("come vuoi giocare?",50,"rgba(255,255,255,.4)",9,"600");
-      for(var mi=0;mi<2;mi++){
-        var sel=(mi===modeSel), yy0=70+mi*92;
-        if(sel){ ctx.fillStyle=ORANGE; ctx.fillRect(10,yy0+36,5,10); }
+      for(var mi=0;mi<3;mi++){
+        var sel=(mi===modeSel), yy0=64+mi*68;
+        if(sel){ ctx.fillStyle=ORANGE; ctx.fillRect(10,yy0+25,5,10); }
         ctx.fillStyle= sel ? "rgba(254,80,0,.14)" : "rgba(255,255,255,.04)";
-        ctx.fillRect(18,yy0,W-36,82);
+        ctx.fillRect(18,yy0,W-36,60);
         ctx.strokeStyle= sel ? ORANGE : "rgba(255,255,255,.10)";
-        ctx.lineWidth= sel?2:1; ctx.strokeRect(18,yy0,W-36,82);
+        ctx.lineWidth= sel?2:1; ctx.strokeRect(18,yy0,W-36,60);
         if(mi===0){
-          centerText("ARCADE", yy0+24, sel?ORANGE:"rgba(255,255,255,.8)", 17,"800");
-          centerText("10 livelli sempre diversi", yy0+42,"rgba(255,255,255,.55)",8.5,"600");
-          centerText("storia + gabinetto finale", yy0+56,"rgba(255,255,255,.4)",8,"600");
-          centerText("scegli tu la difficolta'", yy0+70,"rgba(255,255,255,.32)",8,"600");
+          centerText("ARCADE", yy0+20, sel?ORANGE:"rgba(255,255,255,.8)", 16,"800");
+          centerText("10 livelli sempre diversi", yy0+35,"rgba(255,255,255,.55)",8.5,"600");
+          centerText("storia + gabinetto finale", yy0+47,"rgba(255,255,255,.36)",8,"600");
+        }else if(mi===1){
+          centerText("SFIDA", yy0+20, sel?GOLD:"rgba(255,255,255,.8)", 16,"800");
+          centerText("tracciato fisso di 2 minuti", yy0+35,"rgba(255,255,255,.55)",8.5,"600");
+          if(ghost) centerText("batti il fantasma del record!", yy0+47,"rgba(255,255,255,.36)",8,"600");
+          else centerText("uguale per tutti \u00b7 nessun caso", yy0+47,"rgba(255,255,255,.36)",8,"600");
         }else{
-          centerText("SFIDA", yy0+24, sel?GOLD:"rgba(255,255,255,.8)", 17,"800");
-          centerText("tracciato fisso di 2 minuti", yy0+42,"rgba(255,255,255,.55)",8.5,"600");
-          centerText("uguale per tutti \u00b7 nessun caso", yy0+56,"rgba(255,255,255,.4)",8,"600");
-          if(ghost) centerText("batti il fantasma del record!", yy0+70,"rgba(255,255,255,.32)",8,"600");
-          else centerText("nessun record: fai il primo!", yy0+70,"rgba(255,255,255,.32)",8,"600");
+          centerText("FESTA", yy0+20, sel?PARTY:"rgba(255,255,255,.8)", 16,"800");
+          centerText("2-4 giocatori, a turni", yy0+35,"rgba(255,255,255,.55)",8.5,"600");
+          centerText("un telefono, una classifica", yy0+47,"rgba(255,255,255,.36)",8,"600");
         }
         if(sel){                                     // gia' scelta: il secondo tocco la avvia
-          var bw2=152, bx2=W/2-bw2/2, by2=yy0+74, bc2=(mi===0)?ORANGE:GOLD;
+          var bw2=152, bx2=W/2-bw2/2, by2=yy0+62, bc2=(mi===0)?ORANGE:(mi===1)?GOLD:PARTY;
           ctx.fillStyle="#0b0b0e"; ctx.fillRect(bx2,by2,bw2,15);
           ctx.strokeStyle=bc2; ctx.lineWidth=1; ctx.strokeRect(bx2,by2,bw2,15);
           ctx.globalAlpha=0.6+0.4*Math.sin(blink*0.13);
@@ -4008,6 +4246,66 @@
       }
       if(Math.floor(blink/28)%2===0) centerText("tocca per scegliere \u00b7 poi tocca ancora",260,WHITE,8.5,"700");
       centerText("rotella/pad per scegliere \u00b7 A o tasto = conferma",272,"rgba(255,255,255,.32)",8,"600");
+    } else if(state==="festaN"){
+      centerText("FESTA",34,PARTY,18,"800");
+      centerText("in quanti giocate?",50,"rgba(255,255,255,.4)",9,"600");
+      for(var pk=0;pk<3;pk++){
+        var np=pk+2, psel=(np===partySel), py9=76+pk*50;
+        ctx.fillStyle= psel?"rgba(87,242,201,.14)":"rgba(255,255,255,.04)";
+        ctx.fillRect(24,py9,W-48,42);
+        ctx.strokeStyle= psel?PARTY:"rgba(255,255,255,.10)";
+        ctx.lineWidth= psel?2:1; ctx.strokeRect(24,py9,W-48,42);
+        centerText(np+" GIOCATORI",py9+18,psel?PARTY:"rgba(255,255,255,.75)",15,"800");
+        centerText("una partita a testa, poi la classifica",py9+32,"rgba(255,255,255,.35)",7.5,"600");
+        if(psel){
+          ctx.globalAlpha=0.6+0.4*Math.sin(blink*0.13);
+          centerText("TOCCA ANCORA PER INIZIARE",py9+41,PARTY,7.5,"800");
+          ctx.globalAlpha=1;
+        }
+      }
+      centerText("stessa difficolta' per tutti: "+DIFFS[diff].n,242,"rgba(255,255,255,.35)",8,"700");
+      centerText("in alto per tornare indietro",258,"rgba(255,255,255,.25)",7.5,"600");
+    } else if(state==="turno"){
+      ctx.fillStyle="rgba(5,7,14,.72)"; ctx.fillRect(0,0,W,H);
+      centerText("PASSA IL TELEFONO",70,"rgba(255,255,255,.45)",10,"700");
+      centerText("TOCCA A",100,"rgba(255,255,255,.6)",12,"700");
+      centerText(partyName(party?party.i:0),136,PARTY,44,"800");
+      centerText("giocatore "+((party?party.i:0)+1)+" di "+(party?party.n:0),158,"rgba(255,255,255,.4)",9,"600");
+      if(party && party.i>0){
+        var pr9="";
+        for(var q9=0;q9<party.i;q9++) pr9 += (q9?"  \u00b7  ":"")+partyName(q9)+" "+party.scores[q9];
+        centerText(pr9,186,"rgba(255,255,255,.5)",9,"700");
+      }
+      if(turnT>0.5 && Math.floor(blink/28)%2===0) centerText("TOCCA PER PARTIRE",232,WHITE,11,"800");
+    } else if(state==="festa"){
+      ctx.fillStyle="rgba(5,7,14,.80)"; ctx.fillRect(0,0,W,H);
+      var fin=(party&&party.done), win9=fin?partyWinner():-1;
+      centerText(fin?("VINCE "+partyName(win9)+"!"):"CLASSIFICA",42,fin?GOLD:PARTY,fin?22:16,"800");
+      if(!fin) centerText("turno di "+partyName(party?party.i:0)+" finito",60,"rgba(255,255,255,.45)",9,"600");
+      var ord=[];
+      for(var i9=0;i9<(party?party.n:0);i9++) ord.push({i:i9, s:(party.scores[i9]===undefined?-1:party.scores[i9])});
+      ord.sort(function(a,b){ return b.s-a.s; });
+      for(var r9=0;r9<ord.length;r9++){
+        var ry9=84+r9*30, mio=(!fin && ord[r9].i===(party?party.i:0));
+        ctx.fillStyle= mio?"rgba(87,242,201,.12)":"rgba(255,255,255,.05)";
+        ctx.fillRect(28,ry9,W-56,24);
+        ctx.font="800 11px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+        ctx.textAlign="left"; ctx.fillStyle=(fin&&ord[r9].i===win9)?GOLD:(mio?PARTY:"rgba(255,255,255,.8)");
+        ctx.fillText((r9+1)+".  "+partyName(ord[r9].i),38,ry9+9);
+        ctx.textAlign="right";
+        ctx.fillText(ord[r9].s<0?"-":String(ord[r9].s),W-38,ry9+9);
+        ctx.textAlign="left";
+      }
+      if(!fin){
+        if(Math.floor(blink/28)%2===0) centerText("TOCCA: TOCCA A "+partyName(party?party.i+1:0),236,WHITE,11,"800");
+      } else {
+        ctx.fillStyle="rgba(255,255,255,.06)"; ctx.fillRect(20,232,W/2-28,20);
+        ctx.strokeStyle=PARTY; ctx.lineWidth=1; ctx.strokeRect(20,232,W/2-28,20);
+        centerTextAt("RIVINCITA",20+(W/2-28)/2,245,PARTY,10,"800");
+        ctx.fillStyle="rgba(255,255,255,.06)"; ctx.fillRect(W/2+8,232,W/2-28,20);
+        ctx.strokeStyle="rgba(255,255,255,.3)"; ctx.lineWidth=1; ctx.strokeRect(W/2+8,232,W/2-28,20);
+        centerTextAt("MENU",W/2+8+(W/2-28)/2,245,"rgba(255,255,255,.7)",10,"800");
+      }
     } else if(state==="diff"){
       centerText("DIFFICOLTA'",34,ORANGE,18,"800");
       centerText("come vuoi soffrire?",50,"rgba(255,255,255,.4)",9,"600");
@@ -4424,6 +4722,7 @@
       }
       drawParts();
       fwEnd();
+      drawWeather();                                 // meteo sopra al mondo, sotto alle scritte
       drawPops();
       if(zoomOn){ ctx.restore(); drawFreeze(); }
       if(mode==="sfida"){
@@ -4539,7 +4838,25 @@
       }
       if(myR>=0) centerText("SEI "+(myR+1)+"\u00b0 AL MONDO!",244,GOLD,9,"800");
       else if(rows.length>0) centerText("in classifica ci sono i migliori del mondo",244,"rgba(255,255,255,.35)",7,"600");
-      if(overLock<=0 && Math.floor(blink/28)%2===0) centerText("TAP PER RIPROVARE",262,WHITE,11,"700");
+      if(overLock<=0){
+        var sb=shareBtn();
+        ctx.fillStyle="rgba(255,255,255,.06)"; ctx.fillRect(sb.x,sb.y,sb.w,sb.h);
+        ctx.strokeStyle=GOLD; ctx.lineWidth=1; ctx.strokeRect(sb.x,sb.y,sb.w,sb.h);
+        ctx.font="800 10px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+        ctx.textAlign="center"; ctx.fillStyle=GOLD;
+        ctx.fillText("CONDIVIDI",sb.x+sb.w/2,sb.y+13);
+        if(Math.floor(blink/28)%2===0){
+          ctx.fillStyle=WHITE; ctx.font="700 10px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+          ctx.fillText("TAP PER RIPROVARE",(sb.x+sb.w+W)/2-4,sb.y+13);
+        }
+        ctx.textAlign="left";
+      }
+      if(shareMsgT>0){
+        shareMsgT-=1/60;
+        ctx.globalAlpha=Math.min(1,shareMsgT*2);
+        centerText(shareMsg,240,GOLD,9,"700");
+        ctx.globalAlpha=1;
+      }
     }
     if(state==="boot"||state==="ready"||state==="mode"||state==="diff"||state==="opts") drawVersion();
     hdFrameEnd();
