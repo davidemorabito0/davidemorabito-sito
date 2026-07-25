@@ -44,7 +44,7 @@
   // Vuoto = silenzio (nessun placeholder sonoro).
   var MENU_MP3="";
   // =========================================
-  var GAME_VER="2.43";                               // mostrata in basso a destra, solo nel menu
+  var GAME_VER="2.45";                               // mostrata in basso a destra, solo nel menu
   var BOOT_T=2.0, bootT=BOOT_T;                      // finto caricamento all'avvio
   var BOOT_MSGS=["calibrazione flatulenze...","pressurizzazione del gabinetto...",
                  "lucidatura dei cubi...","interrogazione dei nemici...","collaudo degli spuntoni..."];
@@ -455,7 +455,8 @@
   var SPEED_START=2.5, SPEED_RAMP=0.0016, SPEED_CAP=5.5; // sale a lungo, cap alto + bonus livello
   var POWER_MUL=2.0;                               // durante l'invincibilita' i box arrivano al 200%
   var PTS_DJUMP=8, PTS_DIVE=4, PTS_HURT=-80, PTS_INV=200, PTS_PUNCH=100, PTS_IRON=120, PTS_HEART=60, PTS_JET=180, PTS_FLIP=220;
-  var JET_TIME=4.0, JET_Y=124;                     // sprint volante col peto: quota dei power-up
+  var POW_Y0=132, POW_Y1=162;                      // fascia in cui nascono i power-up
+  var JET_TIME=4.0, JET_Y=(POW_Y0+POW_Y1)/2-PH/2;  // il jetpack vola col corpo centrato in quella fascia
   var TUT_JUMP_V=-10.5, TUT_DJUMP_V=-8.5, TUT_JET_Y=140; // scavalcano gli ostacoli restando sotto le scritte
   var WIN_T=12.0;                                  // scena finale col gabinetto gigante
   var PUNCH_MAX=1;                                 // una carica di pugno
@@ -2362,7 +2363,7 @@
     var r=Math.random(), kind;
     if(mode!=="sfida" && level>=3 && flipW<=0 && r<0.16) kind="flip";          // sottosopra: dal livello 3
     else kind = r<0.2 ? "inv" : r<0.47 ? "punch" : r<0.74 ? "iron" : "jet";   // invincibilita' 1 su 5
-    pushPower(132+Math.random()*30, kind);          // altezza media, prendibile
+    pushPower(POW_Y0+Math.random()*(POW_Y1-POW_Y0), kind);   // altezza media, prendibile
   }
   function spawnHeart(){
     pushPower(140+Math.random()*26, "heart");
@@ -2502,12 +2503,12 @@
       }
       e.pt+=f; if(e.pt>5){e.pt=0;e.ph=e.ph?0:1;}
       if(!e.passed && !grounded && vy<=0 && e.x < PX+PW && e.x+e.w > PX && py+PH <= GROUND_Y-e.h-(e.off||0)){
-        var ngap=(GROUND_Y-e.h-(e.off||0))-(py+PH);   // solo in salita o all'apice: atterrare accanto non e' un pelo
+        var ngap=(GROUND_Y-e.h-(e.off||0))-(py+PH);   // solo mentre SALE: la discesa e l'atterraggio non contano
         e.ng=(e.ng===undefined)?ngap:Math.min(e.ng,ngap);
       }
       if(!e.passed && e.x+e.w < PX){        // box saltato
         e.passed=true;
-        if(e.ng!==undefined && e.ng<=5 && !e.ridden && nearCd<=0 && invT<=0 && hurtT<=0){
+        if(e.ng!==undefined && e.ng<=5 && !grounded && !e.ridden && nearCd<=0 && invT<=0 && hurtT<=0){   // solo se sei ancora in aria: a terra niente
           nearCd=0.6; stNear++;
           slowMoT=Math.max(slowMoT,0.18); heatAdd(12);   // brivido: il tempo rallenta un attimo
           var nmp=PT(15); scoreF+=nmp; scorePulse=1;
