@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- IDRATATI pannello v4.2 (2026-07-27) -->
-<title>IDRATATI — pannello v4.2</title>
+<!-- IDRATATI pannello v4.5 (2026-07-27) -->
+<title>IDRATATI — pannello v4.5</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#07242F">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -87,6 +87,21 @@ textarea{resize:vertical}
 img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin-top:10px;display:block}
 .empty{text-align:center;color:var(--muted);font-size:13.5px;padding:32px 12px}
 #map{height:56vh;min-height:330px;border-radius:16px;margin-bottom:11px}
+.oggi-griglia{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;margin-top:14px}
+.oggi-n{background:rgba(7,36,47,.04);border-radius:14px;padding:14px 15px;cursor:pointer;
+  transition:background .16s,transform .16s}
+.oggi-n:hover{background:rgba(0,166,166,.1)}
+.oggi-n:active{transform:scale(.98)}
+.oggi-n.zero{opacity:.5;cursor:default}
+.oggi-n.zero:hover{background:rgba(7,36,47,.04)}
+.oggi-n b{display:block;font-family:var(--display);font-size:30px;font-weight:800;
+  line-height:1;color:var(--acqua-deep)}
+.oggi-n.zero b{color:var(--muted)}
+.oggi-n span{display:block;font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.3}
+.oggi-n .su{color:var(--acqua-deep);font-weight:600;margin-top:3px}
+.oggi-n .giu{color:var(--rotta);font-weight:600;margin-top:3px}
+.oggi-n .pari{color:var(--muted);margin-top:3px}
 .stat{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
 .stat:last-child{border:none}
 .stat b{font-family:var(--display);font-size:17px}
@@ -112,7 +127,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
 <div id="login">
   <div class="card">
     <h1>IDRATATI</h1>
-    <div class="meta">Pannello riservato · v4.2</div>
+    <div class="meta">Pannello riservato · v4.5</div>
     <label for="em">Email</label>
     <input id="em" type="email" autocomplete="username" inputmode="email">
     <label for="pw">Password</label>
@@ -124,12 +139,13 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
 
 <div id="app" hidden>
   <header>
-    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge" style="background:rgba(255,255,255,.16);color:var(--surface)">v4.2</span>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge" style="background:rgba(255,255,255,.16);color:var(--surface)">v4.5</span>
     <span class="sp" id="who"></span>
     <button id="logout">Esci</button>
   </header>
   <nav>
-    <button data-t="queue" class="on">Proposte <span class="n" id="nQueue" hidden></span></button>
+    <button data-t="oggi" class="on">Oggi</button>
+    <button data-t="queue">Proposte <span class="n" id="nQueue" hidden></span></button>
     <button data-t="photos">Foto <span class="n" id="nPhotos" hidden></span></button>
     <button data-t="reports">Segnalazioni</button>
     <button data-t="reviews">Recensioni</button>
@@ -153,7 +169,7 @@ var CFG = {
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzYWFneGxzcW14YmNhZ2l3bm96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxNDU4NjYsImV4cCI6MjEwMDcyMTg2Nn0.IijyrG7pPtn-9E168xVeVIX8mdHUAWDEOHTq998wFHA'
 };
 
-var TOKEN=null, USER=null, tab='queue', map=null, layer=null, editing=null;
+var TOKEN=null, USER=null, tab='oggi', map=null, layer=null, editing=null;
 
 function el(id){ return document.getElementById(id); }
 function toast(m,ms){ var t=el('toast'); t.textContent=m; t.classList.add('on');
@@ -542,9 +558,12 @@ function collegaVaiA(){
     b.onclick=function(){ openEditorByTarget(b.getAttribute('data-goto')); };
   });
 }
+/* localStorage invece di sessionStorage: la sessione resta anche dopo
+   aver chiuso il browser. Nessuna scorciatoia sulla sicurezza, solo
+   il fastidio di ridigitare la password tolto di mezzo. */
 function store(k,v){
-  try{ if(v===undefined) return sessionStorage.getItem(k);
-       if(v===null) sessionStorage.removeItem(k); else sessionStorage.setItem(k,v); }
+  try{ if(v===undefined) return localStorage.getItem(k);
+       if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }
   catch(e){ return null; }
 }
 
@@ -554,10 +573,44 @@ function H(extra){
          'Authorization':'Bearer '+(TOKEN||CFG.SUPABASE_ANON_KEY)};
   return Object.assign(h, extra||{});
 }
-function api(path,opt){
+/* Il token di Supabase dura un'ora. Invece di rispedirti al login,
+   se ne prende uno nuovo con il token di rinnovo e riprova da solo. */
+var rinnovoInCorso = null;
+
+function rinnova(){
+  var rt = store('idr_rt');
+  if(!rt) return Promise.reject(new Error('nessun rinnovo disponibile'));
+  if(rinnovoInCorso) return rinnovoInCorso;
+  rinnovoInCorso = fetch(CFG.SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token',{
+      method:'POST',
+      headers:{'apikey':CFG.SUPABASE_ANON_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({refresh_token:rt})
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(!d.access_token) throw new Error('rinnovo rifiutato');
+      TOKEN = d.access_token;
+      store('idr_tk', TOKEN);
+      if(d.refresh_token) store('idr_rt', d.refresh_token);
+      return TOKEN;
+    })
+    .then(function(t){ rinnovoInCorso = null; return t; },
+          function(e){ rinnovoInCorso = null; throw e; });
+  return rinnovoInCorso;
+}
+
+function api(path, opt, giaRiprovato){
   return fetch(CFG.SUPABASE_URL+'/rest/v1/'+path, opt||{headers:H()})
     .then(function(r){
-      if(r.status===401){ logout(); throw new Error('scaduto'); }
+      if(r.status===401 && !giaRiprovato){
+        return rinnova().then(function(){
+          // rifaccio la richiesta con il token nuovo
+          var o = opt ? JSON.parse(JSON.stringify({m:opt.method, b:opt.body, p:opt.headers&&opt.headers.Prefer})) : {};
+          var rifatto = opt ? {method:o.m, headers:H(o.p?{'Prefer':o.p}:null), body:o.b} : {headers:H()};
+          return api(path, rifatto, true);
+        }).catch(function(){ logout(); throw new Error('Sessione scaduta, rifai l\'accesso.'); });
+      }
+      if(r.status===401){ logout(); throw new Error('Sessione scaduta, rifai l\'accesso.'); }
       if(!r.ok) return r.text().then(function(t){ throw new Error(t||r.status); });
       return r.status===204 ? null : r.json();
     });
@@ -591,6 +644,7 @@ function login(){
     .then(function(d){
       if(!d.access_token) throw new Error(d.error_description||d.msg||'Credenziali non valide');
       TOKEN=d.access_token; USER=d.user;
+      if(d.refresh_token) store('idr_rt', d.refresh_token);
       return rpc('is_admin');
     })
     .then(function(ok){
@@ -603,12 +657,19 @@ function login(){
 }
 function showErr(m){ var e=el('err'); e.textContent=m; e.style.display='block'; }
 function logout(){
-  TOKEN=null; store('idr_tk',null);
+  TOKEN=null;
+  store('idr_tk',null); store('idr_rt',null);
   el('app').hidden=true; el('login').style.display='block';
 }
 function start(){
   el('login').style.display='none';
   el('app').hidden=false;
+  // il token dura un'ora: lo si rinfresca prima che scada, in silenzio
+  if(!window._rinnovoPeriodico){
+    window._rinnovoPeriodico = setInterval(function(){
+      if(TOKEN) rinnova().catch(function(){});
+    }, 45*60*1000);
+  }
   el('who').textContent=store('idr_em')||'';
   counters();
   go(tab);
@@ -628,7 +689,8 @@ function go(t){
   tab=t;
   el('view').innerHTML='<div class="empty">Carico…<br>'+
     '<span style="font-size:12px;opacity:.7">indirizzi e mappe arrivano dopo, con calma</span></div>';
-  ({queue:vQueue, photos:vPhotos, reports:vReports, reviews:vReviews, map:vMap, stats:vStats}[t]||vQueue)();
+  ({oggi:vOggi, queue:vQueue, photos:vPhotos, reports:vReports, reviews:vReviews,
+    map:vMap, stats:vStats}[t]||vOggi)();
 }
 function counters(){
   sel('submissions?select=id&state=eq.pending').then(function(r){
@@ -637,6 +699,91 @@ function counters(){
   sel('photos?select=id&approved=eq.false').then(function(r){
     var n=el('nPhotos'); if(r.length){ n.textContent=r.length; n.hidden=false; } else n.hidden=true;
   }).catch(function(){});
+}
+
+/* ============================================================
+   0. OGGI — cosa è successo, senza girare fra le schede
+   ============================================================ */
+function vOggi(){
+  var ieri = new Date(Date.now() - 864e5).toISOString();
+  var altroieri = new Date(Date.now() - 2*864e5).toISOString();
+
+  Promise.all([
+    sel('reports?select=id,status,created_at&created_at=gte.'+ieri).catch(function(){return[]}),
+    sel('reviews?select=id,created_at&created_at=gte.'+ieri).catch(function(){return[]}),
+    sel('photos?select=id,approved,created_at').catch(function(){return[]}),
+    sel('submissions?select=id,state,created_at').catch(function(){return[]}),
+    sel('reports?select=id&created_at=gte.'+altroieri+'&created_at=lt.'+ieri).catch(function(){return[]}),
+    sel('v_status?select=target,missing_votes,broken_votes&or=(missing_votes.gte.2,broken_votes.gte.2)').catch(function(){return[]})
+  ]).then(function(r){
+    var segn=r[0], voti=r[1], foto=r[2], prop=r[3], segnIeri=r[4], guasti=r[5];
+
+    var fotoAttesa  = foto.filter(function(x){ return !x.approved; }).length;
+    var propAttesa  = prop.filter(function(x){ return x.state==='pending'; }).length;
+    var fotoOggi    = foto.filter(function(x){ return x.created_at >= ieri; }).length;
+    var propOggi    = prop.filter(function(x){ return x.created_at >= ieri; }).length;
+    var daFare      = fotoAttesa + propAttesa + guasti.length;
+
+    function confronto(oggi, prima){
+      if(!prima && !oggi) return '';
+      if(!prima) return '<span class="su">nuovo</span>';
+      var d = oggi - prima;
+      if(d === 0) return '<span class="pari">come ieri</span>';
+      return '<span class="'+(d>0?'su':'giu')+'">'+(d>0?'+':'')+d+' su ieri</span>';
+    }
+    function riquadro(n, testo, extra, azione){
+      return '<div class="oggi-n'+(n?'':' zero')+'"'+(azione?' data-va="'+azione+'"':'')+'>'+
+             '<b>'+n+'</b><span>'+testo+'</span>'+(extra||'')+'</div>';
+    }
+
+    var h = '';
+    h += '<div class="card"><h3>'+(daFare
+          ? 'Ci sono '+daFare+' cose che aspettano te'
+          : 'Non c\'è niente in sospeso')+'</h3>';
+    h += '<div class="meta">'+(daFare
+          ? 'Tocca un riquadro per andarci.'
+          : 'La coda è vuota: puoi anche chiudere la pagina.')+'</div>';
+    h += '<div class="oggi-griglia">'+
+         riquadro(propAttesa, 'proposte da valutare', '', 'queue')+
+         riquadro(fotoAttesa, 'foto da controllare', '', 'photos')+
+         riquadro(guasti.length, 'fontanelle segnalate guaste', '', 'reports')+
+         '</div></div>';
+
+    h += '<div class="card"><h3>Nelle ultime 24 ore</h3>'+
+         '<div class="oggi-griglia">'+
+         riquadro(segn.length, 'segnalazioni di stato', confronto(segn.length, segnIeri.length), 'reports')+
+         riquadro(voti.length, 'voti con le stelle', '', 'reviews')+
+         riquadro(fotoOggi, 'foto arrivate', '', 'photos')+
+         riquadro(propOggi, 'fontanelle proposte', '', 'queue')+
+         '</div>';
+
+    if(segn.length){
+      var ok = segn.filter(function(x){return x.status==='ok'}).length;
+      var ko = segn.filter(function(x){return x.status==='broken'}).length;
+      var lv = segn.filter(function(x){return x.status==='works'}).length;
+      var sp = segn.filter(function(x){return x.status==='missing'}).length;
+      h += '<div class="pills" style="margin-top:4px">'+
+           (ok?'<span class="pill ok">'+ok+' funziona</span>':'')+
+           (lv?'<span class="pill warn">'+lv+' lavori</span>':'')+
+           (ko?'<span class="pill bad">'+ko+' rotta</span>':'')+
+           (sp?'<span class="pill bad">'+sp+' non trovata</span>':'')+'</div>';
+    } else {
+      h += '<div class="meta">Nessuna segnalazione oggi.</div>';
+    }
+    h += '</div>';
+
+    el('view').innerHTML = h;
+    el('view').querySelectorAll('[data-va]').forEach(function(d){
+      d.onclick = function(){
+        var t = d.getAttribute('data-va');
+        document.querySelectorAll('nav button').forEach(function(x){
+          x.classList.toggle('on', x.getAttribute('data-t')===t); });
+        go(t);
+      };
+    });
+  }).catch(function(e){
+    el('view').innerHTML='<div class="empty">'+esc(e.message)+'</div>';
+  });
 }
 
 /* ============================================================
@@ -1062,11 +1209,22 @@ function vStats(){
 }
 
 /* ---------- sessione ---------- */
-var saved=store('idr_tk');
+/* Si riprende da dove si era rimasti: prima si prova il token che c'è,
+   e se è scaduto se ne chiede uno nuovo prima di arrendersi. */
+var saved = store('idr_tk');
 if(saved && CFG.SUPABASE_URL){
-  TOKEN=saved;
-  rpc('is_admin').then(function(ok){ if(ok===true) start(); else logout(); })
-                 .catch(function(){ logout(); });
+  TOKEN = saved;
+  rpc('is_admin')
+    .then(function(ok){
+      if(ok === true){ start(); return; }
+      throw new Error('non riconosciuto');
+    })
+    .catch(function(){
+      return rinnova()
+        .then(function(){ return rpc('is_admin'); })
+        .then(function(ok){ if(ok === true) start(); else logout(); })
+        .catch(function(){ logout(); });
+    });
 }
 })();
 </script>
