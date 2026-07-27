@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>IDRATATI — acqua pubblica, ovunque</title>
+<meta name="description" content="Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi.">
+<meta name="theme-color" content="#07242F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#07242F; --ink-2:#123A4A;
+  --surface:#F2F7F6; --card:#FFFFFF;
+  --acqua:#00A6A6; --acqua-deep:#00807F;
+  --getto:#FFB020; --rotta:#E5484D;
+  --muted:rgba(7,36,47,.58); --line:rgba(7,36,47,.10);
+  --display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --body:'Inter Tight',system-ui,-apple-system,sans-serif;
+  --safe-b:env(safe-area-inset-bottom); --safe-t:env(safe-area-inset-top);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;overscroll-behavior:none}
+body{font-family:var(--body);background:var(--ink);color:var(--ink);overflow:hidden}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--acqua);outline-offset:2px}
+
+/* ---------- SPLASH ---------- */
+#splash{position:fixed;inset:0;z-index:9000;background:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  transition:opacity .45s ease,visibility .45s}
+#splash.gone{opacity:0;visibility:hidden}
+.drop-stage{width:min(46vw,168px);height:min(46vw,168px)}
+.drop-stage svg{width:100%;height:100%;display:block;shape-rendering:geometricPrecision}
+.rp{opacity:0;animation:rp 2.1s cubic-bezier(.2,.7,.3,1) infinite}
+.rp2{animation-delay:.45s} .rp3{animation-delay:.9s}
+@keyframes rp{0%{r:12px;opacity:0}14%{opacity:.8}100%{r:118px;opacity:0}}
+.dropg{animation:fall 2.1s cubic-bezier(.5,0,.35,1) infinite}
+@keyframes fall{0%{transform:translateY(-130px);opacity:0}20%{opacity:1}
+  46%{transform:translateY(0);opacity:1}62%,100%{transform:translateY(0);opacity:0}}
+.wordmark{font-family:var(--display);font-weight:800;font-size:clamp(28px,8.6vw,40px);
+  letter-spacing:.15em;color:var(--surface);margin-left:.15em;line-height:1;white-space:nowrap}
+.tagline{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--acqua);margin-top:-10px}
+
+/* ---------- MAPPA ---------- */
+#map{position:fixed;inset:0;background:#dfe8e7}
+.leaflet-control-attribution{font-size:9px;background:rgba(255,255,255,.82);font-family:var(--body)}
+.leaflet-control-zoom{display:none}
+
+/* ---------- TOP ---------- */
+#top{position:fixed;top:0;left:0;right:0;z-index:600;
+  padding:calc(var(--safe-t) + 9px) 10px 0;display:flex;flex-direction:column;gap:7px}
+.row{display:flex;gap:6px;align-items:center}
+.brand{font-family:var(--display);font-weight:800;font-size:12.5px;letter-spacing:.13em;
+  color:var(--surface);background:var(--ink);padding:10px 12px;border-radius:999px;
+  white-space:nowrap;flex:0 0 auto;box-shadow:0 4px 18px rgba(7,36,47,.28)}
+#search{flex:1;min-width:0;border:none;border-radius:999px;padding:11px 14px;font-size:14px;
+  font-family:var(--body);background:rgba(255,255,255,.95);color:var(--ink);
+  box-shadow:0 4px 14px rgba(7,36,47,.18)}
+#search::placeholder{color:rgba(7,36,47,.4)}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{font-size:11.5px;font-weight:600;border:none;cursor:pointer;padding:8px 11px;
+  border-radius:999px;white-space:nowrap;background:rgba(255,255,255,.95);color:var(--ink);
+  box-shadow:0 3px 12px rgba(7,36,47,.16);display:flex;align-items:center;gap:5px;flex:0 0 auto}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:var(--acqua)}
+.chip.casa .dot{background:var(--getto)}
+.chip.okonly .dot{background:var(--acqua-deep)}
+.chip[aria-pressed="false"]{background:rgba(255,255,255,.5);color:rgba(7,36,47,.38)}
+.chip[aria-pressed="false"] .dot{background:rgba(7,36,47,.18)}
+#results{position:absolute;left:10px;right:10px;top:calc(var(--safe-t) + 58px);
+  background:var(--card);border-radius:14px;overflow:hidden;box-shadow:0 8px 30px rgba(7,36,47,.24);display:none}
+#results.on{display:block}
+#results button{display:block;width:100%;text-align:left;border:none;background:none;
+  padding:12px 14px;font-size:13.5px;border-bottom:1px solid var(--line);cursor:pointer}
+#results button:last-child{border-bottom:none}
+
+/* ---------- MARKER ---------- */
+.pin{width:30px;height:30px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);
+  background:var(--acqua);border:2px solid #fff;box-shadow:0 3px 10px rgba(7,36,47,.35);
+  display:flex;align-items:center;justify-content:center}
+.pin.casa{background:var(--getto);border-radius:9px;transform:rotate(0)}
+.pin.broken{background:var(--rotta)}
+.pin svg{transform:rotate(45deg)}
+.pin.casa svg{transform:rotate(0)}
+.pin.sel{box-shadow:0 0 0 5px rgba(0,166,166,.3),0 3px 10px rgba(7,36,47,.35)}
+.me{width:18px;height:18px;border-radius:50%;background:#1E7BFF;border:3px solid #fff;
+  box-shadow:0 0 0 6px rgba(30,123,255,.18),0 2px 8px rgba(0,0,0,.3)}
+
+/* ---------- CARD "PIÙ VICINA" ---------- */
+#card{position:fixed;left:10px;right:10px;z-index:700;bottom:calc(var(--safe-b) + 12px);
+  background:var(--surface);border-radius:20px;padding:15px 16px 16px;
+  box-shadow:0 -2px 40px rgba(7,36,47,.22);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+#card.hidden{transform:translateY(calc(100% + 40px))}
+.eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--acqua-deep);font-weight:600}
+.headline{font-family:var(--display);font-weight:600;font-size:25px;line-height:1.08;
+  margin:7px 0 3px;letter-spacing:-.01em}
+.headline b{font-weight:800;color:var(--acqua-deep)}
+.sub{font-size:13.5px;color:var(--muted);line-height:1.35}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:8px;
+  background:rgba(7,36,47,.06);color:rgba(7,36,47,.72)}
+.tag.ok{background:rgba(0,166,166,.13);color:var(--acqua-deep)}
+.tag.warn{background:rgba(255,176,32,.2);color:#8A5B00}
+.tag.bad{background:rgba(229,72,77,.13);color:var(--rotta)}
+.actions{display:flex;gap:8px;margin-top:13px}
+.btn{flex:1;border:none;cursor:pointer;font-size:14px;font-weight:600;padding:13px 10px;
+  border-radius:13px;background:var(--ink);color:var(--surface);text-decoration:none;
+  display:flex;align-items:center;justify-content:center;gap:6px}
+.btn.ghost{background:rgba(7,36,47,.07);color:var(--ink)}
+.btn.small{padding:10px;font-size:13px;border-radius:11px}
+.btn:active{transform:scale(.985)}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.close{position:absolute;top:11px;right:11px;width:30px;height:30px;border-radius:50%;
+  border:none;cursor:pointer;background:rgba(7,36,47,.07);color:var(--ink);font-size:17px;line-height:1}
+
+/* ---------- SHEET ---------- */
+#scrim{position:fixed;inset:0;z-index:750;background:rgba(7,36,47,.45);
+  opacity:0;pointer-events:none;transition:opacity .3s}
+#scrim.on{opacity:1;pointer-events:auto}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:800;background:var(--surface);
+  border-radius:22px 22px 0 0;max-height:88vh;display:flex;flex-direction:column;
+  transform:translateY(101%);transition:transform .34s cubic-bezier(.2,.8,.2,1);
+  box-shadow:0 -6px 40px rgba(7,36,47,.3)}
+#sheet.on{transform:translateY(0)}
+.grab{width:38px;height:4px;border-radius:999px;background:rgba(7,36,47,.18);margin:9px auto 0;flex:0 0 auto}
+.sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 16px calc(var(--safe-b) + 18px)}
+.sheet-h{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.15;margin:10px 0 2px}
+.hero{width:100%;height:170px;object-fit:cover;border-radius:14px;margin-top:12px;background:rgba(7,36,47,.06);display:block}
+.gallery{display:flex;gap:8px;overflow-x:auto;margin-top:8px;scrollbar-width:none}
+.gallery::-webkit-scrollbar{display:none}
+.gallery img{height:78px;border-radius:10px;flex:0 0 auto}
+.sec{margin-top:20px}
+.sec-t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:9px}
+.starrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0}
+.starrow span{font-size:13.5px}
+.stars{display:flex;gap:3px;flex:0 0 auto}
+.star{width:26px;height:26px;border:none;background:none;padding:0;cursor:pointer;color:rgba(7,36,47,.2)}
+.star.on{color:var(--getto)}
+.star svg{width:100%;height:100%;display:block}
+.bar{height:6px;border-radius:99px;background:rgba(7,36,47,.09);overflow:hidden;flex:1;max-width:110px}
+.bar i{display:block;height:100%;background:var(--acqua);border-radius:99px}
+.statebox{display:flex;gap:8px;margin-top:4px}
+.statebox .btn{font-size:13.5px}
+.btn.ok{background:rgba(0,166,166,.14);color:var(--acqua-deep)}
+.btn.bad{background:rgba(229,72,77,.12);color:var(--rotta)}
+textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;
+  font-family:var(--body);font-size:14px;background:var(--card);color:var(--ink);resize:none}
+.hint{font-size:11.5px;color:var(--muted);line-height:1.4;margin-top:8px}
+.rev{border-top:1px solid var(--line);padding:11px 0;font-size:13.5px}
+.rev .meta{font-size:11px;color:var(--muted);margin-bottom:3px}
+.empty{font-size:13px;color:var(--muted);padding:12px 0}
+
+/* ---------- FAB ---------- */
+.fab{position:fixed;right:12px;z-index:650;width:46px;height:46px;border-radius:15px;border:none;
+  cursor:pointer;background:var(--surface);color:var(--ink);box-shadow:0 5px 18px rgba(7,36,47,.24);
+  display:flex;align-items:center;justify-content:center;transition:bottom .32s cubic-bezier(.2,.8,.2,1)}
+#locate{bottom:calc(var(--safe-b) + 178px)}
+#addBtn{bottom:calc(var(--safe-b) + 234px);background:var(--acqua);color:#fff}
+body.card-hidden #locate{bottom:calc(var(--safe-b) + 24px)}
+body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
+
+/* ---------- MODALITÀ AGGIUNTA ---------- */
+#addbar{position:fixed;left:10px;right:10px;bottom:calc(var(--safe-b) + 12px);z-index:900;
+  background:var(--ink);color:var(--surface);border-radius:18px;padding:14px 16px;display:none}
+#addbar.on{display:block}
+#addbar p{margin:0 0 11px;font-size:13.5px;line-height:1.4}
+#crosshair{position:fixed;left:50%;top:50%;transform:translate(-50%,-100%);z-index:880;display:none;pointer-events:none}
+#crosshair.on{display:block}
+
+/* ---------- TOAST ---------- */
+#toast{position:fixed;left:50%;top:calc(var(--safe-t) + 110px);transform:translateX(-50%) translateY(-12px);
+  z-index:9500;background:var(--ink);color:var(--surface);font-size:12.5px;padding:10px 15px;
+  border-radius:999px;box-shadow:0 6px 20px rgba(7,36,47,.3);opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;max-width:88vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+@media (min-width:760px){
+  #card{left:auto;right:16px;width:380px;bottom:16px}
+  #sheet{left:auto;right:16px;width:400px;bottom:16px;border-radius:22px;max-height:82vh}
+  #sheet{transform:translateY(calc(100% + 30px))}
+  #sheet.on{transform:translateY(0)}
+  #top{max-width:520px}
+  #results{max-width:500px}
+}
+</style>
+</head>
+<body class="card-hidden">
+
+<div id="splash">
+  <div class="drop-stage">
+    <svg viewBox="0 0 260 260" aria-hidden="true">
+      <circle class="rp rp1" cx="130" cy="152" r="12" fill="none" stroke="#00A6A6" stroke-width="2"/>
+      <circle class="rp rp2" cx="130" cy="152" r="12" fill="none" stroke="#00A6A6" stroke-width="2"/>
+      <circle class="rp rp3" cx="130" cy="152" r="12" fill="none" stroke="#00A6A6" stroke-width="2"/>
+      <g class="dropg">
+        <path d="M130 88c0 0 34 41.6 34 61.4A34 34 0 0 1 96 149.4C96 129.6 130 88 130 88Z" fill="#00A6A6"/>
+        <path d="M114 152c0-10.2 6.6-19.4 6.6-19.4" stroke="#7FE8E4" stroke-width="5.4" stroke-linecap="round" fill="none"/>
+      </g>
+    </svg>
+  </div>
+  <div class="wordmark">IDRATATI</div>
+  <div class="tagline">acqua pubblica, ovunque</div>
+</div>
+
+<div id="map"></div>
+
+<div id="top">
+  <div class="row">
+    <div class="brand">IDRATATI</div>
+    <input id="search" type="text" placeholder="Cerca una città o una via" autocomplete="off" enterkeyhint="search">
+  </div>
+  <div class="chips">
+    <button class="chip fonta" id="fFont" aria-pressed="true"><span class="dot"></span>Fontanelle</button>
+    <button class="chip casa" id="fCasa" aria-pressed="true"><span class="dot"></span>Case dell'acqua</button>
+    <button class="chip okonly" id="fOk" aria-pressed="false"><span class="dot"></span>Nascondi le rotte</button>
+  </div>
+  <div id="results"></div>
+</div>
+
+<button class="fab" id="addBtn" aria-label="Segnala una fontanella nuova">
+  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+<button class="fab" id="locate" aria-label="Torna alla mia posizione">
+  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <circle cx="12" cy="12" r="7"/><path d="M12 1v3M12 20v3M23 12h-3M4 12H1"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/></svg>
+</button>
+
+<div id="crosshair">
+  <svg width="34" height="44" viewBox="0 0 34 44" fill="none">
+    <path d="M17 2C17 2 30 19 30 27.5A13 13 0 0 1 4 27.5C4 19 17 2 17 2Z" fill="#00A6A6" stroke="#fff" stroke-width="2.5"/>
+    <circle cx="17" cy="41" r="2.5" fill="#07242F" opacity=".35"/>
+  </svg>
+</div>
+
+<div id="toast"></div>
+
+<div id="card" class="hidden">
+  <button class="close" id="cardClose" aria-label="Chiudi">×</button>
+  <div class="eyebrow" id="cEyebrow">La più vicina</div>
+  <div class="headline" id="cHead">Cerco l'acqua…</div>
+  <div class="sub" id="cSub"></div>
+  <div class="tags" id="cTags"></div>
+  <div class="actions" id="cActions"></div>
+</div>
+
+<div id="addbar">
+  <p id="addText">Sposta la mappa fino a centrare la fontanella, poi conferma.</p>
+  <div class="actions" style="margin-top:0">
+    <button class="btn ghost" id="addCancel" style="background:rgba(255,255,255,.12);color:#F2F7F6">Annulla</button>
+    <button class="btn" id="addOk" style="background:var(--acqua);color:#fff">È qui</button>
+  </div>
+</div>
+
+<div id="scrim"></div>
+<div id="sheet">
+  <div class="grab"></div>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   CONFIG — incolla qui i dati del tuo progetto Supabase.
+   Li trovi in Supabase > Project Settings > API.
+   La anon key è PENSATA per stare qui: i permessi veri
+   sono nelle policy RLS del database.
+   Lasciando i campi vuoti l'app funziona lo stesso,
+   in sola lettura da OpenStreetMap.
+   ============================================================ */
+var CFG = {
+  SUPABASE_URL: 'https://usaagxlsqmxbcagiwnoz.supabase.co',
+  // INCOLLA QUI SOTTO la chiave anon public (Supabase > Project Settings > API)
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzYWFneGxzcW14YmNhZ2l3bm96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxNDU4NjYsImV4cCI6MjEwMDcyMTg2Nn0.IijyrG7pPtn-9E168xVeVIX8mdHUAWDEOHTq998wFHA',
+  DATA_BASE: 'data'          // cartella degli snapshot generati da tools/build_data.py
+};
+
+var FALLBACK = {lat:45.4642, lon:9.1900, label:'Milano'};
+var WALK = 80, DETOUR = 1.25, RADIUS = 2200, TILE = 0.5;
+
+/* ---------- storage sicuro ---------- */
+var mem = {};
+var store = {
+  get:function(k){ try{ return localStorage.getItem(k); }catch(e){ return mem[k]||null; } },
+  set:function(k,v){ try{ localStorage.setItem(k,v); }catch(e){ mem[k]=v; } }
+};
+var CLIENT = store.get('idr_client');
+if(!CLIENT){
+  CLIENT = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,12);
+  store.set('idr_client', CLIENT);
+}
+
+/* ---------- mini client Supabase (REST, zero dipendenze) ---------- */
+var SB = {
+  on: function(){ return !!(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY); },
+  head: function(){
+    return {'apikey':CFG.SUPABASE_ANON_KEY,'Authorization':'Bearer '+CFG.SUPABASE_ANON_KEY,
+            'Content-Type':'application/json'};
+  },
+  select: function(path){
+    if(!SB.on()) return Promise.resolve([]);
+    return fetch(CFG.SUPABASE_URL+'/rest/v1/'+path, {headers:SB.head()})
+      .then(function(r){ return r.ok ? r.json() : []; }).catch(function(){ return []; });
+  },
+  insert: function(table, row){
+    if(!SB.on()) return Promise.reject(new Error('offline'));
+    return fetch(CFG.SUPABASE_URL+'/rest/v1/'+table, {
+      method:'POST',
+      headers:Object.assign(SB.head(), {'Prefer':'return=representation'}),
+      body:JSON.stringify(row)
+    }).then(function(r){
+      if(!r.ok) return r.text().then(function(t){ throw new Error(t); });
+      return r.json();
+    });
+  },
+  upload: function(file, name){
+    if(!SB.on()) return Promise.reject(new Error('offline'));
+    return fetch(CFG.SUPABASE_URL+'/storage/v1/object/photos/'+name, {
+      method:'POST',
+      headers:{'apikey':CFG.SUPABASE_ANON_KEY,'Authorization':'Bearer '+CFG.SUPABASE_ANON_KEY,
+               'Content-Type':file.type||'image/jpeg','x-upsert':'false'},
+      body:file
+    }).then(function(r){
+      if(!r.ok) throw new Error('upload');
+      return CFG.SUPABASE_URL+'/storage/v1/object/public/photos/'+name;
+    });
+  }
+};
+
+/* ---------- stato ---------- */
+var map, layer, meMarker, myPos=null, points=[], byId={},
+    overrides={}, statusAgg={}, reviewAgg={},
+    selected=null, tilesLoaded={}, fetching=false, lastQ=null,
+    adding=false, addPhoto=null, myVotes={};
+var show = {fontanella:true, casa:true, okonly:false};
+
+/* ---------- utility ---------- */
+function dist(a,b){
+  var R=6371000,t=Math.PI/180,dLat=(b.lat-a.lat)*t,dLon=(b.lon-a.lon)*t;
+  var s=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a.lat*t)*Math.cos(b.lat*t)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+function walkMin(m){ return Math.max(1, Math.round(m*DETOUR/WALK)); }
+function fmtDist(m){ return m<1000 ? Math.round(m/10)*10+' m' : (m/1000).toFixed(1).replace('.',',')+' km'; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function toast(msg,ms){
+  var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(function(){ t.classList.remove('show'); }, ms||3200);
+}
+function daysAgo(iso){
+  if(!iso) return null;
+  return Math.floor((Date.now()-new Date(iso).getTime())/86400000);
+}
+function agoText(d){
+  if(d==null) return null;
+  if(d<1) return 'oggi'; if(d===1) return 'ieri';
+  if(d<30) return d+' giorni fa';
+  if(d<365) return Math.round(d/30)+' mesi fa';
+  return 'oltre un anno fa';
+}
+
+/* ---------- classificazione OSM ---------- */
+function classify(tags){
+  var n=(tags.name||'').toLowerCase();
+  if(tags.amenity==='vending_machine' || tags.amenity==='water_point') return 'casa';
+  if(n.indexOf('casa dell')>-1 || n.indexOf('casa acqua')>-1 || n.indexOf('casetta')>-1) return 'casa';
+  if(tags['drinking_water:refill']==='yes' && tags.amenity!=='drinking_water') return 'casa';
+  return 'fontanella';
+}
+function labelFor(p){
+  if(p.ov && p.ov.name) return p.ov.name;
+  if(p.tags.name) return p.tags.name;
+  return p.kind==='casa' ? "Casa dell'acqua" : 'Fontanella pubblica';
+}
+
+/* ---------- stato calcolato ---------- */
+function stateOf(p){
+  var ov=p.ov, ag=statusAgg[p.target];
+  if(ov && ov.status_locked && ov.status!=='unknown'){
+    return {s:ov.status, why:'verificata', locked:true};
+  }
+  if(ag){
+    var ok=ag.ok_votes||0, ko=ag.broken_votes||0;
+    if(ko>=2 && ko>ok) return {s:'broken', why:ko+' segnalazioni', last:ag.last_report};
+    if(ok>=1 && ok>=ko) return {s:'ok', why:ok+' conferme', last:ag.last_report};
+    if(ko===1) return {s:'doubt', why:'1 segnalazione', last:ag.last_report};
+  }
+  if(ov && ov.status && ov.status!=='unknown') return {s:ov.status, why:'verificata'};
+  if(p.tags.check_date) return {s:'unknown', why:'verificata su OSM il '+p.tags.check_date};
+  return {s:'unknown', why:null};
+}
+function stateLabel(st){
+  if(st.s==='ok')      return {c:'ok',   t:'Funzionante'};
+  if(st.s==='broken')  return {c:'bad',  t:'Segnalata rotta'};
+  if(st.s==='removed') return {c:'bad',  t:'Rimossa'};
+  if(st.s==='doubt')   return {c:'warn', t:'Da verificare'};
+  return {c:'', t:'Stato sconosciuto'};
+}
+
+function tagsFor(p){
+  var t=p.tags, ov=p.ov||{}, out=[], st=stateOf(p), sl=stateLabel(st);
+  out.push({c:sl.c, s:sl.t});
+  if(t.drinking_water==='no' || ov.potable===false) out.push({c:'bad', s:'Non potabile'});
+  else if(t.drinking_water==='yes' || t.amenity==='drinking_water' || ov.potable===true) out.push({c:'ok', s:'Potabile'});
+  var fee = ov.fee || (t.fee==='yes'?'paid':(t.fee==='no'?'free':null));
+  if(fee==='paid') out.push({c:'warn', s:'A pagamento'});
+  else if(fee==='free') out.push({c:'ok', s:'Gratis'});
+  else if(p.kind==='casa') out.push({c:'', s:'Di solito gratis'});
+  if(ov.requires_card || p.kind==='casa') out.push({c:'warn', s:'Serve la tessera sanitaria'});
+  if(t.bottle==='yes') out.push({c:'', s:'Riempi la borraccia'});
+  if(t.seasonal==='yes') out.push({c:'warn', s:'Stagionale'});
+  if(t.opening_hours) out.push({c:'', s:t.opening_hours});
+  var r=reviewAgg[p.target];
+  if(r && r.n) out.push({c:'', s:'★ '+r.overall+' ('+r.n+')'});
+  return out;
+}
+
+/* ============================================================
+   MAPPA
+   ============================================================ */
+function initMap(c){
+  map=L.map('map',{zoomControl:false,attributionControl:true}).setView([c.lat,c.lon],16);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
+    maxZoom:19,
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  }).addTo(map);
+  layer=L.layerGroup().addTo(map);
+  map.on('moveend', function(){
+    var c2=map.getCenter();
+    loadArea({lat:c2.lat, lon:c2.lng});
+  });
+}
+function setMe(pos){
+  myPos=pos;
+  if(!meMarker){
+    meMarker=L.marker([pos.lat,pos.lon],{
+      icon:L.divIcon({className:'',html:'<div class="me"></div>',iconSize:[18,18],iconAnchor:[9,9]}),
+      interactive:false,zIndexOffset:1000}).addTo(map);
+  } else meMarker.setLatLng([pos.lat,pos.lon]);
+}
+
+/* ============================================================
+   DATI: snapshot statico -> Overpass -> Supabase
+   ============================================================ */
+function tileKey(lat,lon){
+  return (Math.floor(lat/TILE)*TILE).toFixed(1)+'_'+(Math.floor(lon/TILE)*TILE).toFixed(1);
+}
+function tilesForView(){
+  var b=map.getBounds(), keys={}, out=[];
+  for(var la=Math.floor(b.getSouth()/TILE)*TILE; la<=b.getNorth(); la+=TILE)
+    for(var lo=Math.floor(b.getWest()/TILE)*TILE; lo<=b.getEast(); lo+=TILE){
+      var k=tileKey(la,lo);
+      if(!keys[k]){ keys[k]=1; out.push(k); }
+    }
+  return out;
+}
+function addPoints(arr){
+  var added=0;
+  arr.forEach(function(p){
+    if(byId[p.id]) return;
+    byId[p.id]=p; points.push(p); added++;
+  });
+  return added;
+}
+function loadArea(center){
+  var keys=tilesForView(), pending=[];
+  keys.forEach(function(k){ if(!tilesLoaded[k]){ tilesLoaded[k]='loading'; pending.push(k); } });
+
+  pending.forEach(function(k){
+    fetch(CFG.DATA_BASE+'/'+k+'.json')
+      .then(function(r){ if(!r.ok) throw new Error('404'); return r.json(); })
+      .then(function(d){
+        tilesLoaded[k]='ok';
+        addPoints((d.p||[]).map(decodePoint));
+        render();
+      })
+      .catch(function(){
+        tilesLoaded[k]='miss';
+        overpass(center);   // niente snapshot per quest'area: chiedo a Overpass
+      });
+  });
+
+  if(!lastQ || dist(lastQ,center)>1200){ lastQ=center; loadSupabase(center); }
+}
+
+/* formato compatto dello snapshot: [osmid, lat, lon, kind, name, flags] */
+function decodePoint(a){
+  var kind = a[3]===1 ? 'casa' : 'fontanella';
+  var tags = {};
+  if(a[4]) tags.name=a[4];
+  var f=a[5]||0;
+  if(f&1) tags.drinking_water='yes';
+  if(f&2) tags.drinking_water='no';
+  if(f&4) tags.fee='yes';
+  if(f&8) tags.fee='no';
+  if(f&16) tags.bottle='yes';
+  if(f&32) tags.seasonal='yes';
+  if(a[6]) tags.check_date=a[6];
+  return {id:a[0], target:'osm/'+a[0], lat:a[1], lon:a[2], kind:kind, tags:tags};
+}
+
+function overpass(c){
+  if(fetching) return;
+  fetching=true;
+  var a='(around:'+RADIUS+','+c.lat.toFixed(5)+','+c.lon.toFixed(5)+')';
+  var q='[out:json][timeout:25];('+
+    'nwr["amenity"="drinking_water"]'+a+';'+
+    'nwr["man_made"="water_tap"]["drinking_water"!="no"]'+a+';'+
+    'nwr["amenity"="water_point"]'+a+';'+
+    'nwr["amenity"="vending_machine"]["vending"~"water"]'+a+';'+
+    'nwr["natural"="spring"]["drinking_water"="yes"]'+a+';);out center 300;';
+  fetch('https://overpass-api.de/api/interpreter',{
+    method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'data='+encodeURIComponent(q)
+  }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(d){
+      fetching=false;
+      addPoints((d.elements||[]).map(function(e){
+        var lat=e.lat!=null?e.lat:(e.center&&e.center.lat);
+        var lon=e.lon!=null?e.lon:(e.center&&e.center.lon);
+        if(lat==null||lon==null) return null;
+        var tags=e.tags||{};
+        if(tags.access==='private'||tags.access==='no') return null;
+        var id=e.type+'/'+e.id;
+        return {id:id, target:'osm/'+id, lat:lat, lon:lon, tags:tags, kind:classify(tags)};
+      }).filter(Boolean));
+      render();
+    })
+    .catch(function(){ fetching=false; });
+}
+
+function loadSupabase(c){
+  if(!SB.on()) return;
+  var d=0.06;
+  SB.select('fountains?select=*&hidden=eq.false'
+    +'&lat=gte.'+(c.lat-d)+'&lat=lte.'+(c.lat+d)
+    +'&lon=gte.'+(c.lon-d)+'&lon=lte.'+(c.lon+d)+'&limit=1000')
+    .then(function(rows){
+      var custom=[];
+      rows.forEach(function(r){
+        if(r.osm_id){ overrides[r.osm_id]=r; }
+        else {
+          custom.push({id:'db/'+r.id, target:'db/'+r.id, lat:r.lat, lon:r.lon,
+                       kind:r.kind, tags:{name:r.name}, ov:r, custom:true});
+        }
+      });
+      addPoints(custom);
+      points.forEach(function(p){ if(overrides[p.id]) p.ov=overrides[p.id]; });
+      render();
+    });
+  SB.select('v_status?select=*&limit=5000').then(function(rows){
+    rows.forEach(function(r){ statusAgg[r.target]=r; }); render();
+  });
+  SB.select('v_reviews?select=*&limit=5000').then(function(rows){
+    rows.forEach(function(r){ reviewAgg[r.target]=r; }); render();
+  });
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+var IC_F='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 3s7 8.4 7 12.6A7 7 0 0 1 5 15.6C5 11.4 12 3 12 3Z"/></svg>';
+var IC_C='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#07242F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9l8-5 8 5v11"/><path d="M10 20v-6h4v6"/></svg>';
+
+function visible(){
+  return points.filter(function(p){
+    if(!show[p.kind]) return false;
+    var st=stateOf(p);
+    if(st.s==='removed') return false;
+    if(show.okonly && (st.s==='broken')) return false;
+    return true;
+  });
+}
+function render(){
+  if(!layer) return;
+  layer.clearLayers();
+  visible().forEach(function(p){
+    var casa=p.kind==='casa', st=stateOf(p), broken=(st.s==='broken');
+    L.marker([p.lat,p.lon],{icon:L.divIcon({className:'',
+      html:'<div class="pin'+(casa?' casa':'')+(broken?' broken':'')+
+           (selected&&selected.target===p.target?' sel':'')+'">'+(casa?IC_C:IC_F)+'</div>',
+      iconSize:[30,30],iconAnchor:[15,28]})})
+     .on('click',function(){ openSheet(p); }).addTo(layer);
+  });
+  if(!selected) showNearest();
+}
+function nearest(){
+  if(!myPos) return null;
+  var best=null,bd=Infinity;
+  visible().forEach(function(p){
+    if(p.tags.drinking_water==='no') return;
+    if(stateOf(p).s==='broken') return;
+    var d=dist(myPos,p); if(d<bd){bd=d;best=p;}
+  });
+  return best?{p:best,d:bd}:null;
+}
+function showNearest(){
+  var n=nearest();
+  if(!n){ hideCard(); return; }
+  fillCard(n.p, n.d, true);
+}
+function hideCard(){
+  document.getElementById('card').classList.add('hidden');
+  document.body.classList.add('card-hidden');
+}
+function fillCard(p,d,isNearest){
+  var min=d!=null?walkMin(d):null;
+  document.getElementById('cEyebrow').textContent =
+    isNearest ? (p.kind==='casa'?"La più vicina · casa dell'acqua":'La più vicina · fontanella')
+              : (p.kind==='casa'?"Casa dell'acqua":'Fontanella');
+  document.getElementById('cHead').innerHTML =
+    (isNearest&&min!=null) ? 'A <b>'+min+' minut'+(min===1?'o':'i')+'</b> a piedi' : esc(labelFor(p));
+  var sub=[]; if(isNearest) sub.push(labelFor(p));
+  if(d!=null) sub.push(fmtDist(d)+(isNearest?'':' · '+walkMin(d)+' min a piedi'));
+  document.getElementById('cSub').textContent=sub.join(' · ');
+  var tw=document.getElementById('cTags'); tw.innerHTML='';
+  tagsFor(p).slice(0,4).forEach(function(t){
+    var s=document.createElement('span'); s.className='tag'+(t.c?' '+t.c:''); s.textContent=t.s; tw.appendChild(s);
+  });
+  document.getElementById('cActions').innerHTML=
+    '<button class="btn" id="cOpen">Dettagli e voto</button>'+
+    '<a class="btn ghost" id="cNav" href="'+navUrl(p,'g')+'" target="_blank" rel="noopener">Portami</a>';
+  document.getElementById('cOpen').onclick=function(){ openSheet(p); };
+  document.getElementById('card').classList.remove('hidden');
+  document.body.classList.remove('card-hidden');
+}
+function navUrl(p,which){
+  if(which==='a') return 'https://maps.apple.com/?daddr='+p.lat+','+p.lon+'&dirflg=w';
+  return 'https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lon+'&travelmode=walking';
+}
+
+/* ============================================================
+   SHEET DETTAGLIO
+   ============================================================ */
+var STARS=[['findability','Si trova facilmente'],['cleanliness','Pulizia'],
+           ['taste',"Sapore dell'acqua"],['flow','Getto']];
+
+function starSvg(){ return '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z"/></svg>'; }
+
+function openSheet(p){
+  selected=p; render();
+  map.panTo([p.lat,p.lon],{animate:true});
+  var st=stateOf(p), sl=stateLabel(st), d=myPos?dist(myPos,p):null;
+  var r=reviewAgg[p.target];
+  var voted=myVotes[p.target];
+
+  var h='';
+  h+='<div class="eyebrow">'+(p.kind==='casa'?"Casa dell'acqua":'Fontanella pubblica')+'</div>';
+  h+='<div class="sheet-h">'+esc(labelFor(p))+'</div>';
+  h+='<div class="sub">'+(d!=null?fmtDist(d)+' · '+walkMin(d)+' min a piedi':'Distanza non disponibile')+'</div>';
+  h+='<div class="tags">';
+  tagsFor(p).forEach(function(t){ h+='<span class="tag'+(t.c?' '+t.c:'')+'">'+esc(t.s)+'</span>'; });
+  h+='</div>';
+
+  h+='<div class="actions"><a class="btn" href="'+navUrl(p,'g')+'" target="_blank" rel="noopener">Google Maps</a>'+
+     '<a class="btn ghost" href="'+navUrl(p,'a')+'" target="_blank" rel="noopener">Apple Maps</a></div>';
+
+  h+='<div id="photoWrap"></div>';
+
+  h+='<div class="sec"><div class="sec-t">Funziona?</div>';
+  if(st.last){ var ag=agoText(daysAgo(st.last)); if(ag) h+='<div class="sub" style="margin-bottom:9px">Ultima segnalazione '+ag+'</div>'; }
+  h+='<div class="statebox">'+
+     '<button class="btn ok'+(voted==='ok'?' ':'')+'" id="voteOk"'+(voted?' disabled':'')+'>Funziona</button>'+
+     '<button class="btn bad" id="voteKo"'+(voted?' disabled':'')+'>È rotta</button></div>';
+  if(voted) h+='<div class="hint">Grazie, la tua segnalazione è registrata.</div>';
+  h+='</div>';
+
+  h+='<div class="sec"><div class="sec-t">Il giudizio di chi ci è stato</div><div id="aggWrap"></div></div>';
+
+  h+='<div class="sec"><div class="sec-t">Lascia il tuo voto</div><div id="myStars"></div>'+
+     '<textarea id="revComment" rows="2" placeholder="Due parole (facoltativo)" maxlength="400" style="margin-top:8px"></textarea>'+
+     '<div class="actions"><button class="btn" id="revSend">Invia il voto</button></div>'+
+     '<div class="hint">Le stelle sul sapore raccontano l\'esperienza di chi beve, non un\'analisi di potabilità. Se l\'acqua ti sembra sospetta, non berla e segnala la fontanella come rotta.</div></div>';
+
+  h+='<div class="sec"><div class="sec-t">Aggiungi una foto</div>'+
+     '<input type="file" id="photoFile" accept="image/*" capture="environment" style="font-size:13px">'+
+     '<div class="hint">La foto compare sulla scheda dopo un controllo. Fotografa la fontanella, non le persone.</div></div>';
+
+  h+='<div class="sec" id="revList"></div>';
+
+  document.getElementById('sheetBody').innerHTML=h;
+  document.getElementById('sheetBody').scrollTop=0;
+  document.getElementById('sheet').classList.add('on');
+  document.getElementById('scrim').classList.add('on');
+
+  renderAgg(p);
+  renderMyStars();
+  loadPhotos(p);
+  loadReviews(p);
+
+  document.getElementById('voteOk').onclick=function(){ sendReport(p,'ok'); };
+  document.getElementById('voteKo').onclick=function(){ sendReport(p,'broken'); };
+  document.getElementById('revSend').onclick=function(){ sendReview(p); };
+  document.getElementById('photoFile').onchange=function(e){ sendPhoto(p, e.target.files[0]); };
+}
+function closeSheet(){
+  document.getElementById('sheet').classList.remove('on');
+  document.getElementById('scrim').classList.remove('on');
+  selected=null; render();
+}
+function renderAgg(p){
+  var r=reviewAgg[p.target], w=document.getElementById('aggWrap');
+  if(!r||!r.n){ w.innerHTML='<div class="empty">Ancora nessun voto. Il primo puoi darlo tu.</div>'; return; }
+  var h='';
+  STARS.forEach(function(s){
+    var v=r[s[0]];
+    h+='<div class="starrow"><span>'+s[1]+'</span>'+
+       '<div class="bar"><i style="width:'+((v||0)/5*100)+'%"></i></div>'+
+       '<span style="font-weight:600;min-width:26px;text-align:right">'+(v!=null?String(v).replace('.',','):'–')+'</span></div>';
+  });
+  h+='<div class="hint">Media su '+r.n+' voto'+(r.n===1?'':'i')+'.</div>';
+  w.innerHTML=h;
+}
+var myRating={};
+function renderMyStars(){
+  myRating={};
+  var h='';
+  STARS.forEach(function(s){
+    h+='<div class="starrow"><span>'+s[1]+'</span><div class="stars" data-k="'+s[0]+'">';
+    for(var i=1;i<=5;i++) h+='<button class="star" data-v="'+i+'" aria-label="'+i+' stelle">'+starSvg()+'</button>';
+    h+='</div></div>';
+  });
+  var w=document.getElementById('myStars'); w.innerHTML=h;
+  w.querySelectorAll('.stars').forEach(function(row){
+    row.querySelectorAll('.star').forEach(function(b){
+      b.onclick=function(){
+        var k=row.getAttribute('data-k'), v=+b.getAttribute('data-v');
+        myRating[k]=v;
+        row.querySelectorAll('.star').forEach(function(x){
+          x.classList.toggle('on', +x.getAttribute('data-v')<=v);
+        });
+      };
+    });
+  });
+}
+function loadPhotos(p){
+  var w=document.getElementById('photoWrap');
+  if(p.ov && p.ov.photo_url){ w.innerHTML='<img class="hero" src="'+esc(p.ov.photo_url)+'" alt="">'; }
+  if(!SB.on()) return;
+  SB.select('photos?select=url&approved=eq.true&target=eq.'+encodeURIComponent(p.target)+'&order=created_at.desc&limit=6')
+    .then(function(rows){
+      if(!rows.length) return;
+      var h='<img class="hero" src="'+esc(rows[0].url)+'" alt="">';
+      if(rows.length>1){
+        h+='<div class="gallery">';
+        rows.slice(1).forEach(function(r){ h+='<img src="'+esc(r.url)+'" alt="">'; });
+        h+='</div>';
+      }
+      w.innerHTML=h;
+    });
+}
+function loadReviews(p){
+  var w=document.getElementById('revList');
+  if(!SB.on()){ w.innerHTML=''; return; }
+  SB.select('reviews?select=comment,created_at&approved=eq.true&comment=not.is.null&target=eq.'+
+            encodeURIComponent(p.target)+'&order=created_at.desc&limit=10')
+    .then(function(rows){
+      if(!rows.length){ w.innerHTML=''; return; }
+      var h='<div class="sec-t">Commenti</div>';
+      rows.forEach(function(r){
+        h+='<div class="rev"><div class="meta">'+esc(agoText(daysAgo(r.created_at))||'')+'</div>'+esc(r.comment)+'</div>';
+      });
+      w.innerHTML=h;
+    });
+}
+
+/* ---------- invii ---------- */
+function needSB(){
+  if(SB.on()) return false;
+  toast('Le segnalazioni non sono ancora attive su questo sito.',3800);
+  return true;
+}
+function sendReport(p,status){
+  if(needSB()) return;
+  document.getElementById('voteOk').disabled=true;
+  document.getElementById('voteKo').disabled=true;
+  SB.insert('reports',{target:p.target,status:status,client_id:CLIENT})
+    .then(function(){
+      myVotes[p.target]=status;
+      var a=statusAgg[p.target]||{target:p.target,ok_votes:0,broken_votes:0};
+      if(status==='ok') a.ok_votes=(a.ok_votes||0)+1; else a.broken_votes=(a.broken_votes||0)+1;
+      a.last_report=new Date().toISOString();
+      statusAgg[p.target]=a;
+      toast(status==='ok'?'Segnata come funzionante. Grazie.':'Segnata come rotta. Grazie.');
+      render(); openSheet(p);
+    })
+    .catch(function(){ toast('Non sono riuscito a inviare. Riprova.'); });
+}
+function sendReview(p){
+  if(needSB()) return;
+  var keys=Object.keys(myRating);
+  if(!keys.length){ toast('Tocca almeno una stella prima di inviare.'); return; }
+  var row={target:p.target,client_id:CLIENT,
+    comment:(document.getElementById('revComment').value||'').trim()||null};
+  STARS.forEach(function(s){ row[s[0]]=myRating[s[0]]||null; });
+  var b=document.getElementById('revSend'); b.disabled=true; b.textContent='Invio…';
+  SB.insert('reviews',row)
+    .then(function(){ toast('Voto registrato. Grazie.'); loadSupabase({lat:p.lat,lon:p.lon}); closeSheet(); })
+    .catch(function(){ b.disabled=false; b.textContent='Invia il voto'; toast('Non sono riuscito a inviare. Riprova.'); });
+}
+function shrink(file,maxPx,q){
+  return new Promise(function(res,rej){
+    var img=new Image(), url=URL.createObjectURL(file);
+    img.onload=function(){
+      var s=Math.min(1,maxPx/Math.max(img.width,img.height));
+      var c=document.createElement('canvas');
+      c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      URL.revokeObjectURL(url);
+      c.toBlob(function(b){ b?res(b):rej(new Error('canvas')); },'image/jpeg',q);
+    };
+    img.onerror=function(){ URL.revokeObjectURL(url); rej(new Error('img')); };
+    img.src=url;
+  });
+}
+function sendPhoto(p,file){
+  if(!file) return;
+  if(needSB()) return;
+  toast('Carico la foto…',6000);
+  shrink(file,1280,.75).then(function(blob){
+    var name=Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
+    return SB.upload(blob,name).then(function(url){
+      return SB.insert('photos',{target:p.target,path:name,url:url,client_id:CLIENT});
+    });
+  }).then(function(){
+    toast('Foto inviata. La vedrai online dopo il controllo.',4200);
+  }).catch(function(){ toast('Caricamento non riuscito. Riprova.'); });
+}
+
+/* ============================================================
+   AGGIUNGI UNA FONTANELLA
+   ============================================================ */
+function startAdd(){
+  if(needSB()) return;
+  adding=true; addPhoto=null;
+  document.getElementById('addbar').classList.add('on');
+  document.getElementById('crosshair').classList.add('on');
+  document.getElementById('addText').textContent='Sposta la mappa fino a centrare la fontanella, poi conferma.';
+  document.getElementById('addOk').textContent='È qui';
+  hideCard();
+}
+function stopAdd(){
+  adding=false;
+  document.getElementById('addbar').classList.remove('on');
+  document.getElementById('crosshair').classList.remove('on');
+  showNearest();
+}
+function confirmAdd(){
+  var c=map.getCenter();
+  var bar=document.getElementById('addbar');
+  bar.innerHTML=
+    '<p style="margin:0 0 10px;font-size:13.5px">Che punto d\'acqua è?</p>'+
+    '<div class="actions" style="margin:0 0 8px"><button class="btn" id="kFont" style="background:var(--acqua);color:#fff">Fontanella</button>'+
+    '<button class="btn" id="kCasa" style="background:var(--getto);color:#07242F">Casa dell\'acqua</button></div>'+
+    '<input type="text" id="addName" placeholder="Nome o riferimento (facoltativo)" style="margin-bottom:8px">'+
+    '<textarea id="addNote" rows="2" placeholder="Come si riconosce, se funziona…"></textarea>'+
+    '<div class="actions"><button class="btn ghost" id="addCancel2" style="background:rgba(255,255,255,.12);color:#F2F7F6">Annulla</button>'+
+    '<button class="btn" id="addSend" style="background:var(--acqua);color:#fff">Invia</button></div>';
+  var kind='fontanella';
+  document.getElementById('kFont').onclick=function(){ kind='fontanella'; toast('Fontanella'); };
+  document.getElementById('kCasa').onclick=function(){ kind='casa'; toast("Casa dell'acqua"); };
+  document.getElementById('addCancel2').onclick=function(){ resetAddBar(); stopAdd(); };
+  document.getElementById('addSend').onclick=function(){
+    var b=document.getElementById('addSend'); b.disabled=true; b.textContent='Invio…';
+    SB.insert('submissions',{
+      lat:+c.lat.toFixed(6), lon:+c.lng.toFixed(6), kind:kind,
+      name:(document.getElementById('addName').value||'').trim()||null,
+      note:(document.getElementById('addNote').value||'').trim()||null,
+      client_id:CLIENT
+    }).then(function(){
+      toast('Proposta inviata. Compare sulla mappa dopo il controllo.',4500);
+      resetAddBar(); stopAdd();
+    }).catch(function(){
+      b.disabled=false; b.textContent='Invia'; toast('Invio non riuscito. Riprova.');
+    });
+  };
+}
+function resetAddBar(){
+  var bar=document.getElementById('addbar');
+  bar.innerHTML='<p id="addText">Sposta la mappa fino a centrare la fontanella, poi conferma.</p>'+
+    '<div class="actions" style="margin-top:0">'+
+    '<button class="btn ghost" id="addCancel" style="background:rgba(255,255,255,.12);color:#F2F7F6">Annulla</button>'+
+    '<button class="btn" id="addOk" style="background:var(--acqua);color:#fff">È qui</button></div>';
+  document.getElementById('addCancel').onclick=stopAdd;
+  document.getElementById('addOk').onclick=confirmAdd;
+}
+
+/* ============================================================
+   RICERCA CITTÀ (Nominatim)
+   ============================================================ */
+var searchTimer;
+document.getElementById('search').addEventListener('input',function(e){
+  var q=e.target.value.trim();
+  clearTimeout(searchTimer);
+  if(q.length<3){ document.getElementById('results').classList.remove('on'); return; }
+  searchTimer=setTimeout(function(){
+    fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=it&q='+encodeURIComponent(q))
+      .then(function(r){ return r.json(); })
+      .then(function(rows){
+        var w=document.getElementById('results');
+        if(!rows.length){ w.classList.remove('on'); return; }
+        w.innerHTML='';
+        rows.forEach(function(r){
+          var b=document.createElement('button');
+          b.textContent=r.display_name;
+          b.onclick=function(){
+            map.setView([+r.lat,+r.lon],16);
+            w.classList.remove('on');
+            document.getElementById('search').value='';
+            document.getElementById('search').blur();
+          };
+          w.appendChild(b);
+        });
+        w.classList.add('on');
+      }).catch(function(){});
+  },420);
+});
+
+/* ============================================================
+   CONTROLLI
+   ============================================================ */
+document.getElementById('cardClose').onclick=function(){ hideCard(); };
+document.getElementById('scrim').onclick=closeSheet;
+document.getElementById('locate').onclick=function(){
+  if(myPos){ map.setView([myPos.lat,myPos.lon],16); selected=null; render(); }
+  else askPosition(true);
+};
+document.getElementById('addBtn').onclick=function(){ adding?stopAdd():startAdd(); };
+resetAddBar();
+
+function chip(id,key){
+  var el=document.getElementById(id);
+  el.onclick=function(){
+    show[key]=!show[key];
+    el.setAttribute('aria-pressed', show[key]?'true':'false');
+    if(selected && !show[selected.kind]) closeSheet();
+    render();
+  };
+}
+chip('fFont','fontanella'); chip('fCasa','casa'); chip('fOk','okonly');
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){ if(adding) stopAdd(); else closeSheet(); }
+});
+
+/* ---------- posizione ---------- */
+function askPosition(recenter){
+  if(!navigator.geolocation){ toast('Posizione non disponibile su questo dispositivo.'); return; }
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var p={lat:pos.coords.latitude, lon:pos.coords.longitude};
+    setMe(p);
+    if(recenter) map.setView([p.lat,p.lon],16);
+    loadArea(p); render();
+  },function(){
+    toast('Posizione non attiva. Cerca la città qui sopra.',4500);
+    var c=map.getCenter(); loadArea({lat:c.lat,lon:c.lng});
+  },{enableHighAccuracy:true,timeout:9000,maximumAge:30000});
+}
+function watchPosition(){
+  if(!navigator.geolocation) return;
+  navigator.geolocation.watchPosition(function(pos){
+    setMe({lat:pos.coords.latitude, lon:pos.coords.longitude});
+    if(!selected) showNearest();
+  },function(){},{enableHighAccuracy:true,maximumAge:15000,timeout:20000});
+}
+
+/* ---------- avvio ---------- */
+initMap(FALLBACK);
+askPosition(true);
+setTimeout(watchPosition, 4000);
+setTimeout(function(){
+  document.getElementById('splash').classList.add('gone');
+  setTimeout(function(){ map.invalidateSize(); loadArea(map.getCenter()?{lat:map.getCenter().lat,lon:map.getCenter().lng}:FALLBACK); },260);
+},2000);
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+}
+})();
+</script>
+</body>
+</html>

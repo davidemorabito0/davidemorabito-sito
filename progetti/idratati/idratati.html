@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>IDRATATI — acqua pubblica, ovunque</title>
+<meta name="theme-color" content="#07242F">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#07242F;
+  --ink-soft:#123A4A;
+  --surface:#F2F7F6;
+  --acqua:#00A6A6;
+  --acqua-deep:#00807F;
+  --getto:#FFB020;
+  --rotta:#E5484D;
+  --line:rgba(7,36,47,.10);
+  --display:'Bricolage Grotesque', 'Trebuchet MS', system-ui, sans-serif;
+  --body:'Inter Tight', system-ui, -apple-system, sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{
+  font-family:var(--body);
+  background:var(--ink);
+  color:var(--ink);
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+
+/* ---------- SPLASH ---------- */
+#splash{
+  position:fixed;inset:0;z-index:9000;
+  background:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:26px;
+  transition:opacity .45s ease, visibility .45s;
+}
+#splash.gone{opacity:0;visibility:hidden}
+.drop-stage{width:min(46vw,168px);height:min(46vw,168px)}
+.drop-stage svg{width:100%;height:100%;display:block;shape-rendering:geometricPrecision}
+.rp{
+  opacity:0;
+  animation:rp 2.1s cubic-bezier(.2,.7,.3,1) infinite;
+}
+.rp2{animation-delay:.45s}
+.rp3{animation-delay:.9s}
+@keyframes rp{
+  0%{r:12px;opacity:0}
+  14%{opacity:.8}
+  100%{r:118px;opacity:0}
+}
+.dropg{animation:fall 2.1s cubic-bezier(.5,0,.35,1) infinite}
+@keyframes fall{
+  0%{transform:translateY(-130px);opacity:0}
+  20%{opacity:1}
+  46%{transform:translateY(0);opacity:1}
+  62%,100%{transform:translateY(0);opacity:0}
+}
+.wordmark{
+  font-family:var(--display);font-weight:800;
+  font-size:clamp(28px,8.6vw,40px);letter-spacing:.15em;
+  color:var(--surface);margin-left:.15em;line-height:1;white-space:nowrap;
+}
+.tagline{
+  font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--acqua);margin-top:-14px;
+}
+
+/* ---------- MAPPA ---------- */
+#map{position:fixed;inset:0;background:#dfe8e7}
+.leaflet-control-attribution{
+  font-size:9px;background:rgba(255,255,255,.82);font-family:var(--body);
+}
+.leaflet-control-zoom{display:none}
+
+/* ---------- TOP ---------- */
+#top{
+  position:fixed;top:0;left:0;right:0;z-index:600;
+  padding:calc(env(safe-area-inset-top) + 10px) 12px 0;
+  display:flex;gap:8px;align-items:center;
+}
+.brand{
+  font-family:var(--display);font-weight:800;font-size:12.5px;letter-spacing:.13em;
+  color:var(--surface);background:var(--ink);
+  padding:9px 12px 9px 13px;border-radius:999px;white-space:nowrap;flex:0 0 auto;
+  box-shadow:0 4px 18px rgba(7,36,47,.28);
+}
+.filters{display:flex;gap:6px;margin-left:auto}
+.chip{
+  font-family:var(--body);font-size:11.5px;font-weight:600;
+  border:none;cursor:pointer;
+  padding:9px 11px;border-radius:999px;white-space:nowrap;
+  background:rgba(255,255,255,.94);color:var(--ink);
+  box-shadow:0 4px 14px rgba(7,36,47,.18);
+  display:flex;align-items:center;gap:6px;
+  transition:background .18s,color .18s;
+}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--acqua)}
+.chip.casa .dot{background:var(--getto)}
+.chip[aria-pressed="false"]{background:rgba(255,255,255,.55);color:rgba(7,36,47,.4)}
+.chip[aria-pressed="false"] .dot{background:rgba(7,36,47,.2)}
+.chip:focus-visible{outline:2px solid var(--acqua);outline-offset:2px}
+
+/* ---------- MARKER ---------- */
+.pin{
+  width:30px;height:30px;border-radius:50% 50% 50% 4px;
+  transform:rotate(-45deg);
+  background:var(--acqua);border:2px solid #fff;
+  box-shadow:0 3px 10px rgba(7,36,47,.35);
+  display:flex;align-items:center;justify-content:center;
+}
+.pin.casa{background:var(--getto);border-radius:8px;transform:rotate(0)}
+.pin svg{transform:rotate(45deg)}
+.pin.casa svg{transform:rotate(0)}
+.pin.sel{box-shadow:0 0 0 5px rgba(0,166,166,.28),0 3px 10px rgba(7,36,47,.35)}
+.me{
+  width:18px;height:18px;border-radius:50%;
+  background:#1E7BFF;border:3px solid #fff;
+  box-shadow:0 0 0 6px rgba(30,123,255,.18),0 2px 8px rgba(0,0,0,.3);
+}
+
+/* ---------- CARD BASSA ---------- */
+#card{
+  position:fixed;left:10px;right:10px;z-index:700;
+  bottom:calc(env(safe-area-inset-bottom) + 12px);
+  background:var(--surface);
+  border-radius:20px;
+  padding:15px 16px 16px;
+  box-shadow:0 -2px 40px rgba(7,36,47,.22);
+  transform:translateY(0);
+  transition:transform .32s cubic-bezier(.2,.8,.2,1);
+}
+#card.hidden{transform:translateY(calc(100% + 40px))}
+.eyebrow{
+  font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--acqua-deep);font-weight:600;
+}
+.headline{
+  font-family:var(--display);font-weight:600;
+  font-size:26px;line-height:1.08;margin:7px 0 3px;letter-spacing:-.01em;
+}
+.headline b{font-weight:800;color:var(--acqua-deep)}
+.sub{font-size:13.5px;color:rgba(7,36,47,.62);line-height:1.35}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.tag{
+  font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:8px;
+  background:rgba(7,36,47,.06);color:rgba(7,36,47,.72);
+}
+.tag.ok{background:rgba(0,166,166,.13);color:var(--acqua-deep)}
+.tag.warn{background:rgba(255,176,32,.18);color:#8A5B00}
+.tag.bad{background:rgba(229,72,77,.13);color:var(--rotta)}
+.actions{display:flex;gap:8px;margin-top:14px}
+.btn{
+  flex:1;border:none;cursor:pointer;font-family:var(--body);
+  font-size:14px;font-weight:600;padding:13px 10px;border-radius:13px;
+  background:var(--ink);color:var(--surface);
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  text-decoration:none;
+}
+.btn.ghost{background:rgba(7,36,47,.07);color:var(--ink)}
+.btn:active{transform:scale(.985)}
+.btn:focus-visible{outline:2px solid var(--acqua);outline-offset:2px}
+.close{
+  position:absolute;top:11px;right:11px;
+  width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(7,36,47,.07);color:var(--ink);font-size:16px;line-height:1;
+}
+
+/* ---------- FAB ---------- */
+#locate{
+  position:fixed;right:12px;z-index:650;
+  bottom:calc(env(safe-area-inset-bottom) + 168px);
+  width:46px;height:46px;border-radius:15px;border:none;cursor:pointer;
+  background:var(--surface);color:var(--ink);
+  box-shadow:0 5px 18px rgba(7,36,47,.24);
+  display:flex;align-items:center;justify-content:center;
+  transition:bottom .32s cubic-bezier(.2,.8,.2,1);
+}
+#locate.low{bottom:calc(env(safe-area-inset-bottom) + 24px)}
+
+/* ---------- TOAST ---------- */
+#toast{
+  position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 62px);
+  transform:translateX(-50%) translateY(-14px);
+  z-index:800;
+  background:var(--ink);color:var(--surface);
+  font-size:12.5px;padding:9px 14px;border-radius:999px;
+  box-shadow:0 6px 20px rgba(7,36,47,.3);
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;
+  max-width:88vw;text-align:center;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="drop-stage">
+    <svg viewBox="0 0 260 260" aria-hidden="true">
+      <circle class="rp rp1" cx="130" cy="152" r="12" fill="none" stroke="#00A6A6" stroke-width="2"/>
+      <circle class="rp rp2" cx="130" cy="152" r="12" fill="none" stroke="#00A6A6" stroke-width="2"/>
+      <circle class="rp rp3" cx="130" cy="152" r="12" fill="none" stroke="#00A6A6" stroke-width="2"/>
+      <g class="dropg">
+        <path d="M130 88c0 0 34 41.6 34 61.4A34 34 0 0 1 96 149.4C96 129.6 130 88 130 88Z" fill="#00A6A6"/>
+        <path d="M114 152c0-10.2 6.6-19.4 6.6-19.4" stroke="#7FE8E4" stroke-width="5.4" stroke-linecap="round" fill="none"/>
+      </g>
+    </svg>
+  </div>
+  <div class="wordmark">IDRATATI</div>
+  <div class="tagline">acqua pubblica, ovunque</div>
+</div>
+
+<div id="map"></div>
+
+<div id="top">
+  <div class="brand">IDRATATI</div>
+  <div class="filters">
+    <button class="chip fonta" id="fFont" aria-pressed="true"><span class="dot"></span>Fontanelle</button>
+    <button class="chip casa" id="fCasa" aria-pressed="true"><span class="dot"></span>Case dell'acqua</button>
+  </div>
+</div>
+
+<button id="locate" aria-label="Torna alla mia posizione">
+  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <circle cx="12" cy="12" r="7"/><path d="M12 1v3M12 20v3M23 12h-3M4 12H1"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/>
+  </svg>
+</button>
+
+<div id="toast"></div>
+
+<div id="card" class="hidden">
+  <button class="close" id="cardClose" aria-label="Chiudi">×</button>
+  <div class="eyebrow" id="cEyebrow">La più vicina</div>
+  <div class="headline" id="cHead">Cerco l'acqua…</div>
+  <div class="sub" id="cSub"></div>
+  <div class="tags" id="cTags"></div>
+  <div class="actions" id="cActions"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+var FALLBACK = {lat:45.4642, lon:9.1900, label:'Milano'};
+var WALK_M_PER_MIN = 80;      // ~4,8 km/h
+var DETOUR = 1.25;            // le strade non sono in linea d'aria
+var RADIUS = 2200;            // metri di ricerca
+
+var map, meMarker, meAccuracy, myPos = null, layer, points = [], selected = null, fetching = false;
+var show = {fontanella:true, casa:true};
+var lastQueryCenter = null;
+
+/* ---------- utility ---------- */
+function dist(a,b){
+  var R=6371000, t=Math.PI/180;
+  var dLat=(b.lat-a.lat)*t, dLon=(b.lon-a.lon)*t;
+  var s=Math.sin(dLat/2)*Math.sin(dLat/2)+
+        Math.cos(a.lat*t)*Math.cos(b.lat*t)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+function walkMin(m){ return Math.max(1, Math.round(m*DETOUR/WALK_M_PER_MIN)); }
+function fmtDist(m){ return m<1000 ? Math.round(m/10)*10+' m' : (m/1000).toFixed(1).replace('.',',')+' km'; }
+function toast(msg, ms){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show')}, ms||3200);
+}
+
+/* ---------- classificazione OSM ---------- */
+function classify(tags){
+  var name=(tags.name||'').toLowerCase();
+  if(tags.amenity==='vending_machine') return 'casa';
+  if(tags.amenity==='water_point') return 'casa';
+  if(name.indexOf('casa dell')>-1 || name.indexOf('casa acqua')>-1 || name.indexOf('casetta')>-1) return 'casa';
+  if(tags['drinking_water:refill']==='yes' && tags.amenity!=='drinking_water') return 'casa';
+  return 'fontanella';
+}
+function labelFor(p){
+  if(p.tags.name) return p.tags.name;
+  return p.kind==='casa' ? "Casa dell'acqua" : 'Fontanella pubblica';
+}
+function tagsFor(p){
+  var t=p.tags, out=[];
+  if(t.drinking_water==='no' || t.potable==='no') out.push({c:'bad', s:'Non potabile'});
+  else if(t.drinking_water==='yes' || t.amenity==='drinking_water') out.push({c:'ok', s:'Acqua potabile'});
+
+  if(t.fee==='yes') out.push({c:'warn', s:'A pagamento'});
+  else if(t.fee==='no') out.push({c:'ok', s:'Gratis'});
+  else if(p.kind==='casa') out.push({c:'', s:'Di solito gratis'});
+
+  if(p.kind==='casa') out.push({c:'', s:'Spesso serve la tessera sanitaria'});
+  if(t.bottle==='yes') out.push({c:'', s:'Riempi la borraccia'});
+  if(t['drinking_water:refill']==='yes') out.push({c:'', s:'Punto di ricarica'});
+  if(t.indoor==='yes') out.push({c:'', s:'Al chiuso'});
+  if(t.seasonal==='yes') out.push({c:'warn', s:'Stagionale'});
+  if(t.opening_hours) out.push({c:'', s:t.opening_hours});
+  if(t.operator) out.push({c:'', s:t.operator});
+  return out;
+}
+
+/* ---------- mappa ---------- */
+function initMap(center){
+  map = L.map('map', {zoomControl:false, attributionControl:true})
+        .setView([center.lat, center.lon], 16);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    maxZoom:19,
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  }).addTo(map);
+  layer = L.layerGroup().addTo(map);
+
+  map.on('moveend', function(){
+    if(!lastQueryCenter) return;
+    var c=map.getCenter();
+    if(dist(lastQueryCenter, {lat:c.lat, lon:c.lng}) > RADIUS*0.55) load({lat:c.lat, lon:c.lng});
+  });
+}
+
+function setMe(pos){
+  myPos = pos;
+  if(!meMarker){
+    meMarker = L.marker([pos.lat,pos.lon], {
+      icon:L.divIcon({className:'', html:'<div class="me"></div>', iconSize:[18,18], iconAnchor:[9,9]}),
+      interactive:false, zIndexOffset:1000
+    }).addTo(map);
+  } else {
+    meMarker.setLatLng([pos.lat,pos.lon]);
+  }
+}
+
+/* ---------- Overpass ---------- */
+function buildQuery(c){
+  var a='(around:'+RADIUS+','+c.lat.toFixed(5)+','+c.lon.toFixed(5)+')';
+  return '[out:json][timeout:25];('+
+    'nwr["amenity"="drinking_water"]'+a+';'+
+    'nwr["man_made"="water_tap"]["drinking_water"!="no"]'+a+';'+
+    'nwr["amenity"="water_point"]'+a+';'+
+    'nwr["amenity"="vending_machine"]["vending"~"water"]'+a+';'+
+    'nwr["natural"="spring"]["drinking_water"="yes"]'+a+';'+
+    ');out center 300;';
+}
+
+function load(center){
+  if(fetching) return;
+  fetching = true; lastQueryCenter = center;
+  fetch('https://overpass-api.de/api/interpreter', {
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'data='+encodeURIComponent(buildQuery(center))
+  })
+  .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+  .then(function(d){
+    points = (d.elements||[]).map(function(e){
+      var lat = e.lat != null ? e.lat : (e.center && e.center.lat);
+      var lon = e.lon != null ? e.lon : (e.center && e.center.lon);
+      if(lat==null||lon==null) return null;
+      var tags = e.tags||{};
+      if(tags.access==='private' || tags.access==='no') return null;
+      return {id:e.type+'/'+e.id, lat:lat, lon:lon, tags:tags, kind:classify(tags)};
+    }).filter(Boolean);
+    fetching = false;
+    render();
+    if(!points.length) toast('Nessun punto d\'acqua mappato qui intorno.');
+  })
+  .catch(function(){
+    fetching = false;
+    toast('Dati non raggiungibili. Muovi la mappa per riprovare.', 4000);
+  });
+}
+
+/* ---------- render ---------- */
+var ICON_FONT = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 3s7 8.4 7 12.6A7 7 0 0 1 5 15.6C5 11.4 12 3 12 3Z"/></svg>';
+var ICON_CASA = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#07242F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9l8-5 8 5v11"/><path d="M10 20v-6h4v6"/></svg>';
+
+function render(){
+  layer.clearLayers();
+  var vis = points.filter(function(p){ return show[p.kind]; });
+
+  vis.forEach(function(p){
+    var isCasa = p.kind==='casa';
+    var m = L.marker([p.lat,p.lon], {
+      icon: L.divIcon({
+        className:'',
+        html:'<div class="pin'+(isCasa?' casa':'')+(selected&&selected.id===p.id?' sel':'')+'">'+(isCasa?ICON_CASA:ICON_FONT)+'</div>',
+        iconSize:[30,30], iconAnchor:[15,28]
+      })
+    });
+    m.on('click', function(){ selectPoint(p, false); });
+    m.addTo(layer);
+  });
+
+  if(!selected) showNearest();
+}
+
+function nearest(){
+  if(!myPos) return null;
+  var best=null, bd=Infinity;
+  points.forEach(function(p){
+    if(!show[p.kind]) return;
+    if(p.tags.drinking_water==='no') return;
+    var d=dist(myPos,p);
+    if(d<bd){bd=d;best=p}
+  });
+  return best ? {p:best, d:bd} : null;
+}
+
+function showNearest(){
+  var n = nearest();
+  if(!n){ document.getElementById('card').classList.add('hidden'); document.getElementById('locate').classList.add('low'); return; }
+  selected = null;
+  fillCard(n.p, n.d, true);
+}
+
+function selectPoint(p, fromNearest){
+  selected = p;
+  map.panTo([p.lat, p.lon], {animate:true});
+  fillCard(p, myPos ? dist(myPos,p) : null, false);
+  render();
+}
+
+function fillCard(p, d, isNearest){
+  var head = document.getElementById('cHead');
+  var min = d!=null ? walkMin(d) : null;
+
+  document.getElementById('cEyebrow').textContent =
+    isNearest ? (p.kind==='casa' ? "La più vicina · casa dell'acqua" : 'La più vicina · fontanella') :
+                (p.kind==='casa' ? "Casa dell'acqua" : 'Fontanella');
+
+  if(isNearest && min!=null){
+    head.innerHTML = 'A <b>'+min+' minut'+(min===1?'o':'i')+'</b> a piedi';
+  } else {
+    head.textContent = labelFor(p);
+  }
+
+  var sub = [];
+  if(isNearest) sub.push(labelFor(p));
+  if(d!=null) sub.push(fmtDist(d)+(isNearest?'':' · '+walkMin(d)+' min a piedi'));
+  document.getElementById('cSub').textContent = sub.join(' · ');
+
+  var tw = document.getElementById('cTags');
+  tw.innerHTML='';
+  tagsFor(p).slice(0,5).forEach(function(t){
+    var s=document.createElement('span');
+    s.className='tag'+(t.c?' '+t.c:'');
+    s.textContent=t.s; tw.appendChild(s);
+  });
+
+  var g='https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lon+'&travelmode=walking';
+  var a='https://maps.apple.com/?daddr='+p.lat+','+p.lon+'&dirflg=w';
+  document.getElementById('cActions').innerHTML =
+    '<a class="btn" href="'+g+'" target="_blank" rel="noopener">Google Maps</a>'+
+    '<a class="btn ghost" href="'+a+'" target="_blank" rel="noopener">Apple Maps</a>';
+
+  document.getElementById('card').classList.remove('hidden');
+  document.getElementById('locate').classList.remove('low');
+}
+
+/* ---------- controlli ---------- */
+document.getElementById('cardClose').addEventListener('click', function(){
+  selected=null;
+  document.getElementById('card').classList.add('hidden');
+  document.getElementById('locate').classList.add('low');
+  render();
+});
+document.getElementById('locate').addEventListener('click', function(){
+  if(myPos){ map.setView([myPos.lat,myPos.lon], 16); showNearest(); }
+  else askPosition(true);
+});
+function bindChip(id, kind){
+  var el=document.getElementById(id);
+  el.addEventListener('click', function(){
+    show[kind]=!show[kind];
+    el.setAttribute('aria-pressed', show[kind]?'true':'false');
+    if(selected && !show[selected.kind]) selected=null;
+    render();
+  });
+}
+bindChip('fFont','fontanella');
+bindChip('fCasa','casa');
+
+/* ---------- posizione ---------- */
+function askPosition(recenter){
+  if(!navigator.geolocation){ toast('Posizione non disponibile su questo dispositivo.'); return; }
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var p={lat:pos.coords.latitude, lon:pos.coords.longitude};
+    setMe(p);
+    if(recenter) map.setView([p.lat,p.lon],16);
+    load(p);
+  }, function(){
+    toast('Posizione negata. Mostro '+FALLBACK.label+' — muovi la mappa dove vuoi.', 4500);
+    load(map ? {lat:map.getCenter().lat, lon:map.getCenter().lng} : FALLBACK);
+  }, {enableHighAccuracy:true, timeout:9000, maximumAge:30000});
+}
+
+/* ---------- avvio ---------- */
+initMap(FALLBACK);
+askPosition(true);
+
+setTimeout(function(){
+  document.getElementById('splash').classList.add('gone');
+  setTimeout(function(){ map.invalidateSize(); }, 260);
+}, 2000);
+
+})();
+</script>
+</body>
+</html>
