@@ -151,6 +151,212 @@ function ago(iso){
 function photoUrl(path){
   return CFG.SUPABASE_URL+'/storage/v1/object/public/photos/'+path;
 }
+
+/* ============================================================
+   CONTESTO
+   Un target è una stringa come 'osm/node/4953163133'. Da sola non
+   dice niente. Qui la si trasforma in: nome, tipo, coordinate,
+   indirizzo vero, stato attuale e foto già pubblicate.
+   ============================================================ */
+var CTX = {};          // target -> dati
+var INDIRIZZI = {};    // "lat,lon" -> via
+var codaVie = [], viaInCorso = false;
+
+function ctxVuoto(t){
+  return {target:t, nome:null, tipo:null, lat:null, lon:null,
+          via:null, stato:null, voti:null, foto:[]};
+}
+
+/* Nominatim vuole al massimo una richiesta al secondo: le metto in coda. */
+function chiediVia(lat, lon, quando){
+  var k = lat.toFixed(5)+','+lon.toFixed(5);
+  if(INDIRIZZI[k]){ quando(INDIRIZZI[k]); return; }
+  codaVie.push({k:k, lat:lat, lon:lon, cb:quando});
+  smaltisciCoda();
+}
+function smaltisciCoda(){
+  if(viaInCorso || !codaVie.length) return;
+  viaInCorso = true;
+  var job = codaVie.shift();
+  fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&lat='+
+        job.lat+'&lon='+job.lon)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var a = d.address || {};
+      var via = [a.road || a.pedestrian || a.footway || a.square || a.park,
+                 a.house_number].filter(Boolean).join(' ');
+      var zona = a.suburb || a.city_district || a.neighbourhood;
+      var citta = a.city || a.town || a.village;
+      var testo = [via, zona, citta].filter(Boolean).join(', ') || d.display_name || null;
+      INDIRIZZI[job.k] = testo;
+      job.cb(testo);
+    })
+    .catch(function(){ job.cb(null); })
+    .then(function(){
+      viaInCorso = false;
+      setTimeout(smaltisciCoda, 1100);
+    });
+}
+
+/* Raccoglie tutto il sapibile su una lista di target. */
+function caricaContesti(targets){
+  var unici = targets.filter(function(t,i){ return t && targets.indexOf(t)===i; });
+  var daFare = unici.filter(function(t){ return !CTX[t]; });
+  if(!daFare.length) return Promise.resolve(CTX);
+
+  daFare.forEach(function(t){ CTX[t] = ctxVuoto(t); });
+
+  var idsOsm = daFare.filter(function(t){ return t.indexOf('osm/')===0; })
+                     .map(function(t){ return t.slice(4); });
+  var idsDb  = daFare.filter(function(t){ return t.indexOf('db/')===0; })
+                     .map(function(t){ return t.slice(3); });
+
+  var lavori = [];
+
+  // 1. i punti nostri, o le modifiche fatte da noi su punti OSM
+  var filtro = [];
+  if(idsDb.length)  filtro.push('id.in.('+idsDb.join(',')+')');
+  if(idsOsm.length) filtro.push('osm_id.in.('+idsOsm.map(encodeURIComponent).join(',')+')');
+  if(filtro.length){
+    lavori.push(sel('fountains?select=*&or=('+filtro.join(',')+')').then(function(rows){
+      rows.forEach(function(r){
+        var t = r.osm_id ? 'osm/'+r.osm_id : 'db/'+r.id;
+        if(!CTX[t]) return;
+        CTX[t].nome  = r.name || CTX[t].nome;
+        CTX[t].tipo  = r.kind;
+        CTX[t].lat   = r.lat; CTX[t].lon = r.lon;
+        CTX[t].stato = r.status;
+        CTX[t].note  = r.notes;
+      });
+    }));
+  }
+
+  // 2. i punti che vivono solo su OpenStreetMap: una query per tutti
+  if(idsOsm.length){
+    var perTipo = {node:[], way:[], relation:[]};
+    idsOsm.forEach(function(x){
+      var pezzi = x.split('/');
+      if(perTipo[pezzi[0]]) perTipo[pezzi[0]].push(pezzi[1]);
+    });
+    var q = '[out:json][timeout:25];(' +
+      (perTipo.node.length     ? 'node(id:'+perTipo.node.join(',')+');'         : '') +
+      (perTipo.way.length      ? 'way(id:'+perTipo.way.join(',')+');'           : '') +
+      (perTipo.relation.length ? 'relation(id:'+perTipo.relation.join(',')+');' : '') +
+      ');out center tags;';
+    lavori.push(
+      fetch('https://overpass-api.de/api/interpreter',{method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:'data='+encodeURIComponent(q)})
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          (d.elements||[]).forEach(function(e){
+            var t = 'osm/'+e.type+'/'+e.id;
+            if(!CTX[t]) return;
+            var tg = e.tags||{};
+            CTX[t].nome = CTX[t].nome || tg.name || null;
+            CTX[t].tags = tg;
+            CTX[t].tipo = CTX[t].tipo ||
+              ((tg.amenity==='vending_machine'||tg.amenity==='water_point') ? 'casa' : 'fontanella');
+            if(CTX[t].lat==null){
+              CTX[t].lat = e.lat!=null ? e.lat : (e.center&&e.center.lat);
+              CTX[t].lon = e.lon!=null ? e.lon : (e.center&&e.center.lon);
+            }
+          });
+        }).catch(function(){})
+    );
+  }
+
+  // 3. come sta messa adesso, secondo chi è passato di lì
+  lavori.push(sel('v_status?select=*&target=in.('+
+      unici.map(function(t){ return '"'+t+'"'; }).join(',')+')')
+    .then(function(rows){
+      rows.forEach(function(r){ if(CTX[r.target]) CTX[r.target].voti = r; });
+    }).catch(function(){}));
+
+  // 4. le foto già pubblicate, per confronto
+  lavori.push(sel('photos?select=target,url&approved=eq.true&target=in.('+
+      unici.map(function(t){ return '"'+t+'"'; }).join(',')+')&limit=60')
+    .then(function(rows){
+      rows.forEach(function(r){ if(CTX[r.target]) CTX[r.target].foto.push(r.url); });
+    }).catch(function(){}));
+
+  return Promise.all(lavori).then(function(){ return CTX; });
+}
+
+/* Quanto ha già mandato questo dispositivo: serve a fiutare gli spammer. */
+function pesaDispositivo(clientId){
+  if(!clientId) return Promise.resolve(null);
+  return Promise.all([
+    sel('photos?select=id&client_id=eq.'+encodeURIComponent(clientId)),
+    sel('reviews?select=id&client_id=eq.'+encodeURIComponent(clientId)),
+    sel('submissions?select=id&client_id=eq.'+encodeURIComponent(clientId))
+  ]).then(function(r){
+    return {foto:r[0].length, voti:r[1].length, proposte:r[2].length};
+  }).catch(function(){ return null; });
+}
+
+/* L'intestazione comune a foto, voti e proposte. */
+function intestazione(c, idBlocco){
+  if(!c) return '';
+  var titolo = c.nome || (c.tipo==='casa' ? "Casa dell'acqua" : 'Fontanella pubblica');
+  var h = '<h3>'+esc(titolo)+'</h3>';
+  h += '<div class="meta" id="via-'+idBlocco+'">'+
+       (c.via ? esc(c.via) : 'cerco l\'indirizzo…')+'</div>';
+
+  var pills = [];
+  pills.push('<span class="pill">'+(c.tipo==='casa' ? "casa dell'acqua" : 'fontanella')+'</span>');
+  if(c.stato && c.stato!=='unknown'){
+    var cl={ok:'ok',works:'warn',broken:'bad',removed:'bad'}[c.stato]||'';
+    var tx={ok:'funzionante',works:'lavori in corso',broken:'rotta',removed:'rimossa'}[c.stato];
+    pills.push('<span class="pill '+cl+'">'+tx+'</span>');
+  }
+  if(c.voti){
+    if(c.voti.ok_votes)     pills.push('<span class="pill ok">'+c.voti.ok_votes+' ok</span>');
+    if(c.voti.works_votes)  pills.push('<span class="pill warn">'+c.voti.works_votes+' lavori</span>');
+    if(c.voti.broken_votes) pills.push('<span class="pill bad">'+c.voti.broken_votes+' rotta</span>');
+  }
+  if(c.tags && c.tags.operator) pills.push('<span class="pill">'+esc(c.tags.operator)+'</span>');
+  h += '<div style="margin:9px 0">'+pills.join('')+'</div>';
+  if(c.note) h += '<div class="meta" style="color:var(--ink)">Nota tua: '+esc(c.note)+'</div>';
+
+  if(c.lat != null){
+    h += '<div class="row" style="margin-top:9px">'+
+      '<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+c.lat+','+c.lon+'">Street View / Maps</a>'+
+      '<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat='+c.lat+'&mlon='+c.lon+'#map=19/'+c.lat+'/'+c.lon+'">OSM</a>'+
+      '<button class="btn ghost sm" data-goto="'+esc(c.target)+'">Modifica il punto</button></div>';
+  }
+  if(c.foto && c.foto.length){
+    h += '<div class="meta" style="margin-top:11px">Foto già pubblicate qui:</div>'+
+         '<div style="display:flex;gap:6px;overflow-x:auto;margin-top:6px">'+
+         c.foto.slice(0,6).map(function(u){
+           return '<img src="'+esc(u)+'" style="height:64px;border-radius:8px;flex:0 0 auto" loading="lazy" alt="">';
+         }).join('')+'</div>';
+  }
+  h += '<div class="meta" style="margin-top:8px;opacity:.6">'+esc(c.target)+'</div>';
+  return h;
+}
+
+/* Riempie gli indirizzi man mano che Nominatim risponde. */
+function completaIndirizzi(coppie){
+  coppie.forEach(function(x){
+    var c = CTX[x.target];
+    if(!c || c.lat == null) {
+      var e0 = el('via-'+x.id); if(e0) e0.textContent = 'posizione non disponibile';
+      return;
+    }
+    if(c.via){ var e1 = el('via-'+x.id); if(e1) e1.textContent = c.via; return; }
+    chiediVia(c.lat, c.lon, function(via){
+      c.via = via;
+      var e2 = el('via-'+x.id);
+      if(e2) e2.textContent = via || (c.lat.toFixed(5)+', '+c.lon.toFixed(5));
+    });
+  });
+}
+function collegaVaiA(){
+  el('view').querySelectorAll('[data-goto]').forEach(function(b){
+    b.onclick=function(){ openEditorByTarget(b.getAttribute('data-goto')); };
+  });
+}
 function store(k,v){
   try{ if(v===undefined) return sessionStorage.getItem(k);
        if(v===null) sessionStorage.removeItem(k); else sessionStorage.setItem(k,v); }
@@ -252,10 +458,27 @@ function counters(){
 function vQueue(){
   sel('submissions?select=*&state=eq.pending&order=created_at.asc').then(function(rows){
     if(!rows.length){ el('view').innerHTML='<div class="empty">Nessuna proposta in attesa.</div>'; return; }
-    el('view').innerHTML=rows.map(function(s){
+    rows.forEach(function(s,i){
+      chiediVia(s.lat, s.lon, function(via){
+        var e2 = el('via-s'+i);
+        if(e2) e2.textContent = via || (s.lat.toFixed(5)+', '+s.lon.toFixed(5));
+      });
+      pesaDispositivo(s.client_id).then(function(n){
+        if(!n) return;
+        var e3 = el('dev-s'+i);
+        if(e3) e3.textContent = (s.client_id||'?').slice(0,10)+
+          ' · '+n.foto+' foto, '+n.voti+' voti, '+n.proposte+' proposte in totale';
+      });
+    });
+    el('view').innerHTML=rows.map(function(s,i){
       return '<div class="card" id="s-'+s.id+'">'+
         '<h3>'+esc(s.name||(s.kind==='casa'?"Casa dell'acqua":'Fontanella'))+'</h3>'+
-        '<div class="meta">'+esc(ago(s.created_at))+' · '+s.lat.toFixed(5)+', '+s.lon.toFixed(5)+'</div>'+
+        '<div class="meta" id="via-s'+i+'">cerco l\'indirizzo…</div>'+
+        '<div style="margin:8px 0"><span class="pill">'+
+          (s.kind==='casa'?"casa dell'acqua":'fontanella')+'</span>'+
+          '<span class="pill">'+s.lat.toFixed(5)+', '+s.lon.toFixed(5)+'</span></div>'+
+        '<div class="meta">Proposta '+esc(ago(s.created_at))+
+          ' · dispositivo <span id="dev-s'+i+'">'+esc((s.client_id||'?').slice(0,10))+'</span></div>'+
         (s.note?'<div class="meta" style="margin-top:7px;color:var(--ink)">'+esc(s.note)+'</div>':'')+
         (s.photo_path?'<img class="thumb" src="'+esc(photoUrl(s.photo_path))+'" alt="" loading="lazy">':'')+
         '<div class="row">'+
@@ -301,28 +524,50 @@ function vQueue(){
 function vPhotos(){
   sel('photos?select=*&approved=eq.false&order=created_at.desc&limit=60').then(function(rows){
     if(!rows.length){ el('view').innerHTML='<div class="empty">Nessuna foto in attesa.</div>'; return; }
-    el('view').innerHTML=rows.map(function(p){
-      return '<div class="card">'+
-        '<div class="meta">'+esc(p.target)+' · '+esc(ago(p.created_at))+'</div>'+
-        '<img class="thumb" src="'+esc(p.url)+'" alt="" loading="lazy">'+
-        '<div class="row">'+
-          '<button class="btn ok" data-ap="'+p.id+'">Pubblica</button>'+
-          '<button class="btn bad" data-rm="'+p.id+'">Elimina</button>'+
-        '</div></div>';
-    }).join('');
-    el('view').querySelectorAll('[data-ap]').forEach(function(b){
-      b.onclick=function(){ b.disabled=true;
-        patch('photos','id=eq.'+b.getAttribute('data-ap'),{approved:true})
-          .then(function(){ toast('Foto pubblicata.'); vPhotos(); counters(); })
-          .catch(function(e){ b.disabled=false; toast(e.message); }); };
-    });
-    el('view').querySelectorAll('[data-rm]').forEach(function(b){
-      b.onclick=function(){ if(!confirm('Eliminare la foto?')) return; b.disabled=true;
-        del('photos','id=eq.'+b.getAttribute('data-rm'))
-          .then(function(){ toast('Eliminata.'); vPhotos(); counters(); })
-          .catch(function(e){ b.disabled=false; toast(e.message); }); };
+
+    return caricaContesti(rows.map(function(p){ return p.target; })).then(function(){
+      el('view').innerHTML=rows.map(function(p,i){
+        var c = CTX[p.target];
+        return '<div class="card">'+
+          intestazione(c, 'f'+i)+
+          '<img class="thumb" src="'+esc(p.url)+'" alt="" loading="lazy">'+
+          '<div class="meta" style="margin-top:8px">Mandata '+esc(ago(p.created_at))+
+            ' · dispositivo <span id="dev-f'+i+'">'+esc((p.client_id||'?').slice(0,10))+'</span></div>'+
+          '<div class="row">'+
+            '<button class="btn ok" data-ap="'+p.id+'">Pubblica</button>'+
+            '<button class="btn bad" data-rm="'+p.id+'">Elimina</button>'+
+            '<a class="btn ghost sm" target="_blank" rel="noopener" href="'+esc(p.url)+'">Apri intera</a>'+
+          '</div></div>';
+      }).join('');
+
+      completaIndirizzi(rows.map(function(p,i){ return {target:p.target, id:'f'+i}; }));
+      collegaVaiA();
+      rows.forEach(function(p,i){
+        pesaDispositivo(p.client_id).then(function(n){
+          if(!n) return;
+          var e2 = el('dev-f'+i);
+          if(e2) e2.textContent = (p.client_id||'?').slice(0,10)+
+            ' · '+n.foto+' foto, '+n.voti+' voti, '+n.proposte+' proposte in totale';
+        });
+      });
+      agganciaFoto();
     });
   }).catch(function(e){ el('view').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; });
+}
+
+function agganciaFoto(){
+  el('view').querySelectorAll('[data-ap]').forEach(function(b){
+    b.onclick=function(){ b.disabled=true;
+      patch('photos','id=eq.'+b.getAttribute('data-ap'),{approved:true})
+        .then(function(){ toast('Foto pubblicata.'); vPhotos(); counters(); })
+        .catch(function(e){ b.disabled=false; toast(e.message); }); };
+  });
+  el('view').querySelectorAll('[data-rm]').forEach(function(b){
+    b.onclick=function(){ if(!confirm('Eliminare la foto?')) return; b.disabled=true;
+      del('photos','id=eq.'+b.getAttribute('data-rm'))
+        .then(function(){ toast('Eliminata.'); vPhotos(); counters(); })
+        .catch(function(e){ b.disabled=false; toast(e.message); }); };
+  });
 }
 
 /* ============================================================
@@ -369,21 +614,44 @@ function vReports(){
 function vReviews(){
   sel('reviews?select=*&order=created_at.desc&limit=60').then(function(rows){
     if(!rows.length){ el('view').innerHTML='<div class="empty">Ancora nessun voto.</div>'; return; }
-    el('view').innerHTML=rows.map(function(r){
-      var stars=[['findability','raggiungibile'],['cleanliness','stato'],['taste','qualità'],['temperature','temperatura']]
+
+    return caricaContesti(rows.map(function(r){ return r.target; })).then(function(){
+    el('view').innerHTML=rows.map(function(r,i){
+      var c = CTX[r.target];
+      var stars=[['findability','raggiungibile'],['cleanliness','stato'],['taste','qualità']]
         .filter(function(s){ return r[s[0]]; })
         .map(function(s){ return '<span class="pill">'+s[1]+' '+r[s[0]]+'★</span>'; }).join('');
+      if(r.temperature){
+        var nomi={1:'calda',3:'ambiente',5:'fresca'};
+        stars += '<span class="pill">acqua '+(nomi[r.temperature]||r.temperature)+'</span>';
+      }
       return '<div class="card">'+
-        '<div class="meta">'+esc(r.target)+' · '+esc(ago(r.created_at))+
-        (r.approved?'':' · <span class="pill bad">nascosto</span>')+'</div>'+
-        '<div style="margin:8px 0">'+stars+'</div>'+
-        (r.comment?'<div style="font-size:14px">'+esc(r.comment)+'</div>':'')+
+        intestazione(c, 'r'+i)+
+        '<div style="margin:10px 0 8px">'+stars+
+          (r.approved?'':'<span class="pill bad">nascosto</span>')+'</div>'+
+        (r.comment?'<div style="font-size:14.5px;line-height:1.45;padding:10px 12px;'+
+          'background:rgba(7,36,47,.04);border-radius:10px">'+esc(r.comment)+'</div>':
+          '<div class="meta">Nessun commento scritto.</div>')+
+        '<div class="meta" style="margin-top:8px">Lasciato '+esc(ago(r.created_at))+
+          ' · dispositivo <span id="dev-r'+i+'">'+esc((r.client_id||'?').slice(0,10))+'</span></div>'+
         '<div class="row">'+
         (r.approved
           ? '<button class="btn bad sm" data-hide="'+r.id+'">Nascondi</button>'
           : '<button class="btn ok sm" data-show="'+r.id+'">Ripubblica</button>')+
         '<button class="btn ghost sm" data-rm="'+r.id+'">Elimina</button></div></div>';
     }).join('');
+
+    completaIndirizzi(rows.map(function(r,i){ return {target:r.target, id:'r'+i}; }));
+    collegaVaiA();
+    rows.forEach(function(r,i){
+      pesaDispositivo(r.client_id).then(function(n){
+        if(!n) return;
+        var e2 = el('dev-r'+i);
+        if(e2) e2.textContent = (r.client_id||'?').slice(0,10)+
+          ' · '+n.foto+' foto, '+n.voti+' voti, '+n.proposte+' proposte in totale';
+      });
+    });
+
     var refresh=function(){ toast('Fatto.'); vReviews(); };
     el('view').querySelectorAll('[data-hide]').forEach(function(b){ b.onclick=function(){
       patch('reviews','id=eq.'+b.getAttribute('data-hide'),{approved:false}).then(refresh); }; });
@@ -392,6 +660,7 @@ function vReviews(){
     el('view').querySelectorAll('[data-rm]').forEach(function(b){ b.onclick=function(){
       if(!confirm('Eliminare il voto?')) return;
       del('reviews','id=eq.'+b.getAttribute('data-rm')).then(refresh); }; });
+    });
   }).catch(function(e){ el('view').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; });
 }
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v2.3 (2026-07-27) -->
+<!-- IDRATATI v2.4 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi.">
 <meta name="theme-color" content="#07242F">
@@ -164,6 +164,17 @@ button{font-family:inherit}
 .gallery img{height:78px;border-radius:10px;flex:0 0 auto}
 .sec{margin-top:20px}
 .sec-t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:9px}
+.tempseg{display:flex;gap:4px;background:rgba(7,36,47,.06);border-radius:13px;padding:4px;margin-top:2px}
+.tempseg button{flex:1;border:none;background:none;color:var(--muted);padding:11px 6px;
+  border-radius:10px;font-size:13px;font-weight:600;font-family:var(--body);transition:.16s}
+.tempseg button.on[data-v="1"]{background:#F5A623;color:#3d2600}
+.tempseg button.on[data-v="3"]{background:rgba(7,36,47,.75);color:var(--surface)}
+.tempseg button.on[data-v="5"]{background:#31B6D8;color:#04222c}
+.temprow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;font-size:13.5px}
+.tempval{font-weight:600;padding:4px 11px;border-radius:8px;font-size:12.5px}
+.tempval.calda{background:rgba(245,166,35,.2);color:#8A5B00}
+.tempval.ambiente{background:rgba(7,36,47,.08);color:var(--muted)}
+.tempval.fresca{background:rgba(49,182,216,.18);color:#0A5C72}
 .starrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0}
 .starrow span{font-size:13.5px}
 .stars{display:flex;gap:3px;flex:0 0 auto}
@@ -314,7 +325,7 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v2.3 · 2026-07-27</div>
+<div class="ver">v2.4 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -651,7 +662,12 @@ function tagsFor(p){
   if(t.seasonal==='yes') out.push({c:'warn', s:'Stagionale'});
   if(t.opening_hours) out.push({c:'', s:t.opening_hours});
   var r=reviewAgg[p.target];
-  if(r && r.n) out.push({c:'', s:'★ '+r.overall+' ('+r.n+')'});
+  if(r && r.n){
+    var m = mediaVera(r);
+    if(m != null) out.push({c:'', s:'★ '+String(m).replace('.',',')+' ('+r.n+')'});
+    var nt = nomeTemperatura(r.temperature);
+    if(nt) out.push({c:'', s:nt.t});
+  }
   return out;
 }
 
@@ -917,8 +933,24 @@ function navUrl(p,which){
    ============================================================ */
 var STARS=[['findability','Facile da raggiungere'],
            ['cleanliness','Stato della fontana'],
-           ['taste',"Qualità dell'acqua"],
-           ['temperature',"Temperatura dell'acqua"]];
+           ['taste',"Qualità dell'acqua"]];
+
+/* La temperatura non è un voto: è una descrizione. Tre scelte, non cinque
+   stelle, perché "tre stelle di temperatura" non vuol dire niente.
+   Sotto resta un numero (1/3/5) solo perché è così che sta nel database. */
+var TEMPI = [[1,'Calda'],[3,'Ambiente'],[5,'Fresca']];
+function nomeTemperatura(media){
+  if(media == null) return null;
+  if(media < 2.34) return {c:'calda',    t: media < 1.5 ? 'Calda' : 'Perlopiù calda'};
+  if(media < 3.67) return {c:'ambiente', t:'Temperatura ambiente'};
+  return {c:'fresca', t: media > 4.5 ? 'Fresca' : 'Perlopiù fresca'};
+}
+/* Il voto complessivo tiene conto solo dei tre giudizi veri. */
+function mediaVera(r){
+  var v = [r.findability, r.cleanliness, r.taste].filter(function(x){ return x != null; });
+  if(!v.length) return null;
+  return Math.round(v.reduce(function(a,b){ return a + (+b); }, 0) / v.length * 10) / 10;
+}
 
 function starSvg(){ return '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z"/></svg>'; }
 
@@ -1003,6 +1035,9 @@ function renderAgg(p){
        '<div class="bar"><i style="width:'+((v||0)/5*100)+'%"></i></div>'+
        '<span style="font-weight:600;min-width:26px;text-align:right">'+(v!=null?String(v).replace('.',','):'–')+'</span></div>';
   });
+  var nt = nomeTemperatura(r.temperature);
+  if(nt) h+='<div class="temprow"><span>Temperatura dell\'acqua</span>'+
+            '<span class="tempval '+nt.c+'">'+nt.t+'</span></div>';
   h+='<div style="margin-top:10px">Media su '+r.n+' voto'+(r.n===1?'':'i')+' '+
      (r.last_review?bollo(r.last_review,'· ultimo'):'')+'</div>';
   w.innerHTML=h;
@@ -1016,7 +1051,24 @@ function renderMyStars(){
     for(var i=1;i<=5;i++) h+='<button class="star" data-v="'+i+'" aria-label="'+i+' stelle">'+starSvg()+'</button>';
     h+='</div></div>';
   });
+  h+='<div class="starrow" style="display:block;padding-top:12px">'+
+     '<span style="display:block;margin-bottom:7px">Temperatura dell\'acqua</span>'+
+     '<div class="tempseg" id="tempSeg">'+
+       TEMPI.map(function(t){ return '<button data-v="'+t[0]+'">'+t[1]+'</button>'; }).join('')+
+     '</div></div>';
+
   var w=document.getElementById('myStars'); w.innerHTML=h;
+
+  var seg=document.getElementById('tempSeg');
+  seg.querySelectorAll('button').forEach(function(b){
+    b.onclick=function(){
+      var v=+b.getAttribute('data-v');
+      // ritoccando la stessa scelta la si annulla
+      if(myRating.temperature===v){ delete myRating.temperature; b.classList.remove('on'); return; }
+      myRating.temperature=v;
+      seg.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x===b); });
+    };
+  });
   w.querySelectorAll('.stars').forEach(function(row){
     row.querySelectorAll('.star').forEach(function(b){
       b.onclick=function(){
@@ -1102,7 +1154,8 @@ function sendReview(p){
   var row={target:p.target,client_id:CLIENT,
     comment:(document.getElementById('revComment').value||'').trim()||null};
   STARS.forEach(function(s){ row[s[0]]=myRating[s[0]]||null; });
-  // tutte le stelle sono facoltative: si può votarne anche una sola
+  row.temperature = myRating.temperature || null;
+  // tutto è facoltativo: si può mandare anche una sola voce
   var b=document.getElementById('revSend'); b.disabled=true; b.textContent='Invio…';
 
   function riuscito(){
