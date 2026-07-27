@@ -1,5 +1,8 @@
 # IDRATATI
 
+> **Idràtati, per rimanere idratàti.**
+
+Un ordine e uno stato, nella stessa parola: cambia solo dove cade l'accento.
 Trova la fontanella pubblica più vicina, sai se funziona **prima** di arrivarci, e ci arrivi a piedi con le mappe che usi già.
 
 - `index.html` — l'app pubblica

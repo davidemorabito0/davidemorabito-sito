@@ -148,6 +148,9 @@ function ago(iso){
   if(d<30) return d+' giorni fa'; if(d<365) return Math.round(d/30)+' mesi fa';
   return 'oltre un anno fa';
 }
+function photoUrl(path){
+  return CFG.SUPABASE_URL+'/storage/v1/object/public/photos/'+path;
+}
 function store(k,v){
   try{ if(v===undefined) return sessionStorage.getItem(k);
        if(v===null) sessionStorage.removeItem(k); else sessionStorage.setItem(k,v); }
@@ -254,6 +257,7 @@ function vQueue(){
         '<h3>'+esc(s.name||(s.kind==='casa'?"Casa dell'acqua":'Fontanella'))+'</h3>'+
         '<div class="meta">'+esc(ago(s.created_at))+' · '+s.lat.toFixed(5)+', '+s.lon.toFixed(5)+'</div>'+
         (s.note?'<div class="meta" style="margin-top:7px;color:var(--ink)">'+esc(s.note)+'</div>':'')+
+        (s.photo_path?'<img class="thumb" src="'+esc(photoUrl(s.photo_path))+'" alt="" loading="lazy">':'')+
         '<div class="row">'+
           '<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+s.lat+','+s.lon+'">Vedi il posto</a>'+
           '<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat='+s.lat+'&mlon='+s.lon+'#map=19/'+s.lat+'/'+s.lon+'">Su OSM</a>'+
@@ -266,7 +270,15 @@ function vQueue(){
     el('view').querySelectorAll('[data-ap]').forEach(function(b){
       b.onclick=function(){
         b.disabled=true;
-        rpc('approve_submission',{sub_id:b.getAttribute('data-ap')})
+        var id=b.getAttribute('data-ap');
+        var sub=rows.filter(function(x){ return x.id===id; })[0];
+        rpc('approve_submission',{sub_id:id})
+          .then(function(nuovoId){
+            if(!sub || !sub.photo_path) return;
+            var fid=(typeof nuovoId==='string')?nuovoId.replace(/"/g,''):nuovoId;
+            return patch('fountains','id=eq.'+fid,{photo_url:photoUrl(sub.photo_path)})
+                     .catch(function(){});
+          })
           .then(function(){ toast('Approvata: ora è sulla mappa.'); vQueue(); counters(); })
           .catch(function(e){ b.disabled=false; toast('Errore: '+e.message); });
       };
@@ -321,14 +333,15 @@ function vReports(){
     sel('reports?select=*&order=created_at.desc&limit=80'),
     sel('v_status?select=*&order=broken_votes.desc&limit=40')
   ]).then(function(res){
-    var recent=res[0], agg=res[1].filter(function(r){ return r.broken_votes>0; });
+    var recent=res[0], agg=res[1].filter(function(r){ return r.broken_votes>0 || r.works_votes>0; });
     var h='';
     if(agg.length){
       h+='<div class="card"><h3>Da controllare</h3>'+
-         '<div class="meta">Punti con segnalazioni di guasto.</div>';
+         '<div class="meta">Punti con segnalazioni di guasto o di cantiere.</div>';
       agg.forEach(function(a){
         h+='<div class="stat"><span>'+esc(a.target)+'<br><span class="meta">'+
            '<span class="pill ok">'+a.ok_votes+' ok</span>'+
+           (a.works_votes?'<span class="pill warn">'+a.works_votes+' lavori</span>':'')+
            '<span class="pill bad">'+a.broken_votes+' rotta</span>'+esc(ago(a.last_report))+'</span></span>'+
            '<button class="btn ghost sm" data-fix="'+esc(a.target)+'">Decidi</button></div>';
       });
@@ -337,9 +350,10 @@ function vReports(){
     h+='<div class="card"><h3>Ultime segnalazioni</h3>';
     if(!recent.length) h+='<div class="meta">Ancora nessuna.</div>';
     recent.forEach(function(r){
+      var cl={ok:'ok',works:'warn',broken:'bad'}[r.status]||'';
+      var tx={ok:'funziona',works:'lavori',broken:'rotta'}[r.status]||r.status;
       h+='<div class="stat"><span class="meta">'+esc(r.target)+'</span>'+
-         '<span><span class="pill '+(r.status==='ok'?'ok':'bad')+'">'+
-         (r.status==='ok'?'funziona':'rotta')+'</span>'+esc(ago(r.created_at))+'</span></div>';
+         '<span><span class="pill '+cl+'">'+tx+'</span>'+esc(ago(r.created_at))+'</span></div>';
     });
     h+='</div>';
     el('view').innerHTML=h;
@@ -356,7 +370,7 @@ function vReviews(){
   sel('reviews?select=*&order=created_at.desc&limit=60').then(function(rows){
     if(!rows.length){ el('view').innerHTML='<div class="empty">Ancora nessun voto.</div>'; return; }
     el('view').innerHTML=rows.map(function(r){
-      var stars=[['findability','trovabilità'],['cleanliness','pulizia'],['taste','sapore'],['flow','getto']]
+      var stars=[['findability','raggiungibile'],['cleanliness','stato'],['taste','qualità'],['temperature','temperatura']]
         .filter(function(s){ return r[s[0]]; })
         .map(function(s){ return '<span class="pill">'+s[1]+' '+r[s[0]]+'★</span>'; }).join('');
       return '<div class="card">'+
@@ -432,8 +446,9 @@ function loadMap(){
   }).catch(function(e){ toast(e.message); });
 }
 function pin(p, ovr, stat, custom){
-  var broken = (ovr && ovr.status==='broken') ||
-               (stat && stat.broken_votes>=2 && stat.broken_votes>stat.ok_votes);
+  var broken = (ovr && (ovr.status==='broken' || ovr.status==='works')) ||
+               (stat && ((stat.works_votes||0) >= 1 ||
+                        (stat.broken_votes>=2 && stat.broken_votes>stat.ok_votes)));
   var cls='pin'+(p.kind==='casa'?' casa':'')+(broken?' broken':'')+(custom?' custom':'');
   L.marker([p.lat,p.lon],{icon:L.divIcon({className:'',html:'<div class="'+cls+'"></div>',
     iconSize:[26,26],iconAnchor:[13,24]})})
@@ -491,7 +506,7 @@ function openEditor(f, osmPoint){
       '<option value="fontanella"'+(f.kind!=='casa'?' selected':'')+'>Fontanella</option>'+
       '<option value="casa"'+(f.kind==='casa'?' selected':'')+'>Casa dell\'acqua</option></select></div>'+
       '<div><label>Stato</label><select id="fStatus">'+
-      ['unknown|Sconosciuto','ok|Funzionante','broken|Rotta','removed|Rimossa'].map(function(o){
+      ['unknown|Sconosciuto','ok|Funzionante','works|Lavori in corso','broken|Rotta','removed|Rimossa'].map(function(o){
         var v=o.split('|'); return '<option value="'+v[0]+'"'+(f.status===v[0]?' selected':'')+'>'+v[1]+'</option>';
       }).join('')+'</select></div></div>';
   h+='<div class="grid2"><div><label>Costo</label><select id="fFee">'+

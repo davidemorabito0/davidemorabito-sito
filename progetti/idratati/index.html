@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<title>IDRATATI — acqua pubblica, ovunque</title>
-<meta name="description" content="Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi.">
+<!-- IDRATATI v2.0 (2026-07-27) -->
+<title>IDRATATI — Idràtati, per rimanere idratàti</title>
+<meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi.">
 <meta name="theme-color" content="#07242F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -25,7 +26,11 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0;overscroll-behavior:none}
-body{font-family:var(--body);background:var(--ink);color:var(--ink);overflow:hidden}
+body{font-family:var(--body);background:var(--ink);color:var(--ink);overflow:hidden;
+  -webkit-user-select:none;-moz-user-select:none;user-select:none;
+  -webkit-touch-callout:none}
+/* si scrive solo dove serve scrivere */
+input,textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 button{font-family:inherit}
 :focus-visible{outline:2px solid var(--acqua);outline-offset:2px}
 
@@ -42,9 +47,20 @@ button{font-family:inherit}
 .dropg{animation:fall 2.1s cubic-bezier(.5,0,.35,1) infinite}
 @keyframes fall{0%{transform:translateY(-130px);opacity:0}20%{opacity:1}
   46%{transform:translateY(0);opacity:1}62%,100%{transform:translateY(0);opacity:0}}
-.wordmark{font-family:var(--display);font-weight:800;font-size:clamp(28px,8.6vw,40px);
-  letter-spacing:.15em;color:var(--surface);margin-left:.15em;line-height:1;white-space:nowrap}
-.tagline{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--acqua);margin-top:-10px}
+.wordmark{position:relative;font-family:var(--display);font-weight:800;
+  font-size:clamp(28px,8.6vw,40px);letter-spacing:.15em;color:var(--surface);
+  margin-left:.15em;line-height:1;white-space:nowrap}
+.wordmark span{display:inline-block}
+.acc{position:absolute;top:-.30em;left:0;width:.09em;height:.26em;background:var(--acqua);
+  border-radius:.05em;transform:rotate(-22deg);transform-origin:50% 100%;
+  opacity:0;transition:left .85s cubic-bezier(.65,0,.25,1),opacity .35s ease}
+.ver{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 8px);left:0;right:0;
+  text-align:center;font-size:10px;letter-spacing:.1em;color:rgba(242,247,246,.28);
+  z-index:9001;pointer-events:none}
+#splash.gone ~ .ver{display:none}
+.tagline{font-size:clamp(9.5px,2.7vw,11.5px);letter-spacing:.13em;text-transform:uppercase;
+  font-weight:500;color:var(--acqua);margin-top:-4px;text-align:center;padding:0 18px;line-height:1.5}
+@media (prefers-reduced-motion:reduce){ .acc{transition:none} }
 
 /* ---------- MAPPA ---------- */
 #map{position:fixed;inset:0;background:#dfe8e7}
@@ -70,6 +86,7 @@ button{font-family:inherit}
 .chip .dot{width:7px;height:7px;border-radius:50%;background:var(--acqua)}
 .chip.casa .dot{background:var(--getto)}
 .chip.okonly .dot{background:var(--acqua-deep)}
+.chip.freeonly .dot{background:var(--getto)}
 .chip[aria-pressed="false"]{background:rgba(255,255,255,.5);color:rgba(7,36,47,.38)}
 .chip[aria-pressed="false"] .dot{background:rgba(7,36,47,.18)}
 #results{position:absolute;left:10px;right:10px;top:calc(var(--safe-t) + 58px);
@@ -80,9 +97,14 @@ button{font-family:inherit}
 #results button:last-child{border-bottom:none}
 
 /* ---------- MARKER ---------- */
-.pin{width:30px;height:30px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);
+.pin{position:relative;width:30px;height:30px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);
   background:var(--acqua);border:2px solid #fff;box-shadow:0 3px 10px rgba(7,36,47,.35);
   display:flex;align-items:center;justify-content:center}
+.pin .fee{position:absolute;top:-6px;right:-7px;width:17px;height:17px;border-radius:50%;
+  background:var(--ink);color:var(--getto);border:1.5px solid #fff;
+  font-family:var(--body);font-size:10px;font-weight:600;line-height:1;
+  display:flex;align-items:center;justify-content:center;transform:rotate(45deg)}
+.pin.casa .fee{transform:rotate(0);top:-7px;right:-7px}
 .pin.casa{background:var(--getto);border-radius:9px;transform:rotate(0)}
 .pin.broken{background:var(--rotta)}
 .pin svg{transform:rotate(45deg)}
@@ -151,6 +173,19 @@ button{font-family:inherit}
 textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;
   font-family:var(--body);font-size:14px;background:var(--card);color:var(--ink);resize:none}
 .hint{font-size:11.5px;color:var(--muted);line-height:1.4;margin-top:8px}
+.age{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:7px;
+  background:rgba(7,36,47,.07);color:var(--muted)}
+.age.fresh{background:rgba(0,166,166,.15);color:var(--acqua-deep)}
+.age.medium{background:rgba(255,176,32,.2);color:#8A5B00}
+.age.stale{background:rgba(7,36,47,.08);color:rgba(7,36,47,.45)}
+.modeseg{display:inline-flex;gap:2px;background:rgba(7,36,47,.06);border-radius:10px;padding:2px;margin-top:9px}
+.modeseg button{border:none;background:none;color:var(--muted);padding:6px 11px;
+  border-radius:8px;font-size:12px;font-weight:600;font-family:var(--body)}
+.modeseg button.on{background:var(--ink);color:var(--surface)}
+.state3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:4px}
+.state3 .btn{font-size:12.5px;padding:12px 4px;border-radius:11px}
+.btn.works{background:rgba(255,176,32,.2);color:#8A5B00}
+.photocap{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:12px;color:var(--muted)}
 .rev{border-top:1px solid var(--line);padding:11px 0;font-size:13.5px}
 .rev .meta{font-size:11px;color:var(--muted);margin-bottom:3px}
 .empty{font-size:13px;color:var(--muted);padding:12px 0}
@@ -165,12 +200,66 @@ body.card-hidden #locate{bottom:calc(var(--safe-b) + 24px)}
 body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
 
 /* ---------- MODALITÀ AGGIUNTA ---------- */
-#addbar{position:fixed;left:10px;right:10px;bottom:calc(var(--safe-b) + 12px);z-index:900;
-  background:var(--ink);color:var(--surface);border-radius:18px;padding:14px 16px;display:none}
+#addbar{position:fixed;left:12px;right:12px;bottom:calc(var(--safe-b) + 12px);z-index:900;
+  max-width:430px;margin:0 auto;background:var(--ink);color:var(--surface);
+  border-radius:20px;padding:18px;display:none;
+  box-shadow:0 20px 60px rgba(7,36,47,.45);
+  max-height:calc(100vh - 120px);overflow-y:auto}
 #addbar.on{display:block}
-#addbar p{margin:0 0 11px;font-size:13.5px;line-height:1.4}
+.add-t{font-family:var(--display);font-weight:600;font-size:18px;line-height:1.2;margin:0 0 4px}
+.add-p{margin:0;font-size:13px;line-height:1.45;color:rgba(242,247,246,.62)}
+.add-l{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(242,247,246,.45);font-weight:600;margin:16px 0 7px}
+.seg{display:flex;gap:3px;background:rgba(255,255,255,.07);border-radius:13px;padding:3px}
+.seg button{flex:1;border:none;background:none;color:rgba(242,247,246,.6);
+  padding:10px 8px;border-radius:10px;font-size:13px;font-weight:600;transition:.18s}
+.seg button.on{background:var(--acqua);color:#04222c}
+.seg button.on.casa{background:var(--getto);color:#3d2800}
+#addbar input[type=text],#addbar textarea{
+  width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);
+  border-radius:12px;padding:11px 13px;color:var(--surface);font-size:14px;
+  font-family:var(--body);resize:none}
+#addbar input[type=text]::placeholder,#addbar textarea::placeholder{color:rgba(242,247,246,.35)}
+#addbar input[type=text]:focus,#addbar textarea:focus{border-color:var(--acqua);outline:none}
+.photo-zone{display:flex;gap:10px;align-items:center}
+.photo-add{display:flex;align-items:center;justify-content:center;gap:8px;flex:1;
+  background:rgba(255,255,255,.07);border:1px dashed rgba(255,255,255,.22);
+  border-radius:12px;padding:14px 10px;font-size:13px;font-weight:600;
+  color:rgba(242,247,246,.78);cursor:pointer;transition:.18s}
+.photo-add:hover{border-color:var(--acqua);color:var(--surface)}
+.photo-prev{position:relative;flex:0 0 auto}
+.photo-prev img{width:62px;height:62px;object-fit:cover;border-radius:12px;display:block}
+.photo-prev button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border:none;
+  border-radius:50%;background:var(--rotta);color:#fff;font-size:13px;line-height:1;padding:0}
+.add-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.b{border:none;border-radius:12px;padding:11px 20px;font-size:13.5px;font-weight:600;
+  font-family:var(--body);transition:.18s;cursor:pointer}
+.b.ghost{background:rgba(255,255,255,.1);color:var(--surface)}
+.b.ghost:hover{background:rgba(255,255,255,.16)}
+.b.go{background:var(--acqua);color:#04222c}
+.b.go:hover{filter:brightness(1.08)}
+.b[disabled]{opacity:.45;pointer-events:none}
+.add-hint{font-size:11.5px;line-height:1.45;color:rgba(242,247,246,.45);margin-top:12px}
 #crosshair{position:fixed;left:50%;top:50%;transform:translate(-50%,-100%);z-index:880;display:none;pointer-events:none}
 #crosshair.on{display:block}
+
+/* il cerchio che si riempie mentre tieni premuto */
+#lpring{position:fixed;width:66px;height:66px;margin:-33px 0 0 -33px;z-index:645;
+  pointer-events:none;opacity:0;transition:opacity .18s}
+#lpring.on{opacity:1}
+#lpring circle.track{fill:rgba(7,36,47,.16);stroke:rgba(255,255,255,.5);stroke-width:3}
+#lpring circle.run{fill:none;stroke:var(--acqua);stroke-width:4;stroke-linecap:round;
+  transform:rotate(-90deg);transform-origin:50% 50%;
+  stroke-dasharray:176;stroke-dashoffset:176}
+#lpring.on circle.run{animation:riempi 4s linear forwards}
+@keyframes riempi{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){ #lpring.on circle.run{animation-duration:4s} }
+
+/* il segnaposto piazzato tenendo premuto */
+.prop-pin{width:34px;height:34px;border-radius:50% 50% 50% 5px;transform:rotate(-45deg);
+  background:var(--acqua);border:3px solid #fff;box-shadow:0 4px 14px rgba(7,36,47,.45);
+  display:flex;align-items:center;justify-content:center;animation:atterra .32s cubic-bezier(.2,1.4,.4,1)}
+@keyframes atterra{from{transform:rotate(-45deg) scale(.2);opacity:0}to{transform:rotate(-45deg) scale(1);opacity:1}}
 
 /* ---------- TOAST ---------- */
 #toast{position:fixed;left:50%;top:calc(var(--safe-t) + 110px);transform:translateX(-50%) translateY(-12px);
@@ -204,9 +293,12 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
       </g>
     </svg>
   </div>
-  <div class="wordmark">IDRATATI</div>
-  <div class="tagline">acqua pubblica, ovunque</div>
+  <div class="wordmark" id="wm"><span>I</span><span>D</span><span>R</span><span
+    class="a1">A</span><span>T</span><span class="a2">A</span><span>T</span><span>I</span><i
+    class="acc" id="acc"></i></div>
+  <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
+<div class="ver">v2.0 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -219,6 +311,7 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
     <button class="chip fonta" id="fFont" aria-pressed="true"><span class="dot"></span>Fontanelle</button>
     <button class="chip casa" id="fCasa" aria-pressed="true"><span class="dot"></span>Case dell'acqua</button>
     <button class="chip okonly" id="fOk" aria-pressed="false"><span class="dot"></span>Nascondi le rotte</button>
+    <button class="chip freeonly" id="fFree" aria-pressed="false"><span class="dot"></span>Solo gratuite</button>
   </div>
   <div id="results"></div>
 </div>
@@ -238,6 +331,11 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
   </svg>
 </div>
 
+<svg id="lpring" viewBox="0 0 66 66" aria-hidden="true">
+  <circle class="track" cx="33" cy="33" r="28"/>
+  <circle class="run"   cx="33" cy="33" r="28"/>
+</svg>
+
 <div id="toast"></div>
 
 <div id="card" class="hidden">
@@ -249,13 +347,7 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
   <div class="actions" id="cActions"></div>
 </div>
 
-<div id="addbar">
-  <p id="addText">Sposta la mappa fino a centrare la fontanella, poi conferma.</p>
-  <div class="actions" style="margin-top:0">
-    <button class="btn ghost" id="addCancel" style="background:rgba(255,255,255,.12);color:#F2F7F6">Annulla</button>
-    <button class="btn" id="addOk" style="background:var(--acqua);color:#fff">È qui</button>
-  </div>
-</div>
+<div id="addbar"></div>
 
 <div id="scrim"></div>
 <div id="sheet">
@@ -284,7 +376,15 @@ var CFG = {
 };
 
 var FALLBACK = {lat:45.4642, lon:9.1900, label:'Milano'};
-var WALK = 80, DETOUR = 1.25, RADIUS = 2200, TILE = 0.5;
+var RADIUS = 2200, TILE = 0.5;
+
+/* Come ci si arriva. I metri al minuto sono reali, non da manuale:
+   a piedi 4,8 km/h; in auto 18 km/h di media urbana, più il parcheggio. */
+var MODI = {
+  piedi:{ v:80,  det:1.25, nome:'a piedi', g:'walking', a:'w', extra:0 },
+  auto: { v:300, det:1.40, nome:'in auto', g:'driving', a:'d', extra:3 }
+};
+var modo = 'piedi';
 
 /* ---------- storage sicuro ---------- */
 var mem = {};
@@ -292,6 +392,8 @@ var store = {
   get:function(k){ try{ return localStorage.getItem(k); }catch(e){ return mem[k]||null; } },
   set:function(k,v){ try{ localStorage.setItem(k,v); }catch(e){ mem[k]=v; } }
 };
+var modoSalvato = store.get('idr_modo');
+if(modoSalvato && MODI[modoSalvato]) modo = modoSalvato;
 var CLIENT = store.get('idr_client');
 if(!CLIENT){
   CLIENT = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,12);
@@ -312,13 +414,19 @@ var SB = {
   },
   insert: function(table, row){
     if(!SB.on()) return Promise.reject(new Error('offline'));
+    // return=minimal: non chiediamo indietro la riga. Le proposte e le foto
+    // in attesa sono leggibili solo dall'amministratore, quindi chiederle
+    // indietro farebbe fallire un inserimento in realtà andato a buon fine.
     return fetch(CFG.SUPABASE_URL+'/rest/v1/'+table, {
       method:'POST',
-      headers:Object.assign(SB.head(), {'Prefer':'return=representation'}),
+      headers:Object.assign(SB.head(), {'Prefer':'return=minimal'}),
       body:JSON.stringify(row)
     }).then(function(r){
-      if(!r.ok) return r.text().then(function(t){ throw new Error(t); });
-      return r.json();
+      if(!r.ok) return r.text().then(function(t){
+        var msg=t; try{ msg=(JSON.parse(t).message)||t; }catch(e){}
+        throw new Error(msg);
+      });
+      return true;
     });
   },
   upload: function(file, name){
@@ -339,8 +447,9 @@ var SB = {
 var map, layer, meMarker, myPos=null, points=[], byId={},
     overrides={}, statusAgg={}, reviewAgg={},
     selected=null, tilesLoaded={}, fetching=false, lastQ=null,
-    adding=false, addPhoto=null, myVotes={};
-var show = {fontanella:true, casa:true, okonly:false};
+    adding=false, addPhoto=null, myVotes={},
+    lastOverpassAt=0, lastOverpassAt_center=null, firstLoadDone=false;
+var show = {fontanella:true, casa:true, okonly:false, freeonly:false};
 
 /* ---------- utility ---------- */
 function dist(a,b){
@@ -348,7 +457,10 @@ function dist(a,b){
   var s=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a.lat*t)*Math.cos(b.lat*t)*Math.sin(dLon/2)*Math.sin(dLon/2);
   return 2*R*Math.asin(Math.sqrt(s));
 }
-function walkMin(m){ return Math.max(1, Math.round(m*DETOUR/WALK)); }
+function walkMin(m, quale){
+  var M = MODI[quale || modo];
+  return Math.max(1, Math.round(m*M.det/M.v) + M.extra);
+}
 function fmtDist(m){ return m<1000 ? Math.round(m/10)*10+' m' : (m/1000).toFixed(1).replace('.',',')+' km'; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -367,6 +479,20 @@ function agoText(d){
   if(d<365) return Math.round(d/30)+' mesi fa';
   return 'oltre un anno fa';
 }
+/* Quanto è vecchia un'informazione. Una nota di ieri vale molto più
+   di una di due anni fa, e chi legge deve vederlo a colpo d'occhio. */
+function fresco(iso){
+  var d = daysAgo(iso);
+  if(d==null) return {c:'', t:''};
+  if(d <= 30)  return {c:'fresh',  t:agoText(d)};
+  if(d <= 180) return {c:'medium', t:agoText(d)};
+  return {c:'stale', t:agoText(d)};
+}
+function bollo(iso, prefisso){
+  var f = fresco(iso);
+  if(!f.t) return '';
+  return '<span class="age '+f.c+'">'+(prefisso?esc(prefisso)+' ':'')+esc(f.t)+'</span>';
+}
 
 /* ---------- classificazione OSM ---------- */
 function classify(tags){
@@ -382,6 +508,16 @@ function labelFor(p){
   return p.kind==='casa' ? "Casa dell'acqua" : 'Fontanella pubblica';
 }
 
+/* ---------- si paga o no ----------
+   Restituisce 'paid', 'free' oppure null quando nessuno l'ha ancora detto. */
+function feeOf(p){
+  var ov=p.ov||{}, t=p.tags||{};
+  if(ov.fee) return ov.fee;
+  if(t.fee==='yes' || t.charge) return 'paid';
+  if(t.fee==='no') return 'free';
+  return null;
+}
+
 /* ---------- stato calcolato ---------- */
 function stateOf(p){
   var ov=p.ov, ag=statusAgg[p.target];
@@ -389,7 +525,9 @@ function stateOf(p){
     return {s:ov.status, why:'verificata', locked:true};
   }
   if(ag){
-    var ok=ag.ok_votes||0, ko=ag.broken_votes||0;
+    var ok=ag.ok_votes||0, ko=ag.broken_votes||0, lv=ag.works_votes||0;
+    if(lv>=1 && lv>=ko) return {s:'works', why:lv+(lv===1?' segnalazione':' segnalazioni'),
+                                last:ag.last_works||ag.last_report};
     if(ko>=2 && ko>ok) return {s:'broken', why:ko+' segnalazioni', last:ag.last_report};
     if(ok>=1 && ok>=ko) return {s:'ok', why:ok+' conferme', last:ag.last_report};
     if(ko===1) return {s:'doubt', why:'1 segnalazione', last:ag.last_report};
@@ -401,6 +539,7 @@ function stateOf(p){
 function stateLabel(st){
   if(st.s==='ok')      return {c:'ok',   t:'Funzionante'};
   if(st.s==='broken')  return {c:'bad',  t:'Segnalata rotta'};
+  if(st.s==='works')   return {c:'warn', t:'Lavori in corso'};
   if(st.s==='removed') return {c:'bad',  t:'Rimossa'};
   if(st.s==='doubt')   return {c:'warn', t:'Da verificare'};
   return {c:'', t:'Stato sconosciuto'};
@@ -411,10 +550,10 @@ function tagsFor(p){
   out.push({c:sl.c, s:sl.t});
   if(t.drinking_water==='no' || ov.potable===false) out.push({c:'bad', s:'Non potabile'});
   else if(t.drinking_water==='yes' || t.amenity==='drinking_water' || ov.potable===true) out.push({c:'ok', s:'Potabile'});
-  var fee = ov.fee || (t.fee==='yes'?'paid':(t.fee==='no'?'free':null));
+  var fee = feeOf(p);
   if(fee==='paid') out.push({c:'warn', s:'A pagamento'});
   else if(fee==='free') out.push({c:'ok', s:'Gratis'});
-  else if(p.kind==='casa') out.push({c:'', s:'Di solito gratis'});
+  else out.push({c:'', s: p.kind==='casa' ? 'Di solito gratis' : 'Gratis, salvo sorprese'});
   if(ov.requires_card || p.kind==='casa') out.push({c:'warn', s:'Serve la tessera sanitaria'});
   if(t.bottle==='yes') out.push({c:'', s:'Riempi la borraccia'});
   if(t.seasonal==='yes') out.push({c:'warn', s:'Stagionale'});
@@ -490,6 +629,13 @@ function loadArea(center){
   });
 
   if(!lastQ || dist(lastQ,center)>1200){ lastQ=center; loadSupabase(center); }
+
+  // Se qui intorno non è comparso niente, insisto con Overpass invece di
+  // lasciare la mappa muta. Al massimo una richiesta ogni 6 secondi.
+  var vicini = points.filter(function(p){ return dist(center,p) < 2500; }).length;
+  var passato = Date.now() - lastOverpassAt;
+  var lontano = !lastOverpassAt_center || dist(lastOverpassAt_center, center) > 900;
+  if(vicini === 0 && passato > 6000 && (lontano || passato > 20000)) overpass(center);
 }
 
 /* formato compatto dello snapshot: [osmid, lat, lon, kind, name, flags] */
@@ -511,6 +657,8 @@ function decodePoint(a){
 function overpass(c){
   if(fetching) return;
   fetching=true;
+  lastOverpassAt=Date.now(); lastOverpassAt_center=c;
+  if(!firstLoadDone) toast('Cerco i punti d\'acqua qui intorno…', 2600);
   var a='(around:'+RADIUS+','+c.lat.toFixed(5)+','+c.lon.toFixed(5)+')';
   var q='[out:json][timeout:25];('+
     'nwr["amenity"="drinking_water"]'+a+';'+
@@ -524,6 +672,7 @@ function overpass(c){
   }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
     .then(function(d){
       fetching=false;
+      var prima=points.length;
       addPoints((d.elements||[]).map(function(e){
         var lat=e.lat!=null?e.lat:(e.center&&e.center.lat);
         var lon=e.lon!=null?e.lon:(e.center&&e.center.lon);
@@ -534,8 +683,20 @@ function overpass(c){
         return {id:id, target:'osm/'+id, lat:lat, lon:lon, tags:tags, kind:classify(tags)};
       }).filter(Boolean));
       render();
+      var nuovi = points.length - prima;
+      if(!firstLoadDone){
+        firstLoadDone = true;
+        if(!nuovi && !points.length)
+          toast('Qui non risulta mappato nessun punto d\'acqua. Prova a spostarti o cerca un\'altra zona.', 5000);
+      }
     })
-    .catch(function(){ fetching=false; });
+    .catch(function(){
+      fetching=false;
+      // rete o limite di Overpass: riprovo una volta sola, tra otto secondi
+      setTimeout(function(){
+        if(!points.length){ lastOverpassAt=0; overpass(c); }
+      }, 8000);
+    });
 }
 
 function loadSupabase(c){
@@ -576,7 +737,8 @@ function visible(){
     if(!show[p.kind]) return false;
     var st=stateOf(p);
     if(st.s==='removed') return false;
-    if(show.okonly && (st.s==='broken')) return false;
+    if(show.okonly && (st.s==='broken' || st.s==='works')) return false;
+    if(show.freeonly && feeOf(p)==='paid') return false;
     return true;
   });
 }
@@ -587,7 +749,8 @@ function render(){
     var casa=p.kind==='casa', st=stateOf(p), broken=(st.s==='broken');
     L.marker([p.lat,p.lon],{icon:L.divIcon({className:'',
       html:'<div class="pin'+(casa?' casa':'')+(broken?' broken':'')+
-           (selected&&selected.target===p.target?' sel':'')+'">'+(casa?IC_C:IC_F)+'</div>',
+           (selected&&selected.target===p.target?' sel':'')+'">'+(casa?IC_C:IC_F)+
+           (feeOf(p)==='paid'?'<span class="fee">€</span>':'')+'</div>',
       iconSize:[30,30],iconAnchor:[15,28]})})
      .on('click',function(){ openSheet(p); }).addTo(layer);
   });
@@ -598,7 +761,8 @@ function nearest(){
   var best=null,bd=Infinity;
   visible().forEach(function(p){
     if(p.tags.drinking_water==='no') return;
-    if(stateOf(p).s==='broken') return;
+    var sq=stateOf(p).s;
+    if(sq==='broken' || sq==='works') return;
     var d=dist(myPos,p); if(d<bd){bd=d;best=p;}
   });
   return best?{p:best,d:bd}:null;
@@ -618,31 +782,51 @@ function fillCard(p,d,isNearest){
     isNearest ? (p.kind==='casa'?"La più vicina · casa dell'acqua":'La più vicina · fontanella')
               : (p.kind==='casa'?"Casa dell'acqua":'Fontanella');
   document.getElementById('cHead').innerHTML =
-    (isNearest&&min!=null) ? 'A <b>'+min+' minut'+(min===1?'o':'i')+'</b> a piedi' : esc(labelFor(p));
+    (isNearest&&min!=null)
+      ? 'A <b>'+min+' minut'+(min===1?'o':'i')+'</b> '+MODI[modo].nome
+      : esc(labelFor(p));
   var sub=[]; if(isNearest) sub.push(labelFor(p));
-  if(d!=null) sub.push(fmtDist(d)+(isNearest?'':' · '+walkMin(d)+' min a piedi'));
+  if(d!=null) sub.push(fmtDist(d)+(isNearest?'':' · '+walkMin(d)+' min '+MODI[modo].nome));
   document.getElementById('cSub').textContent=sub.join(' · ');
   var tw=document.getElementById('cTags'); tw.innerHTML='';
   tagsFor(p).slice(0,4).forEach(function(t){
     var s=document.createElement('span'); s.className='tag'+(t.c?' '+t.c:''); s.textContent=t.s; tw.appendChild(s);
   });
+  var st2=stateOf(p);
+  var freschezza = st2.last ? bollo(st2.last, 'verificata') : '';
   document.getElementById('cActions').innerHTML=
-    '<button class="btn" id="cOpen">Dettagli e voto</button>'+
-    '<a class="btn ghost" id="cNav" href="'+navUrl(p,'g')+'" target="_blank" rel="noopener">Portami</a>';
+    (freschezza ? '<div style="width:100%;margin-bottom:10px">'+freschezza+'</div>' : '')+
+    '<div class="modeseg" id="cMode">'+
+      '<button data-m="piedi"'+(modo==='piedi'?' class="on"':'')+'>A piedi</button>'+
+      '<button data-m="auto"'+(modo==='auto'?' class="on"':'')+'>In auto</button></div>'+
+    '<div style="display:flex;gap:8px;width:100%;margin-top:11px">'+
+      '<button class="btn" id="cOpen">Dettagli e voto</button>'+
+      '<a class="btn ghost" id="cNav" href="'+navUrl(p,'g')+'" target="_blank" rel="noopener">Portami</a></div>';
+  document.getElementById('cActions').style.flexWrap='wrap';
   document.getElementById('cOpen').onclick=function(){ openSheet(p); };
+  document.getElementById('cMode').querySelectorAll('button').forEach(function(b){
+    b.onclick=function(){
+      modo=b.getAttribute('data-m');
+      store.set('idr_modo', modo);
+      if(selected) openSheet(p); else showNearest();
+    };
+  });
   document.getElementById('card').classList.remove('hidden');
   document.body.classList.remove('card-hidden');
 }
 function navUrl(p,which){
-  if(which==='a') return 'https://maps.apple.com/?daddr='+p.lat+','+p.lon+'&dirflg=w';
-  return 'https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lon+'&travelmode=walking';
+  var M=MODI[modo];
+  if(which==='a') return 'https://maps.apple.com/?daddr='+p.lat+','+p.lon+'&dirflg='+M.a;
+  return 'https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lon+'&travelmode='+M.g;
 }
 
 /* ============================================================
    SHEET DETTAGLIO
    ============================================================ */
-var STARS=[['findability','Si trova facilmente'],['cleanliness','Pulizia'],
-           ['taste',"Sapore dell'acqua"],['flow','Getto']];
+var STARS=[['findability','Facile da raggiungere'],
+           ['cleanliness','Stato della fontana'],
+           ['taste',"Qualità dell'acqua"],
+           ['temperature',"Temperatura dell'acqua"]];
 
 function starSvg(){ return '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z"/></svg>'; }
 
@@ -656,21 +840,28 @@ function openSheet(p){
   var h='';
   h+='<div class="eyebrow">'+(p.kind==='casa'?"Casa dell'acqua":'Fontanella pubblica')+'</div>';
   h+='<div class="sheet-h">'+esc(labelFor(p))+'</div>';
-  h+='<div class="sub">'+(d!=null?fmtDist(d)+' · '+walkMin(d)+' min a piedi':'Distanza non disponibile')+'</div>';
+  h+='<div class="sub">'+(d!=null?fmtDist(d)+' · '+walkMin(d)+' min '+MODI[modo].nome:'Distanza non disponibile')+'</div>';
   h+='<div class="tags">';
   tagsFor(p).forEach(function(t){ h+='<span class="tag'+(t.c?' '+t.c:'')+'">'+esc(t.s)+'</span>'; });
   h+='</div>';
+  if(p.ov && p.ov.notes){
+    h+='<div class="sec" style="margin-top:16px"><div class="sec-t">Nota</div>'+
+       '<div style="font-size:14px;line-height:1.45">'+esc(p.ov.notes)+'</div>'+
+       '<div style="margin-top:8px">'+bollo(p.ov.updated_at||p.ov.created_at,'aggiornata')+'</div></div>';
+  }
 
   h+='<div class="actions"><a class="btn" href="'+navUrl(p,'g')+'" target="_blank" rel="noopener">Google Maps</a>'+
      '<a class="btn ghost" href="'+navUrl(p,'a')+'" target="_blank" rel="noopener">Apple Maps</a></div>';
 
   h+='<div id="photoWrap"></div>';
 
-  h+='<div class="sec"><div class="sec-t">Funziona?</div>';
-  if(st.last){ var ag=agoText(daysAgo(st.last)); if(ag) h+='<div class="sub" style="margin-bottom:9px">Ultima segnalazione '+ag+'</div>'; }
-  h+='<div class="statebox">'+
-     '<button class="btn ok'+(voted==='ok'?' ':'')+'" id="voteOk"'+(voted?' disabled':'')+'>Funziona</button>'+
-     '<button class="btn bad" id="voteKo"'+(voted?' disabled':'')+'>È rotta</button></div>';
+  h+='<div class="sec"><div class="sec-t">Com\'è messa oggi?</div>';
+  if(st.last) h+='<div style="margin-bottom:10px">'+bollo(st.last,'ultima segnalazione')+'</div>';
+  h+='<div class="state3">'+
+     '<button class="btn ok"    id="voteOk"'+(voted?' disabled':'')+'>Funziona</button>'+
+     '<button class="btn works" id="voteWk"'+(voted?' disabled':'')+'>Lavori</button>'+
+     '<button class="btn bad"   id="voteKo"'+(voted?' disabled':'')+'>Rotta</button></div>';
+  h+='<div class="hint">Segnala <b>Lavori</b> se c\'è un cantiere o è transennata: non è rotta, tornerà.</div>';
   if(voted) h+='<div class="hint">Grazie, la tua segnalazione è registrata.</div>';
   h+='</div>';
 
@@ -679,7 +870,9 @@ function openSheet(p){
   h+='<div class="sec"><div class="sec-t">Lascia il tuo voto</div><div id="myStars"></div>'+
      '<textarea id="revComment" rows="2" placeholder="Due parole (facoltativo)" maxlength="400" style="margin-top:8px"></textarea>'+
      '<div class="actions"><button class="btn" id="revSend">Invia il voto</button></div>'+
-     '<div class="hint">Le stelle sul sapore raccontano l\'esperienza di chi beve, non un\'analisi di potabilità. Se l\'acqua ti sembra sospetta, non berla e segnala la fontanella come rotta.</div></div>';
+     '<div class="hint">Vota solo quello che vuoi, anche una stella sola. '+
+     'Il giudizio sull\'acqua è l\'esperienza di chi ha bevuto, non un\'analisi di laboratorio: '+
+     'se l\'acqua ti sembra sospetta non berla e segnala la fontanella.</div></div>';
 
   h+='<div class="sec"><div class="sec-t">Aggiungi una foto</div>'+
      '<input type="file" id="photoFile" accept="image/*" capture="environment" style="font-size:13px">'+
@@ -698,6 +891,7 @@ function openSheet(p){
   loadReviews(p);
 
   document.getElementById('voteOk').onclick=function(){ sendReport(p,'ok'); };
+  document.getElementById('voteWk').onclick=function(){ sendReport(p,'works'); };
   document.getElementById('voteKo').onclick=function(){ sendReport(p,'broken'); };
   document.getElementById('revSend').onclick=function(){ sendReview(p); };
   document.getElementById('photoFile').onchange=function(e){ sendPhoto(p, e.target.files[0]); };
@@ -717,7 +911,8 @@ function renderAgg(p){
        '<div class="bar"><i style="width:'+((v||0)/5*100)+'%"></i></div>'+
        '<span style="font-weight:600;min-width:26px;text-align:right">'+(v!=null?String(v).replace('.',','):'–')+'</span></div>';
   });
-  h+='<div class="hint">Media su '+r.n+' voto'+(r.n===1?'':'i')+'.</div>';
+  h+='<div style="margin-top:10px">Media su '+r.n+' voto'+(r.n===1?'':'i')+' '+
+     (r.last_review?bollo(r.last_review,'· ultimo'):'')+'</div>';
   w.innerHTML=h;
 }
 var myRating={};
@@ -746,13 +941,16 @@ function loadPhotos(p){
   var w=document.getElementById('photoWrap');
   if(p.ov && p.ov.photo_url){ w.innerHTML='<img class="hero" src="'+esc(p.ov.photo_url)+'" alt="">'; }
   if(!SB.on()) return;
-  SB.select('photos?select=url&approved=eq.true&target=eq.'+encodeURIComponent(p.target)+'&order=created_at.desc&limit=6')
+  SB.select('photos?select=url,created_at&approved=eq.true&target=eq.'+encodeURIComponent(p.target)+
+            '&order=created_at.desc&limit=6')
     .then(function(rows){
       if(!rows.length) return;
-      var h='<img class="hero" src="'+esc(rows[0].url)+'" alt="">';
+      var h='<img class="hero" src="'+esc(rows[0].url)+'" alt="">'+
+            '<div class="photocap">'+bollo(rows[0].created_at,'foto scattata')+
+            (rows.length>1?'<span>+'+(rows.length-1)+' altre</span>':'')+'</div>';
       if(rows.length>1){
         h+='<div class="gallery">';
-        rows.slice(1).forEach(function(r){ h+='<img src="'+esc(r.url)+'" alt="">'; });
+        rows.slice(1).forEach(function(r){ h+='<img src="'+esc(r.url)+'" alt="" title="'+esc(agoText(daysAgo(r.created_at))||'')+'">'; });
         h+='</div>';
       }
       w.innerHTML=h;
@@ -765,9 +963,9 @@ function loadReviews(p){
             encodeURIComponent(p.target)+'&order=created_at.desc&limit=10')
     .then(function(rows){
       if(!rows.length){ w.innerHTML=''; return; }
-      var h='<div class="sec-t">Commenti</div>';
+      var h='<div class="sec-t">Cosa dice chi c\'è stato</div>';
       rows.forEach(function(r){
-        h+='<div class="rev"><div class="meta">'+esc(agoText(daysAgo(r.created_at))||'')+'</div>'+esc(r.comment)+'</div>';
+        h+='<div class="rev"><div style="margin-bottom:5px">'+bollo(r.created_at)+'</div>'+esc(r.comment)+'</div>';
       });
       w.innerHTML=h;
     });
@@ -781,19 +979,29 @@ function needSB(){
 }
 function sendReport(p,status){
   if(needSB()) return;
-  document.getElementById('voteOk').disabled=true;
-  document.getElementById('voteKo').disabled=true;
+  ['voteOk','voteWk','voteKo'].forEach(function(id){
+    var b=document.getElementById(id); if(b) b.disabled=true;
+  });
   SB.insert('reports',{target:p.target,status:status,client_id:CLIENT})
     .then(function(){
       myVotes[p.target]=status;
-      var a=statusAgg[p.target]||{target:p.target,ok_votes:0,broken_votes:0};
-      if(status==='ok') a.ok_votes=(a.ok_votes||0)+1; else a.broken_votes=(a.broken_votes||0)+1;
+      var a=statusAgg[p.target]||{target:p.target,ok_votes:0,broken_votes:0,works_votes:0};
+      if(status==='ok')          a.ok_votes=(a.ok_votes||0)+1;
+      else if(status==='works'){ a.works_votes=(a.works_votes||0)+1; a.last_works=new Date().toISOString(); }
+      else                       a.broken_votes=(a.broken_votes||0)+1;
       a.last_report=new Date().toISOString();
       statusAgg[p.target]=a;
-      toast(status==='ok'?'Segnata come funzionante. Grazie.':'Segnata come rotta. Grazie.');
+      toast({ok:'Segnata come funzionante. Grazie.',
+             works:'Segnalati i lavori in corso. Grazie.',
+             broken:'Segnata come rotta. Grazie.'}[status]);
       render(); openSheet(p);
     })
-    .catch(function(){ toast('Non sono riuscito a inviare. Riprova.'); });
+    .catch(function(err){
+      ['voteOk','voteWk','voteKo'].forEach(function(id){
+        var b=document.getElementById(id); if(b) b.disabled=false;
+      });
+      toast('Non è partita: '+(err.message||'riprova').slice(0,90), 5000);
+    });
 }
 function sendReview(p){
   if(needSB()) return;
@@ -802,6 +1010,7 @@ function sendReview(p){
   var row={target:p.target,client_id:CLIENT,
     comment:(document.getElementById('revComment').value||'').trim()||null};
   STARS.forEach(function(s){ row[s[0]]=myRating[s[0]]||null; });
+  // tutte le stelle sono facoltative: si può votarne anche una sola
   var b=document.getElementById('revSend'); b.disabled=true; b.textContent='Invio…';
   SB.insert('reviews',row)
     .then(function(){ toast('Voto registrato. Grazie.'); loadSupabase({lat:p.lat,lon:p.lon}); closeSheet(); })
@@ -839,59 +1048,219 @@ function sendPhoto(p,file){
 /* ============================================================
    AGGIUNGI UNA FONTANELLA
    ============================================================ */
+var addKind='fontanella';
+
 function startAdd(){
   if(needSB()) return;
-  adding=true; addPhoto=null;
+  adding=true; addPhoto=null; addKind='fontanella';
   document.getElementById('addbar').classList.add('on');
   document.getElementById('crosshair').classList.add('on');
-  document.getElementById('addText').textContent='Sposta la mappa fino a centrare la fontanella, poi conferma.';
-  document.getElementById('addOk').textContent='È qui';
+  resetAddBar();
   hideCard();
 }
 function stopAdd(){
-  adding=false;
+  adding=false; addPhoto=null;
   document.getElementById('addbar').classList.remove('on');
   document.getElementById('crosshair').classList.remove('on');
+  if(propMarker){ map.removeLayer(propMarker); propMarker=null; }
+  resetAddBar();
   showNearest();
 }
-function confirmAdd(){
-  var c=map.getCenter();
-  var bar=document.getElementById('addbar');
-  bar.innerHTML=
-    '<p style="margin:0 0 10px;font-size:13.5px">Che punto d\'acqua è?</p>'+
-    '<div class="actions" style="margin:0 0 8px"><button class="btn" id="kFont" style="background:var(--acqua);color:#fff">Fontanella</button>'+
-    '<button class="btn" id="kCasa" style="background:var(--getto);color:#07242F">Casa dell\'acqua</button></div>'+
-    '<input type="text" id="addName" placeholder="Nome o riferimento (facoltativo)" style="margin-bottom:8px">'+
-    '<textarea id="addNote" rows="2" placeholder="Come si riconosce, se funziona…"></textarea>'+
-    '<div class="actions"><button class="btn ghost" id="addCancel2" style="background:rgba(255,255,255,.12);color:#F2F7F6">Annulla</button>'+
-    '<button class="btn" id="addSend" style="background:var(--acqua);color:#fff">Invia</button></div>';
-  var kind='fontanella';
-  document.getElementById('kFont').onclick=function(){ kind='fontanella'; toast('Fontanella'); };
-  document.getElementById('kCasa').onclick=function(){ kind='casa'; toast("Casa dell'acqua"); };
-  document.getElementById('addCancel2').onclick=function(){ resetAddBar(); stopAdd(); };
+function resetAddBar(){
+  document.getElementById('addbar').innerHTML=
+    '<div class="add-t">Dove si trova?</div>'+
+    '<p class="add-p">Sposta la mappa finché il segnaposto non è sopra la fontanella.</p>'+
+    '<div class="add-actions">'+
+      '<button class="b ghost" id="addCancel">Annulla</button>'+
+      '<button class="b go" id="addOk">È qui</button></div>';
+  document.getElementById('addCancel').onclick=stopAdd;
+  document.getElementById('addOk').onclick=confirmAdd;
+}
+
+function confirmAdd(punto){
+  var c = punto || map.getCenter();
+  document.getElementById('crosshair').classList.remove('on');
+
+  document.getElementById('addbar').innerHTML=
+    '<div class="add-t">Raccontamela</div>'+
+    '<p class="add-p">Più cose scrivi, prima finisce sulla mappa.</p>'+
+
+    '<span class="add-l">Che punto d\'acqua è</span>'+
+    '<div class="seg" id="addSeg">'+
+      '<button data-k="fontanella" class="on">Fontanella</button>'+
+      '<button data-k="casa">Casa dell\'acqua</button></div>'+
+
+    '<span class="add-l">Come si chiama</span>'+
+    '<input type="text" id="addName" maxlength="60" placeholder="Un riferimento: il parco, la piazza…">'+
+
+    '<span class="add-l">Note</span>'+
+    '<textarea id="addNote" rows="3" maxlength="400" placeholder="Com\'è fatta, dove guardare, se il getto è forte…"></textarea>'+
+
+    '<span class="add-l">Foto</span>'+
+    '<div class="photo-zone">'+
+      '<label class="photo-add" for="addPhotoFile">'+
+        '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+
+        '<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>'+
+        '<circle cx="12" cy="13" r="4"/></svg>'+
+        '<span id="addPhotoLabel">Aggiungi una foto</span></label>'+
+      '<input type="file" id="addPhotoFile" accept="image/*" capture="environment" hidden>'+
+      '<div class="photo-prev" id="addPhotoPrev" hidden>'+
+        '<img id="addPhotoImg" alt="">'+
+        '<button type="button" id="addPhotoDel" aria-label="Togli la foto">×</button></div>'+
+    '</div>'+
+    '<div class="add-hint">La foto è la cosa che aiuta di più a ritrovarla. '+
+      'Inquadra la fontanella e quello che le sta intorno, non le persone.</div>'+
+
+    '<div class="add-actions">'+
+      '<button class="b ghost" id="addBack">Indietro</button>'+
+      '<button class="b go" id="addSend">Invia</button></div>';
+
+  var seg=document.getElementById('addSeg');
+  seg.querySelectorAll('button').forEach(function(b){
+    b.onclick=function(){
+      addKind=b.getAttribute('data-k');
+      seg.querySelectorAll('button').forEach(function(x){
+        x.classList.remove('on','casa');
+        if(x===b){ x.classList.add('on'); if(addKind==='casa') x.classList.add('casa'); }
+      });
+    };
+  });
+
+  var file=document.getElementById('addPhotoFile');
+  file.onchange=function(e){
+    var f=e.target.files[0]; if(!f) return;
+    shrink(f,1280,.75).then(function(blob){
+      addPhoto=blob;
+      var img=document.getElementById('addPhotoImg');
+      if(img._u) URL.revokeObjectURL(img._u);
+      img._u=URL.createObjectURL(blob); img.src=img._u;
+      document.getElementById('addPhotoPrev').hidden=false;
+      document.getElementById('addPhotoLabel').textContent='Cambia foto';
+    }).catch(function(){ toast('Non riesco a leggere questa immagine.'); });
+  };
+  document.getElementById('addPhotoDel').onclick=function(){
+    addPhoto=null; file.value='';
+    document.getElementById('addPhotoPrev').hidden=true;
+    document.getElementById('addPhotoLabel').textContent='Aggiungi una foto';
+  };
+
+  document.getElementById('addBack').onclick=function(){
+    document.getElementById('crosshair').classList.add('on');
+    resetAddBar();
+  };
+
   document.getElementById('addSend').onclick=function(){
-    var b=document.getElementById('addSend'); b.disabled=true; b.textContent='Invio…';
-    SB.insert('submissions',{
-      lat:+c.lat.toFixed(6), lon:+c.lng.toFixed(6), kind:kind,
+    var b=document.getElementById('addSend');
+    b.disabled=true; b.textContent='Invio…';
+    var riga={
+      lat:+c.lat.toFixed(6), lon:+c.lng.toFixed(6), kind:addKind,
       name:(document.getElementById('addName').value||'').trim()||null,
       note:(document.getElementById('addNote').value||'').trim()||null,
       client_id:CLIENT
-    }).then(function(){
-      toast('Proposta inviata. Compare sulla mappa dopo il controllo.',4500);
-      resetAddBar(); stopAdd();
-    }).catch(function(){
-      b.disabled=false; b.textContent='Invia'; toast('Invio non riuscito. Riprova.');
-    });
+    };
+    var primaLaFoto = addPhoto
+      ? SB.upload(addPhoto, 'proposte/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg')
+          .then(function(url){ riga.photo_path=url.split('/photos/')[1]; })
+          .catch(function(){ toast('La foto non è passata, mando il resto.',3000); })
+      : Promise.resolve();
+
+    primaLaFoto.then(function(){ return SB.insert('submissions', riga); })
+      .then(function(){
+        toast('Proposta inviata. Compare sulla mappa dopo il controllo.',4500);
+        stopAdd();
+      })
+      .catch(function(err){
+        b.disabled=false; b.textContent='Invia';
+        toast('Non è partita: '+(err.message||'riprova').slice(0,90), 5000);
+      });
   };
 }
-function resetAddBar(){
-  var bar=document.getElementById('addbar');
-  bar.innerHTML='<p id="addText">Sposta la mappa fino a centrare la fontanella, poi conferma.</p>'+
-    '<div class="actions" style="margin-top:0">'+
-    '<button class="btn ghost" id="addCancel" style="background:rgba(255,255,255,.12);color:#F2F7F6">Annulla</button>'+
-    '<button class="btn" id="addOk" style="background:var(--acqua);color:#fff">È qui</button></div>';
-  document.getElementById('addCancel').onclick=stopAdd;
-  document.getElementById('addOk').onclick=confirmAdd;
+
+/* ============================================================
+   IL METODO VELOCE
+   Tieni premuto quattro secondi sulla mappa: il segnaposto si pianta
+   lì e parte subito la scheda. Quattro secondi sono tanti apposta,
+   così non parte per sbaglio mentre trascini la mappa.
+   ============================================================ */
+var propMarker=null;
+
+function piazzaSegnaposto(lat, lon){
+  if(propMarker) map.removeLayer(propMarker);
+  propMarker = L.marker([lat,lon], {
+    icon: L.divIcon({className:'', html:'<div class="prop-pin"></div>',
+                     iconSize:[34,34], iconAnchor:[17,32]}),
+    zIndexOffset:2000, interactive:false
+  }).addTo(map);
+}
+
+function registraQui(lat, lon){
+  if(needSB()) return;
+  var preciso = false;
+  // Se sei praticamente lì, il GPS sa la posizione meglio del tuo dito.
+  if(myPos && dist(myPos, {lat:lat, lon:lon}) < 25){
+    lat = myPos.lat; lon = myPos.lon; preciso = true;
+  }
+  adding = true; addPhoto = null; addKind = 'fontanella';
+  hideCard();
+  closeSheet();
+  piazzaSegnaposto(lat, lon);
+  map.panTo([lat, lon], {animate:true});
+  document.getElementById('addbar').classList.add('on');
+  document.getElementById('crosshair').classList.remove('on');
+  confirmAdd({lat:lat, lng:lon});
+  toast(preciso ? 'Segnaposto messo sulla tua posizione GPS.'
+                : 'Segnaposto piantato qui.', 2600);
+}
+
+function attivaPressioneLunga(){
+  var el = map.getContainer(), ring = document.getElementById('lpring');
+  var timer = null, sx = 0, sy = 0, punto = null;
+
+  function ferma(){
+    if(timer){ clearTimeout(timer); timer = null; }
+    ring.classList.remove('on');
+  }
+  function avvia(x, y){
+    if(adding) return;
+    ferma();
+    sx = x; sy = y;
+    var r = el.getBoundingClientRect();
+    punto = map.containerPointToLatLng(L.point(x - r.left, y - r.top));
+    ring.style.left = x + 'px';
+    ring.style.top  = y + 'px';
+    // ripartenza pulita dell'animazione
+    void ring.offsetWidth;
+    ring.classList.add('on');
+    timer = setTimeout(function(){
+      ferma();
+      if(navigator.vibrate) try{ navigator.vibrate(40); }catch(e){}
+      registraQui(punto.lat, punto.lng);
+    }, 4000);
+  }
+  function muovi(x, y){
+    if(!timer) return;
+    if(Math.abs(x - sx) > 14 || Math.abs(y - sy) > 14) ferma();
+  }
+
+  el.addEventListener('touchstart', function(e){
+    if(e.touches.length !== 1){ ferma(); return; }
+    avvia(e.touches[0].clientX, e.touches[0].clientY);
+  }, {passive:true});
+  el.addEventListener('touchmove', function(e){
+    if(e.touches.length !== 1){ ferma(); return; }
+    muovi(e.touches[0].clientX, e.touches[0].clientY);
+  }, {passive:true});
+  el.addEventListener('touchend',    ferma, {passive:true});
+  el.addEventListener('touchcancel', ferma, {passive:true});
+
+  // stesso gesto col mouse, per chi prova da computer
+  el.addEventListener('mousedown', function(e){
+    if(e.button === 0) avvia(e.clientX, e.clientY);
+  });
+  el.addEventListener('mousemove', function(e){ muovi(e.clientX, e.clientY); });
+  el.addEventListener('mouseup',    ferma);
+  el.addEventListener('mouseleave', ferma);
+  map.on('movestart zoomstart', ferma);
 }
 
 /* ============================================================
@@ -935,7 +1304,6 @@ document.getElementById('locate').onclick=function(){
   else askPosition(true);
 };
 document.getElementById('addBtn').onclick=function(){ adding?stopAdd():startAdd(); };
-resetAddBar();
 
 function chip(id,key){
   var el=document.getElementById(id);
@@ -946,7 +1314,8 @@ function chip(id,key){
     render();
   };
 }
-chip('fFont','fontanella'); chip('fCasa','casa'); chip('fOk','okonly');
+chip('fFont','fontanella'); chip('fCasa','casa');
+chip('fOk','okonly'); chip('fFree','freeonly');
 
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){ if(adding) stopAdd(); else closeSheet(); }
@@ -973,9 +1342,37 @@ function watchPosition(){
   },function(){},{enableHighAccuracy:true,maximumAge:15000,timeout:20000});
 }
 
+/* ---------- l'accento che cambia il significato del nome ----------
+   IDRÀTATI è un ordine. IDRATÀTI è come dovresti stare.            */
+function accentoInMovimento(){
+  var wm=document.getElementById('wm'), acc=document.getElementById('acc');
+  if(!wm||!acc) return;
+  var a1=wm.querySelector('.a1'), a2=wm.querySelector('.a2');
+  function centro(el){ return el.offsetLeft + (el.offsetWidth - acc.offsetWidth)/2; }
+  var fermo = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function posiziona(){
+    if(!a1.offsetWidth) return;                       // il font non è ancora pronto
+    acc.style.left = centro(fermo ? a2 : a1)+'px';
+    acc.style.opacity = 1;
+    if(!fermo) setTimeout(function(){ acc.style.left = centro(a2)+'px'; }, 900);
+  }
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(posiziona, posiziona);
+  setTimeout(posiziona, 260);
+}
+accentoInMovimento();
+
 /* ---------- avvio ---------- */
 initMap(FALLBACK);
+attivaPressioneLunga();
 askPosition(true);
+
+// il trucco va detto, altrimenti non lo scopre nessuno
+if(!store.get('idr_visto_pressione')){
+  setTimeout(function(){
+    toast('Tieni premuto sulla mappa per segnalare una fontanella.', 5200);
+    store.set('idr_visto_pressione','1');
+  }, 4200);
+}
 setTimeout(watchPosition, 4000);
 setTimeout(function(){
   document.getElementById('splash').classList.add('gone');

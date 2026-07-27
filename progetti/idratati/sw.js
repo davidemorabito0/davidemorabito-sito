@@ -1,7 +1,7 @@
 /* IDRATATI — service worker.
    Tiene in cache il guscio dell'app e i tile dati, così la mappa si apre
    anche con la rete a un tacca. */
-var V = 'idratati-v1';
+var V = 'idratati-v2-0';
 var SHELL = [
   './', './index.html', './manifest.webmanifest',
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css',
@@ -44,13 +44,21 @@ self.addEventListener('fetch', function(e){
     return;
   }
 
+  // Le pagine si prendono SEMPRE dalla rete, con la copia in cache usata
+  // solo se la rete non c'è. Altrimenti resti prigioniero di una versione
+  // vecchia e non te ne accorgi.
+  var eUnaPagina = e.request.mode === 'navigate' ||
+                   (e.request.headers.get('accept')||'').indexOf('text/html') > -1;
+
   e.respondWith(
-    fetch(e.request).then(function(r){
-      if(r.ok && url.indexOf(self.location.origin) === 0){
-        var cp = r.clone();
-        caches.open(V).then(function(c){ c.put(e.request, cp); });
-      }
-      return r;
-    }).catch(function(){ return caches.match(e.request); })
+    fetch(eUnaPagina ? new Request(e.request, {cache:'reload'}) : e.request)
+      .then(function(r){
+        if(r.ok && url.indexOf(self.location.origin) === 0){
+          var cp = r.clone();
+          caches.open(V).then(function(c){ c.put(e.request, cp); });
+        }
+        return r;
+      })
+      .catch(function(){ return caches.match(e.request); })
   );
 });
