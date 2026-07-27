@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v3.9 (2026-07-27) -->
+<!-- IDRATATI v4.1 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -172,7 +172,8 @@ button{font-family:inherit}
 .riga-mini .secondo{display:block;font-size:12.5px;color:var(--muted);line-height:1.3;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .riga-mini .freccia{flex:0 0 auto;color:rgba(7,36,47,.35);transition:transform .3s}
-#card:not(.mini) .riga-mini .freccia{transform:rotate(180deg)}
+/* A card aperta la freccia non serve più e finirebbe sotto la X. */
+#card:not(.mini) .riga-mini .freccia{display:none}
 .presa{width:36px;height:4px;border-radius:99px;background:rgba(7,36,47,.14);margin:7px auto 0}
 #card:not(.mini) .presa{display:none}
 .eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--acqua-deep);font-weight:600}
@@ -194,8 +195,11 @@ button{font-family:inherit}
 .btn.small{padding:10px;font-size:13px;border-radius:11px}
 .btn:active{transform:scale(.985)}
 .btn[disabled]{opacity:.5;pointer-events:none}
-.close{position:absolute;top:11px;right:11px;width:30px;height:30px;border-radius:50%;
-  border:none;cursor:pointer;background:rgba(7,36,47,.07);color:var(--ink);font-size:17px;line-height:1}
+.close{position:absolute;top:20px;right:13px;width:34px;height:34px;border-radius:50%;
+  border:none;cursor:pointer;background:rgba(229,72,77,.12);color:var(--rotta);
+  font-size:20px;font-weight:500;line-height:1;
+  display:flex;align-items:center;justify-content:center;z-index:3}
+.close:active{background:rgba(229,72,77,.24)}
 
 /* ---------- SHEET ---------- */
 #scrim{position:fixed;inset:0;z-index:750;background:rgba(7,36,47,.45);
@@ -259,6 +263,10 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
 .state3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:4px}
 .state3 .btn{font-size:12.5px;padding:12px 4px;border-radius:11px}
 .btn.works{background:rgba(255,176,32,.2);color:#8A5B00}
+/* La conferma di un invio riuscito: verde, grande, senza dubbi. */
+.btn.fatto{background:#E4F6EC;color:#127A47;font-size:17px;font-weight:700;
+  pointer-events:none;animation:conferma .28s cubic-bezier(.2,1.5,.4,1)}
+@keyframes conferma{from{transform:scale(.94);opacity:.4}to{transform:scale(1);opacity:1}}
 .btn.scelto{box-shadow:inset 0 0 0 2.5px currentColor}
 .btn.scelto::before{content:'✓ ';font-weight:700}
 .photocap{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:12px;color:var(--muted)}
@@ -405,7 +413,7 @@ body:not(.card-hidden) #linkCitta{display:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v3.9 · 2026-07-27</div>
+<div class="ver">v4.1 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -1508,13 +1516,23 @@ function sendReview(p){
   var b=document.getElementById('revSend'); b.disabled=true; b.textContent='Invio…';
 
   function riuscito(){
-    toast('Voto registrato. Grazie.');
     loadSupabase({lat:p.lat, lon:p.lon});
-    // niente chiusura: magari deve ancora mandare la foto
+
     var b2 = document.getElementById('revSend');
-    if(b2){ b2.disabled = true; b2.textContent = 'Voto inviato'; }
+    if(b2){
+      b2.className = 'btn fatto';
+      b2.innerHTML = '✓ Voto inviato';
+    }
     var com = document.getElementById('revComment');
-    if(com){ com.value = ''; com.disabled = true; }
+    if(com) com.disabled = true;
+    if(suoniAccesi) suonoGoccia();
+
+    // Il tempo di leggere la conferma, poi si torna alla mappa da soli:
+    // andare a cercare la X in alto per una cosa già finita è una seccatura.
+    setTimeout(function(){
+      if(fotoInCorso) return;      // se sta ancora caricando una foto, resta
+      closeSheet();
+    }, 1400);
   }
   function fallito(err){
     b.disabled=false; b.textContent='Invia il voto';
@@ -1551,9 +1569,12 @@ function shrink(file,maxPx,q){
     img.src=url;
   });
 }
+var fotoInCorso = false;
+
 function sendPhoto(p,file){
   if(!file) return;
   if(needSB()) return;
+  fotoInCorso = true;
   toast('Carico la foto…',6000);
   shrink(file,1280,.75).then(function(blob){
     var name=Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
@@ -1561,8 +1582,10 @@ function sendPhoto(p,file){
       return SB.insert('photos',{target:p.target,path:name,url:url,client_id:CLIENT});
     });
   }).then(function(){
+    fotoInCorso = false;
     toast('Foto inviata. La vedrai online dopo il controllo.',4200);
   }).catch(function(err){
+    fotoInCorso = false;
     toast('Foto non caricata: '+(err && err.message ? err.message : 'riprova').slice(0,120), 6000);
   });
 }
