@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- IDRATATI pannello v2.5 (2026-07-27) -->
-<title>IDRATATI — pannello v2.5</title>
+<!-- IDRATATI pannello v3.0 (2026-07-27) -->
+<title>IDRATATI — pannello v3.0</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#07242F">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -112,7 +112,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
 <div id="login">
   <div class="card">
     <h1>IDRATATI</h1>
-    <div class="meta">Pannello riservato · v2.5</div>
+    <div class="meta">Pannello riservato · v3.0</div>
     <label for="em">Email</label>
     <input id="em" type="email" autocomplete="username" inputmode="email">
     <label for="pw">Password</label>
@@ -124,7 +124,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
 
 <div id="app" hidden>
   <header>
-    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge" style="background:rgba(255,255,255,.16);color:var(--surface)">v2.5</span>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge" style="background:rgba(255,255,255,.16);color:var(--surface)">v3.0</span>
     <span class="sp" id="who"></span>
     <button id="logout">Esci</button>
   </header>
@@ -390,6 +390,8 @@ function intestazione(c, idBlocco){
       pills.push('<span class="pill warn"><b>'+c.voti.works_votes+'</b> segnalano lavori</span>');
     if(c.voti.broken_votes)
       pills.push('<span class="pill bad"><b>'+c.voti.broken_votes+'</b> dicono che è rotta</span>');
+    if(c.voti.missing_votes)
+      pills.push('<span class="pill bad"><b>'+c.voti.missing_votes+'</b> non l\'hanno trovata</span>');
     if(c.voti.last_report)
       pills.push('<span class="pill">ultima segnalazione '+esc(ago(c.voti.last_report))+'</span>');
   }
@@ -445,8 +447,9 @@ function intestazione(c, idBlocco){
   h += '<details class="dett"><summary>Le '+seg.length+' segnalazioni di stato ricevute</summary><div class="corpo">';
   if(!seg.length) h += '<div class="vuoto">Nessuno ha ancora detto se funziona o no.</div>';
   seg.forEach(function(r){
-    var tx={ok:'Funziona',works:'Lavori in corso',broken:'È rotta'}[r.status]||r.status;
-    var cl={ok:'ok',works:'warn',broken:'bad'}[r.status]||'';
+    var tx={ok:'Funziona',works:'Lavori in corso',broken:'È rotta',
+            missing:'Non l\'ha trovata'}[r.status]||r.status;
+    var cl={ok:'ok',works:'warn',broken:'bad',missing:'bad'}[r.status]||'';
     h += '<div class="riga"><span class="q">'+esc(ago(r.created_at))+'</span>'+
          '<span class="v"><span class="pill '+cl+'">'+tx+'</span></span></div>';
   });
@@ -740,13 +743,15 @@ function agganciaFoto(){
 function vReports(){
   Promise.all([
     sel('reports?select=*&order=created_at.desc&limit=80'),
-    sel('v_status?select=*&order=broken_votes.desc&limit=40')
+    sel('v_status?select=*&order=missing_votes.desc,broken_votes.desc&limit=40')
   ]).then(function(res){
-    var recent=res[0], agg=res[1].filter(function(r){ return r.broken_votes>0 || r.works_votes>0; });
+    var recent=res[0], agg=res[1].filter(function(r){
+      return r.broken_votes>0 || r.works_votes>0 || r.missing_votes>0; });
     var h='';
     if(agg.length){
       h+='<div class="card"><h3>Da controllare</h3>'+
-         '<div class="meta">Punti con segnalazioni di guasto o di cantiere.</div>';
+         '<div class="meta">Punti che qualcuno ha segnalato come rotti, in lavori, o che non è riuscito a trovare. '+
+         'Quelli che nessuno trova valgono un controllo su Street View: forse la fontanella non esiste più.</div>';
       agg.forEach(function(a){
         h+='<div class="stat"><span>'+esc(a.target)+'<br><span class="meta">'+
            '<span class="pill ok">'+a.ok_votes+' ok</span>'+
@@ -759,8 +764,8 @@ function vReports(){
     h+='<div class="card"><h3>Ultime segnalazioni</h3>';
     if(!recent.length) h+='<div class="meta">Ancora nessuna.</div>';
     recent.forEach(function(r){
-      var cl={ok:'ok',works:'warn',broken:'bad'}[r.status]||'';
-      var tx={ok:'funziona',works:'lavori',broken:'rotta'}[r.status]||r.status;
+      var cl={ok:'ok',works:'warn',broken:'bad',missing:'bad'}[r.status]||'';
+      var tx={ok:'funziona',works:'lavori',broken:'rotta',missing:'non trovata'}[r.status]||r.status;
       h+='<div class="stat"><span class="meta">'+esc(r.target)+'</span>'+
          '<span><span class="pill '+cl+'">'+tx+'</span>'+esc(ago(r.created_at))+'</span></div>';
     });
@@ -879,8 +884,8 @@ function loadMap(){
   }).catch(function(e){ toast(e.message); });
 }
 function pin(p, ovr, stat, custom){
-  var broken = (ovr && (ovr.status==='broken' || ovr.status==='works')) ||
-               (stat && ((stat.works_votes||0) >= 1 ||
+  var broken = (ovr && (ovr.status==='broken' || ovr.status==='works' || ovr.status==='removed')) ||
+               (stat && ((stat.works_votes||0) >= 1 || (stat.missing_votes||0) >= 2 ||
                         (stat.broken_votes>=2 && stat.broken_votes>stat.ok_votes)));
   var cls='pin'+(p.kind==='casa'?' casa':'')+(broken?' broken':'')+(custom?' custom':'');
   L.marker([p.lat,p.lon],{icon:L.divIcon({className:'',html:'<div class="'+cls+'"></div>',

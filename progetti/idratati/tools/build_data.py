@@ -72,6 +72,8 @@ def kind_of(t):
 
 
 def flags_of(t):
+    """Ogni bit è un'informazione. Stanno tutti in un numero solo per
+    tenere i file leggeri: sono decine di migliaia di punti."""
     f = 0
     dw = t.get("drinking_water")
     if dw == "yes" or t.get("amenity") == "drinking_water":
@@ -87,6 +89,15 @@ def flags_of(t):
         f |= 16
     if t.get("seasonal") == "yes":
         f |= 32
+    # accessibile in sedia a rotelle
+    if t.get("wheelchair") == "yes":
+        f |= 64
+    if t.get("wheelchair") == "limited":
+        f |= 128
+    # vaschetta o erogatore per i cani
+    if (t.get("dog") == "yes" or t.get("bowl") == "yes"
+            or t.get("drinking_water:dog") == "yes" or t.get("dog_bowl") == "yes"):
+        f |= 256
     return f
 
 

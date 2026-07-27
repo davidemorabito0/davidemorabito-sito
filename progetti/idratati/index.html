@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v2.9 (2026-07-27) -->
+<!-- IDRATATI v3.1 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi.">
 <meta name="theme-color" content="#07242F">
@@ -27,11 +27,15 @@
   --safe-b:env(safe-area-inset-bottom); --safe-t:env(safe-area-inset-top);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-/* Su iPhone la barra di Safari si ritrae e l'altezza della finestra cambia:
-   100% resta fermo all'altezza di prima e sotto rimane una striscia scoperta.
-   100dvh è l'altezza vera, quella di adesso. */
-html,body{height:100%;height:100dvh;margin:0;overscroll-behavior:none}
-body{font-family:var(--body);background:#dfe8e7;color:var(--ink);overflow:hidden;
+/* Su iPhone l'altezza della finestra cambia in continuazione: la barra di
+   Safari si ritrae, l'app installata ha la sua area sicura in basso. Invece
+   di rincorrere quel numero, si inchioda tutto allo schermo. */
+html{background:var(--ink)}
+html,body{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavior:none;
+}
+body{font-family:var(--body);background:transparent;color:var(--ink);
   -webkit-user-select:none;-moz-user-select:none;user-select:none;
   -webkit-touch-callout:none}
 /* si scrive solo dove serve scrivere */
@@ -69,7 +73,7 @@ button{font-family:inherit}
 
 /* ---------- MAPPA ---------- */
 #map{position:fixed;top:0;left:0;right:0;bottom:0;
-  width:100%;height:100%;height:100dvh;background:#dfe8e7}
+  width:100%;height:100%;background:#dfe8e7}
 .leaflet-control-attribution{font-size:9px;background:rgba(255,255,255,.82);
   font-family:var(--body);padding-bottom:calc(env(safe-area-inset-bottom) * .5)}
 .leaflet-control-zoom{display:none}
@@ -94,6 +98,8 @@ button{font-family:inherit}
 .chip.casa .dot{background:var(--getto)}
 .chip.okonly .dot{background:var(--acqua-deep)}
 .chip.freeonly .dot{background:var(--getto)}
+.chip.access .dot{background:#1E7BFF}
+.chip.dog .dot{background:#9B6BD8}
 .chip[aria-pressed="false"]{background:rgba(255,255,255,.5);color:rgba(7,36,47,.38)}
 .chip[aria-pressed="false"] .dot{background:rgba(7,36,47,.18)}
 #results{position:absolute;left:10px;right:10px;top:calc(var(--safe-t) + 58px);
@@ -117,6 +123,11 @@ button{font-family:inherit}
 .pin svg{transform:rotate(45deg)}
 .pin.casa svg{transform:rotate(0)}
 .pin.sel{box-shadow:0 0 0 5px rgba(0,166,166,.3),0 3px 10px rgba(7,36,47,.35)}
+.grappolo{width:38px;height:38px;border-radius:50%;background:rgba(0,166,166,.92);
+  border:2.5px solid #fff;box-shadow:0 3px 12px rgba(7,36,47,.35);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--body);font-size:13px;font-weight:600}
+.grappolo.grande{width:46px;height:46px;font-size:14px;background:rgba(0,128,127,.94)}
 .me{width:18px;height:18px;border-radius:50%;background:#1E7BFF;border:3px solid #fff;
   box-shadow:0 0 0 6px rgba(30,123,255,.18),0 2px 8px rgba(0,0,0,.3)}
 
@@ -277,10 +288,10 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
 #lpfull .r{top:0;right:0;width:6px;height:100%;transform:scaleY(0);transform-origin:top}
 #lpfull .b{bottom:0;right:0;width:100%;height:6px;transform:scaleX(0);transform-origin:right}
 #lpfull .l{bottom:0;left:0;width:6px;height:100%;transform:scaleY(0);transform-origin:bottom}
-#lpfull.on .t{animation:cresceX .35s linear forwards}
-#lpfull.on .r{animation:cresceY .35s linear .35s forwards}
-#lpfull.on .b{animation:cresceX .35s linear .7s forwards}
-#lpfull.on .l{animation:cresceY .35s linear 1.05s forwards}
+#lpfull.on .t{animation:cresceX .325s linear forwards}
+#lpfull.on .r{animation:cresceY .325s linear .325s forwards}
+#lpfull.on .b{animation:cresceX .325s linear .65s forwards}
+#lpfull.on .l{animation:cresceY .325s linear .975s forwards}
 @keyframes cresceX{to{transform:scaleX(1)}}
 @keyframes cresceY{to{transform:scaleY(1)}}
 #lpfull .lp-label{position:absolute;left:50%;transform:translateX(-50%);
@@ -346,7 +357,7 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v2.9 · 2026-07-27</div>
+<div class="ver">v3.1 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -360,6 +371,8 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
     <button class="chip casa" id="fCasa" aria-pressed="true"><span class="dot"></span>Case dell'acqua</button>
     <button class="chip okonly" id="fOk" aria-pressed="false"><span class="dot"></span>Nascondi le rotte</button>
     <button class="chip freeonly" id="fFree" aria-pressed="false"><span class="dot"></span>Solo gratuite</button>
+    <button class="chip access" id="fAcc" aria-pressed="false"><span class="dot"></span>Accessibili</button>
+    <button class="chip dog" id="fDog" aria-pressed="false"><span class="dot"></span>Con vaschetta cani</button>
     <button class="chip" id="fAudio" aria-pressed="true" aria-label="Suoni" title="Suoni">
       <svg id="icAudio" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -588,7 +601,7 @@ var map, layer, meMarker, myPos=null, points=[], byId={},
     selected=null, tilesLoaded={}, fetching=false, lastQ=null,
     adding=false, addPhoto=null, myVotes={},
     lastOverpassAt=0, lastOverpassAt_center=null, firstLoadDone=false;
-var show = {fontanella:true, casa:true, okonly:false, freeonly:false};
+var show = {fontanella:true, casa:true, okonly:false, freeonly:false, access:false, dog:false};
 
 /* ---------- utility ---------- */
 function dist(a,b){
@@ -664,7 +677,11 @@ function stateOf(p){
     return {s:ov.status, why:'verificata', locked:true};
   }
   if(ag){
-    var ok=ag.ok_votes||0, ko=ag.broken_votes||0, lv=ag.works_votes||0;
+    var ok=ag.ok_votes||0, ko=ag.broken_votes||0, lv=ag.works_votes||0, sp=ag.missing_votes||0;
+    // Due persone che non la trovano contano più di una: una può aver
+    // cercato male, due vuol dire che quella fontanella non c'è più.
+    if(sp>=2 && sp>ok) return {s:'missing', why:sp+' non l\'hanno trovata',
+                               last:ag.last_missing||ag.last_report};
     if(lv>=1 && lv>=ko) return {s:'works', why:lv+(lv===1?' segnalazione':' segnalazioni'),
                                 last:ag.last_works||ag.last_report};
     if(ko>=2 && ko>ok) return {s:'broken', why:ko+' segnalazioni', last:ag.last_report};
@@ -679,6 +696,7 @@ function stateLabel(st){
   if(st.s==='ok')      return {c:'ok',   t:'Funzionante'};
   if(st.s==='broken')  return {c:'bad',  t:'Segnalata rotta'};
   if(st.s==='works')   return {c:'warn', t:'Lavori in corso'};
+  if(st.s==='missing') return {c:'bad',  t:'Nessuno la trova'};
   if(st.s==='removed') return {c:'bad',  t:'Rimossa'};
   if(st.s==='doubt')   return {c:'warn', t:'Da verificare'};
   return {c:'', t:'Stato sconosciuto'};
@@ -695,6 +713,11 @@ function tagsFor(p){
   else out.push({c:'', s: p.kind==='casa' ? 'Di solito gratis' : 'Gratis, salvo sorprese'});
   if(ov.requires_card || p.kind==='casa') out.push({c:'warn', s:'Serve la tessera sanitaria'});
   if(t.bottle==='yes') out.push({c:'', s:'Riempi la borraccia'});
+  if(t.wheelchair==='yes')     out.push({c:'ok',   s:'Accessibile in carrozzina'});
+  if(t.wheelchair==='limited') out.push({c:'warn', s:'Accesso difficoltoso'});
+  if(t.wheelchair==='no')      out.push({c:'bad',  s:'Non accessibile in carrozzina'});
+  if(t.dog==='yes' || t.bowl==='yes' || t['drinking_water:dog']==='yes')
+    out.push({c:'ok', s:'Ha la vaschetta per i cani'});
   if(t.seasonal==='yes') out.push({c:'warn', s:'Stagionale'});
   if(t.opening_hours) out.push({c:'', s:t.opening_hours});
   var r=reviewAgg[p.target];
@@ -755,6 +778,7 @@ function addPoints(arr){
   return added;
 }
 function loadArea(center){
+  sfoltisci();
   var keys=tilesForView(), pending=[];
   keys.forEach(function(k){ if(!tilesLoaded[k]){ tilesLoaded[k]='loading'; pending.push(k); } });
 
@@ -794,6 +818,9 @@ function decodePoint(a){
   if(f&8) tags.fee='no';
   if(f&16) tags.bottle='yes';
   if(f&32) tags.seasonal='yes';
+  if(f&64) tags.wheelchair='yes';
+  if(f&128) tags.wheelchair='limited';
+  if(f&256) tags.dog='yes';
   if(a[6]) tags.check_date=a[6];
   return {id:a[0], target:'osm/'+a[0], lat:a[1], lon:a[2], kind:kind, tags:tags};
 }
@@ -809,7 +836,7 @@ function overpass(c){
     'nwr["man_made"="water_tap"]["drinking_water"!="no"]'+a+';'+
     'nwr["amenity"="water_point"]'+a+';'+
     'nwr["amenity"="vending_machine"]["vending"~"water"]'+a+';'+
-    'nwr["natural"="spring"]["drinking_water"="yes"]'+a+';);out center 300;';
+    'nwr["natural"="spring"]["drinking_water"="yes"]'+a+';);out center tags 300;';
   fetch('https://overpass-api.de/api/interpreter',{
     method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
     body:'data='+encodeURIComponent(q)
@@ -881,24 +908,95 @@ function visible(){
     if(!show[p.kind]) return false;
     var st=stateOf(p);
     if(st.s==='removed') return false;
-    if(show.okonly && (st.s==='broken' || st.s==='works')) return false;
+    if(show.okonly && (st.s==='broken' || st.s==='works' || st.s==='missing')) return false;
     if(show.freeonly && feeOf(p)==='paid') return false;
+    if(show.access && p.tags.wheelchair!=='yes') return false;
+    if(show.dog && !(p.tags.dog==='yes' || p.tags.bowl==='yes' || p.tags['drinking_water:dog']==='yes')) return false;
     return true;
   });
 }
+/* ============================================================
+   DISEGNO DELLA MAPPA
+   Con l'Italia intera i punti sono decine di migliaia: disegnarli
+   tutti significa bloccare il telefono. Quindi si disegna solo
+   quello che è davvero inquadrato, e da lontano si raggruppa.
+   ============================================================ */
+var ZOOM_SINGOLI = 15;   // sotto questo zoom si raggruppa
+var MAX_PIN = 350;       // tetto di sicurezza, non si supera mai
+
+function inVista(){
+  var b = map.getBounds().pad(0.25);
+  return visible().filter(function(p){
+    return p.lat >= b.getSouth() && p.lat <= b.getNorth() &&
+           p.lon >= b.getWest()  && p.lon <= b.getEast();
+  });
+}
+
+function raggruppa(punti, zoom){
+  // Una griglia grossolana: più si è lontani, più larghe le celle.
+  var passo = 360 / Math.pow(2, zoom + 3);
+  var celle = {};
+  punti.forEach(function(p){
+    var k = Math.floor(p.lat/passo) + ':' + Math.floor(p.lon/passo);
+    var c = celle[k] || (celle[k] = {n:0, lat:0, lon:0, uno:null});
+    c.n++; c.lat += p.lat; c.lon += p.lon; c.uno = p;
+  });
+  return Object.keys(celle).map(function(k){
+    var c = celle[k];
+    c.lat /= c.n; c.lon /= c.n;
+    return c;
+  });
+}
+
+function disegnaPin(p){
+  var casa = p.kind === 'casa', st = stateOf(p);
+  var guasto = (st.s === 'broken' || st.s === 'missing');
+  L.marker([p.lat, p.lon], {icon: L.divIcon({className:'',
+    html:'<div class="pin'+(casa?' casa':'')+(guasto?' broken':'')+
+         (selected && selected.target === p.target ? ' sel' : '')+'">'+
+         (casa?IC_C:IC_F)+
+         (feeOf(p)==='paid'?'<span class="fee">€</span>':'')+'</div>',
+    iconSize:[30,30], iconAnchor:[15,28]})})
+   .on('click', function(){ openSheet(p); }).addTo(layer);
+}
+
 function render(){
   if(!layer) return;
   layer.clearLayers();
-  visible().forEach(function(p){
-    var casa=p.kind==='casa', st=stateOf(p), broken=(st.s==='broken');
-    L.marker([p.lat,p.lon],{icon:L.divIcon({className:'',
-      html:'<div class="pin'+(casa?' casa':'')+(broken?' broken':'')+
-           (selected&&selected.target===p.target?' sel':'')+'">'+(casa?IC_C:IC_F)+
-           (feeOf(p)==='paid'?'<span class="fee">€</span>':'')+'</div>',
-      iconSize:[30,30],iconAnchor:[15,28]})})
-     .on('click',function(){ openSheet(p); }).addTo(layer);
-  });
+
+  var zoom = map.getZoom();
+  var punti = inVista();
+
+  if(zoom < ZOOM_SINGOLI && punti.length > 60){
+    raggruppa(punti, zoom).forEach(function(c){
+      if(c.n === 1){ disegnaPin(c.uno); return; }
+      var grande = c.n > 99;
+      L.marker([c.lat, c.lon], {icon: L.divIcon({className:'',
+        html:'<div class="grappolo'+(grande?' grande':'')+'">'+(c.n>999?'999+':c.n)+'</div>',
+        iconSize:[grande?46:38, grande?46:38], iconAnchor:[grande?23:19, grande?23:19]})})
+       .on('click', function(){
+          map.setView([c.lat, c.lon], Math.min(19, zoom + 3), {animate:true});
+       }).addTo(layer);
+    });
+  } else {
+    punti.slice(0, MAX_PIN).forEach(disegnaPin);
+  }
+
+  // il punto aperto resta visibile anche se finisce fuori inquadratura
+  if(selected && punti.indexOf(selected) === -1) disegnaPin(selected);
   if(!selected) showNearest();
+}
+
+/* La memoria non è infinita: oltre una certa soglia si tengono solo
+   i punti più vicini, tanto gli altri si ricaricano quando servono. */
+function sfoltisci(){
+  if(points.length < 6000) return;
+  var c = map.getCenter(), centro = {lat:c.lat, lon:c.lng};
+  points.sort(function(a,b){ return dist(centro,a) - dist(centro,b); });
+  points.splice(4000).forEach(function(p){
+    if(selected && selected.target === p.target){ points.push(p); return; }
+    delete byId[p.id];
+  });
 }
 function nearest(){
   if(!myPos) return null;
@@ -906,7 +1004,7 @@ function nearest(){
   visible().forEach(function(p){
     if(p.tags.drinking_water==='no') return;
     var sq=stateOf(p).s;
-    if(sq==='broken' || sq==='works') return;
+    if(sq==='broken' || sq==='works' || sq==='missing') return;
     var d=dist(myPos,p); if(d<bd){bd=d;best=p;}
   });
   return best?{p:best,d:bd}:null;
@@ -1012,6 +1110,8 @@ function openSheet(p){
 
   h+='<div class="actions"><a class="btn" href="'+navUrl(p,'g')+'" target="_blank" rel="noopener">Google Maps</a>'+
      '<a class="btn ghost" href="'+navUrl(p,'a')+'" target="_blank" rel="noopener">Apple Maps</a></div>';
+  h+='<div class="actions" style="margin-top:8px">'+
+     '<button class="btn ghost" id="condividi">Manda a qualcuno</button></div>';
 
   h+='<div id="photoWrap"></div>';
 
@@ -1021,7 +1121,11 @@ function openSheet(p){
      '<button class="btn ok"    id="voteOk"'+(voted?' disabled':'')+'>Funziona</button>'+
      '<button class="btn works" id="voteWk"'+(voted?' disabled':'')+'>Lavori</button>'+
      '<button class="btn bad"   id="voteKo"'+(voted?' disabled':'')+'>Rotta</button></div>';
-  h+='<div class="hint">Segnala <b>Lavori</b> se c\'è un cantiere o è transennata: non è rotta, tornerà.</div>';
+  h+='<div class="statebox" style="margin-top:6px">'+
+     '<button class="btn ghost" id="voteNo"'+(voted?' disabled':'')+
+     ' style="font-size:13.5px">Sono qui e non la trovo</button></div>';
+  h+='<div class="hint"><b>Lavori</b> se c\'è un cantiere o è transennata: non è rotta, tornerà. '+
+     '<b>Non la trovo</b> se al suo posto non c\'è più niente: forse è stata rimossa.</div>';
   if(voted) h+='<div class="hint">Grazie, la tua segnalazione è registrata.</div>';
   h+='</div>';
 
@@ -1053,8 +1157,10 @@ function openSheet(p){
   document.getElementById('voteOk').onclick=function(){ sendReport(p,'ok'); };
   document.getElementById('voteWk').onclick=function(){ sendReport(p,'works'); };
   document.getElementById('voteKo').onclick=function(){ sendReport(p,'broken'); };
+  document.getElementById('voteNo').onclick=function(){ sendReport(p,'missing'); };
   document.getElementById('revSend').onclick=function(){ sendReview(p); };
   document.getElementById('photoFile').onchange=function(e){ sendPhoto(p, e.target.files[0]); };
+  document.getElementById('condividi').onclick=function(){ condividi(p); };
 }
 function closeSheet(){
   document.getElementById('sheet').classList.remove('on');
@@ -1159,25 +1265,27 @@ function needSB(){
 }
 function sendReport(p,status){
   if(needSB()) return;
-  ['voteOk','voteWk','voteKo'].forEach(function(id){
+  ['voteOk','voteWk','voteKo','voteNo'].forEach(function(id){
     var b=document.getElementById(id); if(b) b.disabled=true;
   });
   SB.insert('reports',{target:p.target,status:status,client_id:CLIENT})
     .then(function(){
       myVotes[p.target]=status;
-      var a=statusAgg[p.target]||{target:p.target,ok_votes:0,broken_votes:0,works_votes:0};
-      if(status==='ok')          a.ok_votes=(a.ok_votes||0)+1;
-      else if(status==='works'){ a.works_votes=(a.works_votes||0)+1; a.last_works=new Date().toISOString(); }
-      else                       a.broken_votes=(a.broken_votes||0)+1;
+      var a=statusAgg[p.target]||{target:p.target,ok_votes:0,broken_votes:0,works_votes:0,missing_votes:0};
+      if(status==='ok')            a.ok_votes=(a.ok_votes||0)+1;
+      else if(status==='works'){   a.works_votes=(a.works_votes||0)+1;   a.last_works=new Date().toISOString(); }
+      else if(status==='missing'){ a.missing_votes=(a.missing_votes||0)+1; a.last_missing=new Date().toISOString(); }
+      else                         a.broken_votes=(a.broken_votes||0)+1;
       a.last_report=new Date().toISOString();
       statusAgg[p.target]=a;
       toast({ok:'Segnata come funzionante. Grazie.',
              works:'Segnalati i lavori in corso. Grazie.',
-             broken:'Segnata come rotta. Grazie.'}[status]);
+             broken:'Segnata come rotta. Grazie.',
+             missing:'Segnalato che non c\'è. Se lo dice anche qualcun altro, la togliamo.'}[status], 4200);
       render(); openSheet(p);
     })
     .catch(function(err){
-      ['voteOk','voteWk','voteKo'].forEach(function(id){
+      ['voteOk','voteWk','voteKo','voteNo'].forEach(function(id){
         var b=document.getElementById(id); if(b) b.disabled=false;
       });
       toast('Non è partita: '+(err.message||'riprova').slice(0,90), 5000);
@@ -1382,6 +1490,83 @@ function confirmAdd(punto){
 }
 
 /* ============================================================
+   CONDIVIDERE UNA FONTANELLA
+   Il link porta chi lo riceve esattamente su questo punto,
+   non sulla sua posizione.
+   ============================================================ */
+function linkDi(p){
+  var base = location.origin + location.pathname;
+  return base + '?f=' + encodeURIComponent(p.target);
+}
+function condividi(p){
+  var url = linkDi(p);
+  var titolo = labelFor(p);
+  var testo = 'Acqua potabile: ' + titolo;
+  if(navigator.share){
+    navigator.share({title:'IDRATATI', text:testo, url:url}).catch(function(){});
+    return;
+  }
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url)
+      .then(function(){ toast('Link copiato. Incollalo dove vuoi.', 3600); })
+      .catch(function(){ toast(url, 8000); });
+  } else {
+    toast(url, 8000);
+  }
+}
+
+/* Se si arriva da un link condiviso, si apre subito quella fontanella. */
+function apriDaLink(){
+  var m = location.search.match(/[?&]f=([^&]+)/);
+  if(!m) return;
+  var target = decodeURIComponent(m[1]);
+
+  function prova(tentativi){
+    var p = points.filter(function(x){ return x.target === target; })[0];
+    if(p){
+      map.setView([p.lat, p.lon], 17, {animate:false});
+      openSheet(p);
+      return;
+    }
+    if(tentativi <= 0){ recuperaDaOsm(target); return; }
+    setTimeout(function(){ prova(tentativi - 1); }, 700);
+  }
+  prova(5);
+}
+
+/* Il punto non è tra quelli caricati: lo chiedo direttamente a
+   OpenStreetMap, così il link funziona anche da dall'altra parte d'Italia. */
+function recuperaDaOsm(target){
+  if(target.indexOf('osm/node/') !== 0){
+    // punto nostro: sta su Supabase
+    if(target.indexOf('db/') === 0 && SB.on()){
+      SB.select('fountains?select=*&id=eq.'+target.slice(3)).then(function(rows){
+        if(!rows.length) return;
+        var r = rows[0];
+        var p = {id:'db/'+r.id, target:'db/'+r.id, lat:r.lat, lon:r.lon,
+                 kind:r.kind, tags:{name:r.name}, ov:r, custom:true};
+        addPoints([p]); map.setView([p.lat,p.lon],17); render(); openSheet(p);
+      });
+    }
+    return;
+  }
+  fetch('https://api.openstreetmap.org/api/0.6/node/'+target.slice(9)+'.json')
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(d){
+      var e = (d.elements||[])[0];
+      if(!e) throw new Error('vuoto');
+      var tags = e.tags || {};
+      var p = {id:'node/'+e.id, target:target, lat:e.lat, lon:e.lon,
+               tags:tags, kind:classify(tags)};
+      addPoints([p]);
+      map.setView([p.lat, p.lon], 17);
+      render();
+      openSheet(p);
+    })
+    .catch(function(){ toast('Non trovo la fontanella di quel link.', 4200); });
+}
+
+/* ============================================================
    IL METODO VELOCE
    Tieni premuto quattro secondi sulla mappa: il segnaposto si pianta
    lì e parte subito la scheda. Quattro secondi sono tanti apposta,
@@ -1418,12 +1603,12 @@ function registraQui(lat, lon){
 }
 
 /* Il gesto ha due tempi.
-   Primo secondo e mezzo: silenzio assoluto. Chi voleva solo trascinare la
-   mappa non vede né sente niente, e non rischia di far partire nulla.
+   Primi sette decimi di secondo: silenzio. Chi trascina la mappa si muove
+   entro quel tempo, quindi non vede né sente niente e non fa partire nulla.
    Poi la cornice comincia a chiudersi, e da lì la mano può ballare
    parecchio senza che il conto alla rovescia si interrompa. */
-var RITARDO       = 1500;   // un secondo e mezzo in cui non succede niente
-var DURATA        = 1400;   // poi il conto alla rovescia della cornice
+var RITARDO       = 700;    // il tempo che serve a capire che non stai trascinando
+var DURATA        = 1300;   // poi il conto alla rovescia della cornice
 var TOLL_ATTESA   = 20;     // pixel concessi nella fase silenziosa
 var TOLL_CORNICE  = 80;     // pixel concessi una volta partito
 
@@ -1458,9 +1643,9 @@ function attivaPressioneLunga(){
       var scala = [440, 554, 659, 880];  // un tocco per ogni lato, sempre più acuto
       tick(scala[0], 0.10);
       battiti = [1,2,3].map(function(i){
-        return setTimeout(function(){ tick(scala[i], 0.10 + i*0.02); }, i * 350);
+        return setTimeout(function(){ tick(scala[i], 0.10 + i*0.02); }, i * 325);
       });
-      vibra([10, 340, 14, 336, 18, 332, 22]);
+      vibra([10, 315, 14, 311, 18, 307, 22]);
 
       conto = setTimeout(function(){
         ferma();
@@ -1554,6 +1739,7 @@ function chip(id,key){
 }
 chip('fFont','fontanella'); chip('fCasa','casa');
 chip('fOk','okonly'); chip('fFree','freeonly');
+chip('fAcc','access'); chip('fDog','dog');
 
 (function(){
   var b = document.getElementById('fAudio'), onda = document.querySelector('#icAudio .onda');
@@ -1686,7 +1872,13 @@ if(!store.get('idr_visto_pressione')){
 setTimeout(watchPosition, 4000);
 setTimeout(function(){
   document.getElementById('splash').classList.add('gone');
-  setTimeout(function(){ map.invalidateSize(); loadArea(map.getCenter()?{lat:map.getCenter().lat,lon:map.getCenter().lng}:FALLBACK); },260);
+  // dietro alla mappa non deve più esserci il navy dello splash
+  document.documentElement.style.background = '#dfe8e7';
+  setTimeout(function(){
+    map.invalidateSize();
+    loadArea(map.getCenter()?{lat:map.getCenter().lat,lon:map.getCenter().lng}:FALLBACK);
+    apriDaLink();
+  },260);
 },2000);
 
 if('serviceWorker' in navigator){
