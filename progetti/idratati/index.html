@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v4.8 (2026-07-27) -->
+<!-- IDRATATI v4.9 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -506,7 +506,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v4.8 · 2026-07-27</div>
+<div class="ver">v4.9 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -661,6 +661,30 @@ function contaContributo(){
   var n = contributi() + 1;
   store.set('idr_contributi', String(n));
   return n;
+}
+
+/* Due informazioni che aiutano chi modera, senza identificare nessuno:
+   che tipo di apparecchio ha mandato il contributo, e quanti metri
+   c'erano fra chi l'ha mandato e la fontanella. Chi era davanti alla
+   fontanella sa quello che dice; chi l'ha segnalata da trenta chilometri
+   forse ha solo toccato per sbaglio. */
+function dispositivo(){
+  var u = navigator.userAgent || '';
+  if(/iPad/i.test(u)) return 'iPad';
+  if(/iPhone|iPod/i.test(u)) return 'iPhone';
+  if(/Android/i.test(u)) return /Mobile/i.test(u) ? 'Android' : 'tablet Android';
+  if(/Macintosh/i.test(u)) return 'Mac';
+  if(/Windows/i.test(u)) return 'Windows';
+  if(/Linux/i.test(u)) return 'Linux';
+  return 'sconosciuto';
+}
+function quantoLontano(p){
+  if(!myPos || !p || p.lat == null) return null;
+  var m = Math.round(dist(myPos, p));
+  return m > 200000 ? null : m;     // oltre i 200 km è un dato senza senso
+}
+function firma(p){
+  return {device: dispositivo(), distanza: quantoLontano(p)};
 }
 
 var CLIENT = store.get('idr_client');
@@ -1749,7 +1773,7 @@ function sendReport(p,status){
 
   // upsert sulla coppia fontanella + dispositivo: corregge, non accumula
   SB.upsert('reports',
-      {target:p.target, status:status, client_id:CLIENT},
+      Object.assign({target:p.target, status:status, client_id:CLIENT}, firma(p)),
       'target,client_id')
     .then(function(){
       myVotes[p.target]=status;
@@ -1786,8 +1810,8 @@ function sendReview(p){
   if(needSB()) return;
   var keys=Object.keys(myRating);
   if(!keys.length){ toast('Tocca almeno una stella prima di inviare.'); return; }
-  var row={target:p.target,client_id:CLIENT,
-    comment:(document.getElementById('revComment').value||'').trim()||null};
+  var row=Object.assign({target:p.target, client_id:CLIENT,
+    comment:(document.getElementById('revComment').value||'').trim()||null}, firma(p));
   STARS.forEach(function(s){ row[s[0]]=myRating[s[0]]||null; });
   row.temperature = myRating.temperature || null;
   // tutto è facoltativo: si può mandare anche una sola voce
@@ -1854,8 +1878,8 @@ function sendPhoto(p,file){
   shrink(file,1280,.75).then(function(blob){
     var name=Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
     return SB.upload(blob,name).then(function(url){
-      return conScadenza(
-        SB.insert('photos',{target:p.target,path:name,url:url,client_id:CLIENT}), 25);
+      return conScadenza(SB.insert('photos',
+        Object.assign({target:p.target,path:name,url:url,client_id:CLIENT}, firma(p))), 25);
     });
   }).then(function(){
     fotoInCorso = false;
@@ -1990,12 +2014,12 @@ function confirmAdd(punto){
     }
 
     b.disabled=true; b.textContent='Invio…';
-    var riga={
+    var riga=Object.assign({
       lat:+c.lat.toFixed(6), lon:+c.lng.toFixed(6), kind:addKind,
       name:(document.getElementById('addName').value||'').trim()||null,
       note:(document.getElementById('addNote').value||'').trim()||null,
       client_id:CLIENT
-    };
+    }, firma({lat:c.lat, lon:c.lng}));
     b.textContent = addPhoto ? 'Mando la foto…' : 'Invio…';
 
     var primaLaFoto = addPhoto

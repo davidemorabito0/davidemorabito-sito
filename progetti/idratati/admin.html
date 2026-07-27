@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- IDRATATI pannello v4.5 (2026-07-27) -->
-<title>IDRATATI — pannello v4.5</title>
+<!-- IDRATATI pannello v4.9 (2026-07-27) -->
+<title>IDRATATI — pannello v4.9</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#07242F">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -53,6 +53,13 @@ main{padding:14px 12px 60px;max-width:820px;margin:0 auto}
 .btn.ghost{background:rgba(7,36,47,.07);color:var(--ink)}
 .btn.sm{padding:7px 10px;font-size:12px;border-radius:8px}
 .btn[disabled]{opacity:.5;pointer-events:none}
+.foto-card{padding:10px 10px 12px}
+.foto-grande{width:100%;max-height:60vh;object-fit:contain;border-radius:14px;
+  background:#0d1f28;display:block}
+.foto-dove{font-size:14px;line-height:1.35;color:var(--muted);padding:11px 5px 3px}
+.foto-dove b{color:var(--ink);font-family:var(--display);font-weight:600;font-size:16.5px}
+.btn.grosso{flex:1;padding:15px;font-size:15px;border-radius:13px}
+.foto-card .row{gap:9px;margin-top:9px}
 .minimappa{width:100%;height:190px;border:none;border-radius:12px;margin-top:11px;
   background:rgba(7,36,47,.05);display:block}
 .dett{margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
@@ -87,6 +94,8 @@ textarea{resize:vertical}
 img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin-top:10px;display:block}
 .empty{text-align:center;color:var(--muted);font-size:13.5px;padding:32px 12px}
 #map{height:56vh;min-height:330px;border-radius:16px;margin-bottom:11px}
+.dettaglio{opacity:.62;font-size:11.5px}
+.meta b{color:var(--acqua-deep);font-weight:700}
 .oggi-griglia{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
   gap:10px;margin-top:14px}
 .oggi-n{background:rgba(7,36,47,.04);border-radius:14px;padding:14px 15px;cursor:pointer;
@@ -127,7 +136,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
 <div id="login">
   <div class="card">
     <h1>IDRATATI</h1>
-    <div class="meta">Pannello riservato · v4.5</div>
+    <div class="meta">Pannello riservato · v4.9</div>
     <label for="em">Email</label>
     <input id="em" type="email" autocomplete="username" inputmode="email">
     <label for="pw">Password</label>
@@ -139,7 +148,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
 
 <div id="app" hidden>
   <header>
-    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge" style="background:rgba(255,255,255,.16);color:var(--surface)">v4.5</span>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge" style="background:rgba(255,255,255,.16);color:var(--surface)">v4.9</span>
     <span class="sp" id="who"></span>
     <button id="logout">Esci</button>
   </header>
@@ -375,6 +384,67 @@ function caricaContesti(targets){
    Prima erano tre richieste per ogni foto in coda — con dieci foto,
    trenta viaggi al server. Adesso sono tre in tutto. */
 var PESI = {};
+
+/* Il codice del dispositivo che sto usando adesso: se coincide con quello
+   di una segnalazione, vuol dire che l'ho mandata io facendo le prove. */
+var MIO_DISPOSITIVO = (function(){
+  try{ return localStorage.getItem('idr_client'); }catch(e){ return null; }
+})();
+
+/* Da "cms3a4qvlp · 13 foto, 12 voti, 3 proposte" a una frase leggibile. */
+function oraEsatta(iso){
+  try{
+    var d = new Date(iso), oggi = new Date();
+    var ora = d.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
+    if(d.toDateString() === oggi.toDateString()) return 'oggi alle ' + ora;
+    var ieri = new Date(Date.now() - 864e5);
+    if(d.toDateString() === ieri.toDateString()) return 'ieri alle ' + ora;
+    return d.toLocaleDateString('it-IT', {day:'numeric', month:'long'}) + ' alle ' + ora;
+  }catch(e){ return ago(iso); }
+}
+
+/* Dove si trovava chi ha mandato il contributo. È l'informazione che dice
+   se fidarsi: chi era davanti alla fontanella sa quello che dice, chi
+   l'ha segnalata da trenta chilometri probabilmente no. */
+function doveEra(metri){
+  if(metri == null) return '<span class="pill">posizione non disponibile</span>';
+  if(metri <= 60)   return '<span class="pill ok">era sul posto ('+metri+' m)</span>';
+  if(metri <= 500)  return '<span class="pill">a '+metri+' m dalla fontanella</span>';
+  if(metri < 5000)  return '<span class="pill warn">a '+
+                           (metri/1000).toFixed(1).replace('.',',')+' km di distanza</span>';
+  return '<span class="pill bad">mandata da '+Math.round(metri/1000)+' km di distanza</span>';
+}
+
+/* Le informazioni concrete: quando esattamente, con che apparecchio, e da
+   che distanza. */
+function contorno(r){
+  if(!r) return '';
+  var pezzi = ['<span class="pill">' + esc(oraEsatta(r.created_at)) + '</span>'];
+  if(r.device) pezzi.push('<span class="pill">da ' + esc(r.device) + '</span>');
+  pezzi.push(doveEra(r.distanza));
+  return '<div class="pills" style="margin-top:7px">' + pezzi.join('') + '</div>';
+}
+
+function chiHaMandato(clientId, quando, riga){
+  if(!clientId) return 'Arrivata ' + quando + ' · non si sa da quale dispositivo' + contorno(riga);
+  if(clientId === MIO_DISPOSITIVO)
+    return 'Arrivata ' + quando + ' · <b>l\'hai mandata tu</b> da questo stesso telefono' +
+           contorno(riga);
+
+  var p = PESI[clientId];
+  var sigla = 'dispositivo ' + clientId.slice(0, 8);
+  if(!p) return 'Arrivata ' + quando + ' · ' + sigla + contorno(riga);
+
+  var tot = p.foto + p.voti + p.proposte;
+  var giudizio;
+  if(tot <= 1)      giudizio = 'è la sua prima volta';
+  else if(tot < 6)  giudizio = 'ha contribuito ' + tot + ' volte in tutto';
+  else              giudizio = 'contribuisce spesso: ' + tot + ' volte in tutto';
+
+  return 'Arrivata ' + quando + ' · ' + sigla + ', ' + giudizio +
+         ' <span class="dettaglio">(' + p.foto + ' foto, ' + p.voti +
+         ' voti, ' + p.proposte + ' fontanelle proposte)</span>' + contorno(riga);
+}
 
 function pesaDispositivi(lista){
   var unici = lista.filter(function(c,i){ return c && lista.indexOf(c)===i && !PESI[c]; });
@@ -797,11 +867,9 @@ function vQueue(){
         var e2 = el('via-s'+i);
         if(e2) e2.textContent = via || (s.lat.toFixed(5)+', '+s.lon.toFixed(5));
       });
-      pesaDispositivi([s.client_id]).then(function(pesi){
-        var n = pesi[s.client_id]; if(!n) return;
+      pesaDispositivi([s.client_id]).then(function(){
         var e3 = el('dev-s'+i);
-        if(e3) e3.textContent = (s.client_id||'?').slice(0,10)+
-          ' · '+n.foto+' foto, '+n.voti+' voti, '+n.proposte+' proposte in totale';
+        if(e3) e3.innerHTML = chiHaMandato(s.client_id, ago(s.created_at), s);
       });
     });
     el('view').innerHTML=rows.map(function(s,i){
@@ -811,8 +879,7 @@ function vQueue(){
         '<div class="pills"><span class="pill">'+
           (s.kind==='casa'?"casa dell'acqua":'fontanella')+'</span>'+
           '<span class="pill">'+s.lat.toFixed(5)+', '+s.lon.toFixed(5)+'</span></div>'+
-        '<div class="meta">Proposta '+esc(ago(s.created_at))+
-          ' · dispositivo <span id="dev-s'+i+'">'+esc((s.client_id||'?').slice(0,10))+'</span></div>'+
+        '<div class="meta" id="dev-s'+i+'">Proposta '+esc(ago(s.created_at))+'…</div>'+
         (s.note?'<div class="meta" style="margin-top:7px;color:var(--ink)">'+esc(s.note)+'</div>':'')+
         (s.photo_path?'<img class="thumb" src="'+esc(photoUrl(s.photo_path))+'" alt="" loading="lazy">':'')+
         '<div class="row">'+
@@ -859,35 +926,55 @@ function vPhotos(){
   sel('photos?select=*&approved=eq.false&order=created_at.desc&limit=60').then(function(rows){
     if(!rows.length){ el('view').innerHTML='<div class="empty">Nessuna foto in attesa.</div>'; return; }
 
+    // Qui si guardano le foto: la foto è la prima cosa e occupa quasi tutto
+    // lo schermo. Il resto sta sotto, richiuso, e si apre solo se serve.
+    el('view').innerHTML = rows.map(function(p,i){
+      return '<div class="card foto-card">'+
+        '<img class="foto-grande" src="'+esc(p.url)+'" alt="" loading="lazy">'+
+        '<div class="foto-dove" id="tit-f'+i+'">…</div>'+
+        '<div class="row">'+
+          '<button class="btn ok grosso" data-ap="'+p.id+'">Pubblica</button>'+
+          '<button class="btn bad grosso" data-rm="'+p.id+'">Elimina</button>'+
+        '</div>'+
+        '<details class="dett"><summary>Chi l\'ha mandata, e dove</summary>'+
+          '<div class="corpo">'+
+            '<div id="dev-f'+i+'" class="meta">carico…</div>'+
+            '<div id="ctx-f'+i+'"></div>'+
+          '</div></details>'+
+      '</div>';
+    }).join('');
+    agganciaFoto();
+
+    // il contesto arriva con calma, senza far aspettare le foto
     return caricaContesti(rows.map(function(p){ return p.target; }))
       .catch(function(){ return CTX; })
       .then(function(){
-      el('view').innerHTML=rows.map(function(p,i){
-        var c = CTX[p.target];
-        return '<div class="card">'+
-          intestazione(c, 'f'+i)+
-          '<img class="thumb" src="'+esc(p.url)+'" alt="" loading="lazy">'+
-          '<div class="meta" style="margin-top:8px">Mandata '+esc(ago(p.created_at))+
-            ' · dispositivo <span id="dev-f'+i+'">'+esc((p.client_id||'?').slice(0,10))+'</span></div>'+
-          '<div class="row">'+
-            '<button class="btn ok" data-ap="'+p.id+'">Pubblica</button>'+
-            '<button class="btn bad" data-rm="'+p.id+'">Elimina</button>'+
-            '<a class="btn ghost sm" target="_blank" rel="noopener" href="'+esc(p.url)+'">Apri intera</a>'+
-          '</div></div>';
-      }).join('');
-
-      completaIndirizzi(rows.map(function(p,i){ return {target:p.target, id:'f'+i}; }));
-      collegaVaiA();
-      pesaDispositivi(rows.map(function(p){ return p.client_id; })).then(function(pesi){
         rows.forEach(function(p,i){
-          var n = pesi[p.client_id]; if(!n) return;
-          var e2 = el('dev-f'+i);
-          if(e2) e2.textContent = (p.client_id||'?').slice(0,10)+
-            ' · '+n.foto+' foto, '+n.voti+' voti, '+n.proposte+' proposte in totale';
+          var c = CTX[p.target];
+          var t = el('tit-f'+i);
+          if(t){
+            var nome = (c && c.nome) ||
+                       (c && c.tipo==='casa' ? "Casa dell'acqua" : 'Fontanella pubblica');
+            t.innerHTML = '<b>'+esc(nome)+'</b>' + (c && c.via ? ' · ' + esc(c.via) : '');
+          }
+          var w = el('ctx-f'+i);
+          if(w) w.innerHTML = intestazione(c, 'fx'+i);
+        });
+        completaIndirizzi(rows.map(function(p,i){ return {target:p.target, id:'fx'+i}; }));
+        collegaVaiA();
+        pesaDispositivi(rows.map(function(p){ return p.client_id; })).then(function(){
+          rows.forEach(function(p,i){
+            var e2 = el('dev-f'+i);
+            if(e2) e2.innerHTML = chiHaMandato(p.client_id, ago(p.created_at), p);
+            // se nel frattempo è arrivato l'indirizzo, lo metto anche sopra
+            var t = el('tit-f'+i), c = CTX[p.target];
+            if(t && c && c.via && t.innerHTML.indexOf(esc(c.via)) === -1){
+              var nome = c.nome || (c.tipo==='casa' ? "Casa dell'acqua" : 'Fontanella pubblica');
+              t.innerHTML = '<b>'+esc(nome)+'</b> · ' + esc(c.via);
+            }
+          });
         });
       });
-      agganciaFoto();
-    });
   }).catch(function(e){ el('view').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; });
 }
 
@@ -972,8 +1059,7 @@ function vReviews(){
         (r.comment?'<div style="font-size:14.5px;line-height:1.45;padding:10px 12px;'+
           'background:rgba(7,36,47,.04);border-radius:10px">'+esc(r.comment)+'</div>':
           '<div class="meta">Nessun commento scritto.</div>')+
-        '<div class="meta" style="margin-top:8px">Lasciato '+esc(ago(r.created_at))+
-          ' · dispositivo <span id="dev-r'+i+'">'+esc((r.client_id||'?').slice(0,10))+'</span></div>'+
+        '<div class="meta" style="margin-top:8px" id="dev-r'+i+'">Lasciato '+esc(ago(r.created_at))+'…</div>'+
         '<div class="row">'+
         (r.approved
           ? '<button class="btn bad sm" data-hide="'+r.id+'">Nascondi</button>'
@@ -983,12 +1069,10 @@ function vReviews(){
 
     completaIndirizzi(rows.map(function(r,i){ return {target:r.target, id:'r'+i}; }));
     collegaVaiA();
-    pesaDispositivi(rows.map(function(r){ return r.client_id; })).then(function(pesi){
+    pesaDispositivi(rows.map(function(r){ return r.client_id; })).then(function(){
       rows.forEach(function(r,i){
-        var n = pesi[r.client_id]; if(!n) return;
         var e2 = el('dev-r'+i);
-        if(e2) e2.textContent = (r.client_id||'?').slice(0,10)+
-          ' · '+n.foto+' foto, '+n.voti+' voti, '+n.proposte+' proposte in totale';
+        if(e2) e2.innerHTML = chiHaMandato(r.client_id, ago(r.created_at), r);
       });
     });
 
