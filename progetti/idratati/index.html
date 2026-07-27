@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v3.8 (2026-07-27) -->
+<!-- IDRATATI v3.9 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -151,9 +151,30 @@ button{font-family:inherit}
 
 /* ---------- CARD "PIÙ VICINA" ---------- */
 #card{position:fixed;left:10px;right:10px;z-index:700;bottom:calc(var(--safe-b) + 12px);
-  background:var(--surface);border-radius:20px;padding:15px 16px 16px;
-  box-shadow:0 -2px 40px rgba(7,36,47,.22);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+  background:var(--surface);border-radius:20px;
+  box-shadow:0 -2px 40px rgba(7,36,47,.22);
+  transition:transform .32s cubic-bezier(.2,.8,.2,1);
+  overflow:hidden;touch-action:pan-x}
 #card.hidden{transform:translateY(calc(100% + 40px))}
+#card .grande{padding:4px 16px 16px}
+#card.mini .grande{display:none}
+#card.mini .close{display:none}
+.riga-mini{display:flex;align-items:center;gap:11px;width:100%;
+  padding:13px 15px;border:none;background:none;font-family:var(--body);
+  text-align:left;cursor:pointer;color:var(--ink)}
+#card:not(.mini) .riga-mini{padding-bottom:6px}
+.riga-mini .goccia{flex:0 0 auto;width:30px;height:30px;border-radius:50%;
+  background:var(--acqua);display:flex;align-items:center;justify-content:center}
+.riga-mini .testi{flex:1;min-width:0}
+.riga-mini .primo{display:block;font-size:14.5px;font-weight:600;line-height:1.25;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.riga-mini .primo b{color:var(--acqua-deep)}
+.riga-mini .secondo{display:block;font-size:12.5px;color:var(--muted);line-height:1.3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.riga-mini .freccia{flex:0 0 auto;color:rgba(7,36,47,.35);transition:transform .3s}
+#card:not(.mini) .riga-mini .freccia{transform:rotate(180deg)}
+.presa{width:36px;height:4px;border-radius:99px;background:rgba(7,36,47,.14);margin:7px auto 0}
+#card:not(.mini) .presa{display:none}
 .eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--acqua-deep);font-weight:600}
 .headline{font-family:var(--display);font-weight:600;font-size:25px;line-height:1.08;
   margin:7px 0 3px;letter-spacing:-.01em}
@@ -384,7 +405,7 @@ body:not(.card-hidden) #linkCitta{display:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v3.8 · 2026-07-27</div>
+<div class="ver">v3.9 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -431,13 +452,26 @@ body:not(.card-hidden) #linkCitta{display:none}
 
 <div id="toast"></div>
 
-<div id="card" class="hidden">
-  <button class="close" id="cardClose" aria-label="Chiudi">×</button>
-  <div class="eyebrow" id="cEyebrow">La più vicina</div>
-  <div class="headline" id="cHead">Cerco l'acqua…</div>
-  <div class="sub" id="cSub"></div>
-  <div class="tags" id="cTags"></div>
-  <div class="actions" id="cActions"></div>
+<div id="card" class="hidden mini">
+  <div class="presa"></div>
+  <button class="riga-mini" id="rigaMini" aria-expanded="false">
+    <span class="goccia">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round"><path d="M12 3s7 8.4 7 12.6A7 7 0 0 1 5 15.6C5 11.4 12 3 12 3Z"/></svg>
+    </span>
+    <span class="testi">
+      <span class="primo" id="miniPrimo">Cerco l'acqua…</span>
+      <span class="secondo" id="miniSecondo"></span>
+    </span>
+    <svg class="freccia" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
+  <div class="grande">
+    <button class="close" id="cardClose" aria-label="Riduci">×</button>
+    <div class="eyebrow" id="cEyebrow">La più vicina</div>
+    <div class="headline" id="cHead"></div>
+    <div class="sub" id="cSub"></div>
+    <div class="tags" id="cTags"></div>
+    <div class="actions" id="cActions"></div>
+  </div>
 </div>
 
 <div id="addbar"></div>
@@ -1103,17 +1137,21 @@ function hideCard(){
 function apriCard(){
   cardAperta = true;
   var c = document.getElementById('card');
+  if(!c) return;
   c.classList.remove('mini');
   document.body.classList.remove('card-mini');
-  document.getElementById('rigaMini').setAttribute('aria-expanded','true');
+  var r = document.getElementById('rigaMini');
+  if(r) r.setAttribute('aria-expanded','true');
   if(suoniAccesi) tick(660, .07);
 }
 function riduciCard(){
   cardAperta = false;
   var c = document.getElementById('card');
+  if(!c) return;
   c.classList.add('mini');
   document.body.classList.add('card-mini');
-  document.getElementById('rigaMini').setAttribute('aria-expanded','false');
+  var r = document.getElementById('rigaMini');
+  if(r) r.setAttribute('aria-expanded','false');
 }
 function fillCard(p,d,isNearest){
   var min=d!=null?walkMin(d):null;
@@ -1148,7 +1186,9 @@ function fillCard(p,d,isNearest){
   document.getElementById('cOpen').onclick=function(){ openSheet(p); };
 
   // la riga piccola: una frase sola, quella che serve davvero
-  document.getElementById('miniPrimo').innerHTML =
+  var mp = document.getElementById('miniPrimo');
+  if(!mp) return;
+  mp.innerHTML =
     (isNearest && min!=null)
       ? '<b>'+min+' min</b> '+MODI[modo].nome+' · '+esc(labelFor(p))
       : esc(labelFor(p));
@@ -1157,7 +1197,8 @@ function fillCard(p,d,isNearest){
   var stMini = stateLabel(stateOf(p));
   if(stMini.t !== 'Stato sconosciuto') sec.push(stMini.t.toLowerCase());
   if(myPos && myPos.acc > SOGLIA_INCERTA) sec.push('posizione approssimativa');
-  document.getElementById('miniSecondo').textContent = sec.join(' · ');
+  var ms = document.getElementById('miniSecondo');
+  if(ms) ms.textContent = sec.join(' · ');
   document.getElementById('cMode').querySelectorAll('button').forEach(function(b){
     b.onclick=function(){
       modo=b.getAttribute('data-m');
@@ -2093,11 +2134,18 @@ accentoInMovimento();
   }
 })();
 
-/* ---------- avvio ---------- */
-riduciCard();
-initMap(FALLBACK);
-attivaPressioneLunga();
-askPosition(true);
+/* ---------- avvio ----------
+   Ogni passo è protetto: se un pezzo dell'interfaccia non risponde,
+   la mappa si deve aprire lo stesso. Uno splash fermo per sempre è
+   il peggior modo di rompersi, perché non dice niente a nessuno. */
+function avvia(nome, f){
+  try{ f(); }
+  catch(e){ console.error('IDRATATI, problema in ' + nome + ':', e); }
+}
+avvia('riduciCard', riduciCard);
+avvia('initMap', function(){ initMap(FALLBACK); });
+avvia('pressioneLunga', attivaPressioneLunga);
+avvia('posizione', function(){ askPosition(true); });
 
 // il trucco va detto, altrimenti non lo scopre nessuno
 if(!store.get('idr_visto_pressione')){
@@ -2108,7 +2156,8 @@ if(!store.get('idr_visto_pressione')){
 }
 setTimeout(watchPosition, 4000);
 setTimeout(function(){
-  document.getElementById('splash').classList.add('gone');
+  var sp = document.getElementById('splash');
+  if(sp) sp.classList.add('gone');
   // dietro alla mappa non deve più esserci il navy dello splash
   document.documentElement.style.background = '#dfe8e7';
   setTimeout(function(){
