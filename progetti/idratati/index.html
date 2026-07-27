@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v5.2 (2026-07-27) -->
+<!-- IDRATATI v5.4 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -141,12 +141,21 @@ button{font-family:inherit}
   display:flex;align-items:center;justify-content:center;transform:rotate(45deg)}
 .pin.casa .fee{transform:rotate(0);top:-7px;right:-7px}
 .pin.casa{background:var(--getto);border-radius:9px;transform:rotate(0)}
-.pin.broken{background:var(--rotta)}
+/* Rotta o sparita: rosso pieno, anello rosso attorno, sempre in primo piano.
+   È l'informazione che risparmia una camminata a vuoto. */
+.pin.broken{background:var(--rotta) !important;
+  box-shadow:0 0 0 3px rgba(229,72,77,.28),0 3px 10px rgba(7,36,47,.4);
+  z-index:4}
+/* Lavori in corso: arancione, distinto dall'ambra delle case dell'acqua. */
+.pin.lavori{background:#E8730C !important;
+  box-shadow:0 0 0 3px rgba(232,115,12,.24),0 3px 10px rgba(7,36,47,.35);
+  z-index:3}
 .pin svg{transform:rotate(45deg)}
 .pin.casa svg{transform:rotate(0)}
 /* Il colore deve dire a colpo d'occhio chi fidarsi: piena dove qualcuno
    ha confermato di persona, quasi sbiadita dove nessuno l'ha ancora fatto. */
-.pin.daverificare{opacity:.6}
+.pin.daverificare{opacity:.5}
+.pin.broken.daverificare,.pin.lavori.daverificare{opacity:1}   /* un guasto va visto comunque */
 .pin.daverificare.sel{opacity:.9}   /* aperta, resta leggibile ma si vede che è ancora grigia */
 .pin.sel{opacity:1;transform:rotate(-45deg) scale(1.2);
   box-shadow:0 0 0 6px rgba(0,166,166,.32),0 5px 16px rgba(7,36,47,.45);z-index:5}
@@ -327,6 +336,8 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
   font-size:15.5px;font-weight:600;cursor:pointer;
   box-shadow:0 4px 16px rgba(0,166,166,.3);transition:transform .14s,filter .14s}
 .btn-foto:active{transform:scale(.98);filter:brightness(.95)}
+.btn-foto.bloccato{background:rgba(7,36,47,.07);color:var(--muted);
+  box-shadow:none;pointer-events:none;font-weight:500}
 .btn.fatto{background:#E4F6EC;color:#127A47;font-size:17px;font-weight:700;
   pointer-events:none;animation:conferma .28s cubic-bezier(.2,1.5,.4,1)}
 @keyframes conferma{from{transform:scale(.94);opacity:.4}to{transform:scale(1);opacity:1}}
@@ -514,7 +525,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v5.2 · 2026-07-27</div>
+<div class="ver">v5.4 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -1292,8 +1303,9 @@ function raggruppa(punti, zoom){
 function disegnaPin(p){
   var casa = p.kind === 'casa', st = stateOf(p);
   var guasto = (st.s === 'broken' || st.s === 'missing');
+  var lavori = (st.s === 'works');
   L.marker([p.lat, p.lon], {icon: L.divIcon({className:'',
-    html:'<div class="pin'+(casa?' casa':'')+(guasto?' broken':'')+
+    html:'<div class="pin'+(casa?' casa':'')+(guasto?' broken':'')+(lavori?' lavori':'')+
          (verificata(p) ? '' : ' daverificare')+
          (selected && selected.target === p.target ? ' sel' : '')+'">'+
          (casa?IC_C:IC_F)+
@@ -1533,7 +1545,7 @@ function openSheet(p){
      'Il giudizio sull\'acqua è l\'esperienza di chi ha bevuto, non un\'analisi di laboratorio: '+
      'se l\'acqua ti sembra sospetta non berla e segnala la fontanella.</div></div>';
 
-  h+='<div class="sec"><div class="sec-t">Aggiungi una foto</div>'+
+  h+='<div class="sec" id="bloccoFoto"><div class="sec-t">Aggiungi una foto</div>'+
      '<label class="btn-foto" for="photoFile">'+
        '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+
        '<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>'+
@@ -1728,6 +1740,51 @@ function renderMyStars(){
     });
   });
 }
+/* Una fotografia invecchia: in tre mesi cambiano i lavori, le siepi, i
+   cartelli, e a volte la fontanella stessa. Passati novanta giorni, chi
+   ci passa può sostituirla; prima no, altrimenti si accumulano dieci
+   scatti uguali dello stesso giorno. */
+var GIORNI_FOTO = 90;
+
+function aggiornaBloccoFoto(p, dataUltima){
+  var sez = document.getElementById('bloccoFoto');
+  if(!sez) return;
+  var eti = sez.querySelector('.sec-t');
+  var bottone = sez.querySelector('.btn-foto');
+  var nota = sez.querySelector('.hint');
+  if(!bottone) return;
+
+  var giorni = dataUltima ? daysAgo(dataUltima) : null;
+
+  if(giorni == null){
+    if(eti) eti.textContent = 'Aggiungi una foto';
+    bottone.classList.remove('bloccato');
+    bottone.lastChild.textContent = 'Scatta o scegli una foto';
+    if(nota) nota.innerHTML = 'È la cosa che aiuta di più a ritrovarla. '+
+      'Fotografa la fontanella, non le persone.';
+    return;
+  }
+
+  if(giorni >= GIORNI_FOTO){
+    if(eti) eti.textContent = 'La foto è vecchia: aggiornala';
+    bottone.classList.remove('bloccato');
+    bottone.lastChild.textContent = 'Scatta una foto aggiornata';
+    if(nota) nota.innerHTML = 'L\'ultima è di <b>'+esc(agoText(giorni))+'</b>. '+
+      'Se nel frattempo è cambiato qualcosa, una foto nuova vale più di mille parole.';
+  } else {
+    var mancano = GIORNI_FOTO - giorni;
+    if(eti) eti.textContent = 'La foto è recente';
+    bottone.classList.add('bloccato');
+    bottone.lastChild.textContent = 'Si potrà aggiornare fra ' +
+      (mancano > 45 ? Math.round(mancano/30)+' mesi'
+       : mancano > 1 ? mancano+' giorni'
+       : 'un giorno');
+    if(nota) nota.innerHTML = 'C\'è già una foto di <b>'+esc(agoText(giorni))+'</b>, '+
+      'ancora buona. Si potrà sostituire quando avrà tre mesi: così non si '+
+      'accumulano dieci scatti dello stesso giorno.';
+  }
+}
+
 function loadPhotos(p){
   var w=document.getElementById('photoWrap');
   if(p.ov && p.ov.photo_url){ w.innerHTML='<img class="hero" src="'+esc(p.ov.photo_url)+'" alt="">'; }
@@ -1735,6 +1792,7 @@ function loadPhotos(p){
   SB.select('photos?select=url,created_at&approved=eq.true&target=eq.'+encodeURIComponent(p.target)+
             '&order=created_at.desc&limit=6')
     .then(function(rows){
+      aggiornaBloccoFoto(p, rows.length ? rows[0].created_at : null);
       if(!rows.length) return;
       var h='<img class="hero" src="'+esc(rows[0].url)+'" alt="">'+
             '<div class="photocap">'+bollo(rows[0].created_at,'foto scattata')+
@@ -1881,6 +1939,8 @@ var fotoInCorso = false;
 function sendPhoto(p,file){
   if(!file) return;
   if(needSB()) return;
+  var bl = document.querySelector('#bloccoFoto .btn-foto.bloccato');
+  if(bl){ toast('La foto attuale è ancora recente. Si potrà sostituire fra qualche settimana.', 4500); return; }
   fotoInCorso = true;
   toast('Carico la foto…',6000);
   shrink(file,1280,.75).then(function(blob){
