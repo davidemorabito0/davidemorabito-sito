@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v4.1 (2026-07-27) -->
+<!-- IDRATATI v4.3 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -282,6 +282,12 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
 #addBtn{bottom:calc(var(--safe-b) + 234px);background:var(--acqua);color:#fff}
 body.card-mini #locate{bottom:calc(var(--safe-b) + 88px)}
 body.card-mini #addBtn{bottom:calc(var(--safe-b) + 144px)}
+/* Con la card aperta i pulsanti finivano dietro di lei: irraggiungibili
+   e apparentemente scomparsi. Meglio toglierli di scena per davvero. */
+body:not(.card-mini):not(.card-hidden) #locate,
+body:not(.card-mini):not(.card-hidden) #addBtn{
+  opacity:0;pointer-events:none;transform:translateY(10px)}
+.fab{transition:bottom .32s cubic-bezier(.2,.8,.2,1),opacity .22s,transform .22s}
 body.card-hidden #locate{bottom:calc(var(--safe-b) + 24px)}
 body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
 
@@ -323,6 +329,8 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
 .b.ghost{background:rgba(255,255,255,.1);color:var(--surface)}
 .b.ghost:hover{background:rgba(255,255,255,.16)}
 .b.go{background:var(--acqua);color:#04222c}
+.b.fatto{background:#2FBF71;color:#06301c;font-weight:700;pointer-events:none;
+  animation:conferma .28s cubic-bezier(.2,1.5,.4,1)}
 .b.go:hover{filter:brightness(1.08)}
 .b[disabled]{opacity:.45;pointer-events:none}
 .add-hint{font-size:11.5px;line-height:1.45;color:rgba(242,247,246,.45);margin-top:12px}
@@ -364,6 +372,9 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
   background:var(--ink);color:var(--surface);border-radius:20px;padding:16px;
   box-shadow:0 20px 60px rgba(7,36,47,.45);display:none}
 #installa.on{display:block}
+/* mentre c'è l'invito, la card sotto si toglie di mezzo */
+body.invito-aperto #card{transform:translateY(calc(100% + 40px))}
+body.invito-aperto .fab{opacity:0;pointer-events:none}
 #installa .testa{display:flex;align-items:center;gap:12px}
 #installa img{width:46px;height:46px;border-radius:12px;flex:0 0 auto}
 #installa .t{font-family:var(--display);font-weight:600;font-size:16px;line-height:1.2}
@@ -372,10 +383,12 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
 #installa .passi b{color:var(--acqua)}
 #installa .azioni{display:flex;gap:8px;justify-content:flex-end;margin-top:15px}
 
-#linkCitta{position:fixed;left:12px;z-index:500;
-  bottom:calc(var(--safe-b) + 4px);font-size:10.5px;color:rgba(7,36,47,.45);
-  text-decoration:none;background:rgba(255,255,255,.75);padding:3px 8px;border-radius:6px}
-body:not(.card-hidden) #linkCitta{display:none}
+/* Stava in fondo, sotto la card che c'è sempre: non lo vedeva nessuno,
+   né le persone né Google. Ora è un'etichetta in fila con i filtri. */
+#linkCitta{flex:0 0 auto;font-size:11.5px;font-weight:600;white-space:nowrap;
+  padding:8px 12px;border-radius:999px;text-decoration:none;
+  background:rgba(7,36,47,.88);color:var(--surface);
+  box-shadow:0 3px 12px rgba(7,36,47,.16);display:flex;align-items:center;gap:5px}
 
 #toast{position:fixed;left:50%;top:calc(var(--safe-t) + 110px);transform:translateX(-50%) translateY(-12px);
   z-index:9500;background:var(--ink);color:var(--surface);font-size:12.5px;padding:10px 15px;
@@ -413,7 +426,7 @@ body:not(.card-hidden) #linkCitta{display:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v4.1 · 2026-07-27</div>
+<div class="ver">v4.3 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -429,6 +442,7 @@ body:not(.card-hidden) #linkCitta{display:none}
     <button class="chip freeonly" id="fFree" aria-pressed="false"><span class="dot"></span>Solo gratuite</button>
     <button class="chip access" id="fAcc" aria-pressed="false"><span class="dot"></span>Accessibili</button>
     <button class="chip dog" id="fDog" aria-pressed="false"><span class="dot"></span>Con vaschetta cani</button>
+    <a id="linkCitta" href="citta/">Città</a>
     <button class="chip" id="fAudio" aria-pressed="true" aria-label="Suoni" title="Suoni">
       <svg id="icAudio" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -498,8 +512,6 @@ body:not(.card-hidden) #linkCitta{display:none}
     <button class="b go" id="instSi" hidden>Installa</button>
   </div>
 </div>
-
-<a id="linkCitta" href="citta/">Fontanelle città per città</a>
 
 <div id="scrim"></div>
 <div id="sheet">
@@ -623,6 +635,26 @@ function vibra(schema){
   try{ navigator.vibrate(schema); }catch(e){}
 }
 
+/* Nessuna attesa può durare per sempre. Se la rete si impunta, dopo un po'
+   bisogna dirlo e restituire i comandi a chi sta usando l'app: un pulsante
+   che resta su "Invio…" all'infinito è il modo peggiore di fallire. */
+function conScadenza(promessa, secondi, messaggio){
+  return new Promise(function(risolvi, rifiuta){
+    var scaduto = false;
+    var t = setTimeout(function(){
+      scaduto = true;
+      rifiuta(new Error(messaggio || 'La rete non risponde. Riprova.'));
+    }, (secondi || 25) * 1000);
+    promessa.then(function(v){
+      if(scaduto) return;
+      clearTimeout(t); risolvi(v);
+    }, function(e){
+      if(scaduto) return;
+      clearTimeout(t); rifiuta(e);
+    });
+  });
+}
+
 /* ---------- mini client Supabase (REST, zero dipendenze) ---------- */
 var SB = {
   on: function(){ return !!(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY); },
@@ -674,15 +706,22 @@ var SB = {
   },
   upload: function(file, name){
     if(!SB.on()) return Promise.reject(new Error('offline'));
-    return fetch(CFG.SUPABASE_URL+'/storage/v1/object/photos/'+name, {
+    var stop = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var invio = fetch(CFG.SUPABASE_URL+'/storage/v1/object/photos/'+name, {
       method:'POST',
       headers:{'apikey':CFG.SUPABASE_ANON_KEY,'Authorization':'Bearer '+CFG.SUPABASE_ANON_KEY,
                'Content-Type':file.type||'image/jpeg','x-upsert':'false'},
-      body:file
+      body:file,
+      signal: stop ? stop.signal : undefined
     }).then(function(r){
-      if(!r.ok) throw new Error('upload');
+      if(!r.ok) return r.text().then(function(t){
+        var msg=t; try{ msg=(JSON.parse(t).message)||t; }catch(e){}
+        throw new Error('la foto è stata rifiutata: '+String(msg).slice(0,60));
+      });
       return CFG.SUPABASE_URL+'/storage/v1/object/public/photos/'+name;
     });
+    return conScadenza(invio, 45, 'La foto ci sta mettendo troppo. Controlla la rete e riprova.')
+      .catch(function(e){ if(stop) try{ stop.abort(); }catch(x){} throw e; });
   }
 };
 
@@ -833,6 +872,15 @@ function initMap(c){
   layer=L.layerGroup().addTo(map);
   // Ogni volta che la mappa si ferma bisogna ridisegnare: da quando si
   // disegna solo l'inquadratura, senza questo restano i pin di prima.
+  // toccando la mappa si chiude l'elenco della ricerca, che altrimenti
+  // resta lì a coprire i filtri
+  map.on('movestart click', function(){
+    var w = document.getElementById('results');
+    if(w && w.classList.contains('on')){
+      w.classList.remove('on');
+      document.getElementById('search').blur();
+    }
+  });
   map.on('moveend zoomend', function(){
     var c2=map.getCenter();
     loadArea({lat:c2.lat, lon:c2.lng});
@@ -1555,7 +1603,7 @@ function sendReview(p){
     });
 }
 function shrink(file,maxPx,q){
-  return new Promise(function(res,rej){
+  return conScadenza(new Promise(function(res,rej){
     var img=new Image(), url=URL.createObjectURL(file);
     img.onload=function(){
       var s=Math.min(1,maxPx/Math.max(img.width,img.height));
@@ -1565,9 +1613,9 @@ function shrink(file,maxPx,q){
       URL.revokeObjectURL(url);
       c.toBlob(function(b){ b?res(b):rej(new Error('canvas')); },'image/jpeg',q);
     };
-    img.onerror=function(){ URL.revokeObjectURL(url); rej(new Error('img')); };
+    img.onerror=function(){ URL.revokeObjectURL(url); rej(new Error('immagine illeggibile')); };
     img.src=url;
-  });
+  }), 20, 'Non riesco a leggere questa foto. Provane un\'altra.');
 }
 var fotoInCorso = false;
 
@@ -1579,7 +1627,8 @@ function sendPhoto(p,file){
   shrink(file,1280,.75).then(function(blob){
     var name=Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
     return SB.upload(blob,name).then(function(url){
-      return SB.insert('photos',{target:p.target,path:name,url:url,client_id:CLIENT});
+      return conScadenza(
+        SB.insert('photos',{target:p.target,path:name,url:url,client_id:CLIENT}), 25);
     });
   }).then(function(){
     fotoInCorso = false;
@@ -1717,20 +1766,35 @@ function confirmAdd(punto){
       note:(document.getElementById('addNote').value||'').trim()||null,
       client_id:CLIENT
     };
+    b.textContent = addPhoto ? 'Mando la foto…' : 'Invio…';
+
     var primaLaFoto = addPhoto
       ? SB.upload(addPhoto, 'proposte/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg')
-          .then(function(url){ riga.photo_path=url.split('/photos/')[1]; })
-          .catch(function(){ toast('La foto non è passata, mando il resto.',3000); })
+          .then(function(url){ riga.photo_path = url.split('/photos/')[1]; })
+          .catch(function(e){
+            // la foto è un di più: se non passa, la fontanella si manda lo stesso
+            toast('La foto non è passata ('+String(e.message||'').slice(0,50)+'). Mando il resto.', 4500);
+          })
       : Promise.resolve();
 
-    primaLaFoto.then(function(){ return SB.insert('submissions', riga); })
+    primaLaFoto
       .then(function(){
-        toast('Proposta inviata. Compare sulla mappa dopo il controllo.',4500);
-        stopAdd();
+        b.textContent = 'Invio…';
+        return conScadenza(SB.insert('submissions', riga), 25);
+      })
+      .then(function(){
+        b.className = 'b go fatto';
+        b.textContent = '✓ Inviata';
+        if(suoniAccesi) suonoGoccia();
+        toast('Proposta inviata. Compare sulla mappa dopo il controllo.', 4500);
+        setTimeout(stopAdd, 1200);
       })
       .catch(function(err){
-        b.disabled=false; b.textContent='Invia';
-        toast('Non è partita: '+(err.message||'riprova').slice(0,90), 5000);
+        b.disabled = false;
+        b.className = 'b go';
+        b.textContent = 'Riprova';
+        b._forzato = true;   // al secondo tentativo non richiede la conferma sul doppione
+        toast('Non è partita: '+(err.message||'riprova').slice(0,110), 6000);
       });
   };
 }
@@ -1749,7 +1813,16 @@ function condividi(p){
   var titolo = labelFor(p);
   var testo = 'Acqua potabile: ' + titolo;
   if(navigator.share){
-    navigator.share({title:'IDRATATI', text:testo, url:url}).catch(function(){});
+    navigator.share({title:'IDRATATI', text:testo, url:url})
+      .catch(function(e){
+        // se ha solo annullato non serve dire niente; se è andata storta sì
+        if(e && e.name === 'AbortError') return;
+        if(navigator.clipboard){
+          navigator.clipboard.writeText(url)
+            .then(function(){ toast('Link copiato negli appunti.', 3600); })
+            .catch(function(){ toast(url, 8000); });
+        } else toast(url, 8000);
+      });
     return;
   }
   if(navigator.clipboard){
@@ -1973,7 +2046,12 @@ document.getElementById('search').addEventListener('input',function(e){
       .then(function(r){ return r.json(); })
       .then(function(rows){
         var w=document.getElementById('results');
-        if(!rows.length){ w.classList.remove('on'); return; }
+        if(!rows.length){
+          w.innerHTML='<div style="padding:14px;font-size:13.5px;color:var(--muted)">'+
+            'Nessun posto trovato con questo nome.</div>';
+          w.classList.add('on');
+          return;
+        }
         w.innerHTML='';
         rows.forEach(function(r){
           var b=document.createElement('button');
@@ -1987,7 +2065,12 @@ document.getElementById('search').addEventListener('input',function(e){
           w.appendChild(b);
         });
         w.classList.add('on');
-      }).catch(function(){});
+      }).catch(function(){
+        var w=document.getElementById('results');
+        w.innerHTML='<div style="padding:14px;font-size:13.5px;color:var(--muted)">'+
+          'La ricerca non risponde. Riprova fra un momento.</div>';
+        w.classList.add('on');
+      });
   },420);
 });
 
@@ -2118,13 +2201,16 @@ accentoInMovimento();
 
   function nascondi(perSempre){
     box.classList.remove('on');
+    document.body.classList.remove('invito-aperto');
     if(perSempre) store.set('idr_no_installa','1');
   }
   document.getElementById('instNo').onclick = function(){ nascondi(true); };
 
   function mostra(){
     if(giaApp || store.get('idr_no_installa') === '1') return;
+    if(typeof adding !== 'undefined' && adding) return;   // sta segnalando: non disturbare
     box.classList.add('on');
+    document.body.classList.add('invito-aperto');
   }
 
   // Android e desktop: il browser ci avvisa che si può installare
