@@ -1,0 +1,73 @@
+name: IDRATATI — scarica le fontanelle
+ 
+# Scarica i punti d'acqua da OpenStreetMap e li salva in progetti/idratati/data/.
+# Gira sui server di GitHub: non serve Python sul tuo computer.
+ 
+on:
+  workflow_dispatch:
+    inputs:
+      zona:
+        description: "Quale zona scaricare"
+        type: choice
+        default: "Milano e dintorni (pochi minuti)"
+        options:
+          - "Milano e dintorni (pochi minuti)"
+          - "Lombardia (circa 20 minuti)"
+          - "Tutta Italia (circa 3 ore)"
+  schedule:
+    - cron: "0 3 1 * *"      # il primo del mese, di notte
+ 
+permissions:
+  contents: write
+ 
+concurrency:
+  group: idratati-dati
+  cancel-in-progress: false
+ 
+jobs:
+  scarica:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+ 
+      - name: Scarica da OpenStreetMap
+        run: |
+          ZONA="${{ github.event.inputs.zona }}"
+          if [ -z "$ZONA" ]; then ZONA="Tutta Italia (circa 3 ore)"; fi
+          echo "Zona scelta: $ZONA"
+ 
+          case "$ZONA" in
+            "Milano"*)     ARGS="--bbox 45.35,9.0,45.6,9.35" ;;
+            "Lombardia"*)  ARGS="--bbox 44.6,8.5,46.6,11.5" ;;
+            *)             ARGS="" ;;
+          esac
+ 
+          python3 progetti/idratati/tools/build_data.py $ARGS --milano
+ 
+      - name: Salva i dati nel sito
+        run: |
+          git config user.name  "idratati-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add progetti/idratati/data
+          if git diff --staged --quiet; then
+            echo "Nessuna variazione: i dati erano già aggiornati."
+          else
+            git commit -m "IDRATATI: fontanelle aggiornate $(date +%Y-%m-%d)"
+            git push
+          fi
+ 
+      - name: Riepilogo
+        run: |
+          echo "### Fontanelle scaricate" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f progetti/idratati/data/index.json ]; then
+            python3 -c "import json;d=json.load(open('progetti/idratati/data/index.json'));print(f\"**{d['count']}** punti d'acqua in **{len(d['tiles'])}** tile, aggiornati il {d['generated']}.\")" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Nessun file generato: guarda i log dello step precedente." >> $GITHUB_STEP_SUMMARY
+          fi
+ 
