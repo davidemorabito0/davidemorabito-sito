@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v2.6 (2026-07-27) -->
+<!-- IDRATATI v2.7 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi.">
 <meta name="theme-color" content="#07242F">
@@ -325,7 +325,7 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v2.6 · 2026-07-27</div>
+<div class="ver">v2.7 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -1382,14 +1382,14 @@ function registraQui(lat, lon){
 }
 
 /* Il gesto ha due tempi.
-   Primi 0,6 secondi: silenzio assoluto. Chi voleva solo trascinare la mappa
-   non vede né sente niente, e basta un movimento minimo per annullare.
-   Dopo: parte la cornice, e da lì la mano può ballare parecchio senza
-   che il conto alla rovescia si interrompa. */
-var RITARDO       = 600;    // prima di mostrare qualsiasi cosa
-var DURATA        = 1400;   // quanto ci mette la cornice a chiudersi
-var TOLL_ATTESA   = 10;     // pixel concessi nella fase silenziosa
-var TOLL_CORNICE  = 55;     // pixel concessi una volta partito
+   Primo secondo e mezzo: silenzio assoluto. Chi voleva solo trascinare la
+   mappa non vede né sente niente, e non rischia di far partire nulla.
+   Poi la cornice comincia a chiudersi, e da lì la mano può ballare
+   parecchio senza che il conto alla rovescia si interrompa. */
+var RITARDO       = 1500;   // un secondo e mezzo in cui non succede niente
+var DURATA        = 1400;   // poi il conto alla rovescia della cornice
+var TOLL_ATTESA   = 20;     // pixel concessi nella fase silenziosa
+var TOLL_CORNICE  = 80;     // pixel concessi una volta partito
 
 function attivaPressioneLunga(){
   var el = map.getContainer(), cornice = document.getElementById('lpfull');
