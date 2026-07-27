@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v5.0 (2026-07-27) -->
+<!-- IDRATATI v5.2 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -146,8 +146,8 @@ button{font-family:inherit}
 .pin.casa svg{transform:rotate(0)}
 /* Il colore deve dire a colpo d'occhio chi fidarsi: piena dove qualcuno
    ha confermato di persona, quasi sbiadita dove nessuno l'ha ancora fatto. */
-.pin.daverificare{opacity:.32}
-.pin.daverificare.sel{opacity:.75}   /* aperta, resta leggibile ma si vede che è ancora grigia */
+.pin.daverificare{opacity:.6}
+.pin.daverificare.sel{opacity:.9}   /* aperta, resta leggibile ma si vede che è ancora grigia */
 .pin.sel{opacity:1;transform:rotate(-45deg) scale(1.2);
   box-shadow:0 0 0 6px rgba(0,166,166,.32),0 5px 16px rgba(7,36,47,.45);z-index:5}
 .pin.casa.sel{transform:scale(1.2)}
@@ -237,18 +237,23 @@ button{font-family:inherit}
 #scrim{position:fixed;inset:0;z-index:750;background:rgba(7,36,47,.45);
   opacity:0;pointer-events:none;transition:opacity .3s}
 #scrim.on{opacity:1;pointer-events:auto}
+/* Mai sotto il notch: così l'angolo in alto a destra resta sempre uno
+   spazio vero, e la X non si schiaccia contro la fotocamera del telefono. */
 #sheet{position:fixed;left:0;right:0;bottom:0;z-index:800;background:var(--surface);
-  border-radius:22px 22px 0 0;max-height:88vh;display:flex;flex-direction:column;
+  border-radius:22px 22px 0 0;
+  max-height:calc(88vh - env(safe-area-inset-top) - 10px);
+  display:flex;flex-direction:column;
   transform:translateY(101%);transition:transform .34s cubic-bezier(.2,.8,.2,1);
   box-shadow:0 -6px 40px rgba(7,36,47,.3)}
 #sheet.on{transform:translateY(0)}
 .grab{width:38px;height:4px;border-radius:999px;background:rgba(7,36,47,.18);margin:9px auto 0;flex:0 0 auto}
-.sheet-close{position:absolute;top:12px;right:12px;z-index:5;width:36px;height:36px;
-  border:none;border-radius:50%;background:rgba(229,72,77,.12);color:var(--rotta);
+.sheet-close{position:absolute;top:16px;right:16px;z-index:6;width:40px;height:40px;
+  border:none;border-radius:50%;background:var(--surface);color:var(--rotta);
   font-size:21px;line-height:1;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:background .16s}
-.sheet-close:active{background:rgba(229,72,77,.22)}
-.sheet-body > .eyebrow,.sheet-body > .sheet-h{padding-right:46px}
+  cursor:pointer;transition:background .16s,transform .12s;
+  box-shadow:0 3px 10px rgba(7,36,47,.18),inset 0 0 0 1.5px rgba(229,72,77,.18)}
+.sheet-close:active{background:rgba(229,72,77,.1);transform:scale(.93)}
+.sheet-body > .eyebrow,.sheet-body > .sheet-h{padding-right:52px}
 .sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 16px calc(var(--safe-b) + 18px)}
 .sheet-h{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.15;margin:10px 0 2px}
 .hero{width:100%;height:170px;object-fit:cover;border-radius:14px;margin-top:12px;background:rgba(7,36,47,.06);display:block}
@@ -509,7 +514,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v5.0 · 2026-07-27</div>
+<div class="ver">v5.2 · 2026-07-27</div>
 
 <div id="map"></div>
 
