@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v2.0 (2026-07-27) -->
+<!-- IDRATATI v2.3 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi.">
 <meta name="theme-color" content="#07242F">
@@ -150,6 +150,12 @@ button{font-family:inherit}
   box-shadow:0 -6px 40px rgba(7,36,47,.3)}
 #sheet.on{transform:translateY(0)}
 .grab{width:38px;height:4px;border-radius:999px;background:rgba(7,36,47,.18);margin:9px auto 0;flex:0 0 auto}
+.sheet-close{position:absolute;top:12px;right:12px;z-index:5;width:36px;height:36px;
+  border:none;border-radius:50%;background:rgba(229,72,77,.12);color:var(--rotta);
+  font-size:21px;line-height:1;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .16s}
+.sheet-close:active{background:rgba(229,72,77,.22)}
+.sheet-body > .eyebrow,.sheet-body > .sheet-h{padding-right:46px}
 .sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 16px calc(var(--safe-b) + 18px)}
 .sheet-h{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.15;margin:10px 0 2px}
 .hero{width:100%;height:170px;object-fit:cover;border-radius:14px;margin-top:12px;background:rgba(7,36,47,.06);display:block}
@@ -243,17 +249,27 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
 #crosshair{position:fixed;left:50%;top:50%;transform:translate(-50%,-100%);z-index:880;display:none;pointer-events:none}
 #crosshair.on{display:block}
 
-/* il cerchio che si riempie mentre tieni premuto */
-#lpring{position:fixed;width:66px;height:66px;margin:-33px 0 0 -33px;z-index:645;
-  pointer-events:none;opacity:0;transition:opacity .18s}
-#lpring.on{opacity:1}
-#lpring circle.track{fill:rgba(7,36,47,.16);stroke:rgba(255,255,255,.5);stroke-width:3}
-#lpring circle.run{fill:none;stroke:var(--acqua);stroke-width:4;stroke-linecap:round;
-  transform:rotate(-90deg);transform-origin:50% 50%;
-  stroke-dasharray:176;stroke-dashoffset:176}
-#lpring.on circle.run{animation:riempi 4s linear forwards}
-@keyframes riempi{to{stroke-dashoffset:0}}
-@media (prefers-reduced-motion:reduce){ #lpring.on circle.run{animation-duration:4s} }
+/* Mentre tieni premuto, la cornice dello schermo si chiude in due secondi.
+   Sta ai bordi apposta: il dito è al centro e coprirebbe qualsiasi cosa. */
+#lpfull{position:fixed;inset:0;z-index:940;pointer-events:none;opacity:0;transition:opacity .14s}
+#lpfull.on{opacity:1}
+#lpfull i{position:absolute;display:block;background:var(--acqua);
+  box-shadow:0 0 14px rgba(0,166,166,.55)}
+#lpfull .t{top:0;left:0;width:100%;height:6px;transform:scaleX(0);transform-origin:left}
+#lpfull .r{top:0;right:0;width:6px;height:100%;transform:scaleY(0);transform-origin:top}
+#lpfull .b{bottom:0;right:0;width:100%;height:6px;transform:scaleX(0);transform-origin:right}
+#lpfull .l{bottom:0;left:0;width:6px;height:100%;transform:scaleY(0);transform-origin:bottom}
+#lpfull.on .t{animation:cresceX .5s linear forwards}
+#lpfull.on .r{animation:cresceY .5s linear .5s forwards}
+#lpfull.on .b{animation:cresceX .5s linear 1s forwards}
+#lpfull.on .l{animation:cresceY .5s linear 1.5s forwards}
+@keyframes cresceX{to{transform:scaleX(1)}}
+@keyframes cresceY{to{transform:scaleY(1)}}
+#lpfull .lp-label{position:absolute;left:50%;transform:translateX(-50%);
+  top:calc(env(safe-area-inset-top) + 118px);
+  background:var(--ink);color:var(--surface);font-size:12.5px;font-weight:600;
+  padding:10px 16px;border-radius:999px;white-space:nowrap;
+  box-shadow:0 6px 22px rgba(7,36,47,.35)}
 
 /* il segnaposto piazzato tenendo premuto */
 .prop-pin{width:34px;height:34px;border-radius:50% 50% 50% 5px;transform:rotate(-45deg);
@@ -298,7 +314,7 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v2.0 · 2026-07-27</div>
+<div class="ver">v2.3 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -312,6 +328,11 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
     <button class="chip casa" id="fCasa" aria-pressed="true"><span class="dot"></span>Case dell'acqua</button>
     <button class="chip okonly" id="fOk" aria-pressed="false"><span class="dot"></span>Nascondi le rotte</button>
     <button class="chip freeonly" id="fFree" aria-pressed="false"><span class="dot"></span>Solo gratuite</button>
+    <button class="chip" id="fAudio" aria-pressed="true" aria-label="Suoni" title="Suoni">
+      <svg id="icAudio" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 5 6 9H2v6h4l5 4z"/><path class="onda" d="M15.5 8.5a5 5 0 0 1 0 7"/>
+      </svg></button>
   </div>
   <div id="results"></div>
 </div>
@@ -331,10 +352,10 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
   </svg>
 </div>
 
-<svg id="lpring" viewBox="0 0 66 66" aria-hidden="true">
-  <circle class="track" cx="33" cy="33" r="28"/>
-  <circle class="run"   cx="33" cy="33" r="28"/>
-</svg>
+<div id="lpfull" aria-hidden="true">
+  <i class="t"></i><i class="r"></i><i class="b"></i><i class="l"></i>
+  <div class="lp-label">Tieni premuto… segnalo una fontanella qui</div>
+</div>
 
 <div id="toast"></div>
 
@@ -352,6 +373,7 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
 <div id="scrim"></div>
 <div id="sheet">
   <div class="grab"></div>
+  <button class="sheet-close" id="sheetClose" aria-label="Chiudi e torna alla mappa">×</button>
   <div class="sheet-body" id="sheetBody"></div>
 </div>
 
@@ -398,6 +420,76 @@ var CLIENT = store.get('idr_client');
 if(!CLIENT){
   CLIENT = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,12);
   store.set('idr_client', CLIENT);
+}
+
+/* ============================================================
+   SUONI E VIBRAZIONE
+   Toni sintetizzati sul momento: nessun file da scaricare.
+   Il contesto audio nasce al primo tocco, come vogliono i browser.
+   ============================================================ */
+var suoniAccesi = store.get('idr_suoni') !== '0';
+var ctx = null, master = null;
+
+function audioPronto(){
+  if(!suoniAccesi) return false;
+  try{
+    if(!ctx){
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return false;
+      ctx = new AC();
+      master = ctx.createGain();
+      master.gain.value = 0.5;
+      master.connect(ctx.destination);
+    }
+    if(ctx.state === 'suspended') ctx.resume();
+    return true;
+  }catch(e){ return false; }
+}
+
+/* tick acuto, uno per ogni lato della cornice che si chiude */
+function tick(freq, forza){
+  if(!audioPronto()) return;
+  var t = ctx.currentTime;
+  var o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = 'triangle';
+  o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(forza || 0.12, t + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.11);
+  o.connect(g); g.connect(master);
+  o.start(t); o.stop(t + 0.13);
+}
+
+/* la goccia che cade: la frequenza scivola in basso in un lampo */
+function suonoGoccia(){
+  if(!audioPronto()) return;
+  var t = ctx.currentTime;
+  var o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(1350, t);
+  o.frequency.exponentialRampToValueAtTime(300, t + 0.14);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.34, t + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
+  o.connect(g); g.connect(master);
+  o.start(t); o.stop(t + 0.36);
+  // un secondo tonfo più basso, come l'eco nel catino
+  var o2 = ctx.createOscillator(), g2 = ctx.createGain();
+  o2.type = 'sine';
+  o2.frequency.setValueAtTime(520, t + 0.10);
+  o2.frequency.exponentialRampToValueAtTime(190, t + 0.30);
+  g2.gain.setValueAtTime(0.0001, t + 0.10);
+  g2.gain.exponentialRampToValueAtTime(0.11, t + 0.12);
+  g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
+  o2.connect(g2); g2.connect(master);
+  o2.start(t + 0.10); o2.stop(t + 0.44);
+}
+
+/* nota: su iPhone il browser non espone la vibrazione, quindi lì
+   resta solo il suono. Su Android funziona. */
+function vibra(schema){
+  if(!navigator.vibrate) return;
+  try{ navigator.vibrate(schema); }catch(e){}
 }
 
 /* ---------- mini client Supabase (REST, zero dipendenze) ---------- */
@@ -1012,9 +1104,31 @@ function sendReview(p){
   STARS.forEach(function(s){ row[s[0]]=myRating[s[0]]||null; });
   // tutte le stelle sono facoltative: si può votarne anche una sola
   var b=document.getElementById('revSend'); b.disabled=true; b.textContent='Invio…';
-  SB.insert('reviews',row)
-    .then(function(){ toast('Voto registrato. Grazie.'); loadSupabase({lat:p.lat,lon:p.lon}); closeSheet(); })
-    .catch(function(){ b.disabled=false; b.textContent='Invia il voto'; toast('Non sono riuscito a inviare. Riprova.'); });
+
+  function riuscito(){
+    toast('Voto registrato. Grazie.');
+    loadSupabase({lat:p.lat, lon:p.lon});
+    closeSheet();
+  }
+  function fallito(err){
+    b.disabled=false; b.textContent='Invia il voto';
+    toast('Non è partita: '+(err && err.message ? err.message : 'riprova').slice(0,120), 6000);
+  }
+
+  SB.insert('reviews', row)
+    .then(riuscito)
+    .catch(function(err){
+      var m = (err && err.message ? err.message : '').toLowerCase();
+      // Se il database non conosce ancora la colonna temperature (schema
+      // appena modificato e cache non ricaricata), rimando il voto senza
+      // quella stella invece di far perdere tutto all'utente.
+      if(m.indexOf('temperature') > -1 || m.indexOf('column') > -1 || m.indexOf('pgrst204') > -1){
+        var ridotta = {};
+        Object.keys(row).forEach(function(k){ if(k!=='temperature') ridotta[k]=row[k]; });
+        return SB.insert('reviews', ridotta).then(riuscito).catch(fallito);
+      }
+      fallito(err);
+    });
 }
 function shrink(file,maxPx,q){
   return new Promise(function(res,rej){
@@ -1042,7 +1156,9 @@ function sendPhoto(p,file){
     });
   }).then(function(){
     toast('Foto inviata. La vedrai online dopo il controllo.',4200);
-  }).catch(function(){ toast('Caricamento non riuscito. Riprova.'); });
+  }).catch(function(err){
+    toast('Foto non caricata: '+(err && err.message ? err.message : 'riprova').slice(0,120), 6000);
+  });
 }
 
 /* ============================================================
@@ -1212,13 +1328,18 @@ function registraQui(lat, lon){
                 : 'Segnaposto piantato qui.', 2600);
 }
 
+var ATTESA = 2000;   // due secondi: abbastanza da non partire per sbaglio
+
 function attivaPressioneLunga(){
-  var el = map.getContainer(), ring = document.getElementById('lpring');
+  var el = map.getContainer(), cornice = document.getElementById('lpfull');
   var timer = null, sx = 0, sy = 0, punto = null;
 
+  var battiti = [];
   function ferma(){
     if(timer){ clearTimeout(timer); timer = null; }
-    ring.classList.remove('on');
+    battiti.forEach(clearTimeout); battiti = [];
+    vibra(0);
+    cornice.classList.remove('on');
   }
   function avvia(x, y){
     if(adding) return;
@@ -1226,16 +1347,24 @@ function attivaPressioneLunga(){
     sx = x; sy = y;
     var r = el.getBoundingClientRect();
     punto = map.containerPointToLatLng(L.point(x - r.left, y - r.top));
-    ring.style.left = x + 'px';
-    ring.style.top  = y + 'px';
-    // ripartenza pulita dell'animazione
-    void ring.offsetWidth;
-    ring.classList.add('on');
+    // riavvio pulito delle animazioni della cornice
+    void cornice.offsetWidth;
+    cornice.classList.add('on');
+
+    // un tocco per ogni lato che si chiude, sempre più acuto
+    var scala = [440, 554, 659, 880];
+    tick(scala[0], 0.10);
+    battiti = [1,2,3].map(function(i){
+      return setTimeout(function(){ tick(scala[i], 0.10 + i*0.02); }, i * 500);
+    });
+    vibra([10, 490, 14, 486, 18, 482, 22]);
+
     timer = setTimeout(function(){
       ferma();
-      if(navigator.vibrate) try{ navigator.vibrate(40); }catch(e){}
+      vibra(45);
+      suonoGoccia();
       registraQui(punto.lat, punto.lng);
-    }, 4000);
+    }, ATTESA);
   }
   function muovi(x, y){
     if(!timer) return;
@@ -1299,6 +1428,7 @@ document.getElementById('search').addEventListener('input',function(e){
    ============================================================ */
 document.getElementById('cardClose').onclick=function(){ hideCard(); };
 document.getElementById('scrim').onclick=closeSheet;
+document.getElementById('sheetClose').onclick=closeSheet;
 document.getElementById('locate').onclick=function(){
   if(myPos){ map.setView([myPos.lat,myPos.lon],16); selected=null; render(); }
   else askPosition(true);
@@ -1316,6 +1446,21 @@ function chip(id,key){
 }
 chip('fFont','fontanella'); chip('fCasa','casa');
 chip('fOk','okonly'); chip('fFree','freeonly');
+
+(function(){
+  var b = document.getElementById('fAudio'), onda = document.querySelector('#icAudio .onda');
+  function mostra(){
+    b.setAttribute('aria-pressed', suoniAccesi ? 'true' : 'false');
+    if(onda) onda.style.opacity = suoniAccesi ? '1' : '.25';
+  }
+  mostra();
+  b.onclick = function(){
+    suoniAccesi = !suoniAccesi;
+    store.set('idr_suoni', suoniAccesi ? '1' : '0');
+    mostra();
+    if(suoniAccesi) tick(880, 0.12);
+  };
+})();
 
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){ if(adding) stopAdd(); else closeSheet(); }
@@ -1369,7 +1514,7 @@ askPosition(true);
 // il trucco va detto, altrimenti non lo scopre nessuno
 if(!store.get('idr_visto_pressione')){
   setTimeout(function(){
-    toast('Tieni premuto sulla mappa per segnalare una fontanella.', 5200);
+    toast('Tieni premuto due secondi sulla mappa per segnalare una fontanella.', 5200);
     store.set('idr_visto_pressione','1');
   }, 4200);
 }
