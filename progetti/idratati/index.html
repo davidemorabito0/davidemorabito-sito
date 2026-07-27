@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v4.9 (2026-07-27) -->
+<!-- IDRATATI v5.0 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -144,7 +144,10 @@ button{font-family:inherit}
 .pin.broken{background:var(--rotta)}
 .pin svg{transform:rotate(45deg)}
 .pin.casa svg{transform:rotate(0)}
-.pin.daverificare{opacity:.85}
+/* Il colore deve dire a colpo d'occhio chi fidarsi: piena dove qualcuno
+   ha confermato di persona, quasi sbiadita dove nessuno l'ha ancora fatto. */
+.pin.daverificare{opacity:.32}
+.pin.daverificare.sel{opacity:.75}   /* aperta, resta leggibile ma si vede che è ancora grigia */
 .pin.sel{opacity:1;transform:rotate(-45deg) scale(1.2);
   box-shadow:0 0 0 6px rgba(0,166,166,.32),0 5px 16px rgba(7,36,47,.45);z-index:5}
 .pin.casa.sel{transform:scale(1.2)}
@@ -506,7 +509,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v4.9 · 2026-07-27</div>
+<div class="ver">v5.0 · 2026-07-27</div>
 
 <div id="map"></div>
 
