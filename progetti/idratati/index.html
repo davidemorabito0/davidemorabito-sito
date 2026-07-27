@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v4.6 (2026-07-27) -->
+<!-- IDRATATI v4.8 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -302,6 +302,23 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
 .state3 .btn{font-size:12.5px;padding:12px 4px;border-radius:11px}
 .btn.works{background:rgba(255,176,32,.2);color:#8A5B00}
 /* La conferma di un invio riuscito: verde, grande, senza dubbi. */
+.btn.conta,.b.conta{
+  background:#2FBF71 !important;color:#052e1a !important;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-weight:700;font-size:16px;pointer-events:none;
+  position:relative;overflow:hidden;
+  animation:conferma .3s cubic-bezier(.2,1.5,.4,1)}
+.btn.conta .c-num,.b.conta .c-num{
+  min-width:28px;height:28px;border-radius:50%;
+  background:rgba(0,0,0,.16);display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:800;
+  animation:pulsaNum .6s ease-out}
+@keyframes pulsaNum{from{transform:scale(1.5);opacity:.3}to{transform:scale(1);opacity:1}}
+.btn-foto{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  background:var(--acqua);color:#fff;border-radius:14px;padding:16px 14px;
+  font-size:15.5px;font-weight:600;cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,166,166,.3);transition:transform .14s,filter .14s}
+.btn-foto:active{transform:scale(.98);filter:brightness(.95)}
 .btn.fatto{background:#E4F6EC;color:#127A47;font-size:17px;font-weight:700;
   pointer-events:none;animation:conferma .28s cubic-bezier(.2,1.5,.4,1)}
 @keyframes conferma{from{transform:scale(.94);opacity:.4}to{transform:scale(1);opacity:1}}
@@ -428,6 +445,31 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
   background:rgba(7,36,47,.88);color:var(--surface);
   box-shadow:0 3px 12px rgba(7,36,47,.16);display:flex;align-items:center;gap:5px}
 
+/* Il grazie che si vede. Chi si è fermato a fotografare una fontanella
+   ha fatto una cosa per gli altri: merita più di un pulsante che cambia
+   colore per un secondo. */
+#grazie{position:fixed;inset:0;z-index:9200;display:none;
+  align-items:center;justify-content:center;padding:24px;
+  background:rgba(7,36,47,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+#grazie.on{display:flex;animation:sfuma .22s ease-out}
+@keyframes sfuma{from{opacity:0}to{opacity:1}}
+.g-riquadro{background:var(--surface);border-radius:26px;padding:30px 26px 26px;
+  max-width:330px;width:100%;text-align:center;
+  box-shadow:0 24px 70px rgba(7,36,47,.4);
+  animation:entra .42s cubic-bezier(.2,1.3,.35,1)}
+@keyframes entra{from{transform:scale(.82) translateY(18px);opacity:0}
+                 to{transform:scale(1) translateY(0);opacity:1}}
+.g-goccia{width:96px;height:96px;display:block;margin:0 auto 6px}
+.g-onda{opacity:0;animation:gonda 1.5s ease-out .15s 2}
+.g-onda2{animation-delay:.5s}
+@keyframes gonda{0%{r:18px;opacity:.7}100%{r:52px;opacity:0}}
+.g-titolo{font-family:var(--display);font-weight:800;font-size:29px;line-height:1.1;
+  color:var(--acqua-deep);letter-spacing:-.01em}
+.g-testo{font-size:15px;line-height:1.45;color:var(--ink);margin-top:9px}
+.g-conto{font-size:13px;color:var(--muted);margin-top:14px;
+  padding-top:13px;border-top:1px solid var(--line)}
+.g-conto:empty{display:none}
+
 #toast{position:fixed;left:50%;top:calc(var(--safe-t) + 110px);transform:translateX(-50%) translateY(-12px);
   z-index:9500;background:var(--ink);color:var(--surface);font-size:12.5px;padding:10px 15px;
   border-radius:999px;box-shadow:0 6px 20px rgba(7,36,47,.3);opacity:0;pointer-events:none;
@@ -464,7 +506,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v4.6 · 2026-07-27</div>
+<div class="ver">v4.8 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -549,6 +591,20 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
   <div class="azioni">
     <button class="b ghost" id="instNo">No grazie</button>
     <button class="b go" id="instSi" hidden>Installa</button>
+  </div>
+</div>
+
+<div id="grazie" aria-live="polite">
+  <div class="g-riquadro">
+    <svg class="g-goccia" viewBox="0 0 120 120" aria-hidden="true">
+      <circle class="g-onda" cx="60" cy="66" r="18" fill="none" stroke="#00A6A6" stroke-width="2"/>
+      <circle class="g-onda g-onda2" cx="60" cy="66" r="18" fill="none" stroke="#00A6A6" stroke-width="2"/>
+      <path d="M60 26c0 0 20 24.5 20 36.2A20 20 0 0 1 40 62.2C40 50.5 60 26 60 26Z" fill="#00A6A6"/>
+      <path d="M50 66c0-6 3.9-11.4 3.9-11.4" stroke="#BFF0EE" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+    </svg>
+    <div class="g-titolo" id="gTitolo">Grazie!</div>
+    <div class="g-testo" id="gTesto"></div>
+    <div class="g-conto" id="gConto"></div>
   </div>
 </div>
 
@@ -1446,8 +1502,13 @@ function openSheet(p){
      'se l\'acqua ti sembra sospetta non berla e segnala la fontanella.</div></div>';
 
   h+='<div class="sec"><div class="sec-t">Aggiungi una foto</div>'+
-     '<input type="file" id="photoFile" accept="image/*" capture="environment" style="font-size:13px">'+
-     '<div class="hint">La foto compare sulla scheda dopo un controllo. Fotografa la fontanella, non le persone.</div></div>';
+     '<label class="btn-foto" for="photoFile">'+
+       '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+
+       '<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>'+
+       '<circle cx="12" cy="13" r="4"/></svg>'+
+       'Scatta o scegli una foto</label>'+
+     '<input type="file" id="photoFile" accept="image/*" capture="environment" hidden>'+
+     '<div class="hint">È la cosa che aiuta di più a ritrovarla. Fotografa la fontanella, non le persone.</div></div>';
 
   h+='<div class="sec" id="revList"></div>';
 
@@ -1466,6 +1527,55 @@ function openSheet(p){
   document.getElementById('photoFile').onchange=function(e){ sendPhoto(p, e.target.files[0]); };
   document.getElementById('condividi').onclick=function(){ condividi(p); };
 }
+/* Il pulsante che conta prima di chiudere. Serve a far vedere che è
+   successo qualcosa e a dare il tempo di accorgersene, invece di far
+   sparire il pannello di colpo come se non fosse mai esistito. */
+function contoAllaRovescia(bottone, primaRiga, secondi, poi){
+  if(!bottone){ poi(); return; }
+  var n = secondi || 3;
+  bottone.classList.add('conta');
+  bottone.innerHTML = '<span class="c-testo">'+primaRiga+'</span>';
+  if(suoniAccesi) tick(880, .12);
+
+  setTimeout(function(){ passo(); }, 620);
+
+  function passo(){
+    if(n <= 0){
+      bottone.classList.remove('conta');
+      poi();
+      return;
+    }
+    bottone.innerHTML = '<span class="c-testo">'+primaRiga+'</span>'+
+                        '<span class="c-num">'+n+'</span>';
+    if(suoniAccesi) tick(520 + n*90, .07);
+    n--;
+    setTimeout(passo, 620);
+  }
+}
+
+/* Il ringraziamento a schermo intero. Si chiude da solo, o al tocco per
+   chi ha fretta: nessuno deve restare bloccato a guardarlo. */
+var timerGrazie = null;
+function grazie(titolo, testo, quanto){
+  var box = document.getElementById('grazie');
+  if(!box) return;
+  document.getElementById('gTitolo').textContent = titolo;
+  document.getElementById('gTesto').textContent  = testo;
+  var n = quanto == null ? contributi() : quanto;
+  document.getElementById('gConto').textContent =
+    n > 1 ? 'È il tuo ' + n + '° contributo.' : 'Il primo di tanti, speriamo.';
+  box.classList.add('on');
+  if(suoniAccesi) suonoGoccia();
+  vibra(30);
+  clearTimeout(timerGrazie);
+  timerGrazie = setTimeout(chiudiGrazie, 2800);
+}
+function chiudiGrazie(){
+  clearTimeout(timerGrazie);
+  var box = document.getElementById('grazie');
+  if(box) box.classList.remove('on');
+}
+
 /* Il segnaposto batte due volte: vedere l'effetto di quello che hai fatto
    vale più di qualsiasi messaggio. */
 function festeggia(p){
@@ -1688,21 +1798,16 @@ function sendReview(p){
     loadSupabase({lat:p.lat, lon:p.lon});
     festeggia(p);
 
-    var b2 = document.getElementById('revSend');
-    if(b2){
-      b2.className = 'btn fatto';
-      b2.innerHTML = n > 1 ? '✓ Voto inviato · '+n+'° contributo' : '✓ Voto inviato';
-    }
     var com = document.getElementById('revComment');
     if(com) com.disabled = true;
-    if(suoniAccesi) suonoGoccia();
 
-    // Il tempo di leggere la conferma, poi si torna alla mappa da soli:
-    // andare a cercare la X in alto per una cosa già finita è una seccatura.
-    setTimeout(function(){
-      if(fotoInCorso) return;      // se sta ancora caricando una foto, resta
+    // Il pulsante conta prima di chiudere: si vede che è successo qualcosa.
+    contoAllaRovescia(document.getElementById('revSend'), '✓ Voto inviato!', 3, function(){
+      if(fotoInCorso) return;      // se sta ancora caricando una foto, resta aperta
       closeSheet();
-    }, 1400);
+      grazie('Voto registrato',
+             'Adesso chi cerca acqua da queste parti sa cosa aspettarsi.', n);
+    });
   }
   function fallito(err){
     b.disabled=false; b.textContent='Invia il voto';
@@ -1754,7 +1859,10 @@ function sendPhoto(p,file){
     });
   }).then(function(){
     fotoInCorso = false;
-    toast('Foto inviata. La vedrai online dopo il controllo.',4200);
+    var n = contaContributo();
+    grazie('Foto ricevuta',
+           'Una foto è la cosa che aiuta di più a ritrovare una fontanella. La vedranno tutti dopo un controllo.',
+           n);
   }).catch(function(err){
     fotoInCorso = false;
     toast('Foto non caricata: '+(err && err.message ? err.message : 'riprova').slice(0,120), 6000);
@@ -1905,11 +2013,15 @@ function confirmAdd(punto){
         return conScadenza(SB.insert('submissions', riga), 25);
       })
       .then(function(){
-        b.className = 'b go fatto';
-        b.textContent = '✓ Inviata';
-        if(suoniAccesi) suonoGoccia();
-        toast('Proposta inviata. Compare sulla mappa dopo il controllo.', 4500);
-        setTimeout(stopAdd, 1200);
+        var n = contaContributo();
+        contoAllaRovescia(b, '✓ Inviata!', 3, function(){
+          stopAdd();
+          grazie('Grazie!',
+                 riga.photo_path
+                   ? 'Hai messo sulla mappa una fontanella che non c\'era, con tanto di foto. Dopo un controllo la vedranno tutti.'
+                   : 'Hai messo sulla mappa una fontanella che non c\'era. Dopo un controllo la vedranno tutti.',
+                 n);
+        });
       })
       .catch(function(err){
         b.disabled = false;
@@ -2223,6 +2335,7 @@ document.getElementById('rigaMini').onclick = function(){
 })();
 document.getElementById('scrim').onclick=closeSheet;
 document.getElementById('sheetClose').onclick=closeSheet;
+document.getElementById('grazie').onclick=chiudiGrazie;
 document.getElementById('locate').onclick=function(){
   if(myPos){ map.setView([myPos.lat,myPos.lon],16); selected=null; render(); }
   else askPosition(true);
