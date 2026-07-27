@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v4.3 (2026-07-27) -->
+<!-- IDRATATI v4.6 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -107,7 +107,9 @@ button{font-family:inherit}
   font-family:var(--body);background:rgba(255,255,255,.95);color:var(--ink);
   box-shadow:0 4px 14px rgba(7,36,47,.18)}
 #search::placeholder{color:rgba(7,36,47,.4)}
-.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;
+  -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent);
+  mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent)}
 .chips::-webkit-scrollbar{display:none}
 .chip{font-size:11.5px;font-weight:600;border:none;cursor:pointer;padding:8px 11px;
   border-radius:999px;white-space:nowrap;background:rgba(255,255,255,.95);color:var(--ink);
@@ -118,6 +120,8 @@ button{font-family:inherit}
 .chip.freeonly .dot{background:var(--getto)}
 .chip.access .dot{background:#1E7BFF}
 .chip.dog .dot{background:#9B6BD8}
+.chip.nuove .dot{background:#8A93A0}
+.chip.nuove span:last-child{opacity:.65;font-weight:700}
 .chip[aria-pressed="false"]{background:rgba(255,255,255,.5);color:rgba(7,36,47,.38)}
 .chip[aria-pressed="false"] .dot{background:rgba(7,36,47,.18)}
 #results{position:absolute;left:10px;right:10px;top:calc(var(--safe-t) + 58px);
@@ -140,7 +144,16 @@ button{font-family:inherit}
 .pin.broken{background:var(--rotta)}
 .pin svg{transform:rotate(45deg)}
 .pin.casa svg{transform:rotate(0)}
-.pin.sel{box-shadow:0 0 0 5px rgba(0,166,166,.3),0 3px 10px rgba(7,36,47,.35)}
+.pin.daverificare{opacity:.85}
+.pin.sel{opacity:1;transform:rotate(-45deg) scale(1.2);
+  box-shadow:0 0 0 6px rgba(0,166,166,.32),0 5px 16px rgba(7,36,47,.45);z-index:5}
+.pin.casa.sel{transform:scale(1.2)}
+/* quando arriva la tua segnalazione, il segnaposto reagisce */
+.pin.appena{animation:battito .7s ease-out 2}
+@keyframes battito{
+  0%,100%{box-shadow:0 0 0 0 rgba(0,166,166,.55),0 3px 10px rgba(7,36,47,.35)}
+  50%{box-shadow:0 0 0 14px rgba(0,166,166,0),0 3px 10px rgba(7,36,47,.35)}
+}
 .grappolo{width:38px;height:38px;border-radius:50%;background:rgba(0,166,166,.92);
   border:2.5px solid #fff;box-shadow:0 3px 12px rgba(7,36,47,.35);color:#fff;
   display:flex;align-items:center;justify-content:center;
@@ -181,6 +194,19 @@ button{font-family:inherit}
   margin:7px 0 3px;letter-spacing:-.01em}
 .headline b{font-weight:800;color:var(--acqua-deep)}
 .sub{font-size:13.5px;color:var(--muted);line-height:1.35}
+.stato-riga{display:flex;align-items:center;gap:10px;margin-top:11px;
+  padding:11px 13px;border-radius:13px;background:rgba(7,36,47,.06)}
+.stato-riga .segno{flex:0 0 auto;width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;background:rgba(7,36,47,.12);color:var(--muted)}
+.stato-riga .testo{font-size:14px;font-weight:600;line-height:1.3}
+.stato-riga .testo b{display:block;font-weight:500;font-size:12.5px;opacity:.78;margin-top:2px}
+.stato-riga.ok{background:rgba(0,166,166,.13);color:var(--acqua-deep)}
+.stato-riga.ok .segno{background:var(--acqua);color:#fff}
+.stato-riga.bad{background:rgba(229,72,77,.11);color:var(--rotta)}
+.stato-riga.bad .segno{background:var(--rotta);color:#fff}
+.stato-riga.warn{background:rgba(255,176,32,.2);color:#8A5B00}
+.stato-riga.warn .segno{background:var(--getto);color:#3d2800}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .tag{font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:8px;
   background:rgba(7,36,47,.06);color:rgba(7,36,47,.72)}
@@ -192,6 +218,9 @@ button{font-family:inherit}
   border-radius:13px;background:var(--ink);color:var(--surface);text-decoration:none;
   display:flex;align-items:center;justify-content:center;gap:6px}
 .btn.ghost{background:rgba(7,36,47,.07);color:var(--ink)}
+/* Portare qualcuno all'acqua è il gesto per cui si apre l'app:
+   deve essere il pulsante più grande e più evidente. */
+.btn.primario{flex:1.7;background:var(--ink);color:var(--surface);font-size:15px}
 .btn.small{padding:10px;font-size:13px;border-radius:11px}
 .btn:active{transform:scale(.985)}
 .btn[disabled]{opacity:.5;pointer-events:none}
@@ -238,8 +267,11 @@ button{font-family:inherit}
 .tempval.fresca{background:rgba(49,182,216,.18);color:#0A5C72}
 .starrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0}
 .starrow span{font-size:13.5px}
-.stars{display:flex;gap:3px;flex:0 0 auto}
-.star{width:26px;height:26px;border:none;background:none;padding:0;cursor:pointer;color:rgba(7,36,47,.2)}
+.stars{display:flex;gap:1px;flex:0 0 auto;margin-right:-4px}
+.star{width:38px;height:38px;border:none;background:none;padding:4px;cursor:pointer;
+  color:rgba(7,36,47,.18);transition:color .12s,transform .12s}
+.star.on{transform:scale(1.05)}
+.star:active{transform:scale(.88)}
 .star.on{color:var(--getto)}
 .star svg{width:100%;height:100%;display:block}
 .bar{height:6px;border-radius:99px;background:rgba(7,36,47,.09);overflow:hidden;flex:1;max-width:110px}
@@ -251,6 +283,12 @@ button{font-family:inherit}
 textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;
   font-family:var(--body);font-size:14px;background:var(--card);color:var(--ink);resize:none}
 .hint{font-size:11.5px;color:var(--muted);line-height:1.4;margin-top:8px}
+.grazie{margin-top:11px;padding:12px 14px;border-radius:13px;
+  background:rgba(0,166,166,.11);color:var(--acqua-deep);
+  font-size:13.5px;font-weight:600;line-height:1.4;
+  animation:conferma .3s cubic-bezier(.2,1.5,.4,1)}
+.grazie b{font-weight:800}
+.grazie span{display:block;margin-top:4px;font-weight:500;opacity:.8;font-size:12.5px}
 .age{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:7px;
   background:rgba(7,36,47,.07);color:var(--muted)}
 .age.fresh{background:rgba(0,166,166,.15);color:var(--acqua-deep)}
@@ -426,7 +464,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v4.3 · 2026-07-27</div>
+<div class="ver">v4.6 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -442,6 +480,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     <button class="chip freeonly" id="fFree" aria-pressed="false"><span class="dot"></span>Solo gratuite</button>
     <button class="chip access" id="fAcc" aria-pressed="false"><span class="dot"></span>Accessibili</button>
     <button class="chip dog" id="fDog" aria-pressed="false"><span class="dot"></span>Con vaschetta cani</button>
+    <button class="chip nuove" id="fNuove" aria-pressed="false"><span class="dot"></span>Mai verificate<span id="quanteNuove"></span></button>
     <a id="linkCitta" href="citta/">Città</a>
     <button class="chip" id="fAudio" aria-pressed="true" aria-label="Suoni" title="Suoni">
       <svg id="icAudio" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -559,6 +598,15 @@ var store = {
 };
 var modoSalvato = store.get('idr_modo');
 if(modoSalvato && MODI[modoSalvato]) modo = modoSalvato;
+/* Quante volte hai dato una mano. Sta solo su questo telefono: nessun
+   profilo, nessuna classifica, niente che parta verso un server. */
+function contributi(){ return parseInt(store.get('idr_contributi') || '0', 10) || 0; }
+function contaContributo(){
+  var n = contributi() + 1;
+  store.set('idr_contributi', String(n));
+  return n;
+}
+
 var CLIENT = store.get('idr_client');
 if(!CLIENT){
   CLIENT = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,12);
@@ -731,7 +779,7 @@ var map, layer, meMarker, myPos=null, points=[], byId={},
     selected=null, tilesLoaded={}, fetching=false, lastQ=null,
     adding=false, addPhoto=null, myVotes={},
     lastOverpassAt=0, lastOverpassAt_center=null, firstLoadDone=false;
-var show = {fontanella:true, casa:true, okonly:false, freeonly:false, access:false, dog:false};
+var show = {fontanella:true, casa:true, okonly:false, freeonly:false, access:false, dog:false, daverificare:false};
 
 /* ---------- utility ---------- */
 function dist(a,b){
@@ -800,6 +848,18 @@ function feeOf(p){
   return null;
 }
 
+/* Una fontanella è "verificata" quando qualcuno ha detto se funziona
+   oppure l'ha votata. La foto non basta: una foto non dice se esce acqua. */
+function verificata(p){
+  var st = statusAgg[p.target];
+  if(st && ((st.ok_votes||0) + (st.broken_votes||0) + (st.works_votes||0) + (st.missing_votes||0)) > 0)
+    return true;
+  var r = reviewAgg[p.target];
+  if(r && r.n > 0) return true;
+  if(p.ov && p.ov.status && p.ov.status !== 'unknown') return true;   // deciso da te
+  return false;
+}
+
 /* ---------- stato calcolato ---------- */
 function stateOf(p){
   var ov=p.ov, ag=statusAgg[p.target];
@@ -822,6 +882,37 @@ function stateOf(p){
   if(p.tags.check_date) return {s:'unknown', why:'verificata su OSM il '+p.tags.check_date};
   return {s:'unknown', why:null};
 }
+/* La domanda per cui si apre l'app è una sola: funziona, e chi lo dice da
+   quando? Stato e data vanno insieme, in una frase, prima di tutto il resto. */
+function fraseStato(p){
+  var st = stateOf(p);
+  var quando = st.last ? agoText(daysAgo(st.last)) : null;
+  if(st.s === 'ok')      return {c:'ok',   ico:'✓', t:'Confermata funzionante', q:quando};
+  if(st.s === 'broken')  return {c:'bad',  ico:'✕', t:'Segnalata rotta', q:quando};
+  if(st.s === 'works')   return {c:'warn', ico:'!', t:'Lavori in corso', q:quando};
+  if(st.s === 'missing') return {c:'bad',  ico:'?', t:'Nessuno riesce a trovarla', q:quando};
+  if(st.s === 'doubt')   return {c:'warn', ico:'?', t:'Una segnalazione di guasto', q:quando};
+  if(st.s === 'removed') return {c:'bad',  ico:'✕', t:'Rimossa', q:quando};
+  // nessuna segnalazione: si dice quel che si sa, senza inventare
+  if(p.tags && p.tags.check_date)
+    return {c:'', ico:'·', t:'Controllata sul posto', q:'il '+p.tags.check_date};
+  return {c:'', ico:'·', t:'Non l\'ha ancora controllata nessuno', q:null};
+}
+
+function rigaStato(p){
+  var f = fraseStato(p);
+  return '<div class="stato-riga '+f.c+'">'+
+         '<span class="segno">'+f.ico+'</span>'+
+         '<span class="testo">'+esc(f.t)+
+         (f.q ? '<b>'+esc(f.q)+'</b>' : '')+'</span></div>';
+}
+
+var STATI_SCRITTI = ['Funzionante','Segnalata rotta','Lavori in corso','Nessuno la trova',
+                     'Rimossa','Da verificare','Stato sconosciuto'];
+function senzaStato(elenco){
+  return elenco.filter(function(t){ return STATI_SCRITTI.indexOf(t.s) === -1; });
+}
+
 function stateLabel(st){
   if(st.s==='ok')      return {c:'ok',   t:'Funzionante'};
   if(st.s==='broken')  return {c:'bad',  t:'Segnalata rotta'};
@@ -1067,6 +1158,7 @@ function visible(){
     if(show.freeonly && feeOf(p)==='paid') return false;
     if(show.access && p.tags.wheelchair!=='yes') return false;
     if(show.dog && !(p.tags.dog==='yes' || p.tags.bowl==='yes' || p.tags['drinking_water:dog']==='yes')) return false;
+    if(show.daverificare && verificata(p)) return false;
     return true;
   });
 }
@@ -1114,6 +1206,7 @@ function disegnaPin(p){
   var guasto = (st.s === 'broken' || st.s === 'missing');
   L.marker([p.lat, p.lon], {icon: L.divIcon({className:'',
     html:'<div class="pin'+(casa?' casa':'')+(guasto?' broken':'')+
+         (verificata(p) ? '' : ' daverificare')+
          (selected && selected.target === p.target ? ' sel' : '')+'">'+
          (casa?IC_C:IC_F)+
          (feeOf(p)==='paid'?'<span class="fee">€</span>':'')+'</div>',
@@ -1151,6 +1244,14 @@ function render(){
 
   // il punto aperto resta visibile anche se finisce fuori inquadratura
   if(selected && punti.indexOf(selected) === -1) disegnaPin(selected);
+
+  // quante ne aspettano ancora qualcuno che le controlli, qui intorno
+  var q = document.getElementById('quanteNuove');
+  if(q){
+    var mai = punti.filter(function(x){ return !verificata(x); }).length;
+    q.textContent = mai ? ' ' + mai : '';
+  }
+
   if(!selected) showNearest();
 }
 
@@ -1224,20 +1325,20 @@ function fillCard(p,d,isNearest){
   if(d!=null) sub.push(fmtDist(d)+(isNearest?'':' · '+walkMin(d)+' min '+MODI[modo].nome));
   if(myPos && myPos.acc > SOGLIA_INCERTA) sub.push('posizione approssimativa');
   document.getElementById('cSub').textContent=sub.join(' · ');
-  var tw=document.getElementById('cTags'); tw.innerHTML='';
-  tagsFor(p).slice(0,4).forEach(function(t){
-    var s=document.createElement('span'); s.className='tag'+(t.c?' '+t.c:''); s.textContent=t.s; tw.appendChild(s);
-  });
-  var st2=stateOf(p);
-  var freschezza = st2.last ? bollo(st2.last, 'verificata') : '';
+  var tw=document.getElementById('cTags');
+  tw.innerHTML = rigaStato(p) + '<div class="tags" style="margin-top:9px">' +
+    senzaStato(tagsFor(p)).slice(0,3).map(function(t){
+      return '<span class="tag'+(t.c?' '+t.c:'')+'">'+esc(t.s)+'</span>';
+    }).join('') + '</div>';
   document.getElementById('cActions').innerHTML=
-    (freschezza ? '<div style="width:100%;margin-bottom:10px">'+freschezza+'</div>' : '')+
     '<div class="modeseg" id="cMode">'+
       '<button data-m="piedi"'+(modo==='piedi'?' class="on"':'')+'>A piedi</button>'+
       '<button data-m="auto"'+(modo==='auto'?' class="on"':'')+'>In auto</button></div>'+
     '<div style="display:flex;gap:8px;width:100%;margin-top:11px">'+
-      '<button class="btn" id="cOpen">Dettagli e voto</button>'+
-      '<a class="btn ghost" id="cNav" href="'+navUrl(p,'g')+'" target="_blank" rel="noopener">Portami</a></div>';
+      '<a class="btn primario" id="cNav" href="'+navUrl(p,'g')+'" target="_blank" rel="noopener">'+
+        '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>'+
+        'Portami</a>'+
+      '<button class="btn ghost" id="cOpen">Dettagli</button></div>';
   document.getElementById('cActions').style.flexWrap='wrap';
   document.getElementById('cOpen').onclick=function(){ openSheet(p); };
 
@@ -1250,8 +1351,13 @@ function fillCard(p,d,isNearest){
       : esc(labelFor(p));
   var sec = [];
   if(d!=null) sec.push(fmtDist(d));
-  var stMini = stateLabel(stateOf(p));
-  if(stMini.t !== 'Stato sconosciuto') sec.push(stMini.t.toLowerCase());
+  var fs = fraseStato(p);
+  var breve = {'Confermata funzionante':'funziona','Segnalata rotta':'rotta',
+               'Lavori in corso':'lavori','Nessuno riesce a trovarla':'non si trova',
+               'Una segnalazione di guasto':'da verificare','Rimossa':'rimossa',
+               'Controllata sul posto':'controllata',
+               "Non l'ha ancora controllata nessuno":'mai controllata'}[fs.t] || fs.t.toLowerCase();
+  sec.push(fs.q ? breve+' · '+fs.q : breve);
   if(myPos && myPos.acc > SOGLIA_INCERTA) sec.push('posizione approssimativa');
   var ms = document.getElementById('miniSecondo');
   if(ms) ms.textContent = sec.join(' · ');
@@ -1310,8 +1416,9 @@ function openSheet(p){
   h+='<div class="eyebrow">'+(p.kind==='casa'?"Casa dell'acqua":'Fontanella pubblica')+'</div>';
   h+='<div class="sheet-h">'+esc(labelFor(p))+'</div>';
   h+='<div class="sub">'+(d!=null?fmtDist(d)+' · '+walkMin(d)+' min '+MODI[modo].nome:'Distanza non disponibile')+'</div>';
+  h+=rigaStato(p);
   h+='<div class="tags">';
-  tagsFor(p).forEach(function(t){ h+='<span class="tag'+(t.c?' '+t.c:'')+'">'+esc(t.s)+'</span>'; });
+  senzaStato(tagsFor(p)).forEach(function(t){ h+='<span class="tag'+(t.c?' '+t.c:'')+'">'+esc(t.s)+'</span>'; });
   h+='</div>';
   if(p.ov && p.ov.notes){
     h+='<div class="sec" style="margin-top:16px"><div class="sec-t">Nota</div>'+
@@ -1359,11 +1466,21 @@ function openSheet(p){
   document.getElementById('photoFile').onchange=function(e){ sendPhoto(p, e.target.files[0]); };
   document.getElementById('condividi').onclick=function(){ condividi(p); };
 }
+/* Il segnaposto batte due volte: vedere l'effetto di quello che hai fatto
+   vale più di qualsiasi messaggio. */
+function festeggia(p){
+  setTimeout(function(){
+    var pin = document.querySelector('.leaflet-marker-icon .pin.sel');
+    if(pin) pin.classList.add('appena');
+  }, 60);
+}
+
 /* Le pastiglie in cima alla scheda, aggiornate senza toccare il resto. */
 function aggiornaEtichette(p){
+  var r = document.querySelector('#sheetBody .stato-riga');
+  if(r) r.outerHTML = rigaStato(p);
   var w = document.querySelector('#sheetBody .tags');
-  if(!w) return;
-  w.innerHTML = tagsFor(p).map(function(t){
+  if(w) w.innerHTML = senzaStato(tagsFor(p)).map(function(t){
     return '<span class="tag'+(t.c?' '+t.c:'')+'">'+esc(t.s)+'</span>';
   }).join('');
 }
@@ -1379,9 +1496,8 @@ function closeSheet(){
 function renderStato(p){
   var w = document.getElementById('statoBox');
   if(!w) return;
-  var st = stateOf(p), mio = myVotes[p.target];
-  var h = '';
-  if(st.last) h += '<div style="margin-bottom:10px">'+bollo(st.last,'ultima segnalazione')+'</div>';
+  var mio = myVotes[p.target];
+  var h = '';   // la data sta già nella riga di stato, in cima alla scheda
 
   function b(id, cls, val, testo){
     return '<button class="btn '+cls+(mio===val?' scelto':'')+'" id="'+id+'"'+
@@ -1396,9 +1512,11 @@ function renderStato(p){
 
   if(mio){
     var nomi = {ok:'funzionante', works:'in lavori', broken:'rotta', missing:'non trovata'};
-    h += '<div class="hint">Hai segnalato che è <b>'+nomi[mio]+'</b>. '+
-         'Ti sei sbagliato o è cambiata? Tocca un\'altra voce e la tua segnalazione '+
-         'viene corretta: non se ne aggiunge una seconda.</div>';
+    var n = contributi();
+    h += '<div class="grazie">Grazie: adesso chi arriva qui sa che è <b>'+nomi[mio]+'</b>.'+
+         (n > 1 ? '<span>Hai dato una mano '+n+' volte.</span>' : '')+'</div>';
+    h += '<div class="hint">Ti sei sbagliato o è cambiata? Tocca un\'altra voce e la tua '+
+         'segnalazione viene corretta: non se ne aggiunge una seconda.</div>';
   } else {
     h += '<div class="hint"><b>Lavori</b> se c\'è un cantiere o è transennata: non è rotta, tornerà. '+
          '<b>Non la trovo</b> se al suo posto non c\'è più niente: forse è stata rimossa.</div>';
@@ -1541,9 +1659,11 @@ function sendReport(p,status){
            broken:'Segnata come rotta. Grazie.',
            missing:'Segnalato che non c\'è. Se lo dice anche qualcun altro, la togliamo.'}[status], 4200);
       // si aggiorna solo il riquadro dello stato: foto e stelle restano dove sono
+      if(!precedente) contaContributo();
       renderStato(p);
       aggiornaEtichette(p);
       render();
+      festeggia(p);
     })
     .catch(function(err){
       ['voteOk','voteWk','voteKo','voteNo'].forEach(function(id){
@@ -1564,12 +1684,14 @@ function sendReview(p){
   var b=document.getElementById('revSend'); b.disabled=true; b.textContent='Invio…';
 
   function riuscito(){
+    var n = contaContributo();
     loadSupabase({lat:p.lat, lon:p.lon});
+    festeggia(p);
 
     var b2 = document.getElementById('revSend');
     if(b2){
       b2.className = 'btn fatto';
-      b2.innerHTML = '✓ Voto inviato';
+      b2.innerHTML = n > 1 ? '✓ Voto inviato · '+n+'° contributo' : '✓ Voto inviato';
     }
     var com = document.getElementById('revComment');
     if(com) com.disabled = true;
@@ -2118,7 +2240,7 @@ function chip(id,key){
 }
 chip('fFont','fontanella'); chip('fCasa','casa');
 chip('fOk','okonly'); chip('fFree','freeonly');
-chip('fAcc','access'); chip('fDog','dog');
+chip('fAcc','access'); chip('fDog','dog'); chip('fNuove','daverificare');
 
 (function(){
   var b = document.getElementById('fAudio'), onda = document.querySelector('#icAudio .onda');
