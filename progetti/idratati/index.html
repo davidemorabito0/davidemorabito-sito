@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v2.4 (2026-07-27) -->
+<!-- IDRATATI v2.6 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi.">
 <meta name="theme-color" content="#07242F">
@@ -270,10 +270,10 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
 #lpfull .r{top:0;right:0;width:6px;height:100%;transform:scaleY(0);transform-origin:top}
 #lpfull .b{bottom:0;right:0;width:100%;height:6px;transform:scaleX(0);transform-origin:right}
 #lpfull .l{bottom:0;left:0;width:6px;height:100%;transform:scaleY(0);transform-origin:bottom}
-#lpfull.on .t{animation:cresceX .5s linear forwards}
-#lpfull.on .r{animation:cresceY .5s linear .5s forwards}
-#lpfull.on .b{animation:cresceX .5s linear 1s forwards}
-#lpfull.on .l{animation:cresceY .5s linear 1.5s forwards}
+#lpfull.on .t{animation:cresceX .35s linear forwards}
+#lpfull.on .r{animation:cresceY .35s linear .35s forwards}
+#lpfull.on .b{animation:cresceX .35s linear .7s forwards}
+#lpfull.on .l{animation:cresceY .35s linear 1.05s forwards}
 @keyframes cresceX{to{transform:scaleX(1)}}
 @keyframes cresceY{to{transform:scaleY(1)}}
 #lpfull .lp-label{position:absolute;left:50%;transform:translateX(-50%);
@@ -325,7 +325,7 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v2.4 · 2026-07-27</div>
+<div class="ver">v2.6 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -1381,47 +1381,64 @@ function registraQui(lat, lon){
                 : 'Segnaposto piantato qui.', 2600);
 }
 
-var ATTESA = 2000;   // due secondi: abbastanza da non partire per sbaglio
+/* Il gesto ha due tempi.
+   Primi 0,6 secondi: silenzio assoluto. Chi voleva solo trascinare la mappa
+   non vede né sente niente, e basta un movimento minimo per annullare.
+   Dopo: parte la cornice, e da lì la mano può ballare parecchio senza
+   che il conto alla rovescia si interrompa. */
+var RITARDO       = 600;    // prima di mostrare qualsiasi cosa
+var DURATA        = 1400;   // quanto ci mette la cornice a chiudersi
+var TOLL_ATTESA   = 10;     // pixel concessi nella fase silenziosa
+var TOLL_CORNICE  = 55;     // pixel concessi una volta partito
 
 function attivaPressioneLunga(){
   var el = map.getContainer(), cornice = document.getElementById('lpfull');
-  var timer = null, sx = 0, sy = 0, punto = null;
+  var attesa = null, conto = null, battiti = [];
+  var sx = 0, sy = 0, punto = null, fase = null;
 
-  var battiti = [];
   function ferma(){
-    if(timer){ clearTimeout(timer); timer = null; }
+    if(attesa){ clearTimeout(attesa); attesa = null; }
+    if(conto){  clearTimeout(conto);  conto  = null; }
     battiti.forEach(clearTimeout); battiti = [];
+    fase = null;
     vibra(0);
     cornice.classList.remove('on');
   }
+
   function avvia(x, y){
     if(adding) return;
     ferma();
-    sx = x; sy = y;
+    sx = x; sy = y; fase = 'attesa';
     var r = el.getBoundingClientRect();
+    // Il punto si prende adesso: se poi la mappa scorre un po' sotto il dito,
+    // la fontanella indicata resta quella che stavi toccando.
     punto = map.containerPointToLatLng(L.point(x - r.left, y - r.top));
-    // riavvio pulito delle animazioni della cornice
-    void cornice.offsetWidth;
-    cornice.classList.add('on');
 
-    // un tocco per ogni lato che si chiude, sempre più acuto
-    var scala = [440, 554, 659, 880];
-    tick(scala[0], 0.10);
-    battiti = [1,2,3].map(function(i){
-      return setTimeout(function(){ tick(scala[i], 0.10 + i*0.02); }, i * 500);
-    });
-    vibra([10, 490, 14, 486, 18, 482, 22]);
+    attesa = setTimeout(function(){
+      fase = 'cornice';
+      void cornice.offsetWidth;          // riavvio pulito delle animazioni
+      cornice.classList.add('on');
 
-    timer = setTimeout(function(){
-      ferma();
-      vibra(45);
-      suonoGoccia();
-      registraQui(punto.lat, punto.lng);
-    }, ATTESA);
+      var scala = [440, 554, 659, 880];  // un tocco per ogni lato, sempre più acuto
+      tick(scala[0], 0.10);
+      battiti = [1,2,3].map(function(i){
+        return setTimeout(function(){ tick(scala[i], 0.10 + i*0.02); }, i * 350);
+      });
+      vibra([10, 340, 14, 336, 18, 332, 22]);
+
+      conto = setTimeout(function(){
+        ferma();
+        vibra(45);
+        suonoGoccia();
+        registraQui(punto.lat, punto.lng);
+      }, DURATA);
+    }, RITARDO);
   }
+
   function muovi(x, y){
-    if(!timer) return;
-    if(Math.abs(x - sx) > 14 || Math.abs(y - sy) > 14) ferma();
+    if(!fase) return;
+    var limite = (fase === 'attesa') ? TOLL_ATTESA : TOLL_CORNICE;
+    if(Math.abs(x - sx) > limite || Math.abs(y - sy) > limite) ferma();
   }
 
   el.addEventListener('touchstart', function(e){
@@ -1442,7 +1459,9 @@ function attivaPressioneLunga(){
   el.addEventListener('mousemove', function(e){ muovi(e.clientX, e.clientY); });
   el.addEventListener('mouseup',    ferma);
   el.addEventListener('mouseleave', ferma);
-  map.on('movestart zoomstart', ferma);
+  // Lo zoom è sempre un'altra intenzione; il semplice scorrimento invece
+  // lo lascio gestire alla tolleranza qui sopra.
+  map.on('zoomstart', ferma);
 }
 
 /* ============================================================
@@ -1567,7 +1586,7 @@ askPosition(true);
 // il trucco va detto, altrimenti non lo scopre nessuno
 if(!store.get('idr_visto_pressione')){
   setTimeout(function(){
-    toast('Tieni premuto due secondi sulla mappa per segnalare una fontanella.', 5200);
+    toast('Tieni fermo il dito sulla mappa per segnalare una fontanella.', 5200);
     store.set('idr_visto_pressione','1');
   }, 4200);
 }
