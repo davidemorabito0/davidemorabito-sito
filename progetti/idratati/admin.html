@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- IDRATATI pannello v3.0 (2026-07-27) -->
-<title>IDRATATI — pannello v3.0</title>
+<!-- IDRATATI pannello v4.2 (2026-07-27) -->
+<title>IDRATATI — pannello v4.2</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#07242F">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -112,7 +112,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
 <div id="login">
   <div class="card">
     <h1>IDRATATI</h1>
-    <div class="meta">Pannello riservato · v3.0</div>
+    <div class="meta">Pannello riservato · v4.2</div>
     <label for="em">Email</label>
     <input id="em" type="email" autocomplete="username" inputmode="email">
     <label for="pw">Password</label>
@@ -124,7 +124,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
 
 <div id="app" hidden>
   <header>
-    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge" style="background:rgba(255,255,255,.16);color:var(--surface)">v3.0</span>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge" style="background:rgba(255,255,255,.16);color:var(--surface)">v4.2</span>
     <span class="sp" id="who"></span>
     <button id="logout">Esci</button>
   </header>
@@ -237,7 +237,9 @@ function caricaContesti(targets){
   if(idsDb.length)  filtro.push('id.in.('+idsDb.join(',')+')');
   if(idsOsm.length) filtro.push('osm_id.in.('+idsOsm.map(encodeURIComponent).join(',')+')');
   if(filtro.length){
-    lavori.push(sel('fountains?select=*&or=('+filtro.join(',')+')').then(function(rows){
+    lavori.push(sel('fountains?select=*&or=('+filtro.join(',')+')')
+      .catch(function(){ return []; })
+      .then(function(rows){
       rows.forEach(function(r){
         var t = r.osm_id ? 'osm/'+r.osm_id : 'db/'+r.id;
         if(!CTX[t]) return;
@@ -274,10 +276,13 @@ function caricaContesti(targets){
     );
   }
 
-  // 2b. Overpass per way e relation, e come rete di sicurezza per i nodi
-  if(idsOsm.length){
+  // 2b. Overpass serve solo per way e relation: per i nodi ha già risposto
+  //     l'API ufficiale, molto più svelta. Prima lo chiamavamo sempre, ed
+  //     era lui a far aspettare mezzo minuto per due foto.
+  var soloAltro = idsOsm.filter(function(x){ return x.indexOf('node/') !== 0; });
+  if(soloAltro.length){
     var perTipo = {node:[], way:[], relation:[]};
-    idsOsm.forEach(function(x){
+    soloAltro.forEach(function(x){
       var pezzi = x.split('/');
       if(perTipo[pezzi[0]]) perTipo[pezzi[0]].push(pezzi[1]);
     });
@@ -350,16 +355,29 @@ function caricaContesti(targets){
   return Promise.all(lavori).then(function(){ return CTX; });
 }
 
-/* Quanto ha già mandato questo dispositivo: serve a fiutare gli spammer. */
-function pesaDispositivo(clientId){
-  if(!clientId) return Promise.resolve(null);
+/* Quanto ha già mandato ogni dispositivo: serve a fiutare gli spammer.
+   Prima erano tre richieste per ogni foto in coda — con dieci foto,
+   trenta viaggi al server. Adesso sono tre in tutto. */
+var PESI = {};
+
+function pesaDispositivi(lista){
+  var unici = lista.filter(function(c,i){ return c && lista.indexOf(c)===i && !PESI[c]; });
+  if(!unici.length) return Promise.resolve(PESI);
+  var elenco = unici.map(function(c){ return '"'+c+'"'; }).join(',');
+
+  function conta(tabella, campo){
+    return sel(tabella+'?select=client_id&client_id=in.('+elenco+')&limit=2000')
+      .then(function(rows){
+        rows.forEach(function(r){
+          var p = PESI[r.client_id] || (PESI[r.client_id] = {foto:0, voti:0, proposte:0});
+          p[campo]++;
+        });
+      }).catch(function(){});
+  }
+  unici.forEach(function(c){ PESI[c] = {foto:0, voti:0, proposte:0}; });
   return Promise.all([
-    sel('photos?select=id&client_id=eq.'+encodeURIComponent(clientId)),
-    sel('reviews?select=id&client_id=eq.'+encodeURIComponent(clientId)),
-    sel('submissions?select=id&client_id=eq.'+encodeURIComponent(clientId))
-  ]).then(function(r){
-    return {foto:r[0].length, voti:r[1].length, proposte:r[2].length};
-  }).catch(function(){ return null; });
+    conta('photos','foto'), conta('reviews','voti'), conta('submissions','proposte')
+  ]).then(function(){ return PESI; });
 }
 
 /* L'intestazione comune a foto, voti e proposte. */
@@ -607,7 +625,9 @@ document.querySelectorAll('nav button').forEach(function(b){
   };
 });
 function go(t){
-  tab=t; el('view').innerHTML='<div class="empty">Carico…</div>';
+  tab=t;
+  el('view').innerHTML='<div class="empty">Carico…<br>'+
+    '<span style="font-size:12px;opacity:.7">indirizzi e mappe arrivano dopo, con calma</span></div>';
   ({queue:vQueue, photos:vPhotos, reports:vReports, reviews:vReviews, map:vMap, stats:vStats}[t]||vQueue)();
 }
 function counters(){
@@ -630,8 +650,8 @@ function vQueue(){
         var e2 = el('via-s'+i);
         if(e2) e2.textContent = via || (s.lat.toFixed(5)+', '+s.lon.toFixed(5));
       });
-      pesaDispositivo(s.client_id).then(function(n){
-        if(!n) return;
+      pesaDispositivi([s.client_id]).then(function(pesi){
+        var n = pesi[s.client_id]; if(!n) return;
         var e3 = el('dev-s'+i);
         if(e3) e3.textContent = (s.client_id||'?').slice(0,10)+
           ' · '+n.foto+' foto, '+n.voti+' voti, '+n.proposte+' proposte in totale';
@@ -692,7 +712,9 @@ function vPhotos(){
   sel('photos?select=*&approved=eq.false&order=created_at.desc&limit=60').then(function(rows){
     if(!rows.length){ el('view').innerHTML='<div class="empty">Nessuna foto in attesa.</div>'; return; }
 
-    return caricaContesti(rows.map(function(p){ return p.target; })).then(function(){
+    return caricaContesti(rows.map(function(p){ return p.target; }))
+      .catch(function(){ return CTX; })
+      .then(function(){
       el('view').innerHTML=rows.map(function(p,i){
         var c = CTX[p.target];
         return '<div class="card">'+
@@ -709,9 +731,9 @@ function vPhotos(){
 
       completaIndirizzi(rows.map(function(p,i){ return {target:p.target, id:'f'+i}; }));
       collegaVaiA();
-      rows.forEach(function(p,i){
-        pesaDispositivo(p.client_id).then(function(n){
-          if(!n) return;
+      pesaDispositivi(rows.map(function(p){ return p.client_id; })).then(function(pesi){
+        rows.forEach(function(p,i){
+          var n = pesi[p.client_id]; if(!n) return;
           var e2 = el('dev-f'+i);
           if(e2) e2.textContent = (p.client_id||'?').slice(0,10)+
             ' · '+n.foto+' foto, '+n.voti+' voti, '+n.proposte+' proposte in totale';
@@ -784,7 +806,9 @@ function vReviews(){
   sel('reviews?select=*&order=created_at.desc&limit=60').then(function(rows){
     if(!rows.length){ el('view').innerHTML='<div class="empty">Ancora nessun voto.</div>'; return; }
 
-    return caricaContesti(rows.map(function(r){ return r.target; })).then(function(){
+    return caricaContesti(rows.map(function(r){ return r.target; }))
+      .catch(function(){ return CTX; })     // il contesto è un di più, non una condizione
+      .then(function(){
     el('view').innerHTML=rows.map(function(r,i){
       var c = CTX[r.target];
       var stars=[['findability','raggiungibile'],['cleanliness','stato'],['taste','qualità']]
@@ -812,9 +836,9 @@ function vReviews(){
 
     completaIndirizzi(rows.map(function(r,i){ return {target:r.target, id:'r'+i}; }));
     collegaVaiA();
-    rows.forEach(function(r,i){
-      pesaDispositivo(r.client_id).then(function(n){
-        if(!n) return;
+    pesaDispositivi(rows.map(function(r){ return r.client_id; })).then(function(pesi){
+      rows.forEach(function(r,i){
+        var n = pesi[r.client_id]; if(!n) return;
         var e2 = el('dev-r'+i);
         if(e2) e2.textContent = (r.client_id||'?').slice(0,10)+
           ' · '+n.foto+' foto, '+n.voti+' voti, '+n.proposte+' proposte in totale';
