@@ -3,14 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v2.7 (2026-07-27) -->
+<!-- IDRATATI v2.8 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi.">
 <meta name="theme-color" content="#07242F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="IDRATATI">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -289,6 +291,20 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
 @keyframes atterra{from{transform:rotate(-45deg) scale(.2);opacity:0}to{transform:rotate(-45deg) scale(1);opacity:1}}
 
 /* ---------- TOAST ---------- */
+/* invito a installare: discreto, e si può dire di no una volta per tutte */
+#installa{position:fixed;left:10px;right:10px;z-index:960;
+  bottom:calc(var(--safe-b) + 12px);max-width:430px;margin:0 auto;
+  background:var(--ink);color:var(--surface);border-radius:20px;padding:16px;
+  box-shadow:0 20px 60px rgba(7,36,47,.45);display:none}
+#installa.on{display:block}
+#installa .testa{display:flex;align-items:center;gap:12px}
+#installa img{width:46px;height:46px;border-radius:12px;flex:0 0 auto}
+#installa .t{font-family:var(--display);font-weight:600;font-size:16px;line-height:1.2}
+#installa .p{font-size:13px;line-height:1.45;color:rgba(242,247,246,.65);margin-top:3px}
+#installa .passi{font-size:13px;line-height:1.6;color:rgba(242,247,246,.8);margin-top:12px}
+#installa .passi b{color:var(--acqua)}
+#installa .azioni{display:flex;gap:8px;justify-content:flex-end;margin-top:15px}
+
 #toast{position:fixed;left:50%;top:calc(var(--safe-t) + 110px);transform:translateX(-50%) translateY(-12px);
   z-index:9500;background:var(--ink);color:var(--surface);font-size:12.5px;padding:10px 15px;
   border-radius:999px;box-shadow:0 6px 20px rgba(7,36,47,.3);opacity:0;pointer-events:none;
@@ -325,7 +341,7 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v2.7 · 2026-07-27</div>
+<div class="ver">v2.8 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -380,6 +396,21 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
 </div>
 
 <div id="addbar"></div>
+
+<div id="installa">
+  <div class="testa">
+    <img src="icon-192.png" alt="">
+    <div>
+      <div class="t">Tienila sul telefono</div>
+      <div class="p" id="instSub"></div>
+    </div>
+  </div>
+  <div class="passi" id="instPassi"></div>
+  <div class="azioni">
+    <button class="b ghost" id="instNo">No grazie</button>
+    <button class="b go" id="instSi" hidden>Installa</button>
+  </div>
+</div>
 
 <div id="scrim"></div>
 <div id="sheet">
@@ -1577,6 +1608,63 @@ function accentoInMovimento(){
   setTimeout(posiziona, 260);
 }
 accentoInMovimento();
+
+/* ============================================================
+   INSTALLAZIONE
+   Android sa proporsi da solo, e allora gli diamo un bottone vero.
+   iPhone non lo permette, quindi lì si spiega il gesto a parole:
+   nessuno lo indovina da sé.
+   ============================================================ */
+(function(){
+  var invito = null;
+  var box = document.getElementById('installa');
+  if(!box) return;
+
+  var giaApp = window.matchMedia('(display-mode: standalone)').matches ||
+               window.navigator.standalone === true;
+  var iOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var safari = iOS && !/crios|fxios|edgios/i.test(navigator.userAgent);
+
+  function nascondi(perSempre){
+    box.classList.remove('on');
+    if(perSempre) store.set('idr_no_installa','1');
+  }
+  document.getElementById('instNo').onclick = function(){ nascondi(true); };
+
+  function mostra(){
+    if(giaApp || store.get('idr_no_installa') === '1') return;
+    box.classList.add('on');
+  }
+
+  // Android e desktop: il browser ci avvisa che si può installare
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    invito = e;
+    document.getElementById('instSub').textContent =
+      'Diventa un\'icona sulla schermata, si apre a tutto schermo e funziona anche con poca rete.';
+    document.getElementById('instPassi').textContent = '';
+    var si = document.getElementById('instSi');
+    si.hidden = false;
+    si.onclick = function(){
+      nascondi(true);
+      invito.prompt();
+      invito.userChoice.then(function(){ invito = null; });
+    };
+    setTimeout(mostra, 9000);
+  });
+
+  window.addEventListener('appinstalled', function(){ nascondi(true); });
+
+  // iPhone: niente invito automatico, si spiega il gesto
+  if(safari && !giaApp){
+    document.getElementById('instSub').textContent =
+      'Su iPhone si aggiunge a mano, sono due tocchi.';
+    document.getElementById('instPassi').innerHTML =
+      'Tocca <b>Condividi</b> in fondo allo schermo<br>' +
+      'poi <b>Aggiungi alla schermata Home</b>';
+    setTimeout(mostra, 12000);
+  }
+})();
 
 /* ---------- avvio ---------- */
 initMap(FALLBACK);

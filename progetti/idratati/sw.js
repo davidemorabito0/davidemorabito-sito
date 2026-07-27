@@ -1,9 +1,10 @@
 /* IDRATATI — service worker.
    Tiene in cache il guscio dell'app e i tile dati, così la mappa si apre
    anche con la rete a un tacca. */
-var V = 'idratati-v2-4';
+var V = 'idratati-v2-8';
 var SHELL = [
   './', './index.html', './manifest.webmanifest',
+  './icon-192.png', './apple-touch-icon.png',
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'
 ];
