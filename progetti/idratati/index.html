@@ -3,9 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v3.1 (2026-07-27) -->
+<!-- IDRATATI v3.7 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
-<meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi.">
+<meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
+<meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
+<link rel="canonical" href="https://idratati.it/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="IDRATATI">
+<meta property="og:title" content="IDRATATI — trova la fontanella pubblica più vicina">
+<meta property="og:description" content="Sai se funziona prima di arrivarci, e ci arrivi a piedi. Le fontanelle pubbliche di tutta Italia, gratis.">
+<meta property="og:url" content="https://idratati.it/">
+<meta property="og:image" content="https://idratati.it/icon-512.png">
+<meta property="og:locale" content="it_IT">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication",
+ "name":"IDRATATI","url":"https://idratati.it/",
+ "applicationCategory":"TravelApplication","operatingSystem":"Any",
+ "inLanguage":"it-IT",
+ "description":"Mappa delle fontanelle pubbliche e delle case dell'acqua in Italia, con lo stato segnalato da chi le usa.",
+ "offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}
+</script>
 <meta name="theme-color" content="#07242F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -220,6 +238,8 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
 .state3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:4px}
 .state3 .btn{font-size:12.5px;padding:12px 4px;border-radius:11px}
 .btn.works{background:rgba(255,176,32,.2);color:#8A5B00}
+.btn.scelto{box-shadow:inset 0 0 0 2.5px currentColor}
+.btn.scelto::before{content:'✓ ';font-weight:700}
 .photocap{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:12px;color:var(--muted)}
 .rev{border-top:1px solid var(--line);padding:11px 0;font-size:13.5px}
 .rev .meta{font-size:11px;color:var(--muted);margin-bottom:3px}
@@ -231,6 +251,8 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
   display:flex;align-items:center;justify-content:center;transition:bottom .32s cubic-bezier(.2,.8,.2,1)}
 #locate{bottom:calc(var(--safe-b) + 178px)}
 #addBtn{bottom:calc(var(--safe-b) + 234px);background:var(--acqua);color:#fff}
+body.card-mini #locate{bottom:calc(var(--safe-b) + 88px)}
+body.card-mini #addBtn{bottom:calc(var(--safe-b) + 144px)}
 body.card-hidden #locate{bottom:calc(var(--safe-b) + 24px)}
 body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
 
@@ -321,6 +343,11 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
 #installa .passi b{color:var(--acqua)}
 #installa .azioni{display:flex;gap:8px;justify-content:flex-end;margin-top:15px}
 
+#linkCitta{position:fixed;left:12px;z-index:500;
+  bottom:calc(var(--safe-b) + 4px);font-size:10.5px;color:rgba(7,36,47,.45);
+  text-decoration:none;background:rgba(255,255,255,.75);padding:3px 8px;border-radius:6px}
+body:not(.card-hidden) #linkCitta{display:none}
+
 #toast{position:fixed;left:50%;top:calc(var(--safe-t) + 110px);transform:translateX(-50%) translateY(-12px);
   z-index:9500;background:var(--ink);color:var(--surface);font-size:12.5px;padding:10px 15px;
   border-radius:999px;box-shadow:0 6px 20px rgba(7,36,47,.3);opacity:0;pointer-events:none;
@@ -357,7 +384,7 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v3.1 · 2026-07-27</div>
+<div class="ver">v3.7 · 2026-07-27</div>
 
 <div id="map"></div>
 
@@ -429,6 +456,8 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
     <button class="b go" id="instSi" hidden>Installa</button>
   </div>
 </div>
+
+<a id="linkCitta" href="citta/">Fontanelle città per città</a>
 
 <div id="scrim"></div>
 <div id="sheet">
@@ -563,6 +592,22 @@ var SB = {
     if(!SB.on()) return Promise.resolve([]);
     return fetch(CFG.SUPABASE_URL+'/rest/v1/'+path, {headers:SB.head()})
       .then(function(r){ return r.ok ? r.json() : []; }).catch(function(){ return []; });
+  },
+  // upsert: se c'è già una riga con la stessa chiave, la corregge
+  upsert: function(table, row, chiave){
+    if(!SB.on()) return Promise.reject(new Error('offline'));
+    return fetch(CFG.SUPABASE_URL+'/rest/v1/'+table+'?on_conflict='+chiave, {
+      method:'POST',
+      headers:Object.assign(SB.head(),
+        {'Prefer':'resolution=merge-duplicates,return=minimal'}),
+      body:JSON.stringify(row)
+    }).then(function(r){
+      if(!r.ok) return r.text().then(function(t){
+        var msg=t; try{ msg=(JSON.parse(t).message)||t; }catch(e){}
+        throw new Error(msg);
+      });
+      return true;
+    });
   },
   insert: function(table, row){
     if(!SB.on()) return Promise.reject(new Error('offline'));
@@ -740,13 +785,29 @@ function initMap(c){
     attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
   }).addTo(map);
   layer=L.layerGroup().addTo(map);
-  map.on('moveend', function(){
+  // Ogni volta che la mappa si ferma bisogna ridisegnare: da quando si
+  // disegna solo l'inquadratura, senza questo restano i pin di prima.
+  map.on('moveend zoomend', function(){
     var c2=map.getCenter();
     loadArea({lat:c2.lat, lon:c2.lng});
+    render();
   });
 }
+var SOGLIA_INCERTA = 1500;   // oltre 1,5 km la distanza non vuol dire granché
+var cerchioIncerto = null;
+
 function setMe(pos){
   myPos=pos;
+  if(pos.acc && pos.acc > 300){
+    if(!cerchioIncerto){
+      cerchioIncerto = L.circle([pos.lat,pos.lon], {radius:pos.acc, interactive:false,
+        color:'#1E7BFF', weight:1, opacity:.35, fillColor:'#1E7BFF', fillOpacity:.06}).addTo(map);
+    } else {
+      cerchioIncerto.setLatLng([pos.lat,pos.lon]).setRadius(pos.acc);
+    }
+  } else if(cerchioIncerto){
+    map.removeLayer(cerchioIncerto); cerchioIncerto = null;
+  }
   if(!meMarker){
     meMarker=L.marker([pos.lat,pos.lon],{
       icon:L.divIcon({className:'',html:'<div class="me"></div>',iconSize:[18,18],iconAnchor:[9,9]}),
@@ -921,11 +982,17 @@ function visible(){
    tutti significa bloccare il telefono. Quindi si disegna solo
    quello che è davvero inquadrato, e da lontano si raggruppa.
    ============================================================ */
-var ZOOM_SINGOLI = 15;   // sotto questo zoom si raggruppa
-var MAX_PIN = 350;       // tetto di sicurezza, non si supera mai
+/* Si vedono tutte le fontanelle inquadrate: allargando la mappa devono
+   essere tante, perché è così che uno si fa un'idea di quanta acqua ha
+   intorno e sceglie quale raggiungere — una in un sottopasso, una nel
+   parco. Si raggruppa solo da molto lontano, dove i segnaposti si
+   sovrapporrebbero comunque uno sull'altro. */
+var ZOOM_SINGOLI = 12;    // sotto questo zoom (mezza regione) si raggruppa
+var TROPPI = 700;         // e comunque solo se sono davvero tanti
+var MAX_PIN = 1200;       // tetto di sicurezza per non piantare il telefono
 
 function inVista(){
-  var b = map.getBounds().pad(0.25);
+  var b = map.getBounds().pad(0.6);   // largo: chi si sposta li trova già lì
   return visible().filter(function(p){
     return p.lat >= b.getSouth() && p.lat <= b.getNorth() &&
            p.lon >= b.getWest()  && p.lon <= b.getEast();
@@ -967,7 +1034,7 @@ function render(){
   var zoom = map.getZoom();
   var punti = inVista();
 
-  if(zoom < ZOOM_SINGOLI && punti.length > 60){
+  if(zoom < ZOOM_SINGOLI && punti.length > TROPPI){
     raggruppa(punti, zoom).forEach(function(c){
       if(c.n === 1){ disegnaPin(c.uno); return; }
       var grande = c.n > 99;
@@ -979,7 +1046,13 @@ function render(){
        }).addTo(layer);
     });
   } else {
-    punti.slice(0, MAX_PIN).forEach(disegnaPin);
+    // se sono più del tetto, si tengono i più vicini al centro dello schermo
+    if(punti.length > MAX_PIN){
+      var cc = map.getCenter(), centro = {lat:cc.lat, lon:cc.lng};
+      punti.sort(function(a,b){ return dist(centro,a) - dist(centro,b); });
+      punti = punti.slice(0, MAX_PIN);
+    }
+    punti.forEach(disegnaPin);
   }
 
   // il punto aperto resta visibile anche se finisce fuori inquadratura
@@ -1014,21 +1087,44 @@ function showNearest(){
   if(!n){ hideCard(); return; }
   fillCard(n.p, n.d, true);
 }
+/* La card ha tre stati: nascosta, piccola, aperta.
+   Lo stato lo decide chi guarda, e resta finché non lo cambia lui. */
+var cardAperta = false;
+
 function hideCard(){
   document.getElementById('card').classList.add('hidden');
   document.body.classList.add('card-hidden');
+  document.body.classList.remove('card-mini');
+}
+function apriCard(){
+  cardAperta = true;
+  var c = document.getElementById('card');
+  c.classList.remove('mini');
+  document.body.classList.remove('card-mini');
+  document.getElementById('rigaMini').setAttribute('aria-expanded','true');
+  if(suoniAccesi) tick(660, .07);
+}
+function riduciCard(){
+  cardAperta = false;
+  var c = document.getElementById('card');
+  c.classList.add('mini');
+  document.body.classList.add('card-mini');
+  document.getElementById('rigaMini').setAttribute('aria-expanded','false');
 }
 function fillCard(p,d,isNearest){
   var min=d!=null?walkMin(d):null;
   document.getElementById('cEyebrow').textContent =
     isNearest ? (p.kind==='casa'?"La più vicina · casa dell'acqua":'La più vicina · fontanella')
               : (p.kind==='casa'?"Casa dell'acqua":'Fontanella');
+  var incerta = myPos && myPos.acc > SOGLIA_INCERTA;
   document.getElementById('cHead').innerHTML =
-    (isNearest&&min!=null)
-      ? 'A <b>'+min+' minut'+(min===1?'o':'i')+'</b> '+MODI[modo].nome
+    (isNearest && min!=null)
+      ? (incerta ? 'Circa <b>'+min+' minut'+(min===1?'o':'i')+'</b> '+MODI[modo].nome
+                 : 'A <b>'+min+' minut'+(min===1?'o':'i')+'</b> '+MODI[modo].nome)
       : esc(labelFor(p));
   var sub=[]; if(isNearest) sub.push(labelFor(p));
   if(d!=null) sub.push(fmtDist(d)+(isNearest?'':' · '+walkMin(d)+' min '+MODI[modo].nome));
+  if(myPos && myPos.acc > SOGLIA_INCERTA) sub.push('posizione approssimativa');
   document.getElementById('cSub').textContent=sub.join(' · ');
   var tw=document.getElementById('cTags'); tw.innerHTML='';
   tagsFor(p).slice(0,4).forEach(function(t){
@@ -1046,6 +1142,18 @@ function fillCard(p,d,isNearest){
       '<a class="btn ghost" id="cNav" href="'+navUrl(p,'g')+'" target="_blank" rel="noopener">Portami</a></div>';
   document.getElementById('cActions').style.flexWrap='wrap';
   document.getElementById('cOpen').onclick=function(){ openSheet(p); };
+
+  // la riga piccola: una frase sola, quella che serve davvero
+  document.getElementById('miniPrimo').innerHTML =
+    (isNearest && min!=null)
+      ? '<b>'+min+' min</b> '+MODI[modo].nome+' · '+esc(labelFor(p))
+      : esc(labelFor(p));
+  var sec = [];
+  if(d!=null) sec.push(fmtDist(d));
+  var stMini = stateLabel(stateOf(p));
+  if(stMini.t !== 'Stato sconosciuto') sec.push(stMini.t.toLowerCase());
+  if(myPos && myPos.acc > SOGLIA_INCERTA) sec.push('posizione approssimativa');
+  document.getElementById('miniSecondo').textContent = sec.join(' · ');
   document.getElementById('cMode').querySelectorAll('button').forEach(function(b){
     b.onclick=function(){
       modo=b.getAttribute('data-m');
@@ -1055,6 +1163,8 @@ function fillCard(p,d,isNearest){
   });
   document.getElementById('card').classList.remove('hidden');
   document.body.classList.remove('card-hidden');
+  // rispetta lo stato scelto da chi guarda, non lo riapre di sua iniziativa
+  if(cardAperta) apriCard(); else riduciCard();
 }
 function navUrl(p,which){
   var M=MODI[modo];
@@ -1115,19 +1225,8 @@ function openSheet(p){
 
   h+='<div id="photoWrap"></div>';
 
-  h+='<div class="sec"><div class="sec-t">Com\'è messa oggi?</div>';
-  if(st.last) h+='<div style="margin-bottom:10px">'+bollo(st.last,'ultima segnalazione')+'</div>';
-  h+='<div class="state3">'+
-     '<button class="btn ok"    id="voteOk"'+(voted?' disabled':'')+'>Funziona</button>'+
-     '<button class="btn works" id="voteWk"'+(voted?' disabled':'')+'>Lavori</button>'+
-     '<button class="btn bad"   id="voteKo"'+(voted?' disabled':'')+'>Rotta</button></div>';
-  h+='<div class="statebox" style="margin-top:6px">'+
-     '<button class="btn ghost" id="voteNo"'+(voted?' disabled':'')+
-     ' style="font-size:13.5px">Sono qui e non la trovo</button></div>';
-  h+='<div class="hint"><b>Lavori</b> se c\'è un cantiere o è transennata: non è rotta, tornerà. '+
-     '<b>Non la trovo</b> se al suo posto non c\'è più niente: forse è stata rimossa.</div>';
-  if(voted) h+='<div class="hint">Grazie, la tua segnalazione è registrata.</div>';
-  h+='</div>';
+  h+='<div class="sec"><div class="sec-t">Com\'è messa oggi?</div>'+
+     '<div id="statoBox"></div></div>';
 
   h+='<div class="sec"><div class="sec-t">Il giudizio di chi ci è stato</div><div id="aggWrap"></div></div>';
 
@@ -1149,24 +1248,69 @@ function openSheet(p){
   document.getElementById('sheet').classList.add('on');
   document.getElementById('scrim').classList.add('on');
 
+  renderStato(p);
   renderAgg(p);
   renderMyStars();
   loadPhotos(p);
   loadReviews(p);
 
-  document.getElementById('voteOk').onclick=function(){ sendReport(p,'ok'); };
-  document.getElementById('voteWk').onclick=function(){ sendReport(p,'works'); };
-  document.getElementById('voteKo').onclick=function(){ sendReport(p,'broken'); };
-  document.getElementById('voteNo').onclick=function(){ sendReport(p,'missing'); };
   document.getElementById('revSend').onclick=function(){ sendReview(p); };
   document.getElementById('photoFile').onchange=function(e){ sendPhoto(p, e.target.files[0]); };
   document.getElementById('condividi').onclick=function(){ condividi(p); };
 }
+/* Le pastiglie in cima alla scheda, aggiornate senza toccare il resto. */
+function aggiornaEtichette(p){
+  var w = document.querySelector('#sheetBody .tags');
+  if(!w) return;
+  w.innerHTML = tagsFor(p).map(function(t){
+    return '<span class="tag'+(t.c?' '+t.c:'')+'">'+esc(t.s)+'</span>';
+  }).join('');
+}
+
 function closeSheet(){
   document.getElementById('sheet').classList.remove('on');
   document.getElementById('scrim').classList.remove('on');
   selected=null; render();
 }
+/* Solo il riquadro dello stato. Rigenerare tutta la scheda cancellerebbe
+   la foto scelta e le stelle già toccate: l'ordine con cui uno compila
+   è affar suo. */
+function renderStato(p){
+  var w = document.getElementById('statoBox');
+  if(!w) return;
+  var st = stateOf(p), mio = myVotes[p.target];
+  var h = '';
+  if(st.last) h += '<div style="margin-bottom:10px">'+bollo(st.last,'ultima segnalazione')+'</div>';
+
+  function b(id, cls, val, testo){
+    return '<button class="btn '+cls+(mio===val?' scelto':'')+'" id="'+id+'"'+
+           (mio===val?' aria-pressed="true"':'')+'>'+testo+'</button>';
+  }
+  h += '<div class="state3">'+
+       b('voteOk','ok','ok','Funziona')+
+       b('voteWk','works','works','Lavori')+
+       b('voteKo','bad','broken','Rotta')+'</div>'+
+       '<div class="statebox" style="margin-top:6px">'+
+       b('voteNo','ghost','missing','Sono qui e non la trovo')+'</div>';
+
+  if(mio){
+    var nomi = {ok:'funzionante', works:'in lavori', broken:'rotta', missing:'non trovata'};
+    h += '<div class="hint">Hai segnalato che è <b>'+nomi[mio]+'</b>. '+
+         'Ti sei sbagliato o è cambiata? Tocca un\'altra voce e la tua segnalazione '+
+         'viene corretta: non se ne aggiunge una seconda.</div>';
+  } else {
+    h += '<div class="hint"><b>Lavori</b> se c\'è un cantiere o è transennata: non è rotta, tornerà. '+
+         '<b>Non la trovo</b> se al suo posto non c\'è più niente: forse è stata rimossa.</div>';
+  }
+  w.innerHTML = h;
+
+  // sempre cliccabili: si può cambiare idea quante volte si vuole
+  document.getElementById('voteOk').onclick=function(){ sendReport(p,'ok'); };
+  document.getElementById('voteWk').onclick=function(){ sendReport(p,'works'); };
+  document.getElementById('voteKo').onclick=function(){ sendReport(p,'broken'); };
+  document.getElementById('voteNo').onclick=function(){ sendReport(p,'missing'); };
+}
+
 function renderAgg(p){
   var r=reviewAgg[p.target], w=document.getElementById('aggWrap');
   if(!r||!r.n){ w.innerHTML='<div class="empty">Ancora nessun voto. Il primo puoi darlo tu.</div>'; return; }
@@ -1263,26 +1407,42 @@ function needSB(){
   toast('Le segnalazioni non sono ancora attive su questo sito.',3800);
   return true;
 }
+var COLONNA = {ok:'ok_votes', works:'works_votes', broken:'broken_votes', missing:'missing_votes'};
+
 function sendReport(p,status){
   if(needSB()) return;
+  var precedente = myVotes[p.target];
+  if(precedente === status) return;      // ha ritoccato la stessa voce
+
   ['voteOk','voteWk','voteKo','voteNo'].forEach(function(id){
     var b=document.getElementById(id); if(b) b.disabled=true;
   });
-  SB.insert('reports',{target:p.target,status:status,client_id:CLIENT})
+
+  // upsert sulla coppia fontanella + dispositivo: corregge, non accumula
+  SB.upsert('reports',
+      {target:p.target, status:status, client_id:CLIENT},
+      'target,client_id')
     .then(function(){
       myVotes[p.target]=status;
       var a=statusAgg[p.target]||{target:p.target,ok_votes:0,broken_votes:0,works_votes:0,missing_votes:0};
-      if(status==='ok')            a.ok_votes=(a.ok_votes||0)+1;
-      else if(status==='works'){   a.works_votes=(a.works_votes||0)+1;   a.last_works=new Date().toISOString(); }
-      else if(status==='missing'){ a.missing_votes=(a.missing_votes||0)+1; a.last_missing=new Date().toISOString(); }
-      else                         a.broken_votes=(a.broken_votes||0)+1;
+      // se stava correggendo, il vecchio voto se ne va
+      if(precedente && COLONNA[precedente])
+        a[COLONNA[precedente]] = Math.max(0, (a[COLONNA[precedente]]||0) - 1);
+      a[COLONNA[status]] = (a[COLONNA[status]]||0) + 1;
+      if(status==='works')   a.last_works   = new Date().toISOString();
+      if(status==='missing') a.last_missing = new Date().toISOString();
       a.last_report=new Date().toISOString();
       statusAgg[p.target]=a;
-      toast({ok:'Segnata come funzionante. Grazie.',
-             works:'Segnalati i lavori in corso. Grazie.',
-             broken:'Segnata come rotta. Grazie.',
-             missing:'Segnalato che non c\'è. Se lo dice anche qualcun altro, la togliamo.'}[status], 4200);
-      render(); openSheet(p);
+      toast(precedente
+        ? 'Segnalazione corretta. Grazie.'
+        : {ok:'Segnata come funzionante. Grazie.',
+           works:'Segnalati i lavori in corso. Grazie.',
+           broken:'Segnata come rotta. Grazie.',
+           missing:'Segnalato che non c\'è. Se lo dice anche qualcun altro, la togliamo.'}[status], 4200);
+      // si aggiorna solo il riquadro dello stato: foto e stelle restano dove sono
+      renderStato(p);
+      aggiornaEtichette(p);
+      render();
     })
     .catch(function(err){
       ['voteOk','voteWk','voteKo','voteNo'].forEach(function(id){
@@ -1305,7 +1465,11 @@ function sendReview(p){
   function riuscito(){
     toast('Voto registrato. Grazie.');
     loadSupabase({lat:p.lat, lon:p.lon});
-    closeSheet();
+    // niente chiusura: magari deve ancora mandare la foto
+    var b2 = document.getElementById('revSend');
+    if(b2){ b2.disabled = true; b2.textContent = 'Voto inviato'; }
+    var com = document.getElementById('revComment');
+    if(com){ com.value = ''; com.disabled = true; }
   }
   function fallito(err){
     b.disabled=false; b.textContent='Invia il voto';
@@ -1394,6 +1558,9 @@ function confirmAdd(punto){
   var c = punto || map.getCenter();
   document.getElementById('crosshair').classList.remove('on');
 
+  var vicina = giaPresente(c.lat, c.lng, 30);
+  if(vicina) toast('Attenzione: a pochi metri c\'è già ' + labelFor(vicina), 5000);
+
   document.getElementById('addbar').innerHTML=
     '<div class="add-t">Raccontamela</div>'+
     '<p class="add-p">Più cose scrivi, prima finisce sulla mappa.</p>'+
@@ -1464,6 +1631,17 @@ function confirmAdd(punto){
 
   document.getElementById('addSend').onclick=function(){
     var b=document.getElementById('addSend');
+
+    // ricontrollo: nel frattempo possono essere arrivati punti da OSM
+    var doppione = giaPresente(c.lat, c.lng, 30);
+    if(doppione && !b._forzato){
+      b._forzato = true;
+      b.textContent = 'Mandala lo stesso';
+      toast('A pochi metri c\'è già ' + labelFor(doppione) +
+            '. Se è la stessa, annulla. Se sono due davvero, tocca di nuovo Invia.', 7000);
+      return;
+    }
+
     b.disabled=true; b.textContent='Invio…';
     var riga={
       lat:+c.lat.toFixed(6), lon:+c.lng.toFixed(6), kind:addKind,
@@ -1515,8 +1693,14 @@ function condividi(p){
   }
 }
 
-/* Se si arriva da un link condiviso, si apre subito quella fontanella. */
+/* Se si arriva da un link condiviso, si apre subito quella fontanella.
+   Se invece arriva da una pagina città, ci si porta sopra quella città. */
 function apriDaLink(){
+  var c = location.search.match(/[?&]c=(-?[\d.]+),(-?[\d.]+)/);
+  if(c){
+    map.setView([parseFloat(c[1]), parseFloat(c[2])], 14, {animate:false});
+    loadArea({lat:parseFloat(c[1]), lon:parseFloat(c[2])});
+  }
   var m = location.search.match(/[?&]f=([^&]+)/);
   if(!m) return;
   var target = decodeURIComponent(m[1]);
@@ -1583,8 +1767,31 @@ function piazzaSegnaposto(lat, lon){
   }).addTo(map);
 }
 
+/* Prima di aggiungerne una nuova, guarda se c'è già.
+   Trenta metri: la distanza entro cui due segnaposti sono quasi
+   sicuramente la stessa fontanella vista da due persone diverse. */
+function giaPresente(lat, lon, raggio){
+  var vicini = points.filter(function(p){
+    return dist({lat:lat, lon:lon}, p) <= (raggio || 30);
+  });
+  vicini.sort(function(a,b){
+    return dist({lat:lat,lon:lon}, a) - dist({lat:lat,lon:lon}, b);
+  });
+  return vicini[0] || null;
+}
+
 function registraQui(lat, lon){
   if(needSB()) return;
+
+  var esistente = giaPresente(lat, lon, 30);
+  if(esistente){
+    toast('Qui c\'è già ' + labelFor(esistente) + '. Ti apro quella.', 5000);
+    if(suoniAccesi) tick(392, .12);
+    map.setView([esistente.lat, esistente.lon], 18, {animate:true});
+    openSheet(esistente);
+    return;
+  }
+
   var preciso = false;
   // Se sei praticamente lì, il GPS sa la posizione meglio del tuo dito.
   if(myPos && dist(myPos, {lat:lat, lon:lon}) < 25){
@@ -1719,7 +1926,28 @@ document.getElementById('search').addEventListener('input',function(e){
 /* ============================================================
    CONTROLLI
    ============================================================ */
-document.getElementById('cardClose').onclick=function(){ hideCard(); };
+document.getElementById('cardClose').onclick = riduciCard;
+document.getElementById('rigaMini').onclick = function(){
+  cardAperta ? riduciCard() : apriCard();
+};
+
+/* Trascinamento verticale sulla card: su la apre, giù la chiude. */
+(function(){
+  var c = document.getElementById('card');
+  var y0 = null, mosso = false;
+  c.addEventListener('touchstart', function(e){
+    if(e.touches.length !== 1) return;
+    y0 = e.touches[0].clientY; mosso = false;
+  }, {passive:true});
+  c.addEventListener('touchmove', function(e){
+    if(y0 === null || e.touches.length !== 1) return;
+    var dy = e.touches[0].clientY - y0;
+    if(Math.abs(dy) < 34 || mosso) return;
+    mosso = true;
+    if(dy < 0) apriCard(); else riduciCard();
+  }, {passive:true});
+  c.addEventListener('touchend', function(){ y0 = null; }, {passive:true});
+})();
 document.getElementById('scrim').onclick=closeSheet;
 document.getElementById('sheetClose').onclick=closeSheet;
 document.getElementById('locate').onclick=function(){
@@ -1764,9 +1992,13 @@ document.addEventListener('keydown',function(e){
 function askPosition(recenter){
   if(!navigator.geolocation){ toast('Posizione non disponibile su questo dispositivo.'); return; }
   navigator.geolocation.getCurrentPosition(function(pos){
-    var p={lat:pos.coords.latitude, lon:pos.coords.longitude};
+    var p={lat:pos.coords.latitude, lon:pos.coords.longitude, acc:pos.coords.accuracy};
     setMe(p);
-    if(recenter) map.setView([p.lat,p.lon],16);
+    if(recenter) map.setView([p.lat,p.lon], p.acc>4000 ? 12 : 16);
+    if(p.acc > SOGLIA_INCERTA)
+      toast('La posizione è approssimativa (raggio di '+
+            (p.acc>=1000 ? Math.round(p.acc/1000)+' km' : Math.round(p.acc)+' m')+
+            '). Con una VPN attiva succede spesso.', 6000);
     loadArea(p); render();
   },function(){
     toast('Posizione non attiva. Cerca la città qui sopra.',4500);
@@ -1776,7 +2008,7 @@ function askPosition(recenter){
 function watchPosition(){
   if(!navigator.geolocation) return;
   navigator.geolocation.watchPosition(function(pos){
-    setMe({lat:pos.coords.latitude, lon:pos.coords.longitude});
+    setMe({lat:pos.coords.latitude, lon:pos.coords.longitude, acc:pos.coords.accuracy});
     if(!selected) showNearest();
   },function(){},{enableHighAccuracy:true,maximumAge:15000,timeout:20000});
 }
@@ -1858,6 +2090,7 @@ accentoInMovimento();
 })();
 
 /* ---------- avvio ---------- */
+riduciCard();
 initMap(FALLBACK);
 attivaPressioneLunga();
 askPosition(true);
