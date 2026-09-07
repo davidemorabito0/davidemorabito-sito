@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>&nbsp;</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#000000">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { background:#0b0b0b; }
+  body { min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+  ::selection { background:#ffad01; color:#000; }
+
+  /* ---- Galleria masonry a pieno schermo ---- */
+  .gallery { column-count:4; column-gap:8px; padding:8px; }
+  @media (min-width:1700px){ .gallery { column-count:5; } }
+  @media (max-width:1100px){ .gallery { column-count:3; } }
+  @media (max-width:680px){ .gallery { column-count:2; column-gap:6px; padding:6px; } }
+
+  .gallery figure {
+    break-inside:avoid; margin:0 0 8px; position:relative;
+    background:#151515; border-radius:4px; overflow:hidden; cursor:zoom-in;
+    opacity:0; transform:translateY(8px); transition:opacity .5s ease, transform .5s ease;
+  }
+  @media (max-width:680px){ .gallery figure { margin-bottom:6px; } }
+  .gallery figure.in { opacity:1; transform:none; }
+  .gallery img { width:100%; height:auto; display:block; transition:transform .5s ease; }
+  .gallery figure:hover img { transform:scale(1.04); }
+
+  /* ---- Stato di caricamento / vuoto ---- */
+  .status {
+    position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:18px; color:#5a5a5a; font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-size:13px; letter-spacing:2px; text-transform:uppercase; text-align:center; padding:24px;
+  }
+  .spinner { width:34px; height:34px; border:2px solid rgba(255,255,255,.14); border-top-color:#ffad01; border-radius:50%; animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .status.hidden { display:none; }
+
+  /* ---- Lightbox ---- */
+  .lb { position:fixed; inset:0; z-index:1000; background:rgba(6,6,6,.97); backdrop-filter:blur(4px);
+        display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none;
+        transition:opacity .3s ease; }
+  .lb.open { opacity:1; pointer-events:auto; }
+  .lb-img { max-width:94vw; max-height:92vh; object-fit:contain; display:block; user-select:none;
+            box-shadow:0 30px 90px rgba(0,0,0,.6); border-radius:2px; -webkit-user-drag:none; }
+  .lb-img.loading { opacity:.25; }
+  .lb-btn { position:absolute; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+            color:#fff; width:54px; height:54px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+            cursor:pointer; transition:background .2s, transform .2s; backdrop-filter:blur(6px); z-index:2; }
+  .lb-btn:hover { background:rgba(255,255,255,.16); }
+  .lb-btn:active { transform:scale(.92); }
+  .lb-btn svg { width:22px; height:22px; }
+  .lb-close { top:max(18px, env(safe-area-inset-top)); right:18px; width:46px; height:46px; }
+  .lb-prev { left:18px; top:50%; transform:translateY(-50%); }
+  .lb-next { right:18px; top:50%; transform:translateY(-50%); }
+  .lb-prev:active, .lb-next:active { transform:translateY(-50%) scale(.92); }
+  .lb-count { position:absolute; bottom:max(20px, env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
+              color:#cfcfcf; font-family:system-ui,sans-serif; font-size:12px; letter-spacing:2px;
+              background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); padding:6px 14px; border-radius:20px; }
+  @media (max-width:680px){
+    .lb-btn { width:44px; height:44px; }
+    .lb-prev { left:10px; } .lb-next { right:10px; }
+    .lb-img { max-width:100vw; max-height:88vh; }
+  }
+  @media (hover:none){ .lb-prev, .lb-next { opacity:.55; } }
+</style>
+</head>
+<body>
+
+  <div class="status" id="status"><div class="spinner"></div><span>Caricamento</span></div>
+
+  <div class="gallery" id="gallery" aria-label="Galleria fotografie food"></div>
+
+  <!-- Lightbox -->
+  <div class="lb" id="lb" role="dialog" aria-modal="true">
+    <button class="lb-btn lb-close" id="lbClose" aria-label="Chiudi">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <button class="lb-btn lb-prev" id="lbPrev" aria-label="Precedente">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button class="lb-btn lb-next" id="lbNext" aria-label="Successiva">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <img class="lb-img" id="lbImg" alt="" draggable="false">
+    <div class="lb-count" id="lbCount"></div>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ====== CONFIGURAZIONE ======
+  // Cartella (dentro il repo) dove metti le foto food. Cambia solo questo se usi un altro nome.
+  var FOLDER = 'foto-food';
+  var REPO = 'davidemorabito0/davidemorabito-sito';
+  // ============================
+
+  var IMG_RE = /\.(jpe?g|png|webp|avif|gif)$/i;
+  var gallery = document.getElementById('gallery');
+  var statusEl = document.getElementById('status');
+  var srcs = [];
+
+  function setStatus(text, spinner) {
+    if (text === null) { statusEl.classList.add('hidden'); return; }
+    statusEl.classList.remove('hidden');
+    statusEl.innerHTML = (spinner ? '<div class="spinner"></div>' : '') + '<span>' + text + '</span>';
+  }
+
+  // Chiede a GitHub l'elenco dei file nella cartella, così la galleria si popola da sola.
+  function fetchList() {
+    var api = 'https://api.github.com/repos/' + REPO + '/contents/' + FOLDER;
+    return fetch(api, { headers: { 'Accept': 'application/vnd.github.v3+json' } })
+      .then(function (r) {
+        if (r.status === 404) return [];           // cartella non ancora creata
+        if (!r.ok) throw new Error('http ' + r.status);
+        return r.json();
+      })
+      .then(function (files) {
+        if (!Array.isArray(files)) return [];
+        return files
+          .filter(function (f) { return f.type === 'file' && IMG_RE.test(f.name); })
+          .sort(function (a, b) { return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }); })
+          .map(function (f) { return FOLDER + '/' + encodeURIComponent(f.name); });
+      });
+  }
+
+  function render(list) {
+    srcs = list;
+    if (!srcs.length) { setStatus('Nessuna foto', false); return; }
+    setStatus(null);
+    var io = ('IntersectionObserver' in window)
+      ? new IntersectionObserver(function (entries, obs) {
+          entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+        }, { rootMargin: '200px' })
+      : null;
+
+    srcs.forEach(function (src, i) {
+      var fig = document.createElement('figure');
+      var img = document.createElement('img');
+      img.src = src;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.addEventListener('click', function () { openLightbox(i); });
+      img.addEventListener('load', function () { if (!io) fig.classList.add('in'); });
+      img.addEventListener('error', function () { fig.remove(); }); // salta file non validi
+      fig.appendChild(img);
+      gallery.appendChild(fig);
+      if (io) io.observe(fig);
+    });
+  }
+
+  // ====== LIGHTBOX ======
+  var lb = document.getElementById('lb');
+  var lbImg = document.getElementById('lbImg');
+  var lbCount = document.getElementById('lbCount');
+  var cur = 0;
+
+  function show(i) {
+    cur = (i + srcs.length) % srcs.length;
+    lbImg.classList.add('loading');
+    lbImg.onload = function () { lbImg.classList.remove('loading'); };
+    lbImg.src = srcs[cur];
+    lbCount.textContent = (cur + 1) + ' / ' + srcs.length;
+    // preload vicini
+    [cur + 1, cur - 1].forEach(function (n) { var p = new Image(); p.src = srcs[(n + srcs.length) % srcs.length]; });
+  }
+  function openLightbox(i) { show(i); lb.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function closeLightbox() { lb.classList.remove('open'); document.body.style.overflow = ''; lbImg.src = ''; }
+  function next() { show(cur + 1); }
+  function prev() { show(cur - 1); }
+
+  document.getElementById('lbClose').addEventListener('click', closeLightbox);
+  document.getElementById('lbNext').addEventListener('click', function (e) { e.stopPropagation(); next(); });
+  document.getElementById('lbPrev').addEventListener('click', function (e) { e.stopPropagation(); prev(); });
+  lb.addEventListener('click', function (e) { if (e.target === lb) closeLightbox(); });
+  lbImg.addEventListener('click', function (e) { e.stopPropagation(); next(); });
+
+  document.addEventListener('keydown', function (e) {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    else if (e.key === 'ArrowRight') next();
+    else if (e.key === 'ArrowLeft') prev();
+  });
+
+  // Swipe su mobile
+  var tx = 0, ty = 0;
+  lb.addEventListener('touchstart', function (e) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+  lb.addEventListener('touchend', function (e) {
+    var dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) { dx < 0 ? next() : prev(); }
+    else if (dy > 70 && Math.abs(dy) > Math.abs(dx)) { closeLightbox(); } // swipe giù per chiudere
+  }, { passive: true });
+
+  // ====== AVVIO ======
+  fetchList()
+    .then(render)
+    .catch(function () {
+      setStatus('Galleria momentaneamente non disponibile', false);
+    });
+})();
+</script>
+</body>
+</html>
