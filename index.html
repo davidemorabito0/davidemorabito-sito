@@ -512,8 +512,8 @@
   /* ===== DESKTOP: le 3 card di "i miei lavori" affiancate sulla stessa riga ===== */
   @media (min-width:761px){
     /* Stato chiuso: 3 card in riga, immagine sopra + testo sotto, stessa altezza */
-    #lavori .projects-list, #lavori-2 .projects-list{ flex-direction:row; align-items:stretch; gap:20px; }
-    #lavori .projects-list > .proj, #lavori-2 .projects-list > .proj{ flex:1 1 0; min-width:0; display:flex; flex-direction:column; }
+    #lavori .projects-list, #lavori-2 .projects-list{ flex-direction:row; flex-wrap:wrap; justify-content:center; align-items:stretch; gap:24px; }
+    #lavori .projects-list > .proj, #lavori-2 .projects-list > .proj{ flex:1 1 340px; min-width:320px; max-width:440px; display:flex; flex-direction:column; }
     #lavori .proj-head, #lavori-2 .proj-head{ grid-template-columns:1fr; display:flex; flex-direction:column; flex:1 1 auto; min-height:0; }
     #lavori .proj-cover, #lavori-2 .proj-cover{ height:200px; }
     #lavori .proj-cover::after, #lavori-2 .proj-cover::after{ background:linear-gradient(transparent 45%, rgba(18,32,49,.65)); }
@@ -525,7 +525,7 @@
 
     /* Stato aperto: la card esce dalla riga, va a piena larghezza e torna orizzontale */
     #lavori .projects-list.has-open, #lavori-2 .projects-list.has-open{ flex-direction:column; gap:0; }
-    #lavori .projects-list.has-open > .proj, #lavori-2 .projects-list.has-open > .proj{ flex:none; width:100%; }
+    #lavori .projects-list.has-open > .proj, #lavori-2 .projects-list.has-open > .proj{ flex:none; width:100%; max-width:none; }
     #lavori .projects-list.has-open > .proj:not(.open), #lavori-2 .projects-list.has-open > .proj:not(.open){ display:none; }
     #lavori .proj.open .proj-head, #lavori-2 .proj.open .proj-head{ display:grid; grid-template-columns:300px 1fr; flex:none; min-height:230px; }
     #lavori .proj.open .proj-cover, #lavori-2 .proj.open .proj-cover{ height:auto; }
@@ -904,6 +904,50 @@
   .foto-hero h1 b { font-weight:700; color:#FFAD01; }
   .foto-hero-tag { font-family:'Jost',sans-serif; font-size:clamp(13px,1.6vw,17px); letter-spacing:4px; text-transform:uppercase; color:#a9a299; margin-top:26px; font-weight:300; text-indent:4px; }
 
+
+  /* ===== Card progetti — restyle a schede (badge, specifiche con icone, pulsante) ===== */
+  .proj-badge{ position:absolute; top:12px; right:12px; z-index:3; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(10,16,22,.5); backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,.2); color:#fff; }
+  .proj-badge svg{ width:16px; height:16px; }
+  .proj-specs{ margin:2px 0 18px; padding-top:18px; border-top:1px solid rgba(255,255,255,.1); display:flex; flex-direction:column; gap:13px; }
+  .proj-spec{ display:flex; align-items:center; gap:12px; }
+  .proj-spec .spec-ic{ flex:0 0 auto; width:20px; height:20px; display:flex; align-items:center; justify-content:center; color:var(--amber); }
+  .proj-spec .spec-ic svg{ width:18px; height:18px; }
+  .proj-spec .spec-tx{ display:flex; flex-direction:column; line-height:1.18; }
+  .proj-spec .spec-l{ font-family:'Jost',sans-serif; font-size:9.5px; letter-spacing:1.5px; text-transform:uppercase; color:var(--warm-gray); }
+  .proj-spec .spec-v{ font-family:'Jost',sans-serif; font-size:15px; font-weight:500; color:var(--amber); }
+  .proj-toggle{ background:transparent; border:1px solid rgba(255,173,1,.45); border-radius:12px; padding:13px 20px; }
+  .proj-toggle:hover{ background:rgba(255,173,1,.12); }
+  .proj.open .proj-toggle .chev{ transform:rotate(90deg); }
+  /* look scheda */
+  #lavori .proj, #lavori-2 .proj{ border:1px solid rgba(255,255,255,.08); background:linear-gradient(180deg, rgba(255,255,255,.018), rgba(255,255,255,0)); border-radius:20px; transition:border-color .35s ease, transform .35s ease; }
+  #lavori .proj:hover, #lavori-2 .proj:hover{ border-color:rgba(255,173,1,.35); transform:translateY(-4px); }
+  /* intestazione con colonna destra */
+  .works-aside p{ font-family:'DM Sans',sans-serif; font-size:15px; line-height:1.6; color:var(--warm-gray-light); font-weight:300; margin:0 0 16px; }
+  .works-all{ display:inline-flex; align-items:center; gap:10px; font-family:'Jost',sans-serif; font-size:12px; letter-spacing:2px; text-transform:uppercase; font-weight:600; color:var(--amber); text-decoration:none; border:1px solid rgba(255,173,1,.45); padding:11px 22px; border-radius:30px; transition:all .3s; }
+  .works-all:hover{ background:rgba(255,173,1,.12); }
+  .works-all span{ transition:transform .3s; }
+  .works-all:hover span{ transform:translateX(4px); }
+  @media (min-width:900px){
+    .works-head-main{ display:flex; align-items:flex-end; justify-content:space-between; gap:40px; }
+    .works-aside{ text-align:right; padding-bottom:6px; flex:0 0 auto; }
+  }
+  @media (max-width:899px){ .works-aside{ margin-top:16px; } .works-aside p{ font-size:14px; } }
+  /* desktop: cover più alta, specs al fondo */
+  @media (min-width:761px){
+    #lavori .proj-cover, #lavori-2 .proj-cover{ height:225px; }
+    #lavori .proj-summary, #lavori-2 .proj-summary{ padding:22px 24px 24px; }
+    #lavori .proj-specs, #lavori-2 .proj-specs{ margin-top:auto; }
+    #lavori .proj-toggle, #lavori-2 .proj-toggle{ width:100%; justify-content:center; margin-left:0; }
+  }
+  /* mobile: nella card chiusa (mini) nascondo le specifiche, le mostro all'apertura */
+  @media (max-width:760px){
+    .proj-specs{ display:none; }
+    .proj.open .proj-specs{ display:flex; }
+    .proj-badge{ width:26px; height:26px; top:8px; right:8px; }
+    .proj-badge svg{ width:13px; height:13px; }
+  }
+  .lavori-intro-text{ display:none !important; }
+  @media (min-width:761px){ #lavori, #lavori-2 { max-width:1500px; padding-left:3vw; padding-right:3vw; } #lavori .proj-cover, #lavori-2 .proj-cover{ height:215px; } }
 </style>
 </head>
 <body>
@@ -1028,9 +1072,15 @@
 <!-- I MIEI LAVORI (dark) - Esselunga, Piano City, Chitarra Facile -->
 <div class="bg-dark">
   <section class="section" id="lavori">
-    <div class="reveal works-head">
-      <div class="eyebrow">Progetti</div>
-      <h2 class="section-h"><span class="light">i miei</span> <span class="amber">lavori</span></h2>
+    <div class="reveal works-head works-head-main">
+      <div class="works-head-title">
+        <div class="eyebrow">Progetti</div>
+        <h2 class="section-h"><span class="light">i miei</span> <span class="amber">lavori</span></h2>
+      </div>
+      <div class="works-aside">
+        <p>Video, fotografia e storie visive.<br>Una selezione dei progetti più significativi.</p>
+        <a href="portfolio.html" class="works-all">Vedi tutti <span>→</span></a>
+      </div>
     </div>
     <div class="lavori-intro-text">
       <p>Mi occupo di produzione video end-to-end: riprese, montaggio, direzione della fotografia e coordinamento del team. Lavoro a Milano e provincia, collaborando con creator, agenzie e brand per contenuti ad alto livello qualitativo.</p>
@@ -1041,17 +1091,17 @@
       <!-- ════ ESSELUNGA × ALTAVIA ITALIA ════ -->
       <article class="proj reveal" id="proj-esselunga">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-esselunga">
-          <div class="proj-cover"><img width="1400" height="1050" src="media/lavori/esselunga-cover.webp" alt="Shooting fotografico per catalogo Fidaty Esselunga" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
+          <div class="proj-cover"><img width="1400" height="1050" src="media/lavori/esselunga-cover.webp" alt="Shooting fotografico per catalogo Fidaty Esselunga" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"><span class="proj-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></span></div>
           <div class="proj-summary">
             <span class="proj-tag">Fotografia · Catalogo</span>
             <h3><b>Esselunga</b> × Altavia</h3>
             <p class="proj-preview">Team fotografico per il catalogo Fidaty di Ottobre 2026: set costruiti su misura per valorizzare ogni prodotto, con il fotografo Pietro Baroni e Altavia Italia.</p>
-            <div class="proj-meta-row">
-              <div class="proj-stat-mini"><b>Fidaty</b><span>Catalogo</span></div>
-              <div class="proj-stat-mini"><b>Team</b><span>Fotografico</span></div>
-              <div class="proj-stat-mini"><b>Post</b><span>Produzione</span></div>
-              <button class="proj-toggle" type="button">Scopri di più <span class="chev">⌄</span></button>
+            <div class="proj-specs">
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg></span><span class="spec-tx"><span class="spec-l">Cliente</span><span class="spec-v">Fidaty</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="spec-tx"><span class="spec-l">Team</span><span class="spec-v">Team fotografico</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span><span class="spec-tx"><span class="spec-l">Tipologia</span><span class="spec-v">Post produzione</span></span></div>
             </div>
+            <button class="proj-toggle" type="button">Scopri di più <span class="chev">→</span></button>
           </div>
         </div>
         <div class="proj-detail" id="detail-esselunga">
@@ -1070,7 +1120,10 @@
             <div class="proj-sub-eye">Dietro le quinte</div>
             <h3 class="proj-subh">Gallery</h3>
             <div class="proj-gal" id="gal-esselunga">
-              <div class="proj-gal-item"><img width="1400" height="1050" src="media/lavori/esselunga-cover.webp" alt="Catalogo Fidaty Esselunga — Ottobre 2026" loading="lazy"></div>
+              <div class="proj-gal-item"><img width="1102" height="1092" src="media/lavori/esselunga-cover.webp" alt="Catalogo Fidaty Esselunga — Ottobre 2026" data-lb loading="lazy"></div>
+              <div class="proj-gal-item wide"><img width="1492" height="751" src="media/lavori/esselunga-gal1.webp" alt="Collana Pianeti UNOAERRE — catalogo Fidaty" data-lb loading="lazy"></div>
+              <div class="proj-gal-item"><img width="640" height="640" src="media/lavori/esselunga-gal2.webp" alt="Forno ad aria Dreame — catalogo Fidaty" data-lb loading="lazy"></div>
+              <div class="proj-gal-item wide"><img width="1500" height="731" src="media/lavori/esselunga-gal3.webp" alt="Catalogo Fidaty Esselunga Ottobre-Aprile" data-lb loading="lazy"></div>
             </div>
             <button class="proj-close" type="button" aria-label="Chiudi lettura">Chiudi <span class="chev-up">⌃</span></button>
           </div>
@@ -1080,17 +1133,17 @@
       <!-- ════ PROGETTO 2: PIANO CITY MILANO ════ -->
       <article class="proj reveal" id="proj-pianocity">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-pianocity">
-          <div class="proj-cover"><img width="1200" height="750" src="media/lavori/pianocity-cover.webp" alt="Piano City Milano — produzione video" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
+          <div class="proj-cover"><img width="1200" height="750" src="media/lavori/pianocity-cover.webp" alt="Piano City Milano — produzione video" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"><span class="proj-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span></div>
           <div class="proj-summary">
             <span class="proj-tag">Festival · Milano</span>
             <h3>Piano City <b>Milano</b> 2026</h3>
             <p class="proj-preview">A capo della produzione video del festival diffuso: un team di 7 videomaker su più location per 5 giornate, poi tutto il montaggio e la delivery.</p>
-            <div class="proj-meta-row">
-              <div class="proj-stat-mini"><b>7</b><span>Videomaker</span></div>
-              <div class="proj-stat-mini"><b>5</b><span>Giornate</span></div>
-              <div class="proj-stat-mini"><b>Multi</b><span>Location</span></div>
-              <button class="proj-toggle" type="button">Scopri di più <span class="chev">⌄</span></button>
+            <div class="proj-specs">
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="spec-tx"><span class="spec-l">Team</span><span class="spec-v">7 videomaker</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span class="spec-tx"><span class="spec-l">Giornate</span><span class="spec-v">5 giornate</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><span class="spec-tx"><span class="spec-l">Location</span><span class="spec-v">Multi-location</span></span></div>
             </div>
+            <button class="proj-toggle" type="button">Scopri di più <span class="chev">→</span></button>
           </div>
         </div>
         <div class="proj-detail" id="detail-pianocity">
@@ -1133,17 +1186,17 @@
       <!-- ════ CHITARRA FACILE ════ -->
       <article class="proj reveal" id="proj-chitarrafacile">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-chitarrafacile">
-          <div class="proj-cover"><img width="1267" height="712" src="media/lavori/chitfacile6.webp" alt="Produzione video per Chitarra Facile" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
+          <div class="proj-cover"><img width="1267" height="712" src="media/lavori/chitfacile6.webp" alt="Produzione video per Chitarra Facile" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"><span class="proj-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></span></div>
           <div class="proj-summary">
             <span class="proj-tag">Produzione Video · Social</span>
             <h3>Chitarra <b>Facile</b></h3>
             <p class="proj-preview">Produzione video completa per la scuola di chitarra n.1 in Italia: ADV social, riprese multicamera workshop, videolezioni, interviste e masterclass.</p>
-            <div class="proj-meta-row">
-              <div class="proj-stat-mini"><b>3+</b><span>Anni</span></div>
-              <div class="proj-stat-mini"><b>Multi</b><span>Formato</span></div>
-              <div class="proj-stat-mini"><b>Social</b><span>+ YouTube</span></div>
-              <button class="proj-toggle" type="button">Scopri di più <span class="chev">⌄</span></button>
+            <div class="proj-specs">
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span class="spec-tx"><span class="spec-l">Collaborazione</span><span class="spec-v">3+ anni</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span><span class="spec-tx"><span class="spec-l">Formato</span><span class="spec-v">Multiformato</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span><span class="spec-tx"><span class="spec-l">Piattaforma</span><span class="spec-v">Social + YouTube</span></span></div>
             </div>
+            <button class="proj-toggle" type="button">Scopri di più <span class="chev">→</span></button>
           </div>
         </div>
         <div class="proj-detail" id="detail-chitarrafacile">
@@ -1177,17 +1230,17 @@
       <!-- ════ THEBESTBLEND × NETFLIX ════ -->
       <article class="proj reveal" id="proj-thebestblend">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-thebestblend">
-          <div class="proj-cover"><img width="1280" height="720" src="media/lavori/thebestblend-cover.webp" alt="TheBestBlend × Netflix — Guida completa alla WWE" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
+          <div class="proj-cover"><img width="1280" height="720" src="media/lavori/thebestblend-cover.webp" alt="TheBestBlend × Netflix — Guida completa alla WWE" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"><span class="proj-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></span></div>
           <div class="proj-summary">
             <span class="proj-tag">Produzione video · Netflix</span>
             <h3><b>TheBestBlend</b> × Netflix</h3>
             <p class="proj-preview">Guida completa al mondo WWE condotta da Maurizio Merluzzo, in vista di Wrestlemania 42 e dei prossimi eventi PLE — un contenuto Netflix a cui ho preso parte come operatore camera.</p>
-            <div class="proj-meta-row">
-              <div class="proj-stat-mini"><b>Camera</b><span>Operatore</span></div>
-              <div class="proj-stat-mini"><b>Netflix</b><span>Branded content</span></div>
-              <div class="proj-stat-mini"><b>WWE</b><span>Guida completa</span></div>
-              <button class="proj-toggle" type="button">Scopri di più <span class="chev">⌄</span></button>
+            <div class="proj-specs">
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span><span class="spec-tx"><span class="spec-l">Ruolo</span><span class="spec-v">Operatore camera</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span><span class="spec-tx"><span class="spec-l">Piattaforma</span><span class="spec-v">Netflix</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg></span><span class="spec-tx"><span class="spec-l">Progetto</span><span class="spec-v">Guida WWE</span></span></div>
             </div>
+            <button class="proj-toggle" type="button">Scopri di più <span class="chev">→</span></button>
           </div>
         </div>
         <div class="proj-detail" id="detail-thebestblend">
@@ -1212,17 +1265,17 @@
       <!-- ════ KENTO — NOSTRA SIGNORA DELLE LACRIME ════ -->
       <article class="proj reveal" id="proj-kento">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-kento">
-          <div class="proj-cover"><img width="1280" height="720" src="media/lavori/kento-cover.webp" alt="Kento — Nostra Signora delle Lacrime" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
+          <div class="proj-cover"><img width="1280" height="720" src="media/lavori/kento-cover.webp" alt="Kento — Nostra Signora delle Lacrime" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"><span class="proj-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></span></div>
           <div class="proj-summary">
             <span class="proj-tag">Music video · Reportage</span>
             <h3><b>Kento</b> — Nostra Signora delle Lacrime</h3>
             <p class="proj-preview">Il videoclip del nuovo singolo di Kento, girato a bordo della Ocean Viking di SOS Mediterranee: dall'imbarco ai salvataggi in mare, fino alla jam session finale sul ponte.</p>
-            <div class="proj-meta-row">
-              <div class="proj-stat-mini"><b>Video</b><span>Musicale</span></div>
-              <div class="proj-stat-mini"><b>Shooting</b><span>Editing e Color</span></div>
-              <div class="proj-stat-mini"><b>Ocean</b><span>Viking</span></div>
-              <button class="proj-toggle" type="button">Scopri di più <span class="chev">⌄</span></button>
+            <div class="proj-specs">
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span><span class="spec-tx"><span class="spec-l">Tipologia</span><span class="spec-v">Video musicale</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/></svg></span><span class="spec-tx"><span class="spec-l">Lavoro</span><span class="spec-v">Shooting, editing e color</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><span class="spec-tx"><span class="spec-l">Location</span><span class="spec-v">Ocean Viking</span></span></div>
             </div>
+            <button class="proj-toggle" type="button">Scopri di più <span class="chev">→</span></button>
           </div>
         </div>
         <div class="proj-detail" id="detail-kento">
@@ -1473,17 +1526,17 @@
       <!-- ════ IL RIFIUTO — CORTOMETRAGGIO ════ -->
       <article class="proj reveal" id="proj-rifiuto">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-rifiuto">
-          <div class="proj-cover"><img width="1280" height="720" src="media/lavori/rifiuto-cover.webp" alt="Sul set del cortometraggio Il Rifiuto" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"></div>
+          <div class="proj-cover"><img width="1280" height="720" src="media/lavori/rifiuto-cover.webp" alt="Sul set del cortometraggio Il Rifiuto" loading="lazy" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#2b4868,#122031)'"><span class="proj-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span></div>
           <div class="proj-summary">
             <span class="proj-tag">Cortometraggio · Cinema</span>
             <h3>Il <b>Rifiuto</b></h3>
             <p class="proj-preview">Operatore video per un cortometraggio dai toni oscuri e disturbanti, con regia di Marco Pipitone. Tre giornate di riprese con Collettivo32.</p>
-            <div class="proj-meta-row">
-              <div class="proj-stat-mini"><b>3</b><span>Giornate</span></div>
-              <div class="proj-stat-mini"><b>Corto</b><span>Metraggio</span></div>
-              <div class="proj-stat-mini"><b>C32</b><span>Collettivo32</span></div>
-              <button class="proj-toggle" type="button">Scopri di più <span class="chev">⌄</span></button>
+            <div class="proj-specs">
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span class="spec-tx"><span class="spec-l">Riprese</span><span class="spec-v">3 giornate</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/></svg></span><span class="spec-tx"><span class="spec-l">Formato</span><span class="spec-v">Cortometraggio</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="spec-tx"><span class="spec-l">Team</span><span class="spec-v">Collettivo32</span></span></div>
             </div>
+            <button class="proj-toggle" type="button">Scopri di più <span class="chev">→</span></button>
           </div>
         </div>
         <div class="proj-detail" id="detail-rifiuto">
@@ -1532,17 +1585,17 @@
       <!-- ════ PROGETTO 1: CICCIO MERRINO ════ -->
       <article class="proj reveal" id="proj-ciccio">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-ciccio">
-          <div class="proj-cover"><img width="1206" height="1508" src="media/lavori/regia-multicamera.webp" alt="Regia multicamera del live show di Ciccio Merrino" loading="lazy"></div>
+          <div class="proj-cover"><img width="1206" height="1508" src="media/lavori/regia-multicamera.webp" alt="Regia multicamera del live show di Ciccio Merrino" loading="lazy"><span class="proj-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span></div>
           <div class="proj-summary">
             <span class="proj-tag">Live Show · Twitch</span>
             <h3>Ciccio <b>Merrino</b> Live</h3>
             <p class="proj-preview">Regia multicamera, coordinamento e riprese di un evento live con un team di oltre 50 persone, andato in onda il 27 settembre.</p>
-            <div class="proj-meta-row">
-              <div class="proj-stat-mini"><b>8.000+</b><span>Spettatori</span></div>
-              <div class="proj-stat-mini"><b>600+</b><span>Abbonati</span></div>
-              <div class="proj-stat-mini"><b>8</b><span>Camere</span></div>
-              <button class="proj-toggle" type="button">Scopri di più <span class="chev">⌄</span></button>
+            <div class="proj-specs">
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="spec-tx"><span class="spec-l">Spettatori</span><span class="spec-v">8.000+ live</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg></span><span class="spec-tx"><span class="spec-l">Abbonati</span><span class="spec-v">600+</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span><span class="spec-tx"><span class="spec-l">Regia</span><span class="spec-v">8 camere</span></span></div>
             </div>
+            <button class="proj-toggle" type="button">Scopri di più <span class="chev">→</span></button>
           </div>
         </div>
         <div class="proj-detail" id="detail-ciccio">
@@ -1617,17 +1670,17 @@
       <!-- ════ PROGETTO 3: HO FATTO TEATRO ════ -->
       <article class="proj reveal" id="proj-teatro">
         <div class="proj-head" role="button" tabindex="0" aria-expanded="false" aria-controls="detail-teatro">
-          <div class="proj-cover"><img width="824" height="515" src="media/lavori/teatro-cover.webp" alt="Locandina del tour Ho Fatto Teatro di Mario Sturniolo" loading="lazy"></div>
+          <div class="proj-cover"><img width="824" height="515" src="media/lavori/teatro-cover.webp" alt="Locandina del tour Ho Fatto Teatro di Mario Sturniolo" loading="lazy"><span class="proj-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span></div>
           <div class="proj-summary">
             <span class="proj-tag">Live · Club Tour</span>
             <h3>Ho Fatto <b>Teatro</b></h3>
             <p class="proj-preview">Copertura video completa di uno spettacolo live in tour: riprese multicamera, audio diretto dal mixer, backstage e contenuti social.</p>
-            <div class="proj-meta-row">
-              <div class="proj-stat-mini"><b>Multi</b><span>Camera</span></div>
-              <div class="proj-stat-mini"><b>Audio</b><span>Da mixer</span></div>
-              <div class="proj-stat-mini"><b>Tour</b><span>Più date</span></div>
-              <button class="proj-toggle" type="button">Scopri di più <span class="chev">⌄</span></button>
+            <div class="proj-specs">
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span><span class="spec-tx"><span class="spec-l">Riprese</span><span class="spec-v">Multicamera</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span><span class="spec-tx"><span class="spec-l">Audio</span><span class="spec-v">Da mixer</span></span></div>
+            <div class="proj-spec"><span class="spec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span><span class="spec-tx"><span class="spec-l">Date</span><span class="spec-v">Tour · più date</span></span></div>
             </div>
+            <button class="proj-toggle" type="button">Scopri di più <span class="chev">→</span></button>
           </div>
         </div>
         <div class="proj-detail" id="detail-teatro">
