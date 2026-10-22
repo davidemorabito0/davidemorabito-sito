@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#1A2F45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Counter">
+<title>Counter · oggi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme:dark;
+    --navy:#1A2F45; --navy-lo:#122032; --navy-2:#2B4868;
+    --amber:#FFAD01; --amber-dk:#C98A00;
+    --ink:#FFFFFF; --muted:rgba(255,255,255,.55); --muted2:rgba(255,255,255,.34);
+    --line:rgba(255,255,255,.12);
+    --green:#5ECB7A; --red:#FF6B5E;
+    --safe-t:env(safe-area-inset-top,0px);
+    --safe-b:env(safe-area-inset-bottom,0px);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
+    -webkit-touch-callout:none;user-select:none;}
+  html,body{height:100%;}
+  html{background:var(--navy-lo);}
+  body{
+    background:radial-gradient(120% 90% at 50% 30%, #22405e 0%, var(--navy) 48%, var(--navy-lo) 100%);
+    color:var(--ink);
+    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    display:flex; flex-direction:column; overflow:hidden; cursor:pointer;
+    padding:calc(var(--safe-t) + 16px) 14px calc(var(--safe-b) + 12px);
+    position:relative;
+  }
+
+  /* ---------- intestazione ---------- */
+  .top{flex:0 0 auto;display:flex;align-items:center;gap:10px;margin-bottom:clamp(6px,1.6vh,16px);}
+  .live{width:10px;height:10px;border-radius:50%;background:var(--green);flex:none;
+    animation:beat 3s ease-out infinite;}
+  .live.err{background:var(--red);animation:none;box-shadow:0 0 0 4px rgba(255,107,94,.18);}
+  .live.pulse{animation:lp .55s ease;}
+  @keyframes lp{0%{box-shadow:0 0 0 0 rgba(94,203,122,.5)}100%{box-shadow:0 0 0 13px rgba(94,203,122,0)}}
+  @keyframes beat{0%{box-shadow:0 0 0 0 rgba(94,203,122,.42)}
+                  55%{box-shadow:0 0 0 12px rgba(94,203,122,0)}
+                  100%{box-shadow:0 0 0 0 rgba(94,203,122,0)}}
+  .wm{display:flex;flex-direction:column;line-height:1;}
+  .wm b{font-family:"Fraunces",Georgia,serif;font-weight:600;
+    font-size:clamp(18px,5vw,26px);letter-spacing:-.015em;color:var(--ink);}
+  .wm span{font-size:clamp(8px,2.2vw,10.5px);letter-spacing:.26em;text-transform:uppercase;
+    color:var(--muted2);margin-top:5px;}
+
+  /* ---------- griglia: sempre due sopra e due sotto ---------- */
+  .grid{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
+    gap:clamp(8px,2.4vw,22px);place-items:center;
+    animation:breathe 5.4s ease-in-out infinite;}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.014)}}
+
+  .card{position:relative;aspect-ratio:1;
+    width:min(100%, min(46vw, 42vh));
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border-radius:50%;
+    background:radial-gradient(circle at 50% 38%, rgba(255,173,1,.10) 0%, rgba(43,72,104,.55) 60%, rgba(26,47,69,.75) 100%);
+    border:2px solid var(--amber);
+    box-shadow:inset 0 0 22px rgba(255,173,1,.10), 0 10px 30px rgba(0,0,0,.35);
+    transition:transform .18s ease;}
+  .card.bump{transform:scale(1.06);}
+  .card.soon{border-style:dashed;border-color:rgba(255,255,255,.28);
+    background:rgba(43,72,104,.30);box-shadow:none;}
+  .card::before{content:"";position:absolute;inset:-13%;border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle, rgba(255,173,1,.26) 0%, rgba(255,173,1,0) 68%);
+    animation:aura 5.4s ease-in-out infinite;animation-delay:var(--d);z-index:-1;}
+  .card.soon::before{animation:none;background:none;}
+  @keyframes aura{0%,100%{opacity:.30;transform:scale(.88)}50%{opacity:.85;transform:scale(1.07)}}
+
+  .num{font-family:"Fraunces",Georgia,serif;font-weight:700;color:var(--amber);
+    font-size:clamp(34px,12.5vw,86px);line-height:.95;letter-spacing:-.03em;
+    font-variant-numeric:tabular-nums;text-shadow:0 0 26px rgba(255,173,1,.28);}
+  .card.soon .num{color:var(--muted2);text-shadow:none;}
+  .card.off .num{color:rgba(255,173,1,.32);text-shadow:none;}
+  .name{margin-top:7px;font-size:clamp(8.5px,2.5vw,13px);font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--ink);text-align:center;padding:0 10px;}
+  .card.soon .name{color:var(--muted);}
+  .sub{margin-top:3px;font-size:clamp(7.5px,2.1vw,11px);letter-spacing:.10em;
+    text-transform:uppercase;color:var(--muted2);}
+
+  .dots{position:absolute;bottom:13%;display:flex;gap:5px;opacity:0;transition:opacity .2s;}
+  .card.busy .dots{opacity:1;}
+  .card.busy .num{opacity:.35;}
+  .dots i{width:5px;height:5px;border-radius:50%;background:var(--amber);display:block;
+    animation:think 1.2s ease-in-out infinite;}
+  .dots i:nth-child(2){animation-delay:.18s;}
+  .dots i:nth-child(3){animation-delay:.36s;}
+  @keyframes think{0%,100%{opacity:.25;transform:translateY(0)}45%{opacity:1;transform:translateY(-3px)}}
+
+  /* ---------- piede ---------- */
+  .foot{flex:0 0 auto;text-align:center;font-size:clamp(9px,2.4vw,12px);
+    letter-spacing:.05em;color:var(--muted2);padding-top:clamp(6px,1.4vh,12px);}
+  .foot .msg{color:var(--red);font-weight:600;}
+  .spin{display:inline-block;width:10px;height:10px;border:2px solid rgba(255,255,255,.22);
+    border-top-color:var(--amber);border-radius:50%;animation:sp .7s linear infinite;
+    vertical-align:-1px;margin-right:5px;}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .tick{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--amber);opacity:.9;}
+  .tick.run{animation:tick 15s linear forwards;}
+  @keyframes tick{from{width:0}to{width:100%}}
+
+  body.busy .grid{animation-duration:1.7s;}
+  body.busy .card::before{animation-duration:1.7s;}
+
+  @media (prefers-reduced-motion: reduce){
+    .grid,.card::before,.dots i,.live,.tick.run{animation:none!important;}
+  }
+  /* schermo largo: cerchi più grandi, sempre 2x2 */
+  @media (min-width:760px){
+    .card{width:min(100%, min(34vw, 40vh));}
+  }
+</style>
+</head>
+<body>
+  <div class="top">
+    <span class="live" id="live"></span>
+    <span class="wm"><b>Counter</b><span id="dateLbl">oggi</span></span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="foot" id="foot">tocca per aggiornare</div>
+  <div class="tick" id="tick"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ─────────────────────────────────────────────────────────────
+  // CONFIGURAZIONE DEI QUATTRO CERCHI
+  // src: "supabase" = tabella visits (mostraMI)
+  //      "ping"     = tabella pings, filtrata per app
+  //      "ga4"      = endpoint ga-stats (Google Analytics)
+  //      "soon"     = segnaposto
+  // ─────────────────────────────────────────────────────────────
+  var GA_URL = "";   // ← incolla qui l'URL della funzione ga-stats, es:
+                     //   https://tuo-sito.netlify.app/.netlify/functions/ga-stats
+
+  var SB_URL = "https://yfatwqryeoobaqkivqic.supabase.co";
+  var SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmYXR3cXJ5ZW9vYmFxa2l2cWljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0OTkyMDEsImV4cCI6MjA5ODA3NTIwMX0.rHnKaY8JvXPZgd3HrHP2jptD3XzzhUvf5CckKHNX5_E";
+
+  // progetto Supabase di fartflip (separato da quello di mostraMI)
+  var FF_URL = "https://zqtfsqdlnznhxcqmftsm.supabase.co";
+  var FF_KEY = "sb_publishable_RSTnHhVljX08FDAem8DVgg_qJjCq0OL";
+
+  var SOURCES = [
+    { name:"mostraMI",  sub:"utenti oggi", src:"supabase" },
+    { name:"davidemorabito", sub:"utenti oggi", src:"ga4", path:"" },
+    { name:"FARTFLIP",  sub:"partite oggi", src:"ping", app:"fartflip",
+      url:FF_URL, key:FF_KEY },
+    { name:"da definire", sub:"prossimamente", src:"soon" }
+  ];
+
+  var $=function(id){return document.getElementById(id);};
+  var elLive=$("live"), elFoot=$("foot"), elTick=$("tick"), elGrid=$("grid");
+
+  function pad(n){return (n<10?"0":"")+n;}
+  function monthKey(){ var d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1); }
+  function todayStartISO(){ var d=new Date(); d.setHours(0,0,0,0); return d.toISOString(); }
+  function fmt(n){ n=Number(n); return isFinite(n)?n.toLocaleString("it-IT"):"—"; }
+  function timeNow(){ var d=new Date(); return pad(d.getHours())+":"+pad(d.getMinutes()); }
+
+  // intestazione con la data di oggi
+  try{
+    $("dateLbl").textContent = new Date().toLocaleDateString("it-IT",
+      {weekday:"long", day:"numeric", month:"long"});
+  }catch(e){}
+
+  // costruzione dei cerchi
+  var cards=[];
+  SOURCES.forEach(function(s,i){
+    var d=document.createElement("div");
+    d.className="card"+(s.src==="soon"?" soon":"");
+    d.style.setProperty("--d", (i*0.42)+"s");
+    d.innerHTML='<div class="num">'+(s.src==="soon"?"?":"—")+'</div>'+
+                '<div class="name">'+s.name+'</div>'+
+                '<div class="sub">'+s.sub+'</div>'+
+                '<div class="dots"><i></i><i></i><i></i></div>';
+    elGrid.appendChild(d);
+    cards.push({el:d, num:d.querySelector(".num"), cfg:s});
+  });
+
+  function setVal(card,v){
+    card.num.textContent=fmt(v);
+    card.el.classList.remove("bump"); void card.el.offsetWidth; card.el.classList.add("bump");
+  }
+
+  // ---- letture ----
+  async function sbCount(extra){
+    var url = SB_URL+"/rest/v1/visits?select=id&month=eq."+encodeURIComponent(monthKey())+(extra||"");
+    var res = await fetch(url,{ method:"HEAD", headers:{
+      apikey:SB_KEY, Authorization:"Bearer "+SB_KEY, Prefer:"count=exact" }});
+    var cr=res.headers.get("content-range")||"";
+    var n=parseInt((cr.split("/")[1]||"0"),10);
+    return isNaN(n)?0:n;
+  }
+  async function pingCount(app,base,key){
+    base = base||SB_URL; key = key||SB_KEY;
+    var url = base+"/rest/v1/pings?select=id&app=eq."+encodeURIComponent(app)+
+              "&created_at=gte."+encodeURIComponent(todayStartISO());
+    var res = await fetch(url,{ method:"HEAD", headers:{
+      apikey:key, Authorization:"Bearer "+key, Prefer:"count=exact" }});
+    if(!res.ok) throw new Error("tabella pings assente");
+    var cr=res.headers.get("content-range")||"";
+    var n=parseInt((cr.split("/")[1]||"0"),10);
+    return isNaN(n)?0:n;
+  }
+  async function gaCount(path){
+    if(!GA_URL) throw new Error("ga-stats non configurato");
+    var u=GA_URL+(GA_URL.indexOf("?")===-1?"?":"&")+"t="+Date.now()+(path?"&path="+encodeURIComponent(path):"");
+    var r=await fetch(u,{cache:"no-store"});
+    var d=await r.json();
+    if(d && d.error) throw new Error(String(d.error));
+    return d.today;
+  }
+
+  async function loadOne(card){
+    var s=card.cfg;
+    if(s.src==="soon") return;
+    card.el.classList.add("busy");
+    try{
+      var v;
+      if(s.src==="supabase") v=await sbCount("&created_at=gte."+encodeURIComponent(todayStartISO()));
+      else if(s.src==="ping") v=await pingCount(s.app,s.url,s.key);
+      else v=await gaCount(s.path);
+      setVal(card,v);
+      card.el.classList.remove("off");
+      card.failed=false;
+    }catch(e){
+      card.num.textContent="—";
+      card.el.classList.add("off");
+      card.failed=true;
+    }
+    card.el.classList.remove("busy");
+  }
+
+  function restartTick(){
+    elTick.classList.remove("run"); void elTick.offsetWidth; elTick.classList.add("run");
+  }
+
+  var busy=false;
+  async function loadAll(){
+    if(busy) return; busy=true;
+    document.body.classList.add("busy");
+    elLive.className="live";
+    elFoot.innerHTML='<span class="spin"></span>aggiorno…';
+    await Promise.all(cards.map(loadOne));
+    document.body.classList.remove("busy");
+    var ko=cards.filter(function(c){ return c.failed; }).length;
+    var attive=cards.filter(function(c){ return c.cfg.src!=="soon"; }).length;
+    if(ko>=attive){
+      elLive.className="live err";
+      elFoot.innerHTML='<span class="msg">nessuna sorgente raggiungibile</span>';
+    }else{
+      elLive.className="live pulse";
+      setTimeout(function(){ elLive.className="live"; },560);
+      elFoot.textContent="aggiornato "+timeNow()+(ko?" · "+ko+" da collegare":"")+" · tocca per aggiornare";
+    }
+    restartTick();
+    busy=false;
+  }
+
+  document.addEventListener("pointerdown",loadAll);
+  document.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){e.preventDefault();loadAll();} });
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden) loadAll(); });
+
+  loadAll();
+  setInterval(loadAll, 15000);   // aggiornamento ogni 15 secondi
+})();
+</script>
+</body>
+</html>

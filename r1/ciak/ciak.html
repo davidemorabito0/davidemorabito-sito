@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=240, initial-scale=1.0, user-scalable=no">
+<title>Ciak</title>
+<style>
+  :root{
+    --bg:#0e0e10; --amber:#FFAD01; --amber-dim:rgba(255,173,1,.16);
+    --fg:#fff; --muted:rgba(255,255,255,.42); --line:rgba(255,255,255,.10);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
+  html{background:#000;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+  body{
+    width:240px;height:282px;overflow:hidden;position:relative;
+    background:var(--bg);color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    display:flex;flex-direction:column;
+    box-shadow:0 0 0 1px rgba(255,255,255,.05),0 24px 70px rgba(0,0,0,.6);
+  }
+  .strip{flex:0 0 9px;background:repeating-linear-gradient(115deg,#ededed 0 11px,#141414 11px 22px);opacity:.92;}
+  .hdr{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 9px 4px;}
+  .prod{display:flex;flex-direction:column;min-width:0;}
+  .prod .lbl{font-size:8px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;}
+  .prod .val{font-size:11px;font-weight:700;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;}
+  .clock{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;flex:0 0 auto;}
+  .row{display:flex;gap:8px;padding:5px 9px 0;}
+  .cell{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:8px;padding:5px 4px 6px;text-align:center;transition:transform .18s ease;}
+  .cell .lbl{font-size:8px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;}
+  .cell .num{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:30px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums;margin-top:1px;}
+  .take{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:4px 9px 0;border-radius:10px;border:1px solid var(--amber);background:var(--amber-dim);}
+  .take .lbl{font-size:9px;letter-spacing:.26em;color:var(--amber);text-transform:uppercase;margin-bottom:-2px;}
+  .take .num{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:80px;font-weight:800;color:var(--amber);line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 0 18px rgba(255,173,1,.25);}
+  .status{display:flex;align-items:center;justify-content:center;gap:5px;font-size:9px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;padding:3px 0;}
+  .dot{width:6px;height:6px;border-radius:50%;background:#3a3a3d;transition:background .15s,box-shadow .15s;}
+  .status.rec{color:#ff5a50;}
+  .status.rec .dot{background:#ff3b30;box-shadow:0 0 8px #ff3b30;}
+  .legend{font-size:8.5px;line-height:1.4;color:rgba(255,255,255,.32);text-align:center;padding:4px 6px 5px;border-top:1px solid var(--line);}
+  .legend b{color:rgba(255,255,255,.6);font-weight:700;}
+  .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:60;transition:opacity .06s ease;}
+  .flash.on{opacity:.92;transition:opacity 0s;}
+  #edit{position:absolute;inset:0;background:var(--bg);z-index:100;display:none;flex-direction:column;padding:12px;}
+  #edit.visible{display:flex;}
+  #edit h3{font-size:10px;letter-spacing:.14em;color:var(--amber);text-transform:uppercase;margin-bottom:8px;}
+  #edit textarea{flex:0 0 auto;height:54px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:6px;color:#fff;font-size:14px;font-family:inherit;padding:8px;resize:none;outline:none;line-height:1.4;}
+  #edit .acts{display:flex;gap:8px;margin-top:auto;}
+  #edit button{flex:1;padding:9px;border:none;border-radius:6px;font-size:12px;font-weight:700;font-family:inherit;}
+  #edit .cancel{background:rgba(255,255,255,.08);color:#fff;}
+  #edit .save{background:var(--amber);color:#111;}
+</style>
+</head>
+<body>
+  <div class="strip"></div>
+  <div class="hdr">
+    <div class="prod" id="prodBtn">
+      <span class="lbl">Prod</span>
+      <span class="val" id="prodVal">DAVIDE MORABITO</span>
+    </div>
+    <span class="clock" id="clock">--:--</span>
+  </div>
+  <div class="row">
+    <div class="cell" id="scCell"><div class="lbl">Scena</div><div class="num" id="scNum">01</div></div>
+    <div class="cell" id="inqCell"><div class="lbl">Inq</div><div class="num" id="inqNum">01</div></div>
+  </div>
+  <div class="take" id="takeCell">
+    <div class="lbl">Take</div>
+    <div class="num" id="takeNum">01</div>
+  </div>
+  <div class="status" id="status"><span class="dot"></span><span id="statusTxt">Pronto</span></div>
+  <div class="legend">
+    <b>rotella</b> take · <b>click</b> ciak · <b>tieni</b> nuova inq<br>
+    <b>tap</b> scena +1 (tieni −1) · tap take +1
+  </div>
+
+  <div class="flash" id="flash"></div>
+
+  <div id="edit">
+    <h3>Nome produzione</h3>
+    <textarea id="editInput" maxlength="40" placeholder="Es. Esselunga — Spot"></textarea>
+    <div class="acts">
+      <button class="cancel" id="editCancel">Annulla</button>
+      <button class="save" id="editSave">Salva</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  var state={prod:"DAVIDE MORABITO",scene:1,inq:1,take:1};
+  var KEY="ciak_r1_state";
+  try{var s=JSON.parse(localStorage.getItem(KEY)||"null");if(s){state=Object.assign(state,s);}}catch(e){}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+
+  var $=function(id){return document.getElementById(id);};
+  var scNum=$("scNum"),inqNum=$("inqNum"),takeNum=$("takeNum"),prodVal=$("prodVal");
+  var flash=$("flash"),status=$("status"),statusTxt=$("statusTxt");
+  var pad=function(n){return (n<10?"0":"")+n;};
+
+  function render(){
+    scNum.textContent=pad(state.scene);
+    inqNum.textContent=pad(state.inq);
+    takeNum.textContent=pad(state.take);
+    prodVal.textContent=state.prod||"—";
+  }
+
+  // --- beep di sync ---
+  var actx=null;
+  function beep(){
+    try{
+      if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)();}
+      if(actx.state==="suspended"){actx.resume();}
+      var now=actx.currentTime;
+      [0,0.14].forEach(function(t){
+        var o=actx.createOscillator(),g=actx.createGain();
+        o.type="square";o.frequency.value=1000;
+        g.gain.setValueAtTime(0.0001,now+t);
+        g.gain.exponentialRampToValueAtTime(0.28,now+t+0.006);
+        g.gain.exponentialRampToValueAtTime(0.0001,now+t+0.085);
+        o.connect(g);g.connect(actx.destination);
+        o.start(now+t);o.stop(now+t+0.1);
+      });
+    }catch(e){}
+  }
+
+  var recTimer=null;
+  function clap(){
+    flash.classList.add("on");
+    setTimeout(function(){flash.classList.remove("on");},90);
+    beep();
+    status.classList.add("rec");statusTxt.textContent="Ciak!";
+    clearTimeout(recTimer);
+    recTimer=setTimeout(function(){status.classList.remove("rec");statusTxt.textContent="Pronto";},900);
+    state.take=Math.min(999,state.take+1);
+    render();save();
+  }
+  function takeDelta(d){state.take=Math.max(1,Math.min(999,state.take+d));render();save();}
+  function newInq(){state.inq=Math.min(999,state.inq+1);state.take=1;render();save();pulse(inqNum.parentElement);}
+  function sceneUp(){state.scene=Math.min(999,state.scene+1);state.inq=1;state.take=1;render();save();pulse(scNum.parentElement);}
+  function sceneDown(){if(state.scene>1){state.scene--;state.inq=1;state.take=1;render();save();pulse(scNum.parentElement);}}
+  function pulse(el){el.style.transform="scale(1.12)";requestAnimationFrame(function(){el.style.transform="scale(1)";});}
+
+  // --- edit produzione ---
+  var edit=$("edit"),editInput=$("editInput");
+  function isEditing(){return edit.classList.contains("visible");}
+  function openEdit(){editInput.value=state.prod;edit.classList.add("visible");setTimeout(function(){editInput.focus();},40);}
+  function closeEdit(){editInput.blur();edit.classList.remove("visible");}
+  $("prodBtn").addEventListener("click",function(){if(!isEditing())openEdit();});
+  $("editCancel").addEventListener("click",closeEdit);
+  $("editSave").addEventListener("click",function(){var v=(editInput.value||"").trim().toUpperCase();state.prod=v||"PRODUZIONE";render();save();closeEdit();});
+
+  // --- touch celle ---
+  (function(){
+    var t=null,longF=false,el=$("scCell");
+    el.addEventListener("pointerdown",function(){longF=false;t=setTimeout(function(){longF=true;sceneDown();},550);});
+    el.addEventListener("pointerup",function(){clearTimeout(t);if(!longF)sceneUp();});
+    el.addEventListener("pointerleave",function(){clearTimeout(t);});
+    el.addEventListener("pointercancel",function(){clearTimeout(t);});
+  })();
+  $("inqCell").addEventListener("click",newInq);
+  $("takeCell").addEventListener("click",function(){takeDelta(1);});
+
+  // --- hardware R1 ---
+  window.addEventListener("scrollUp",function(){if(!isEditing())takeDelta(1);});
+  window.addEventListener("scrollDown",function(){if(!isEditing())takeDelta(-1);});
+  window.addEventListener("sideClick",function(){if(!isEditing())clap();});
+  window.addEventListener("longPressStart",function(){if(!isEditing())newInq();});
+
+  // --- fallback tastiera (test da desktop) ---
+  document.addEventListener("keydown",function(e){
+    if(isEditing()){if(e.key==="Escape")closeEdit();return;}
+    if(e.key==="ArrowUp"){e.preventDefault();window.dispatchEvent(new Event("scrollUp"));}
+    else if(e.key==="ArrowDown"){e.preventDefault();window.dispatchEvent(new Event("scrollDown"));}
+    else if(e.key==="Enter"||e.key===" "){e.preventDefault();window.dispatchEvent(new Event("sideClick"));}
+    else if(e.key==="n"||e.key==="N"){window.dispatchEvent(new Event("longPressStart"));}
+  });
+
+  // --- orologio ---
+  function tick(){var d=new Date();$("clock").textContent=pad(d.getHours())+":"+pad(d.getMinutes());}
+  tick();setInterval(tick,15000);
+
+  render();
+})();
+</script>
+</body>
+</html>

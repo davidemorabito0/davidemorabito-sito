@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Installa mostraMI counter sul tuo R1</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#F2ECE0;color:#1C1813;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;}
+  .brand{font-size:11px;letter-spacing:.2em;color:#EC8A5C;text-transform:uppercase;margin-bottom:12px;font-weight:600;}
+  h1{font-family:"Fraunces",Georgia,serif;font-size:26px;font-weight:600;margin-bottom:6px;letter-spacing:-.01em;}
+  .sub{font-size:12px;color:#7C7367;margin-bottom:20px;text-align:center;max-width:290px;line-height:1.45;}
+  #qr{margin-bottom:16px;border-radius:12px;overflow:hidden;background:#fff;line-height:0;padding:0;box-shadow:0 6px 24px rgba(0,0,0,.12);}
+  .url{font-size:10px;color:#A99F90;word-break:break-all;text-align:center;max-width:320px;}
+  .note{margin-top:20px;font-size:11px;color:#7C7367;max-width:320px;text-align:center;line-height:1.5;}
+  .note code{color:#EC8A5C;font-family:ui-monospace,Menlo,Consolas,monospace;}
+</style>
+</head>
+<body>
+  <div class="brand">mostraMI · milano</div>
+  <h1>mostraMI counter</h1>
+  <p class="sub">Sull'R1: apri <b>Creations</b> &rarr; <b>add via QR code</b> &rarr; inquadra questo codice.</p>
+  <div id="qr"></div>
+  <div class="url" id="url-label"></div>
+  <p class="note">Legge i dati da Supabase (chiave anon pubblica del sito): nessuna configurazione, funziona appena carichi <code>mostrami-counter.html</code>.</p>
+  <script src="https://unpkg.com/qr-code-styling@1.6.0/lib/qr-code-styling.js"></script>
+  <script>
+    var creationUrl = 'https://davidemorabito.com/r1/mostrami-counter/mostrami-counter.html';
+    document.getElementById('url-label').textContent = creationUrl;
+    var qrData = JSON.stringify({ title:"mostraMI counter", url:creationUrl, description:"Utenti attivi di mostraMI: oggi (grande) e questo mese.", iconUrl:"", themeColor:"#EC8A5C" });
+    var qrCode = new QRCodeStyling({
+      width:300, height:300, margin:16, data:qrData,
+      qrOptions:{ errorCorrectionLevel:"L" },
+      dotsOptions:{ color:"#000000", type:"square" },
+      backgroundOptions:{ color:"#ffffff" },
+      cornersSquareOptions:{ color:"#000000", type:"square" },
+      cornersDotOptions:{ color:"#000000" }
+    });
+    qrCode.append(document.getElementById('qr'));
+  </script>
+</body>
+</html>
