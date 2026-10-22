@@ -330,6 +330,18 @@
   .work-info { position:absolute; bottom:0; left:0; right:0; z-index:2; padding:20px; }
   .work-info h3 { font-size:17px; font-weight:600; color:#fff; margin-bottom:3px; }
   .work-info span { font-size:11px; color:var(--warm-gray-light); letter-spacing:1px; }
+  /* ultimi lavori — più grande e d'impatto su desktop */
+  @media (min-width:1100px){
+    #lavori-video { max-width:1640px; padding-left:4vw; padding-right:4vw; }
+    #lavori-video .works-head { margin-bottom:60px; }
+    #lavori-video .section-h { font-size:clamp(44px,5vw,68px); }
+    #lavori-video .works-grid { gap:28px; }
+    #lavori-video .work { border-radius:18px; }
+    #lavori-video .work-info { padding:26px; }
+    #lavori-video .work-info h3 { font-size:22px; margin-bottom:4px; }
+    #lavori-video .work-info span { font-size:13px; }
+    #lavori-video .work-cat { font-size:11px; padding:6px 13px; top:18px; left:18px; }
+  }
 
   /* ===== I MIEI LAVORI (expandable accordion cards, in-page) ===== */
   .projects-list { display:flex; flex-direction:column; gap:24px; }
