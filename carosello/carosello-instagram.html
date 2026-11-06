@@ -32,8 +32,8 @@
 <meta property="og:title" content="Carosello — caroselli, storie e censura foto per Instagram">
 <meta property="og:description" content="Impagina caroselli, panorami e storie per Instagram, controlla l’anteprima e nascondi ciò che non vuoi mostrare. Le foto restano sul tuo dispositivo.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://davidemorabito.com/carosello-instagram.html">
-<meta property="og:image" content="https://davidemorabito.com/media/carosello-og.jpg">
+<meta property="og:url" content="https://davidemorabito.com/carosello/carosello-instagram.html">
+<meta property="og:image" content="https://davidemorabito.com/carosello/media/carosello-og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Carosello — strumento per caroselli Instagram di Davide Morabito">
@@ -42,9 +42,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Carosello — caroselli, storie e censura foto per Instagram">
 <meta name="twitter:description" content="Caroselli, panorami e storie per Instagram, con anteprima e copertura automatica dei dettagli. Le foto restano sul tuo dispositivo.">
-<meta name="twitter:image" content="https://davidemorabito.com/media/carosello-og.jpg">
-<link rel="canonical" href="https://davidemorabito.com/carosello-instagram.html">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Carosello","url":"https://davidemorabito.com/carosello-instagram.html","applicationCategory":"MultimediaApplication","operatingSystem":"Any","inLanguage":["it","en"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"author":{"@type":"Person","name":"Davide Morabito","url":"https://davidemorabito.com/"},"description":"Compone caroselli e storie per Instagram con panorami, dittici e cornici, mostra l'anteprima del feed e copre in automatico le parti da non mostrare. Funziona nel browser senza caricare le foto."}</script>
+<meta name="twitter:image" content="https://davidemorabito.com/carosello/media/carosello-og.jpg">
+<link rel="canonical" href="https://davidemorabito.com/carosello/carosello-instagram.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Carosello","url":"https://davidemorabito.com/carosello/carosello-instagram.html","applicationCategory":"MultimediaApplication","operatingSystem":"Any","inLanguage":["it","en"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"author":{"@type":"Person","name":"Davide Morabito","url":"https://davidemorabito.com/"},"description":"Compone caroselli e storie per Instagram con panorami, dittici e cornici, mostra l'anteprima del feed e copre in automatico le parti da non mostrare. Funziona nel browser senza caricare le foto."}</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -394,6 +394,17 @@ input[type=range]:disabled{opacity:.35;cursor:default}
 .area.sel .maniglia{display:block}
 .area.sel:not(.cerchio) .ruota{display:block}
 .originale-attivo .livello-aree{opacity:.25}
+/* foto in arrivo: segnaposto e indicatore di caricamento */
+.giro{width:16px;height:16px;flex:none;border-radius:50%;border:2px solid rgba(255,255,255,.28);border-top-color:var(--accento);animation:gira .8s linear infinite}
+.arrivo{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:linear-gradient(110deg,var(--superficie-2) 30%,var(--superficie-3) 50%,var(--superficie-2) 70%);background-size:220% 100%;animation:luccica 1.4s linear infinite;color:var(--testo-2);font-size:12px;pointer-events:none}
+.arrivo .giro{width:22px;height:22px;border-color:var(--linea-forte);border-top-color:var(--accento)}
+.miniatura.in-arrivo canvas{background:linear-gradient(110deg,var(--superficie-2) 30%,var(--superficie-3) 50%,var(--superficie-2) 70%);background-size:220% 100%;animation:luccica 1.4s linear infinite}
+.foto-cassetto.in-arrivo{background:linear-gradient(110deg,var(--superficie-2) 30%,var(--superficie-3) 50%,var(--superficie-2) 70%);background-size:220% 100%;animation:luccica 1.4s linear infinite}
+.foto-cassetto.segnaposto{display:grid;place-items:center}
+.foto-cassetto.segnaposto .giro{border-color:var(--linea-forte);border-top-color:var(--accento)}
+.carico{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:9px;max-width:calc(100% - 24px);padding:7px 14px 7px 10px;border-radius:999px;background:rgba(14,14,14,.86);color:#fff;font-size:12px;font-weight:500;white-space:nowrap;box-shadow:0 6px 22px rgba(0,0,0,.35);pointer-events:none;animation:entra .2s ease both;overflow:hidden}
+.carico-barra{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.12)}
+.carico-barra b{display:block;height:100%;width:0;background:var(--accento);transition:width .3s var(--morbido)}
 .attesa-palco{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);color:#fff;font-size:12px;animation:pulsa .6s ease-in-out infinite alternate}
 
 .insieme{position:absolute;inset:0;display:flex;align-items:center;gap:8px;overflow-x:auto;overflow-y:hidden;padding:20px 28px;scrollbar-width:thin}
@@ -727,6 +738,7 @@ body.solo-una .freccia{visibility:hidden}
 @keyframes guida{from{opacity:0}to{opacity:.95}}
 @keyframes pulsa{from{opacity:1}to{opacity:.6}}
 @keyframes gira{to{transform:rotate(360deg)}}
+@keyframes luccica{from{background-position:120% 0}to{background-position:-120% 0}}
 @keyframes scansiona{from{top:-35%}to{top:100%}}
 @keyframes menu{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:none}}
 @keyframes dialogo{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
@@ -860,6 +872,7 @@ html[data-trans="indietro"]::view-transition-old(root),html[data-trans="indietro
             <div class="sovrapposti" id="sovrapposti"></div>
           </div>
           <div class="insieme" id="insieme" hidden></div>
+          <div class="carico" id="carico" role="status" hidden><span class="giro"></span><span id="carico-testo"></span><i class="carico-barra"><b id="carico-barra"></b></i></div>
         </div>
         <button class="freccia" id="succ" type="button" data-t-title="succ"><i data-ico="giu-dx"></i></button>
       </div>
@@ -981,7 +994,7 @@ html[data-trans="indietro"]::view-transition-old(root),html[data-trans="indietro
                 <button class="chip" type="button" id="ril-volti" aria-pressed="false"><i data-ico="spunta"></i><span data-t="volti">Volti</span></button>
               </div>
               <button class="voce interruttore-riga" type="button" id="ril-dettagliata" role="switch" aria-checked="true"><span data-t="analisiRiquadri">Analisi a riquadri, più precisa</span><span class="interruttore"></span></button>
-              <p class="nota piccola"><i data-ico="lucchetto"></i><span><span data-t="rilNota"></span> <a href="https://github.com/notAI-tech/NudeNet" target="_blank" rel="noopener">NudeNet</a> · <a href="/media/LICENSE-NudeNet.txt" target="_blank" rel="noopener">AGPL-3.0</a></span></p>
+              <p class="nota piccola"><i data-ico="lucchetto"></i><span><span data-t="rilNota"></span> <a href="https://github.com/notAI-tech/NudeNet" target="_blank" rel="noopener">NudeNet</a> · <a href="/carosello/media/LICENSE-NudeNet.txt" target="_blank" rel="noopener">AGPL-3.0</a></span></p>
             </div>
             <div class="sezione">
               <div class="sezione-testa">
@@ -1084,7 +1097,7 @@ html[data-trans="indietro"]::view-transition-old(root),html[data-trans="indietro
 <div class="attesa" id="attesa" hidden><div class="attesa-box"><div class="rotella"></div><div id="attesa-testo"></div><div class="barra-prog"><i id="attesa-prog"></i></div></div></div>
 <div class="rilascia" id="rilascia" hidden><span data-t="rilascia">Rilascia le foto</span></div>
 <div class="avanzamento" id="avanzamento"></div>
-<input type="file" id="file" accept="image/*,.heic,.heif" multiple>
+<input type="file" id="file" accept="image/*" multiple>
 
 <script>
 (function(){
@@ -1181,6 +1194,7 @@ const TESTI = {
     tornaStrumenti: 'Torna agli strumenti di Davide Morabito',
     passoFormato: 'Scegli il formato', passoFoto: 'Aggiungi le foto',
     zonaTitolo: 'Trascina qui le foto', zonaNota: 'oppure clicca per sceglierle · una slide per ogni foto',
+    zonaTitoloTocco: 'Scegli le foto', zonaNotaTocco: 'dalla galleria del telefono · una slide per ogni foto',
     oppureVuote: 'Oppure inizia con', slideVuota: 'slide vuota', slideVuote: 'slide vuote', storiaVuota: 'storia vuota', storieVuote: 'storie vuote',
     inizia: 'Inizia', meno: 'Una in meno', piu: 'Una in più',
     f_1x1: 'Quadrato', f_4x5: 'Verticale', f_3x4: 'Ritratto', f_9x16: 'Storia', f_3x2: 'Orizzontale', f_191: 'Panoramico', f_libero: 'Libero',
@@ -1289,6 +1303,8 @@ const TESTI = {
     fotoRimossa: 'Foto rimossa', slideEliminata: 'Slide eliminata', fotoTolta: 'Foto tolta dalla slide', annullaAzione: 'Annulla',
     limite: 'Instagram accetta al massimo 20 slide.',
     importo: 'Importo le foto… {i} di {n}', nonLeggibile: 'Non riesco ad aprire «{nome}»: prova a salvarla in JPG.', nessunaImmagine: 'Tra i file scelti non ci sono immagini.',
+    caricoFoto: 'Carico le foto · {i} di {n}', caricoUna: 'Carico la foto…', nonLeggibili: '{n} foto non si sono potute aprire: prova a salvarle in JPG.',
+    heicNo: 'Questo browser non apre le foto HEIC: salvale in JPG, oppure usa Safari.', esportaAttendi: 'Sto ancora caricando le foto: tra un attimo puoi esportare.',
     panorama: 'Foto panoramica: la allargo su {n} slide?', allarga: 'Allarga',
     aggiunteSlide: 'Aggiunte {n} slide', riempite: 'Foto distribuite in {n} spazi', nienteDaRiempire: 'Non ci sono foto inutilizzate da distribuire.',
     salvataggioOff: 'In questa finestra il salvataggio automatico non funziona: esporta prima di chiudere.',
@@ -1312,6 +1328,7 @@ const TESTI = {
     tornaStrumenti: 'Back to Davide Morabito’s tools',
     passoFormato: 'Choose the format', passoFoto: 'Add your photos',
     zonaTitolo: 'Drop your photos here', zonaNota: 'or click to pick them · one slide per photo',
+    zonaTitoloTocco: 'Choose your photos', zonaNotaTocco: 'from your phone’s gallery · one slide per photo',
     oppureVuote: 'Or start with', slideVuota: 'empty slide', slideVuote: 'empty slides', storiaVuota: 'empty story', storieVuote: 'empty stories',
     inizia: 'Start', meno: 'One fewer', piu: 'One more',
     f_1x1: 'Square', f_4x5: 'Portrait', f_3x4: 'Tall', f_9x16: 'Story', f_3x2: 'Landscape', f_191: 'Wide', f_libero: 'Free',
@@ -1420,6 +1437,8 @@ const TESTI = {
     fotoRimossa: 'Photo removed', slideEliminata: 'Slide deleted', fotoTolta: 'Photo removed from the slide', annullaAzione: 'Undo',
     limite: 'Instagram accepts at most 20 slides.',
     importo: 'Importing photos… {i} of {n}', nonLeggibile: 'Can’t open “{nome}”: try saving it as JPG.', nessunaImmagine: 'None of the chosen files are images.',
+    caricoFoto: 'Loading photos · {i} of {n}', caricoUna: 'Loading photo…', nonLeggibili: '{n} photos couldn’t be opened: try saving them as JPG.',
+    heicNo: 'This browser can’t open HEIC photos: save them as JPG, or use Safari.', esportaAttendi: 'Still loading your photos: you can export in a moment.',
     panorama: 'Panoramic photo: extend it across {n} slides?', allarga: 'Extend',
     aggiunteSlide: '{n} slides added', riempite: 'Photos placed in {n} spots', nienteDaRiempire: 'There are no unused photos to place.',
     salvataggioOff: 'Autosave doesn’t work in this window: export before closing.',
@@ -2463,12 +2482,19 @@ function renderSlide(b, j, k, sorgenti, mini) {
 }
 
 /* ── foto: decodifica e versioni ridotte ── */
+const LIMITE_TELA = 12e6;   // pixel per tela intermedia: sotto il tetto di iPhone (16,7 Mpx)
 function decodifica(blob) {
   return new Promise((ok, ko) => {
     const url = URL.createObjectURL(blob);
     const img = new Image();
     img.decoding = 'async';
-    img.onload = () => ok({ img, rilascia: () => URL.revokeObjectURL(url) });
+    // rilascia subito la foto decodificata, senza aspettare il garbage collector (conta su iPhone)
+    const rilascia = () => { img.onload = img.onerror = null; try { img.removeAttribute('src'); } catch (e) { /* ignora */ } URL.revokeObjectURL(url); };
+    img.onload = () => {
+      const pronta = () => ok({ img, rilascia });
+      // decodifica fuori dal filo principale quando il browser lo permette
+      if (typeof img.decode === 'function') img.decode().then(pronta, pronta); else pronta();
+    };
     img.onerror = () => { URL.revokeObjectURL(url); ko(new Error('decodifica')); };
     img.src = url;
   });
@@ -2477,7 +2503,8 @@ function riduci(src, sw, sh, tw, th) {
   tw = Math.max(1, Math.round(tw)); th = Math.max(1, Math.round(th));
   let cur = src, cw = sw, ch = sh;
   while (cw / 2 >= tw && ch / 2 >= th) {
-    const nw = Math.max(1, Math.round(cw / 2)), nh = Math.max(1, Math.round(ch / 2));
+    let nw = Math.max(1, Math.round(cw / 2)), nh = Math.max(1, Math.round(ch / 2));
+    if (nw * nh > LIMITE_TELA) { const k = Math.sqrt(LIMITE_TELA / (nw * nh)); nw = Math.max(tw, Math.round(nw * k)); nh = Math.max(th, Math.round(nh * k)); }
     const c = tela(nw, nh), x = c.getContext('2d');
     x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
     x.drawImage(cur, 0, 0, nw, nh);
@@ -2500,7 +2527,174 @@ async function creaAnteprime(id, img, w, hh) {
   cache.set(id, { mini, blob });
   ricordaDecodificata(id, anteprima);
 }
-async function caricaOriginale(id) {
+/* ── lavoratore per le foto: decodifica e riduzione in un filo separato, l'interfaccia non si ferma mai ──
+   Usa OffscreenCanvas (Chrome, Edge, Firefox, Safari 16.4+); dove manca si torna al metodo classico. */
+const CODICE_LAVORATORE = `
+'use strict';
+const PROVA = '/9j/4AAQSkZJRgABAQAAAQABAAD/4QAiRXhpZgAATU0AKgAAAAgAAQESAAMAAAABAAYAAAAAAAD/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wAARCAABAAIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDkJv8AXP8A7x/nRRRX29D+FH0RjW/iS9Wf/9k=';
+const LIMITE = 12e6;
+let pronto = null, exifAuto = true, opz = { imageOrientation: 'from-image' };
+function sistema(m) { const e = new Error(m); e.sistema = true; return e; }
+async function prepara() {
+  const c = new OffscreenCanvas(1, 1);
+  if (!c.getContext('2d') || typeof c.convertToBlob !== 'function') throw sistema('offscreen');
+  const bin = atob(PROVA), u8 = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  const b = new Blob([u8], { type: 'image/jpeg' });
+  let bm;
+  try { bm = await createImageBitmap(b, opz); } catch (e) { opz = {}; bm = await createImageBitmap(b); }
+  exifAuto = bm.width === 1 && bm.height === 2;   // il browser raddrizza già da solo le foto?
+  bm.close();
+}
+/* orientamento EXIF letto dall'intestazione JPEG (serve solo se il browser non lo applica) */
+function orientamento(u8) {
+  if (u8.length < 4 || u8[0] !== 0xFF || u8[1] !== 0xD8) return 1;
+  let p = 2;
+  while (p + 4 <= u8.length) {
+    if (u8[p] !== 0xFF) { p++; continue; }
+    const m = u8[p + 1];
+    if (m === 0xFF) { p++; continue; }
+    if (m === 0xD9 || m === 0xDA) break;
+    if (m === 0x01 || (m >= 0xD0 && m <= 0xD8)) { p += 2; continue; }
+    const len = (u8[p + 2] << 8) | u8[p + 3];
+    if (m === 0xE1 && u8[p + 4] === 0x45 && u8[p + 5] === 0x78 && u8[p + 6] === 0x69 && u8[p + 7] === 0x66) {
+      const t = p + 10, le = u8[t] === 0x49;
+      const r16 = o => (le ? u8[o] | (u8[o + 1] << 8) : (u8[o] << 8) | u8[o + 1]);
+      const r32 = o => (le ? (u8[o] | (u8[o + 1] << 8) | (u8[o + 2] << 16) | (u8[o + 3] << 24)) : ((u8[o] << 24) | (u8[o + 1] << 16) | (u8[o + 2] << 8) | u8[o + 3])) >>> 0;
+      const ifd = t + r32(t + 4);
+      if (ifd + 2 > u8.length) return 1;
+      const n = r16(ifd);
+      for (let i = 0; i < n; i++) {
+        const e = ifd + 2 + i * 12;
+        if (e + 12 > u8.length) break;
+        if (r16(e) === 0x0112) { const o = r16(e + 8); return o >= 1 && o <= 8 ? o : 1; }
+      }
+      return 1;
+    }
+    p += 2 + len;
+  }
+  return 1;
+}
+function gira(c, o, W, H) {
+  const T = { 2: [-1, 0, 0, 1, W, 0], 3: [-1, 0, 0, -1, W, H], 4: [1, 0, 0, -1, 0, H], 5: [0, 1, 1, 0, 0, 0],
+    6: [0, 1, -1, 0, W, 0], 7: [0, -1, -1, 0, W, H], 8: [0, -1, 1, 0, 0, H] }[o] || [1, 0, 0, 1, 0, 0];
+  c.setTransform(T[0], T[1], T[2], T[3], T[4], T[5]);
+}
+/* riduzione a metà per volta (qualità buona anche dove il browser filtra poco); la prima passata raddrizza */
+function riduci(src, w, h, tw, th, o) {
+  let cur = src, cw = w, ch = h;
+  for (;;) {
+    let nw, nh;
+    if (cw / 2 >= tw && ch / 2 >= th) { nw = Math.max(tw, Math.round(cw / 2)); nh = Math.max(th, Math.round(ch / 2)); }
+    else if (cur === src || cw !== tw || ch !== th) { nw = tw; nh = th; }
+    else return cur;
+    if (nw * nh > LIMITE) { const k = Math.sqrt(LIMITE / (nw * nh)); nw = Math.max(tw, Math.round(nw * k)); nh = Math.max(th, Math.round(nh * k)); }
+    const c = new OffscreenCanvas(nw, nh), x = c.getContext('2d');
+    x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+    if (cur === src && o !== 1) { gira(x, o, nw, nh); x.drawImage(cur, 0, 0, o >= 5 ? nh : nw, o >= 5 ? nw : nh); }
+    else x.drawImage(cur, 0, 0, nw, nh);
+    if (cur !== src) cur.width = cur.height = 1;
+    cur = c; cw = nw; ch = nh;
+    if (nw === tw && nh === th) return cur;
+  }
+}
+const inBitmap = async c => (typeof c.transferToImageBitmap === 'function' ? c.transferToImageBitmap() : createImageBitmap(c));
+self.onmessage = async e => {
+  const { id, blob, lato, mini, q, tipo, f } = e.data;
+  try {
+    if (!pronto) pronto = prepara();
+    await pronto;
+    const o = exifAuto ? 1 : orientamento(new Uint8Array(await blob.slice(0, 262144).arrayBuffer()));
+    const bm = await createImageBitmap(blob, opz);
+    const w = o >= 5 ? bm.height : bm.width, h = o >= 5 ? bm.width : bm.height;
+    if (!w || !h) throw new Error('vuota');
+    if (tipo === 'sorgente') {
+      // originale per l'esportazione: intera, oppure già ridotta se in uscita serve meno definizione
+      let out;
+      if (f >= 0.95 && o === 1) out = bm;
+      else {
+        const tw = f >= 0.95 ? w : Math.max(1, Math.round(w * f)), th = f >= 0.95 ? h : Math.max(1, Math.round(h * f));
+        const c = riduci(bm, w, h, tw, th, o);
+        bm.close();
+        out = await inBitmap(c);
+      }
+      self.postMessage({ id, ok: true, w, h, src: out }, [out]);
+      return;
+    }
+    const s1 = Math.min(1, lato / Math.max(w, h));
+    const ant = riduci(bm, w, h, Math.max(1, Math.round(w * s1)), Math.max(1, Math.round(h * s1)), o);
+    bm.close();
+    const s2 = Math.min(1, mini / Math.max(w, h));
+    const pic = riduci(ant, ant.width, ant.height, Math.max(1, Math.round(w * s2)), Math.max(1, Math.round(h * s2)), 1);
+    const jpg = await ant.convertToBlob({ type: 'image/jpeg', quality: q });
+    const a = await inBitmap(ant), m = pic === ant ? await createImageBitmap(a) : await inBitmap(pic);
+    self.postMessage({ id, ok: true, w, h, blob: jpg, anteprima: a, mini: m }, [a, m]);
+  } catch (err) {
+    self.postMessage({ id, ok: false, sistema: !!(err && err.sistema), errore: String((err && err.message) || err) });
+  }
+};`;
+const LAV = { w: null, rotto: false, n: 1, attesi: new Map() };
+function lavoratoreFoto() {
+  if (LAV.w || LAV.rotto) return LAV.w;
+  if (typeof Worker === 'undefined' || typeof OffscreenCanvas === 'undefined' || typeof createImageBitmap !== 'function' || window.__senzaLavoratore) { LAV.rotto = true; return null; }
+  try {
+    const url = URL.createObjectURL(new Blob([CODICE_LAVORATORE], { type: 'text/javascript' }));
+    LAV.w = new Worker(url);
+    LAV.w.onmessage = e => {
+      const d = e.data, p = LAV.attesi.get(d.id);
+      if (!p) return;
+      LAV.attesi.delete(d.id);
+      if (!d.ok && d.sistema) guastoLavoratore();
+      p(d.ok ? d : null);
+    };
+    LAV.w.onerror = ev => { if (ev && ev.preventDefault) ev.preventDefault(); guastoLavoratore(); };
+  } catch (e) { LAV.rotto = true; LAV.w = null; }
+  return LAV.w;
+}
+function guastoLavoratore() {
+  LAV.rotto = true;
+  try { if (LAV.w) LAV.w.terminate(); } catch (e) { /* ignora */ }
+  LAV.w = null;
+  for (const p of LAV.attesi.values()) p(null);
+  LAV.attesi.clear();
+}
+/* un lavoro per il lavoratore; null se non disponibile o fallito (si usa il metodo classico) */
+function nelLavoratore(dati) {
+  const w = lavoratoreFoto();
+  if (!w) return Promise.resolve(null);
+  return new Promise(ok => {
+    const id = LAV.n++;
+    const scade = setTimeout(() => { if (LAV.attesi.delete(id)) ok(null); }, 120000);
+    LAV.attesi.set(id, d => { clearTimeout(scade); ok(d); });
+    try { w.postMessage(Object.assign({ id }, dati)); } catch (e) { LAV.attesi.delete(id); clearTimeout(scade); ok(null); }
+  });
+}
+/* anteprima grande + miniatura nel lavoratore */
+const anteprimeNelLavoratore = (blob, lato, mini) => nelLavoratore({ blob, lato, mini, q: 0.92 });
+function tuttaInTela(bm) {
+  const c = tela(bm.width, bm.height);
+  c.getContext('2d').drawImage(bm, 0, 0);
+  if (bm.close) bm.close();
+  return c;
+}
+/* prepara le versioni ridotte di una foto (anteprima per il palco e miniatura): restituisce le misure */
+async function preparaAnteprime(id, blob) {
+  const lato = (MOBILE.matches || IOS) ? 1800 : 2400;
+  const r = await anteprimeNelLavoratore(blob, lato, 420);
+  if (r) {
+    cache.set(id, { mini: tuttaInTela(r.mini), blob: r.blob });
+    ricordaDecodificata(id, r.anteprima);
+    return { w: r.w, h: r.h };
+  }
+  const { img, rilascia } = await decodifica(blob);
+  try {
+    const w = img.naturalWidth, hh = img.naturalHeight;
+    if (!w || !hh) throw new Error('immagine vuota');
+    await creaAnteprime(id, img, w, hh);
+    return { w, h: hh };
+  } finally { rilascia(); }
+}
+async function originaleDi(id) {
   let blob = originaliMemoria.get(id) || null;
   if (!blob) {
     try {
@@ -2508,15 +2702,25 @@ async function caricaOriginale(id) {
       if (rec && rec.buf) blob = new Blob([rec.buf], { type: rec.tipo || 'image/jpeg' });
     } catch (e) { /* archivio non disponibile */ }
   }
-  if (blob) return decodifica(blob);
-  const c = cache.get(id);
-  if (c) return { img: decodificate.get(id) || c.mini, rilascia() {}, ridotta: true };
-  throw new Error('foto mancante');
+  return blob;
 }
-function sorgenteUscita(img, w, hh, scala) {
+/* la foto originale pronta per l'esportazione, alla definizione che serve davvero (scala = px di uscita per px di foto) */
+async function sorgenteEsportazione(id, scala) {
   const f = Math.min(1, scala * 1.35);
-  if (f > 0.62) return { src: img, creata: false };
-  return { src: riduci(img, img.naturalWidth || img.width, img.naturalHeight || img.height, w * f, hh * f), creata: true };
+  const blob = await originaleDi(id);
+  if (blob) {
+    const r = await nelLavoratore({ tipo: 'sorgente', blob, f });
+    if (r) return { src: r.src, rilascia: () => { try { r.src.close(); } catch (e) { /* già chiusa */ } } };
+    const { img, rilascia } = await decodifica(blob);
+    if (f > 0.62) return { src: img, rilascia };
+    const w = img.naturalWidth, hh = img.naturalHeight;
+    const ridotta = riduci(img, w, hh, w * f, hh * f);
+    rilascia();
+    return { src: ridotta, rilascia: () => { ridotta.width = ridotta.height = 1; } };
+  }
+  const c = cache.get(id);
+  if (c) return { src: decodificate.get(id) || c.mini, rilascia() {}, ridotta: true };
+  throw new Error('foto mancante');
 }
 
 /* ── rilevamento automatico delle zone (modello NudeNet, nel browser) ── */
@@ -2529,7 +2733,7 @@ const RILEVATORE = { promessa: null, sessione: null, stato: 'spento' };
    il modello è ospitato sul sito, diviso in due parti */
 const ORT_CDN = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.31.1/dist/';
 const ORT_SRI = 'sha384-tNxIwEqSlcdvKtUte98AsccPbDKM958LBXB/+3BLS42TTihXHKTWgdqPqXI/lot8';
-const MODELLO = '/media/carosello-modello.onnx';   // in due parti: .onnx.1 e .onnx.2
+const MODELLO = '/carosello/media/carosello-modello.onnx';   // in due parti: .onnx.1 e .onnx.2
 const PARTI_MODELLO = 2;
 function caricaScript(src, integrita) {
   return new Promise((ok, ko) => {
@@ -2745,16 +2949,20 @@ const tipoDi = b => (b.tipo === 'divisa' ? 'divisa' : b.span > 1 ? 'panorama' : 
 const spazioCorrente = () => { const b = P && P.blocchi[cur]; return b ? spazio(b, quale) : null; };
 const geoCorrente = () => { const b = P && P.blocchi[cur]; return b ? geometria(b, quale) : null; };
 
-/* ── storia (annulla / ripeti) ── */
-const STORIA = { u: [], r: [] };
+/* ── storia (annulla / ripeti) ──
+   ogni voce ricorda quando è stata presa: le foto che finiscono di caricarsi dopo vengono aggiunte
+   anche alle voci prese mentre erano in arrivo, così annullare non fa sparire una foto appena arrivata */
+const STORIA = { u: [], r: [], versione: 0 };
 function istantanea() { const { testo, salvato, ...resto } = P; return JSON.stringify(resto); }
-function inizia() { return P ? istantanea() : null; }
+const voceStoria = () => ({ s: istantanea(), t: performance.now() });
+function inizia() { return P ? voceStoria() : null; }
 function conferma(tok) {
   if (tok == null || !P) return false;
-  if (istantanea() === tok) return false;
+  if (istantanea() === tok.s) return false;
   STORIA.u.push(tok);
   if (STORIA.u.length > 80) STORIA.u.shift();
   STORIA.r.length = 0;
+  STORIA.versione++;
   salvaPresto();
   aggiornaStoria();
   return true;
@@ -2765,8 +2973,8 @@ function modifica(fn) {
   conferma(tok);
   aggiornaTutto();
 }
-function annulla() { if (!P || !STORIA.u.length) return; STORIA.r.push(istantanea()); ripristina(STORIA.u.pop()); }
-function ripeti() { if (!P || !STORIA.r.length) return; STORIA.u.push(istantanea()); ripristina(STORIA.r.pop()); }
+function annulla() { if (!P || !STORIA.u.length) return; STORIA.versione++; STORIA.r.push(voceStoria()); ripristina(STORIA.u.pop().s); }
+function ripeti() { if (!P || !STORIA.r.length) return; STORIA.versione++; STORIA.u.push(voceStoria()); ripristina(STORIA.r.pop().s); }
 function ripristina(s) {
   const testo = P.testo, salvato = P.salvato;
   P = Object.assign(JSON.parse(s), { testo, salvato });
@@ -2802,6 +3010,7 @@ async function pulisciArchivio() {
   } catch (e) { /* niente da pulire */ }
 }
 async function cancellaTutto() {
+  annullaCoda();
   try { await archivio.svuota(); } catch (e) { /* già vuoto */ }
   cache.clear(); decodificate.clear(); originaliMemoria.clear(); CACHE_SFONDO.clear(); CACHE_MEDIA.clear(); statoRil.clear();
   P = null; salvatoInArchivio = null;
@@ -2930,6 +3139,10 @@ function costruisciInizio() {
 }
 function aggiornaInizio() {
   const F = FORMATI[formatoScelto];
+  // su telefono non si trascina: «Scegli le foto» dalla galleria
+  const tocco = TOCCO.matches, zt = $('strong', D['zona-foto']), zn = $('span', D['zona-foto']);
+  if (zt) { zt.dataset.t = tocco ? 'zonaTitoloTocco' : 'zonaTitolo'; zt.textContent = t(zt.dataset.t); }
+  if (zn) { zn.dataset.t = tocco ? 'zonaNotaTocco' : 'zonaNota'; zn.textContent = t(zn.dataset.t); }
   $$('.formato', D.formati).forEach(b => { const on = b.dataset.formato === formatoScelto; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
   D['nota-formato'].textContent = t('nf_' + formatoScelto);
   D['n-vuote'].textContent = nVuote;
@@ -2957,6 +3170,7 @@ async function iniziaDalleFoto(files) {
   if (await confermaNuovo()) await gestisciFile(files, 'dalleFoto');
 }
 function avviaProgetto(formato, n) {
+  annullaCoda();
   P = nuovoProgetto(formato, n);
   STORIA.u.length = STORIA.r.length = 0;
   cur = 0; quale = 0; selArea = null;
@@ -2982,78 +3196,56 @@ async function mostraRipresa(sal, soloTesti) {
   try {
     const rec = await archivio.get('foto', id);
     if (!rec) return;
-    const { img, rilascia } = await decodifica(new Blob([rec.buf], { type: rec.tipo }));
-    const w = img.naturalWidth, hh = img.naturalHeight, s = Math.max(cv.width / w, cv.height / hh);
-    const ridotta = riduci(img, w, hh, w * s, hh * s);
-    rilascia();
-    c.drawImage(ridotta, (cv.width - ridotta.width) / 2, (cv.height - ridotta.height) / 2);
+    const blob = new Blob([rec.buf], { type: rec.tipo || 'image/jpeg' });
+    const lato = Math.max(cv.width, cv.height) * 2;
+    const r = await anteprimeNelLavoratore(blob, lato, lato);   // nel filo separato: la pagina non si blocca
+    let src, w, hh;
+    if (r) { src = r.anteprima; w = src.width; hh = src.height; if (r.mini.close) r.mini.close(); }
+    else {
+      const { img, rilascia } = await decodifica(blob);
+      w = img.naturalWidth; hh = img.naturalHeight;
+      src = riduci(img, w, hh, w * Math.min(1, lato / Math.max(w, hh)), hh * Math.min(1, lato / Math.max(w, hh)));
+      rilascia();
+      w = src.width; hh = src.height;
+    }
+    const s = Math.max(cv.width / w, cv.height / hh);
+    c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
+    c.drawImage(src, (cv.width - w * s) / 2, (cv.height - hh * s) / 2, w * s, hh * s);
+    if (src.close) src.close();
   } catch (e) { /* anteprima non disponibile */ }
 }
 async function riprendi() {
   const sal = salvatoInArchivio;
   if (!sal) return;
+  annullaCoda();
   P = normalizza(sal);
   salvatoInArchivio = null;
   STORIA.u.length = STORIA.r.length = 0;
   cur = 0; quale = 0; selArea = null;
-  const mancanti = [];
-  const tot = P.foto.length;
-  for (let i = 0; i < tot; i++) {
-    const f = P.foto[i];
-    attesa(true, t('caricoProgetto', { i: i + 1, n: tot }), i / tot);
-    if (cache.has(f.id)) continue;
-    try {
-      const rec = await archivio.get('foto', f.id);
-      if (!rec || !rec.buf) throw new Error('assente');
-      const { img, rilascia } = await decodifica(new Blob([rec.buf], { type: rec.tipo || 'image/jpeg' }));
-      try { await creaAnteprime(f.id, img, img.naturalWidth || f.w, img.naturalHeight || f.h); } finally { rilascia(); }
-    } catch (e) { mancanti.push(f.id); }
-    await prossimoFrame();
-  }
-  attesa(false);
-  if (mancanti.length) {
-    const via = new Set(mancanti);
-    P.foto = P.foto.filter(f => !via.has(f.id));
-    P.blocchi.forEach(b => parti(b).forEach(s => { if (via.has(s.foto)) svuotaSpazio(s); }));
-    toast(t('fotoMancanti'), { durata: 5000 });
-    salvaPresto();
-  }
-  pulisciArchivio();
+  // il banco si apre subito: le foto si preparano una alla volta in sottofondo
+  const daPreparare = P.foto.filter(f => !cache.has(f.id)).map(f => f.id);
+  if (daPreparare.length) accoda(daPreparare.map(id => ({ ripresa: id })), { annullabile: false });
+  else pulisciArchivio();
   mostraPasso('banco', 'avanti');
 }
 
-/* ═════════ FILE E IMPORTAZIONE ═════════ */
+/* ═════════ FILE E IMPORTAZIONE ═════════
+   Le foto si caricano in sottofondo, una alla volta (poca memoria anche su telefono):
+   il banco si apre subito, ogni slide mostra «Carico la foto…» finché la sua foto non è pronta. */
 function scegliFile(modo) {
   modoFile = modo;
   D.file.value = '';
   D.file.click();
 }
-async function importaFile(files) {
-  const imm = files.filter(f => (f.type && f.type.startsWith('image/')) || /\.(jpe?g|png|webp|gif|bmp|avif|heic|heif|tiff?)$/i.test(f.name || ''));
-  if (!imm.length) { toast(t('nessunaImmagine')); return []; }
-  const nuove = [];
-  for (let i = 0; i < imm.length; i++) {
-    attesa(true, t('importo', { i: i + 1, n: imm.length }), i / imm.length);
-    await prossimoFrame();
-    try { nuove.push(await importaUno(imm[i])); }
-    catch (e) { console.warn(e); toast(t('nonLeggibile', { nome: imm[i].name || 'foto' }), { durata: 5000 }); }
-  }
-  attesa(false);
-  return nuove;
-}
+const eImmagine = f => (f.type && f.type.startsWith('image/')) || /\.(jpe?g|png|webp|gif|bmp|avif|heic|heif|tiff?)$/i.test(f.name || '');
+const tipoDaNome = n => ({ jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', avif: 'image/avif', heic: 'image/heic', heif: 'image/heif', bmp: 'image/bmp', tif: 'image/tiff', tiff: 'image/tiff' })[(String(n || '').split('.').pop() || '').toLowerCase()];
 async function importaUno(file) {
   const buf = await file.arrayBuffer();
-  const tipo = file.type || 'image/jpeg';
-  const { img, rilascia } = await decodifica(new Blob([buf], { type: tipo }));
-  try {
-    const w = img.naturalWidth, hh = img.naturalHeight;
-    if (!w || !hh) throw new Error('immagine vuota');
-    const rec = { id: uid(), nome: file.name || 'foto.jpg', w, h: hh, tipo, peso: buf.byteLength, aggiunta: Date.now() };
-    await creaAnteprime(rec.id, img, w, hh);
-    await conservaOriginale(rec.id, buf, tipo);
-    P.foto.push(rec);
-    return rec;
-  } finally { rilascia(); }
+  const tipo = file.type || tipoDaNome(file.name) || 'image/jpeg';
+  const id = uid();
+  const { w, h: hh } = await preparaAnteprime(id, new Blob([buf], { type: tipo }));
+  await conservaOriginale(id, buf, tipo);
+  return { id, nome: file.name || 'foto.jpg', w, h: hh, tipo, peso: buf.byteLength, aggiunta: Date.now() };
 }
 async function conservaOriginale(id, buf, tipo) {
   if (salvataggioAttivo) {
@@ -3062,45 +3254,222 @@ async function conservaOriginale(id, buf, tipo) {
   }
   originaliMemoria.set(id, new Blob([buf], { type: tipo }));
 }
-/* spazi vuoti a partire da una posizione, nell'ordine del carosello */
+/* ── coda di caricamento ── */
+const coda = { lista: [], attiva: false, inCorso: null, tot: 0, fatte: 0, illeggibili: [], heic: false, mancanti: [], sessione: null };
+const inArrivo = new Set();   // "idBlocco:parte" degli spazi che aspettano una foto
+const chiaveArrivo = (idBlocco, parte) => idBlocco + ':' + (parte || 0);
+const progettoAttuale = () => (P ? P.creato : null);
+function spazioInArrivo(b, i) {
+  if (!b) return false;
+  if (inArrivo.has(chiaveArrivo(b.id, i))) return true;
+  const s = spazio(b, i);
+  return !!(s && s.foto && !cache.has(s.foto) && coda.attiva);
+}
+const bloccoInArrivo = b => parti(b).some((_, i) => spazioInArrivo(b, i));
+function accoda(lavori, opz = {}) {
+  if (!lavori.length) return;
+  if (!coda.attiva && !coda.lista.length) {
+    coda.tot = 0; coda.fatte = 0; coda.illeggibili = []; coda.heic = false; coda.mancanti = [];
+    coda.sessione = { t: performance.now(), tok: opz.annullabile ? inizia() : null, versione: STORIA.versione, annullabile: !!opz.annullabile };
+  } else if (coda.sessione && !opz.annullabile) coda.sessione.annullabile = false;
+  const progetto = progettoAttuale();
+  for (const l of lavori) {
+    l.progetto = progetto;
+    if (l.dest) inArrivo.add(chiaveArrivo(l.dest[0], l.dest[1]));
+    coda.lista.push(l);
+  }
+  coda.tot += lavori.length;
+  aggiornaCarico();
+  if (!coda.attiva) lavoraCoda();
+}
+function annullaCoda() {
+  coda.lista.length = 0;
+  inArrivo.clear();
+  coda.sessione = null;
+  aggiornaCarico();
+}
+async function lavoraCoda() {
+  coda.attiva = true;
+  aggiornaCarico();
+  while (coda.lista.length) {
+    const l = coda.lista.shift();
+    coda.inCorso = l;
+    let rec = null, errore = null;
+    try {
+      if (l.ripresa) {
+        const r = await archivio.get('foto', l.ripresa);
+        if (!r || !r.buf) throw new Error('assente');
+        await preparaAnteprime(l.ripresa, new Blob([r.buf], { type: r.tipo || 'image/jpeg' }));
+      } else rec = await importaUno(l.file);
+    } catch (e) { errore = e; console.warn(e); }
+    coda.inCorso = null;
+    if (l.dest) inArrivo.delete(chiaveArrivo(l.dest[0], l.dest[1]));
+    coda.fatte++;
+    if (l.progetto === progettoAttuale() && P) {
+      if (l.ripresa) (errore ? coda.mancanti.push(l.ripresa) : arrivataRipresa(l.ripresa));
+      else if (rec) arrivata(rec, l);
+      else {
+        coda.illeggibili.push(l.file.name || 'foto');
+        if (/\.(heic|heif)$/i.test(l.file.name || '') || /hei[cf]/i.test(l.file.type || '')) coda.heic = true;
+        nonArrivata(l);
+      }
+    }
+    aggiornaCarico();
+    await prossimoFrame();
+  }
+  coda.attiva = false;
+  fineCoda();
+}
+/* una foto nuova è pronta: entra nel cassetto e, se era attesa da una slide, va al suo posto */
+function arrivata(rec, l) {
+  P.foto.push(rec);
+  let i = -1;
+  if (l.dest) {
+    i = P.blocchi.findIndex(b => b.id === l.dest[0]);
+    if (i >= 0) {
+      const b = P.blocchi[i], parte = b.tipo === 'divisa' ? l.dest[1] : 0, s = spazio(b, parte);
+      if (s && (!s.foto || l.sostituisci)) { s.foto = rec.id; azzeraSpazio(s); } else i = -1;
+    }
+  }
+  correggiStoria(rec, l);
+  salvaPresto();
+  // una foto molto larga: propone subito di dividerla su più slide
+  if (i >= 0 && l.suggerisci) setTimeout(() => suggerisciPanorama(l.dest[0]), 400);
+  if (passoAttivo !== 'banco' || D.banco.hidden) return;
+  costruisciCassetto();
+  if (i >= 0) ridisegnaSlide(i);
+}
+function arrivataRipresa(id) {
+  if (passoAttivo !== 'banco' || D.banco.hidden) return;
+  costruisciCassetto();
+  P.blocchi.forEach((b, i) => { if (parti(b).some(s => s.foto === id)) ridisegnaSlide(i); });
+}
+/* una foto non si è potuta leggere: la slide creata apposta per lei sparisce, le altre restano vuote */
+function nonArrivata(l) {
+  if (!l.dest) return;
+  const i = P.blocchi.findIndex(b => b.id === l.dest[0]);
+  if (i < 0) return;
+  const b = P.blocchi[i];
+  if (l.togliSeVuota && P.blocchi.length > 1 && !haFoto(b) && !bloccoInArrivo(b)) {
+    P.blocchi.splice(i, 1);
+    if (cur > i || cur >= P.blocchi.length) cur = Math.max(0, cur - 1);
+    salvaPresto();
+    if (passoAttivo === 'banco') aggiornaTutto();
+  } else if (passoAttivo === 'banco') ridisegnaSlide(i);
+}
+/* aggiorna solo ciò che riguarda una slide (miniatura, tacche, palco se è quella aperta) */
+function ridisegnaSlide(i) {
+  if (!P || D.banco.hidden) return;
+  const m = D.striscia.querySelector(`.miniatura[data-i="${i}"]`);
+  if (m) { m.classList.toggle('in-arrivo', bloccoInArrivo(P.blocchi[i])); disegnaMiniatura(i, m.querySelector('canvas')); }
+  aggiornaContatore();
+  if (i === cur) {
+    if (P.vista.modo === 'singola') costruisciSovrapposti();
+    disegnaPalco();
+    aggiornaPannelli();
+    rilevaSeServe();
+  } else if (P.vista.modo === 'insieme') disegnaPalco();
+}
+/* le voci di annulla/ripeti prese mentre la foto era in arrivo la ricevono anche loro */
+function correggiStoria(rec, l) {
+  const ses = coda.sessione;
+  if (!ses) return;
+  for (const pila of [STORIA.u, STORIA.r]) for (const v of pila) {
+    if (v.t < ses.t) continue;
+    try {
+      const o = JSON.parse(v.s);
+      if (!o.foto.some(f => f.id === rec.id)) o.foto.push(rec);
+      if (l.dest) {
+        const b = o.blocchi.find(x => x.id === l.dest[0]);
+        const s = b && (b.tipo === 'divisa' && l.dest[1] ? b.seconda : b);
+        if (s && (!s.foto || l.sostituisci)) { s.foto = rec.id; azzeraSpazio(s); }
+      }
+      v.s = JSON.stringify(o);
+    } catch (e) { /* voce illeggibile: resta com'è */ }
+  }
+}
+function fineCoda() {
+  const ses = coda.sessione;
+  coda.sessione = null;
+  if (P && coda.mancanti.length) {
+    const via = new Set(coda.mancanti);
+    P.foto = P.foto.filter(f => !via.has(f.id));
+    P.blocchi.forEach(b => parti(b).forEach(s => { if (via.has(s.foto)) svuotaSpazio(s); }));
+    toast(t('fotoMancanti'), { durata: 5000 });
+    salvaPresto();
+    if (passoAttivo === 'banco') aggiornaTutto();
+  }
+  if (coda.illeggibili.length) {
+    const n = coda.illeggibili.length;
+    toast(coda.heic ? t('heicNo') : n === 1 ? t('nonLeggibile', { nome: coda.illeggibili[0] }) : t('nonLeggibili', { n }), { durata: 6500 });
+  }
+  // tutto il caricamento diventa un solo passo da annullare, se nel frattempo non hai cambiato altro
+  if (ses && ses.annullabile && ses.tok && STORIA.versione === ses.versione) conferma(ses.tok);
+  if (P && ses && !ses.annullabile && coda.mancanti.length === 0) pulisciArchivio();
+  aggiornaCarico();
+  if (P && passoAttivo === 'banco' && !D.banco.hidden) {
+    $$('.miniatura.in-arrivo', D.striscia).forEach(m => m.classList.remove('in-arrivo'));
+    costruisciCassetto();
+    if (P.vista.modo === 'singola') costruisciSovrapposti();
+    aggiornaPannelli();
+    aggiornaStoria();
+  }
+  if (D['dlg-esporta'].open && !esp.lavoro) costruisciEsporta();
+}
+/* indicatore discreto sul palco: «Carico le foto · 3 di 12» */
+function aggiornaCarico() {
+  const el = D.carico;
+  if (!el) return;
+  const on = coda.attiva || coda.lista.length > 0;
+  el.hidden = !on;
+  if (!on) return;
+  D['carico-testo'].textContent = t('caricoFoto', { i: Math.min(coda.fatte + 1, coda.tot), n: coda.tot });
+  D['carico-barra'].style.width = Math.round((coda.fatte / Math.max(1, coda.tot)) * 100) + '%';
+}
+/* spazi vuoti a partire da una posizione, nell'ordine del carosello (salta quelli che aspettano già una foto) */
 function spaziVuotiDopo(i, parte) {
   const out = [];
   for (let j = i; j < P.blocchi.length; j++) {
-    parti(P.blocchi[j]).forEach((s, k) => { if ((j > i || k > parte) && !s.foto) out.push([j, k]); });
+    parti(P.blocchi[j]).forEach((s, k) => { if ((j > i || k > parte) && !s.foto && !inArrivo.has(chiaveArrivo(P.blocchi[j].id, k))) out.push([j, k]); });
   }
   return out;
 }
 async function gestisciFile(files, modo) {
   if (!files || !files.length) return;
+  const imm = files.filter(eImmagine);
+  if (!imm.length) { toast(t('nessunaImmagine')); return; }
   if (modo === 'dalleFoto') {
+    // progetto nuovo: una slide per foto, il banco si apre subito
+    annullaCoda();
     P = nuovoProgetto(formatoScelto, 1);
+    const n = Math.min(imm.length, MAX_SLIDE);
+    P.blocchi = Array.from({ length: n }, () => nuovoBlocco(0));
     STORIA.u.length = STORIA.r.length = 0;
     cur = 0; quale = 0; selArea = null; salvatoInArchivio = null;
-    const nuove = await importaFile(files);
-    if (!nuove.length) { P = null; return; }
-    P.blocchi = nuove.slice(0, MAX_SLIDE).map(f => { const b = nuovoBlocco(0); b.foto = f.id; azzeraSpazio(b); return b; });
+    accoda(imm.map((file, k) => ({ file, dest: k < n ? [P.blocchi[k].id, 0] : null, togliSeVuota: true, suggerisci: true })), { annullabile: false });
     salvaPresto();
     mostraPasso('banco', 'avanti');
-    if (nuove.length > MAX_SLIDE) setTimeout(() => toast(t('limite')), 400);
+    if (imm.length > MAX_SLIDE) setTimeout(() => toast(t('limite')), 400);
     return;
   }
   if (!P) return;
-  const tok = inizia();
-  const nuove = await importaFile(files);
-  if (!nuove.length) { aggiornaTutto(); return; }
+  const lavori = imm.map(file => ({ file, dest: null }));
   if (modo && typeof modo === 'object' && P.blocchi[modo.blocco]) {
     const i = modo.blocco, b = P.blocchi[i];
     const parte = b.tipo === 'divisa' ? (modo.parte || 0) : 0;
-    if (!(modo.seVuoto && spazio(b, parte).foto)) metti(i, nuove[0].id, { parte, suggerisci: nuove.length === 1 });
+    if (!(modo.seVuoto && spazio(b, parte).foto)) {
+      lavori[0].dest = [b.id, parte];
+      lavori[0].sostituisci = true;
+      lavori[0].suggerisci = imm.length === 1;
+    }
     if (modo.riempi) {
       const liberi = spaziVuotiDopo(i, parte);
-      for (let k = 1; k < nuove.length && liberi.length; k++) { const [j, q] = liberi.shift(); metti(j, nuove[k].id, { parte: q, suggerisci: false }); }
+      for (let k = 1; k < lavori.length && liberi.length; k++) { const [j, q] = liberi.shift(); lavori[k].dest = [P.blocchi[j].id, q]; }
     }
     cur = i; quale = parte;
   }
-  conferma(tok);
+  accoda(lavori, { annullabile: true });
   aggiornaTutto();
-  rilevaSeServe();
 }
 
 /* ═════════ AZIONI SUL CAROSELLO ═════════ */
@@ -3126,7 +3495,7 @@ function suggerisciPanorama(idBlocco) {
   if (rapporto < 2.1) return;   // solo vere panoramiche, non le normali foto orizzontali
   const n = Math.round(rapporto);
   let possibili = 1, j = i + 1;
-  while (possibili < n && P.blocchi[j] && !haFoto(P.blocchi[j]) && P.blocchi[j].span === 1 && P.blocchi[j].tipo !== 'divisa') { possibili++; j++; }
+  while (possibili < n && P.blocchi[j] && !haFoto(P.blocchi[j]) && !bloccoInArrivo(P.blocchi[j]) && P.blocchi[j].span === 1 && P.blocchi[j].tipo !== 'divisa') { possibili++; j++; }
   possibili += Math.max(0, MAX_SLIDE - totSlide());
   const quante = Math.min(n, possibili, 10);
   if (quante < 2) return;
@@ -3138,7 +3507,7 @@ function allargaBlocco(i, nuovo) {
   nuovo = Math.max(1, Math.round(nuovo));
   while (b.span < nuovo) {
     const succ = P.blocchi[i + 1];
-    if (succ && !haFoto(succ) && succ.span === 1 && succ.tipo !== 'divisa') { P.blocchi.splice(i + 1, 1); b.span++; continue; }
+    if (succ && !haFoto(succ) && !bloccoInArrivo(succ) && succ.span === 1 && succ.tipo !== 'divisa') { P.blocchi.splice(i + 1, 1); b.span++; continue; }
     if (totSlide() < MAX_SLIDE) { b.span++; continue; }
     toast(t('limite'));
     return false;
@@ -3204,7 +3573,7 @@ function riempiVuote() {
   if (!libere.length) { toast(t('nienteDaRiempire')); return; }
   let n = 0, aggiunte = 0;
   modifica(() => {
-    for (const b of P.blocchi) for (const s of parti(b)) { if (!libere.length) break; if (!s.foto) { s.foto = libere.shift().id; azzeraSpazio(s); n++; } }
+    for (const b of P.blocchi) parti(b).forEach((s, k) => { if (libere.length && !s.foto && !inArrivo.has(chiaveArrivo(b.id, k))) { s.foto = libere.shift().id; azzeraSpazio(s); n++; } });
     while (libere.length && totSlide() < MAX_SLIDE) {
       const ultimo = P.blocchi[P.blocchi.length - 1];
       const b = nuovoBlocco(ultimo ? ultimo.bordo : 0); b.foto = libere.shift().id; azzeraSpazio(b); P.blocchi.push(b); n++; aggiunte++;
@@ -3322,8 +3691,9 @@ function scegliQuale(i) {
 /* ═════════ BANCO: COSTRUZIONE E AGGIORNAMENTO ═════════ */
 function entraBanco() {
   if (!P) return;
-  scheda = P.blocchi.some(haFoto) ? 'regola' : 'slide';
-  foglio = MOBILE.matches && !P.foto.length ? 'foto' : '';
+  const inCorso = coda.attiva || coda.lista.length > 0;
+  scheda = P.blocchi.some(haFoto) || inCorso ? 'regola' : 'slide';
+  foglio = MOBILE.matches && !P.foto.length && !inCorso ? 'foto' : '';
   D.testo.value = P.testo || '';
   aggiornaConta();
   aggiornaSchede();
@@ -3477,20 +3847,25 @@ function costruisciSovrapposti() {
   if (F.storia) ov.append(h('div', { class: 'fascia fascia-su' }, t('zonaSu')), h('div', { class: 'fascia fascia-giu' }, t('zonaGiu')));
   if (P.vista.griglia && cur === 0 && !F.storia && haFoto(b) && S.w / S.h > 0.76) {
     const cw = Math.min(w, hh * 3 / 4), lato = (w - cw) / 2;
-    if (lato > 0.5) ov.append(
-      h('div', { class: 'ritaglio sx', style: { left: '0px', width: lato + 'px' } }),
-      h('div', { class: 'ritaglio dx', style: { left: (w - lato) + 'px', width: lato + 'px' } }),
-      w >= 260 ? h('div', { class: 'ritaglio-nota', style: { left: (w / 2) + 'px' } }, t('grigliaNota')) : null,
-    );
+    if (lato > 0.5) {
+      ov.append(
+        h('div', { class: 'ritaglio sx', style: { left: '0px', width: lato + 'px' } }),
+        h('div', { class: 'ritaglio dx', style: { left: (w - lato) + 'px', width: lato + 'px' } }));
+      if (w >= 260) ov.append(h('div', { class: 'ritaglio-nota', style: { left: (w / 2) + 'px' } }, t('grigliaNota')));
+    }
   }
   const scuro = P.sfondo.tipo === 'colore' && luminanza(P.sfondo.colore) < 0.45;
+  const arrivo = st => h('div', { class: 'arrivo', style: st }, h('span', { class: 'giro' }), h('span', null, t('caricoUna')));
   if (b.tipo === 'divisa') {
     sp.forEach((s, i) => {
+      if (spazioInArrivo(b, i)) { ov.append(arrivo(pxFinestra(finestra(b, i)))); return; }
       if (s.foto) return;
       ov.append(h('button', { class: 'vuoto meta' + (scuro ? ' su-scuro' : ''), type: 'button', 'data-parte': i, style: pxFinestra(finestra(b, i)), onclick: () => { scegliQuale(i); scegliFile({ blocco: cur, parte: i }); } },
         h('span', { html: ico('piu') }), h('span', { class: 'vuoto-nota' }, t('vuotoMeta'))));
     });
     ov.append(h('div', { class: 'scelta', style: pxFinestra(finestra(b, quale)) }));
+  } else if (spazioInArrivo(b, 0)) {
+    ov.append(arrivo({ left: '0px', top: '0px', width: w * b.span + 'px', height: hh + 'px' }));
   } else if (!b.foto) {
     ov.append(h('button', { class: 'vuoto' + (scuro ? ' su-scuro' : ''), type: 'button', onclick: () => scegliFile({ blocco: cur, parte: 0 }) },
       h('span', { html: ico('foto') }),
@@ -3573,7 +3948,7 @@ function costruisciStriscia() {
   let s = 0;
   P.blocchi.forEach((b, i) => {
     const et = b.span > 1 ? `${s + 1}–${s + b.span}` : String(s + 1);
-    box.append(h('button', { class: 'miniatura' + (i === cur ? ' corrente' : ''), type: 'button', 'data-i': i, 'aria-label': t('slideN', { n: et }), 'aria-current': i === cur ? 'true' : null, style: { animationDelay: (Math.min(i, 12) * 25) + 'ms' } },
+    box.append(h('button', { class: 'miniatura' + (i === cur ? ' corrente' : '') + (bloccoInArrivo(b) ? ' in-arrivo' : ''), type: 'button', 'data-i': i, 'aria-label': t('slideN', { n: et }), 'aria-current': i === cur ? 'true' : null, style: { animationDelay: (Math.min(i, 12) * 25) + 'ms' } },
       h('canvas'), h('span', { class: 'meta' }, et)));
     s += b.span;
   });
@@ -3594,6 +3969,8 @@ function disegnaMiniatura(i, cv) {
   if (cv.width !== w || cv.height !== hh) { cv.width = w; cv.height = hh; }
   cv.style.width = (w / dpr) + 'px';
   cv.style.height = (hh / dpr) + 'px';
+  // slide che aspetta ancora la sua foto: tela trasparente, si vede il riflesso di caricamento
+  if (bloccoInArrivo(b) && parti(b).every((s, q) => !s.foto || spazioInArrivo(b, q))) { const x = ctx2d(cv); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, w, hh); return; }
   disegnaBlocco(ctx2d(cv), b, { k, x0: 0, y0: 0, X0: 0, Y0: 0, w, h: hh, sorgenti: sorgentiDi(b, true), mini: miniDi(b) });
 }
 const ridisegnaMiniaturaCorrente = debounce(() => {
@@ -3613,7 +3990,8 @@ function costruisciCassetto() {
   box.innerHTML = '';
   D['conta-foto'].textContent = P.foto.length ? String(P.foto.length) : '';
   D['riempi-vuote'].hidden = !P.foto.length;
-  if (!P.foto.length) {
+  const attese = coda.lista.filter(l => l.file).length + (coda.inCorso && coda.inCorso.file ? 1 : 0);
+  if (!P.foto.length && !attese) {
     box.append(h('button', { class: 'cassetto-vuoto', type: 'button', onclick: () => scegliFile('cassetto') },
       h('span', { html: ico('immagini') }), h('strong', null, t('cassettoVuoto')), h('span', null, t('cassettoVuotoNota'))));
     return;
@@ -3624,11 +4002,12 @@ function costruisciCassetto() {
     const cv = tela(c ? c.mini.width : 1, c ? c.mini.height : 1);
     if (c) cv.getContext('2d').drawImage(c.mini, 0, 0);
     const n = usi.get(f.id) || 0;
-    box.append(h('div', { class: 'foto-cassetto', 'data-id': f.id },
+    box.append(h('div', { class: 'foto-cassetto' + (c ? '' : ' in-arrivo'), 'data-id': f.id },
       h('button', { class: 'prendi', type: 'button', title: f.nome, 'aria-label': `${t('mettiQui')}: ${f.nome}` }, cv),
       n ? h('span', { class: 'usi', title: t('usata', { n }) }, String(n)) : null,
       h('button', { class: 'via', type: 'button', title: t('rimuoviFoto'), 'aria-label': t('rimuoviFoto'), html: ico('x'), onclick: e => { e.stopPropagation(); rimuoviFoto(f.id); } })));
   }
+  for (let k = 0; k < Math.min(attese, 12); k++) box.append(h('div', { class: 'foto-cassetto in-arrivo segnaposto', 'aria-hidden': 'true' }, h('span', { class: 'giro' })));
 }
 
 /* schede dell'ispettore e fogli su telefono */
@@ -4262,6 +4641,8 @@ function costruisciEsporta() {
     if (sel.pieni.some(b => { const S = dimSlide(b), r = S.w / S.h; return r > 1.92 || r < 0.749; })) corpo.append(h('p', { class: 'nota' }, t('avvisoLibero')));
     if (sel.pieni.some(ridottaPerMemoria)) corpo.append(h('p', { class: 'nota' }, t('avvisoGrande')));
   }
+  const caricando = coda.attiva || coda.lista.length > 0;
+  if (caricando) corpo.prepend(h('p', { class: 'nota avviso-giallo' }, t('esportaAttendi')));
   const barra = h('div', { class: 'barra-prog', hidden: !ferma }, h('i', { id: 'esporta-prog' }));
   corpo.append(barra, h('p', { class: 'nota', id: 'esporta-prog-testo', hidden: !ferma }));
   const condividi = TOCCO.matches && puoCondividere();
@@ -4270,11 +4651,14 @@ function costruisciEsporta() {
     piede.append(h('button', { class: 'btn primario grande', type: 'button', html: ico('condividi') + `<span>${np === 1 ? t('salvaOraUna') : t('salvaOra', { n: np })}</span>`, onclick: () => condividiPronte() }));
     return;
   }
-  const spento = ferma || !sel.n;
+  const spento = ferma || !sel.n || caricando;
   if (condividi) piede.append(h('button', { class: 'btn primario grande', type: 'button', disabled: spento, html: ico('condividi') + `<span>${t('salvaTelefono')}</span>`, onclick: () => esegui('condividi') }));
   if (sel.n > 1) {
-    piede.append(h('button', { class: 'btn grande' + (condividi ? '' : ' primario'), type: 'button', disabled: spento, html: ico('zip') + `<span>${t('scaricaZip')}</span>`, onclick: () => esegui('zip') }));
-    piede.append(h('button', { class: 'btn fantasma', type: 'button', disabled: spento, html: ico('immagini') + `<span>${t('scaricaSingole')}</span>`, onclick: () => esegui('singole') }));
+    // su telefono senza condivisione le immagini singole vengono prima: uno zip lì è scomodo da aprire
+    const singolePrima = TOCCO.matches && !condividi;
+    const zip = h('button', { class: 'btn grande' + (condividi || singolePrima ? '' : ' primario'), type: 'button', disabled: spento, html: ico('zip') + `<span>${t('scaricaZip')}</span>`, onclick: () => esegui('zip') });
+    const singole = h('button', { class: singolePrima ? 'btn primario grande' : 'btn fantasma', type: 'button', disabled: spento, html: ico('immagini') + `<span>${t('scaricaSingole')}</span>`, onclick: () => esegui('singole') });
+    if (singolePrima) { zip.className = 'btn fantasma'; piede.append(singole, zip); } else piede.append(zip, singole);
   } else {
     piede.append(h('button', { class: 'btn grande' + (condividi ? '' : ' primario'), type: 'button', disabled: spento, html: ico('scarica') + `<span>${t('scaricaUna')}</span>`, onclick: () => esegui('singole') }));
   }
@@ -4307,10 +4691,9 @@ async function preparaImmagini(soloCorrente, avanz) {
       mini.push(c ? c.mini : null);
       if (!g) { sorgenti.push(null); continue; }
       try {
-        const o = await caricaOriginale(s.foto);
-        const r = sorgenteUscita(o.img, g.f.w, g.f.h, g.scala * k);
-        if (r.creata) { o.rilascia(); rilasci.push(() => { r.src.width = r.src.height = 1; }); } else rilasci.push(o.rilascia);
-        sorgenti.push(r.src);
+        const o = await sorgenteEsportazione(s.foto, g.scala * k);
+        rilasci.push(o.rilascia);
+        sorgenti.push(o.src);
       } catch (e) { sorgenti.push(c ? anteprimaDi(s.foto) : null); }
     }
     const bassa = bassaDefinizione(b);
