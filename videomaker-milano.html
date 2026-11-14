@@ -855,7 +855,7 @@
       <p class="mi-video-cap">In evidenza · JazzMi</p>
       <div class="mi-split">
         <div class="mi-split-video">
-          <video src="media/lavori/jazzmi2.mp4" muted loop autoplay playsinline controls preload="metadata" aria-label="Clip dalle riprese JazzMi a Milano"></video>
+          <video muted loop autoplay playsinline controls preload="metadata" aria-label="Clip dalle riprese JazzMi a Milano"><source src="media/lavori/jazzmi2-m.mp4" type="video/mp4"></video>
         </div>
         <div class="mi-split-text">
           <span class="mi-tag-inline">Evento · Milano</span>
@@ -882,7 +882,7 @@
         <a class="vm-card" href="contenuti-verticali.html"><h3>Contenuti social</h3><p>Reel, TikTok e short verticali pensati per crescere online.</p><span>Scopri →</span></a>
         <a class="vm-card" href="fotografia.html"><h3>Fotografia</h3><p>Ritratto, prodotto ed eventi, anche foto e video nello stesso shooting.</p><span>Scopri →</span></a>
         <a class="vm-card" href="matrimoni.html"><h3>Matrimoni</h3><p>Wedding film cinematografici, con uno sguardo discreto e autentico.</p><span>Scopri →</span></a>
-        <a class="vm-card" href="index.html#contatti"><h3>Riprese drone</h3><p>Pilota certificato per riprese aeree autorizzate, in città e non solo.</p><span>Scopri →</span></a>
+        <a class="vm-card" href="index.html?tipo=riprese#contatti"><h3>Riprese drone</h3><p>Pilota certificato per riprese aeree autorizzate, in città e non solo.</p><span>Scopri →</span></a>
       </div>
     </section>
   </div>
@@ -1130,7 +1130,7 @@
     ]);
   }
   if (typeof THREE !== 'undefined') { init(); }
-  else { var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload=init; document.head.appendChild(s); }
+  else { var s=document.createElement('script'); s.src='js/three.r128.min.js'; s.onload=init; document.head.appendChild(s); }
 })();
 </script>
 

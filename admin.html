@@ -227,14 +227,14 @@
 
     <div class="foot">
       Pannello privato · pagina non indicizzata. La protezione con password è leggera (lato browser): non condividere il link e non pubblicarlo nel menu.
-      <br>Per cambiare la password apri <b>admin.html</b> e modifica la riga <code>const ADMIN_PASS</code> in cima allo script.
+      <br>Per cambiare la password apri <b>admin.html</b> e sostituisci <code>ADMIN_HASH</code> in cima allo script con l'impronta SHA-256 della nuova password (chiedimela e te la preparo).
     </div>
   </main>
 </div>
 
 <script>
 /* ============ CONFIG ============ */
-const ADMIN_PASS = "morabito2026";   // ← cambia questa password
+const ADMIN_HASH = "fb0576e08b2143410cca3482e9aae3b0d7c62d221aa4e1058ea8575de7dc2343";   // impronta SHA-256 della password (la password non è più leggibile nel codice)
 const PAGES = [
   {f:"index.html",            n:"Home"},
   {f:"aziende.html",          n:"Aziende"},
@@ -258,8 +258,12 @@ function unlock(){gate.style.display='none';app.style.display='block';runChecks(
 if(sessionStorage.getItem(SKEY)==="1") unlock();
 function tryLogin(){
   const v=document.getElementById('pass').value;
-  if(v===ADMIN_PASS){sessionStorage.setItem(SKEY,"1");unlock();}
-  else{document.getElementById('gerr').textContent="Password errata.";}
+  if(!window.crypto || !crypto.subtle){ document.getElementById('gerr').textContent="Apri il pannello dall'indirizzo https del sito."; return; }
+  crypto.subtle.digest('SHA-256', new TextEncoder().encode(v)).then(function(buf){
+    var hex = Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+    if(hex===ADMIN_HASH){sessionStorage.setItem(SKEY,"1");unlock();}
+    else{document.getElementById('gerr').textContent="Password errata.";}
+  });
 }
 document.getElementById('enter').addEventListener('click',tryLogin);
 document.getElementById('pass').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});

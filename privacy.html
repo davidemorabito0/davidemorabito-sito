@@ -50,6 +50,8 @@
   li{ margin-bottom:8px; }
   .box{ background:#fff; border:1px solid #e5ddd0; border-left:4px solid var(--amber); border-radius:10px; padding:22px 26px; margin:22px 0; }
   table{ width:100%; border-collapse:collapse; margin:16px 0; font-size:14px; }
+  .tbl-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  @media (max-width:520px){ table{ font-size:12.5px; } th, td{ padding:8px 6px !important; } }
   th,td{ text-align:left; padding:11px 14px; border-bottom:1px solid #e5ddd0; vertical-align:top; }
   th{ font-family:'Jost',sans-serif; color:var(--navy); font-weight:600; background:#efe9df; }
   .footer{ background:var(--navy); color:var(--navy-pale); text-align:center; padding:30px 24px; font-size:13px; }
@@ -65,11 +67,11 @@
 
 <div class="wrap">
   <h1>Privacy &amp; Cookie Policy</h1>
-  <p class="updated">Ultimo aggiornamento: luglio 2026 · ai sensi del Regolamento UE 2016/679 (GDPR)</p>
+  <p class="updated">Ultimo aggiornamento: novembre 2026 · ai sensi del Regolamento UE 2016/679 (GDPR)</p>
 
   <div class="box">
     <strong>In breve:</strong> questo sito raccoglie i dati che inserisci volontariamente nel modulo di contatto
-    (nome, email, messaggio) per risponderti, e — solo se acconsenti — dati statistici anonimi tramite Google
+    (nome, email, messaggio e, se vuoi, telefono, data, luogo e budget del progetto) per risponderti, e — solo se acconsenti — dati statistici anonimi tramite Google
     Analytics per capire come viene usato il sito. Non vendo né cedo i tuoi dati a terzi per scopi di marketing.
   </div>
 
@@ -87,7 +89,9 @@
   <h3>a) Modulo di contatto</h3>
   <p>
     Quando compili il modulo di contatto vengono raccolti <strong>nome, indirizzo email e il contenuto del
-    messaggio</strong>. Questi dati sono usati esclusivamente per rispondere alla tua richiesta ed
+    messaggio</strong> e, solo se decidi di indicarli, <strong>telefono, data o periodo, luogo, budget
+    indicativo e come hai conosciuto il sito</strong>. Insieme al messaggio vengono registrati la pagina da cui lo invii e il sito da cui sei arrivato (per esempio Google o Instagram), se il browser lo indica.
+    Questi dati sono usati esclusivamente per rispondere alla tua richiesta ed
     eventualmente gestire il rapporto professionale che ne consegue.
   </p>
   <p>
@@ -112,11 +116,11 @@
   </ul>
 
   <h2>3. Tipologie di cookie usati</h2>
-  <table>
+  <div class="tbl-wrap"><table>
     <tr><th>Cookie</th><th>Tipo</th><th>Finalità</th><th>Consenso</th></tr>
     <tr><td>Preferenza consenso</td><td>Tecnico</td><td>Ricorda la tua scelta sui cookie</td><td>Non richiesto</td></tr>
     <tr><td>Google Analytics (_ga, _ga_*)</td><td>Statistico</td><td>Misurazione anonima delle visite</td><td>Richiesto</td></tr>
-  </table>
+  </table></div>
   <p>
     Puoi modificare o revocare il consenso in qualsiasi momento cancellando i dati del sito dalle
     impostazioni del browser: alla visita successiva ti verrà nuovamente chiesto.
@@ -125,7 +129,7 @@
   <h2>4. Chi tratta i tuoi dati</h2>
   <p>I dati possono essere trattati, come responsabili esterni, dai fornitori dei servizi tecnici del sito:</p>
   <ul>
-    <li><strong>GitHub Pages / Netlify</strong> — hosting del sito;</li>
+    <li><strong>GitHub Pages</strong> — hosting del sito;</li>
     <li><strong>Web3Forms</strong> — consegna dei messaggi del modulo di contatto;</li>
     <li><strong>Google Ireland Ltd.</strong> — statistiche (solo previo consenso).</li>
   </ul>

@@ -33,13 +33,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ═══════════════ META / SEO ═══════════════ -->
-<title>Ruota Colori — Davide Morabito</title>
+<title>Ruota colori online — Palette HEX, RGB e armonie</title>
 <meta name="description" content="Ruota cromatica interattiva: genera palette con armonie complementare, analoga e triade. Valori HEX, RGB e HSB, estrazione colori da immagine e palette salvate.">
 <meta name="author" content="Davide Morabito">
 <meta name="robots" content="index, follow, max-image-preview:large">
 
 <!-- Open Graph (WhatsApp, Facebook, LinkedIn) -->
-<meta property="og:title" content="Ruota Colori — Davide Morabito">
+<meta property="og:title" content="Ruota colori online — Palette HEX, RGB e armonie">
 <meta property="og:description" content="Ruota cromatica interattiva con armonie cromatiche, formati HEX/RGB/HSB, estrazione palette da immagine e salvataggio.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://davidemorabito.com/ruota-colori.html">
@@ -52,7 +52,7 @@
 
 <!-- Twitter / X Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Ruota Colori — Davide Morabito">
+<meta name="twitter:title" content="Ruota colori online — Palette HEX, RGB e armonie">
 <meta name="twitter:description" content="Ruota cromatica interattiva con armonie, formati HEX/RGB/HSB ed estrazione palette da immagine.">
 <meta name="twitter:image" content="https://davidemorabito.com/media/og-cover.jpg">
 
@@ -1498,9 +1498,19 @@
   const modalClose = document.getElementById('modalClose');
   if (modal && modalContent && modalClose) {
     function openModal(url, title) {
-      modalContent.innerHTML = url
-        ? '<video src="'+url+'" controls autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>'
-        : '<div class="modal-poster"><div class="mp-play"></div><div class="mp-text">'+(title||'Video')+'</div><div style="font-size:11px;color:var(--navy-light);letter-spacing:1px;">[ collega qui il link al video ]</div></div>';
+      var inner;
+      var yt = url && url.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
+      var ig = url && url.match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\/([\w-]+)/);
+      if (!url) {
+        return; // nessun video collegato: non apro un riquadro vuoto
+      } else if (yt) {
+        inner = '<iframe src="https://www.youtube.com/embed/'+yt[1]+'?autoplay=1&rel=0&playsinline=1" title="'+(title||'Video').replace(/"/g,'')+'" style="width:100%;height:100%;border:0;" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+      } else if (ig) {
+        inner = '<iframe src="https://www.instagram.com/reel/'+ig[1]+'/embed/" title="'+(title||'Video').replace(/"/g,'')+'" style="width:100%;height:100%;border:0;background:#000;" scrolling="no" allowtransparency="true" allowfullscreen></iframe>';
+      } else {
+        inner = '<video src="'+url+'" controls autoplay playsinline style="width:100%;height:100%;object-fit:contain;background:#000;"></video>';
+      }
+      modalContent.innerHTML = inner;
       modal.classList.add('show'); document.body.style.overflow='hidden';
     }
     function closeModal() { modal.classList.remove('show'); document.body.style.overflow=''; setTimeout(()=>{ modalContent.innerHTML=''; },350); }
@@ -1632,7 +1642,7 @@
     start();
   } else {
     var s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    s.src = 'js/three.r128.min.js';
     s.onload = start;
     document.head.appendChild(s);
   }
@@ -1678,7 +1688,7 @@
     ]);
   }
   if (typeof THREE !== 'undefined') { init(); }
-  else { var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload=init; document.head.appendChild(s); }
+  else { var s=document.createElement('script'); s.src='js/three.r128.min.js'; s.onload=init; document.head.appendChild(s); }
 })();
 </script>
 

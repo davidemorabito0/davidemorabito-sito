@@ -789,7 +789,7 @@
     <section class="sec reveal">
       <div class="sec-label">Galleria</div>
       <h2 class="sec-h">Fotografie</h2>
-      <p class="sec-intro">Qui andranno le foto dei matrimoni.</p>
+      <p class="sec-intro">Momenti veri, colti senza mettere in posa nessuno: la cerimonia, i dettagli, le persone che contano.</p>
       <div class="photo-gallery">
         <div class="photo-item wide"><img width="1800" height="1200" src="media/matrimoni/matr-chiesa.webp" alt="Uscita dalla chiesa tra coriandoli" loading="lazy"></div>
         <div class="photo-item tall"><img width="1200" height="1800" src="media/matrimoni/matr-acconciatura.webp" alt="Dettaglio acconciatura della sposa" loading="lazy"></div>
@@ -806,7 +806,7 @@
   <section class="cta-band">
     <h2>Vi <b>sposate</b>?</h2>
     <p>Raccontami del vostro giorno. Sono disponibile per matrimoni a Milano e valutiamo anche tutta Italia.</p>
-    <a href="index.html#contatti">Richiedi disponibilità</a>
+    <a href="index.html?tipo=matrimonio#contatti">Richiedi disponibilità</a>
   </section>
 </main>
 
@@ -836,7 +836,7 @@
 </footer>
 
 <!-- STICKY CTA -->
-<a href="index.html#contatti" class="sticky-cta" id="stickyCta">
+<a href="index.html?tipo=matrimonio#contatti" class="sticky-cta" id="stickyCta">
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
   Contattami
 </a>
@@ -1032,7 +1032,7 @@
     ]);
   }
   if (typeof THREE !== 'undefined') { init(); }
-  else { var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload=init; document.head.appendChild(s); }
+  else { var s=document.createElement('script'); s.src='js/three.r128.min.js'; s.onload=init; document.head.appendChild(s); }
 })();
 </script>
 

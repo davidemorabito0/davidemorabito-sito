@@ -33,13 +33,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ═══════════════ META / SEO ═══════════════ -->
-<title>Chi Sono — Davide Morabito</title>
+<title>Chi sono — Davide Morabito, videomaker e fotografo a Milano</title>
 <meta name="description" content="Chi è Davide Morabito: operatore e montatore video da Messina a Milano dal 2010. Drone certificato, fotografia digitale e analogica.">
 <meta name="author" content="Davide Morabito">
 <meta name="robots" content="index, follow, max-image-preview:large">
 
 <!-- Open Graph (WhatsApp, Facebook, LinkedIn) -->
-<meta property="og:title" content="Chi Sono — Davide Morabito">
+<meta property="og:title" content="Chi sono — Davide Morabito, videomaker e fotografo a Milano">
 <meta property="og:description" content="Da Messina a Milano dal 2010: operatore e montatore video, drone certificato, fotografia digitale e analogica.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://davidemorabito.com/chi-sono.html">
@@ -52,7 +52,7 @@
 
 <!-- Twitter / X Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Davide Morabito — Videomaker freelance a Milano">
+<meta name="twitter:title" content="Chi sono — Davide Morabito, videomaker e fotografo a Milano">
 <meta name="twitter:description" content="Produzione video professionale: social, advertising, eventi multicamera. Drone certificato.">
 <meta name="twitter:image" content="https://davidemorabito.com/media/og-cover.jpg">
 
@@ -648,6 +648,15 @@
   .foto-hero h1 b { font-weight:700; color:#FFAD01; }
   .foto-hero-tag { font-family:'Jost',sans-serif; font-size:clamp(13px,1.6vw,17px); letter-spacing:4px; text-transform:uppercase; color:#a9a299; margin-top:26px; font-weight:300; }
 
+
+  /* chi sono — bio responsive (nov 2026) */
+  .bio-grid { display:grid; grid-template-columns:1.1fr .9fr; gap:60px; align-items:center; }
+  @media (max-width:860px) { .bio-grid { grid-template-columns:1fr; gap:32px; } }
+  .bio-image { margin:0; position:relative; border-radius:10px; overflow:hidden; aspect-ratio:4/5; background:#e9edf1; box-shadow:0 30px 60px -30px rgba(20,32,46,.45); }
+  .bio-image img { width:100%; height:100%; object-fit:cover; display:block; }
+  .bio-image figcaption { position:absolute; left:16px; bottom:14px; font-family:'Jost',sans-serif; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:#fff; background:rgba(18,32,49,.55); padding:6px 12px; border-radius:20px; backdrop-filter:blur(4px); }
+  @media (max-width:860px) { .bio-image { aspect-ratio:16/11; } }
+  .sk-n { display:block; font-family:'Jost',sans-serif; font-size:12px; letter-spacing:3px; color:var(--amber-deep); font-weight:600; margin-bottom:8px; }
 </style>
 </head>
 <body>
@@ -696,9 +705,9 @@
   <div class="bg-white" style="position:relative; overflow:hidden;">
     <canvas id="camFloat" class="cam-float" aria-hidden="true"></canvas>
     <section class="section" id="bio" style="position:relative; z-index:1;">
-      <div class="bio-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center;">
+      <div class="bio-grid">
         <div class="bio-text reveal">
-          <h2>La Mia Strada</h2>
+          <h2>La mia strada</h2>
           <p>Vengo da Messina e ho fatto di Milano la mia base. Lavoro nella produzione video dal 2010: in questi anni ho imparato a stare dietro la camera e davanti al timeline di montaggio con la stessa naturalezza.</p>
 
           <p>Sono specializzato come operatore video e montatore. Riprendo, monto e curo la post-produzione di video e foto — dall'idea alla consegna finale. Faccio anche riprese aeree con drone, per cui ho il patentino.</p>
@@ -708,10 +717,10 @@
           <p><strong>Lavoro in egual misura con:</strong> creator che cercano contenuti autentici, brand che vogliono comunicare con cura, e aziende che hanno una storia da raccontare.</p>
         </div>
         
-        <div class="bio-image reveal" style="background:linear-gradient(135deg,#eef1f4,#e2e7ec); border-radius:8px; aspect-ratio:3/4; display:flex; flex-direction:column; gap:8px; align-items:center; justify-content:center; color:#8a97a5; font-size:13px; letter-spacing:.5px; text-align:center; padding:20px;">
-          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-          <span>Il tuo ritratto<br>qui</span>
-        </div>
+        <figure class="bio-image reveal">
+          <img src="media/lavori/set-ripresa.webp" width="1206" height="968" alt="Sul set durante le riprese di un'intervista" loading="lazy">
+          <figcaption>Sul set</figcaption>
+        </figure>
       </div>
     </section>
   </div>
@@ -719,31 +728,31 @@
   <!-- SKILLSET / TOOLS -->
   <div class="bg-cream">
     <section class="section" id="skills">
-      <h2 style="text-align:center; margin-bottom:50px;">Come Lavoro</h2>
+      <h2 style="text-align:center; margin-bottom:50px;">Come lavoro</h2>
       
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:40px;">
         <div class="skill-card reveal">
-          <h3 style="color:var(--navy); font-size:18px; margin-bottom:12px;">📹 Ripresa video</h3>
+          <h3 style="color:var(--navy); font-size:18px; margin-bottom:12px;"><span class="sk-n">01</span>Ripresa video</h3>
           <p style="font-size:14px; color:#666; line-height:1.6;">Operatore video per ogni tipo di progetto: social, advertising, eventi, contenuti per brand e creator.</p>
         </div>
 
         <div class="skill-card reveal">
-          <h3 style="color:var(--navy); font-size:18px; margin-bottom:12px;">✂️ Montaggio</h3>
+          <h3 style="color:var(--navy); font-size:18px; margin-bottom:12px;"><span class="sk-n">02</span>Montaggio</h3>
           <p style="font-size:14px; color:#666; line-height:1.6;">Montatore video: dal long-form allo short-form per Reels, TikTok e Shorts. Ritmo, struttura, racconto.</p>
         </div>
 
         <div class="skill-card reveal">
-          <h3 style="color:var(--navy); font-size:18px; margin-bottom:12px;">🚁 Riprese drone</h3>
+          <h3 style="color:var(--navy); font-size:18px; margin-bottom:12px;"><span class="sk-n">03</span>Riprese drone</h3>
           <p style="font-size:14px; color:#666; line-height:1.6;">Riprese aeree con drone. Sono un pilota certificato, con patentino per voli in regola, in 4K.</p>
         </div>
 
         <div class="skill-card reveal">
-          <h3 style="color:var(--navy); font-size:18px; margin-bottom:12px;">📸 Fotografia</h3>
+          <h3 style="color:var(--navy); font-size:18px; margin-bottom:12px;"><span class="sk-n">04</span>Fotografia</h3>
           <p style="font-size:14px; color:#666; line-height:1.6;">Fotografia digitale e analogica su pellicola. Due linguaggi diversi, stesso sguardo.</p>
         </div>
 
         <div class="skill-card reveal">
-          <h3 style="color:var(--navy); font-size:18px; margin-bottom:12px;">🎨 Post-produzione</h3>
+          <h3 style="color:var(--navy); font-size:18px; margin-bottom:12px;"><span class="sk-n">05</span>Post-produzione</h3>
           <p style="font-size:14px; color:#666; line-height:1.6;">Post di foto e video: editing, color grading e finitura. Curo il risultato finale fino all'ultimo dettaglio.</p>
         </div>
       </div>
@@ -800,7 +809,7 @@
 
   <!-- CTA -->
   <section class="cta-section" style="background:var(--amber-deep); color:#fff; text-align:center; padding:60px 20px;">
-    <h2 style="font-size:32px; margin-bottom:20px;">Iniziamo Un Progetto Insieme?</h2>
+    <h2 style="font-size:32px; margin-bottom:20px;">Iniziamo un progetto insieme?</h2>
     <p style="font-size:16px; margin-bottom:30px; max-width:600px; margin-left:auto; margin-right:auto;">Contattami per discutere la tua idea. Sono disponibile per consulenza, preventivi e collaborazioni in tutta la provincia di Milano.</p>
     <a href="index.html#contatti" style="display:inline-block; background:#1a1a1a; color:#fff; padding:14px 32px; border-radius:6px; text-decoration:none; font-weight:500; letter-spacing:1px; transition:all .3s;">CONTATTAMI</a>
   </section>
@@ -944,9 +953,19 @@
   const modalClose = document.getElementById('modalClose');
   if (modal && modalContent && modalClose) {
     function openModal(url, title) {
-      modalContent.innerHTML = url
-        ? '<video src="'+url+'" controls autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>'
-        : '<div class="modal-poster"><div class="mp-play"></div><div class="mp-text">'+(title||'Video')+'</div><div style="font-size:11px;color:var(--navy-light);letter-spacing:1px;">[ collega qui il link al video ]</div></div>';
+      var inner;
+      var yt = url && url.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
+      var ig = url && url.match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\/([\w-]+)/);
+      if (!url) {
+        return; // nessun video collegato: non apro un riquadro vuoto
+      } else if (yt) {
+        inner = '<iframe src="https://www.youtube.com/embed/'+yt[1]+'?autoplay=1&rel=0&playsinline=1" title="'+(title||'Video').replace(/"/g,'')+'" style="width:100%;height:100%;border:0;" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+      } else if (ig) {
+        inner = '<iframe src="https://www.instagram.com/reel/'+ig[1]+'/embed/" title="'+(title||'Video').replace(/"/g,'')+'" style="width:100%;height:100%;border:0;background:#000;" scrolling="no" allowtransparency="true" allowfullscreen></iframe>';
+      } else {
+        inner = '<video src="'+url+'" controls autoplay playsinline style="width:100%;height:100%;object-fit:contain;background:#000;"></video>';
+      }
+      modalContent.innerHTML = inner;
       modal.classList.add('show'); document.body.style.overflow='hidden';
     }
     function closeModal() { modal.classList.remove('show'); document.body.style.overflow=''; setTimeout(()=>{ modalContent.innerHTML=''; },350); }
@@ -1078,7 +1097,7 @@
     start();
   } else {
     var s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    s.src = 'js/three.r128.min.js';
     s.onload = start;
     document.head.appendChild(s);
   }
@@ -1124,7 +1143,7 @@
     ]);
   }
   if (typeof THREE !== 'undefined') { init(); }
-  else { var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload=init; document.head.appendChild(s); }
+  else { var s=document.createElement('script'); s.src='js/three.r128.min.js'; s.onload=init; document.head.appendChild(s); }
 })();
 </script>
 

@@ -33,14 +33,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ═══════════════ META / SEO ═══════════════ -->
-<title>Portfolio — Davide Morabito</title>
-<meta name="description" content="Portfolio video di Davide Morabito: progetti per social, advertising ed eventi. Riprese multicamera e drone certificato per brand e creator a Milano.">
+<title>Portfolio video e foto — Davide Morabito, videomaker Milano</title>
+<meta name="description" content="Portfolio di Davide Morabito, videomaker a Milano: Piano City, Esselunga, Netflix con TheBestBlend, videoclip, eventi live, social e fotografia. Guarda i lavori.">
 <meta name="author" content="Davide Morabito">
 <meta name="robots" content="index, follow, max-image-preview:large">
 
 <!-- Open Graph (WhatsApp, Facebook, LinkedIn) -->
-<meta property="og:title" content="Portfolio — Davide Morabito">
-<meta property="og:description" content="Una selezione di progetti video realizzati per brand, creator e aziende: social, advertising, eventi multicamera.">
+<meta property="og:title" content="Portfolio video e foto — Davide Morabito, videomaker Milano">
+<meta property="og:description" content="Portfolio di Davide Morabito, videomaker a Milano: Piano City, Esselunga, Netflix con TheBestBlend, videoclip, eventi live, social e fotografia. Guarda i lavori.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://davidemorabito.com/portfolio.html">
 <meta property="og:image" content="https://davidemorabito.com/media/og-cover.jpg">
@@ -52,8 +52,8 @@
 
 <!-- Twitter / X Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Davide Morabito — Videomaker freelance a Milano">
-<meta name="twitter:description" content="Produzione video professionale: social, advertising, eventi multicamera. Drone certificato.">
+<meta name="twitter:title" content="Portfolio video e foto — Davide Morabito, videomaker Milano">
+<meta name="twitter:description" content="Portfolio di Davide Morabito, videomaker a Milano: Piano City, Esselunga, Netflix con TheBestBlend, videoclip, eventi live, social e fotografia. Guarda i lavori.">
 <meta name="twitter:image" content="https://davidemorabito.com/media/og-cover.jpg">
 
 <link rel="canonical" href="https://davidemorabito.com/portfolio.html">
@@ -621,6 +621,40 @@
   .foto-hero h1 b { font-weight:700; color:#FFAD01; }
   .foto-hero-tag { font-family:'Jost',sans-serif; font-size:clamp(13px,1.6vw,17px); letter-spacing:4px; text-transform:uppercase; color:#a9a299; margin-top:26px; font-weight:300; }
 
+
+  /* ===== PORTFOLIO (nov 2026) ===== */
+  .pf-section { max-width:1500px; }
+  .pf-h { font-family:'Jost',sans-serif; font-weight:300; font-size:clamp(34px,5vw,60px); color:#fff; margin:0 0 16px; line-height:1.05; }
+  .pf-h b { font-weight:700; color:var(--amber); }
+  .pf-intro { max-width:640px; color:var(--warm-gray-light); font-size:16px; line-height:1.7; font-weight:300; margin:0 0 34px; }
+  .pf-filters { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:36px; }
+  .pf-chip { font-family:'Jost',sans-serif; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; font-weight:500; color:var(--warm-gray-light); background:transparent; border:1px solid rgba(255,255,255,.16); border-radius:30px; padding:10px 18px; cursor:pointer; transition:all .25s; }
+  .pf-chip:hover { border-color:rgba(255,173,1,.55); color:#fff; }
+  .pf-chip.on { background:var(--amber); border-color:var(--amber); color:#12202e; font-weight:600; }
+  .pf-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:26px; }
+  @media (max-width:1100px) { .pf-grid { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:640px) { .pf-grid { grid-template-columns:1fr; gap:20px; } .pf-filters { flex-wrap:nowrap; overflow-x:auto; margin:0 -5vw 26px; padding:0 5vw 4px; scrollbar-width:none; } .pf-filters::-webkit-scrollbar { display:none; } .pf-chip { flex:0 0 auto; } }
+  .pf-card { display:flex; flex-direction:column; border:1px solid rgba(255,255,255,.08); border-radius:20px; overflow:hidden; background:linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,0)); transition:border-color .35s, transform .35s; }
+  .pf-card:hover { border-color:rgba(255,173,1,.35); transform:translateY(-4px); }
+  .pf-card[hidden] { display:none; }
+  .pf-media { position:relative; display:block; aspect-ratio:16/10; overflow:hidden; background:var(--navy-darker); border:0; padding:0; cursor:pointer; width:100%; }
+  .pf-media img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .7s cubic-bezier(.2,.6,.2,1); }
+  .pf-card:hover .pf-media img { transform:scale(1.05); }
+  .pf-play { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:58px; height:58px; border-radius:50%; background:rgba(255,173,1,.94); display:flex; align-items:center; justify-content:center; box-shadow:0 10px 30px rgba(0,0,0,.4); transition:transform .3s; }
+  .pf-play svg { width:20px; height:20px; fill:#12202e; margin-left:3px; }
+  .pf-card:hover .pf-play { transform:translate(-50%,-50%) scale(1.08); }
+  .pf-body { padding:22px 24px 24px; display:flex; flex-direction:column; flex:1 1 auto; }
+  .pf-tag { align-self:flex-start; font-family:'Jost',sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; font-weight:600; color:#12202e; background:var(--amber); padding:5px 12px; border-radius:20px; margin-bottom:14px; }
+  .pf-body h3 { font-family:'Jost',sans-serif; font-weight:300; font-size:clamp(21px,1.8vw,26px); line-height:1.15; color:#fff; margin:0 0 6px; }
+  .pf-body h3 b { font-weight:700; color:var(--amber); }
+  .pf-meta { font-family:'Jost',sans-serif; font-size:12px; letter-spacing:1.2px; text-transform:uppercase; color:var(--warm-gray); margin:0 0 14px; }
+  .pf-desc { font-size:14.5px; line-height:1.65; color:var(--warm-gray-light); font-weight:300; margin:0 0 20px; }
+  .pf-actions { margin-top:auto; display:flex; flex-wrap:wrap; gap:10px; }
+  .pf-btn { display:inline-flex; align-items:center; gap:8px; font-family:'Jost',sans-serif; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; font-weight:600; color:var(--amber); text-decoration:none; border:1px solid rgba(255,173,1,.45); background:transparent; border-radius:30px; padding:11px 18px; cursor:pointer; transition:all .25s; }
+  .pf-btn:hover { background:rgba(255,173,1,.12); }
+  .pf-btn-main { background:var(--amber); color:#12202e; border-color:var(--amber); }
+  .pf-btn-main:hover { background:#fff; border-color:#fff; }
+  .pf-empty { color:var(--warm-gray-light); text-align:center; padding:40px 0; }
 </style>
 </head>
 <body>
@@ -665,63 +699,175 @@
 
 <main id="content">
 
-  <!-- LAVORI EXPANDABLE (from index) -->
+  <!-- PORTFOLIO — lavori reali (nov 2026) -->
   <div class="bg-dark">
-    <section class="section" id="lavori">
+    <section class="section pf-section" id="lavori">
       <div class="eyebrow">Portfolio</div>
-      <h2>Progetti Recenti</h2>
-      <p class="intro-text">Una selezione di progetti realizzati per brand, creator, agenzie e aziende. Dai social content ai grandi eventi.</p>
-      
-      <div class="works-grid">
-        <div class="work-card" role="button" tabindex="0" aria-label="Progetto 1">
-          <div class="work-thumb" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
-          <div class="work-info">
-            <h3>Social Content Series</h3>
-            <p class="work-category">Instagram · TikTok</p>
-            <p class="work-desc">Serie di 20 short-form video per creator. Editing rapido, captions, effetti.</p>
-          </div>
-        </div>
-        <div class="work-card" role="button" tabindex="0" aria-label="Progetto 2">
-          <div class="work-thumb" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
-          <div class="work-info">
-            <h3>Spot Advertising</h3>
-            <p class="work-category">Broadcasting · Web</p>
-            <p class="work-desc">Spot da 30 secondi per brand lifestyle. Color grading, motion graphics, musica sincronizzata.</p>
-          </div>
-        </div>
-        <div class="work-card" role="button" tabindex="0" aria-label="Progetto 3">
-          <div class="work-thumb" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
-          <div class="work-info">
-            <h3>Evento Live — Multicamera</h3>
-            <p class="work-category">Teatro · Concerto</p>
-            <p class="work-desc">Riprese multicamera di evento live. Regia in diretta, streaming, highlight reel in post.</p>
-          </div>
-        </div>
-        <div class="work-card" role="button" tabindex="0" aria-label="Progetto 4">
-          <div class="work-thumb" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
-          <div class="work-info">
-            <h3>Video Istituzionale</h3>
-            <p class="work-category">Azienda</p>
-            <p class="work-desc">Documentario aziendale. Interviste, riprese di processo, narrazione e sound design.</p>
-          </div>
-        </div>
-        <div class="work-card" role="button" tabindex="0" aria-label="Progetto 5">
-          <div class="work-thumb" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);"></div>
-          <div class="work-info">
-            <h3>Drone Footage</h3>
-            <p class="work-category">Riprese Aeree</p>
-            <p class="work-desc">Riprese con drone certificato. Paesaggi, costruzioni, eventi da angolazioni uniche.</p>
-          </div>
-        </div>
-        <div class="work-card" role="button" tabindex="0" aria-label="Progetto 6">
-          <div class="work-thumb" style="background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%);"></div>
-          <div class="work-info">
-            <h3>Editing & Color Grading</h3>
-            <p class="work-category">Post-Produzione</p>
-            <p class="work-desc">Montaggio, color correction, sound design. Da materiale grezzo a master finale.</p>
-          </div>
-        </div>
+      <h2 class="pf-h">Lavori <b>selezionati</b></h2>
+      <p class="pf-intro">Produzioni video, eventi dal vivo, videoclip, contenuti social e fotografia. Filtra per tipo di lavoro, guarda i video o apri il progetto completo.</p>
+      <div class="pf-filters" role="toolbar" aria-label="Filtra i lavori">
+        <button class="pf-chip on" type="button" data-f="tutti" aria-pressed="true">Tutti</button>
+        <button class="pf-chip" type="button" data-f="video" aria-pressed="false">Video & ADV</button>
+        <button class="pf-chip" type="button" data-f="eventi" aria-pressed="false">Eventi & live</button>
+        <button class="pf-chip" type="button" data-f="musica" aria-pressed="false">Musica</button>
+        <button class="pf-chip" type="button" data-f="social" aria-pressed="false">Social & YouTube</button>
+        <button class="pf-chip" type="button" data-f="aziende" aria-pressed="false">Aziende</button>
+        <button class="pf-chip" type="button" data-f="foto" aria-pressed="false">Fotografia</button>
+        <button class="pf-chip" type="button" data-f="matrimoni" aria-pressed="false">Matrimoni</button>
       </div>
+      <div class="pf-grid" id="pfGrid">
+        <article class="pf-card reveal" data-cat="foto aziende">
+          <a class="pf-media" href="index.html#proj-esselunga" aria-label="Esselunga × Altavia"><img src="media/lavori/esselunga-cover.webp" width="1102" height="1092" alt="Esselunga × Altavia" loading="lazy"></a>
+          <div class="pf-body">
+            <span class="pf-tag">Fotografia · Catalogo</span>
+            <h3><b>Esselunga</b> × Altavia</h3>
+            <p class="pf-meta">Catalogo Fidaty · 2026</p>
+            <p class="pf-desc">Team fotografico per il catalogo Fidaty di ottobre 2026: set costruiti su misura per valorizzare ogni prodotto, con il fotografo Pietro Baroni e Altavia Italia.</p>
+            <div class="pf-actions"><a class="pf-btn" href="index.html#proj-esselunga">Leggi il progetto <span>→</span></a></div>
+          </div>
+        </article>
+        <article class="pf-card reveal" data-cat="eventi video">
+          <button class="pf-media pf-video" type="button" data-video="https://www.instagram.com/pianocitymilano/reel/DZw0j2GMrdw/" data-title="Piano City Milano 2026" aria-label="Guarda il video: Piano City Milano 2026"><img src="media/lavori/pianocity-cover.webp" width="1280" height="720" alt="Piano City Milano 2026" loading="lazy"><span class="pf-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></button>
+          <div class="pf-body">
+            <span class="pf-tag">Festival · Milano</span>
+            <h3>Piano City <b>Milano</b> 2026</h3>
+            <p class="pf-meta">Produzione video · 5 giornate · 7 videomaker</p>
+            <p class="pf-desc">A capo della produzione video del festival diffuso: un team di 7 videomaker su più location per 5 giornate, poi tutto il montaggio e la delivery.</p>
+            <div class="pf-actions"><button class="pf-btn pf-btn-main pf-video" type="button" data-video="https://www.instagram.com/pianocitymilano/reel/DZw0j2GMrdw/" data-title="Piano City Milano 2026">Guarda il video <span>▸</span></button><a class="pf-btn" href="index.html#proj-pianocity">Leggi il progetto <span>→</span></a></div>
+          </div>
+        </article>
+        <article class="pf-card reveal" data-cat="social video aziende">
+          <a class="pf-media" href="index.html#proj-chitarrafacile" aria-label="Chitarra Facile"><img src="media/lavori/chitfacile6.webp" width="1267" height="712" alt="Chitarra Facile" loading="lazy"></a>
+          <div class="pf-body">
+            <span class="pf-tag">Produzione video · Social</span>
+            <h3>Chitarra <b>Facile</b></h3>
+            <p class="pf-meta">Collaborazione continuativa</p>
+            <p class="pf-desc">Produzione video completa per la scuola di chitarra n.1 in Italia: ADV social, riprese multicamera dei workshop, videolezioni, interviste e masterclass.</p>
+            <div class="pf-actions"><a class="pf-btn" href="index.html#proj-chitarrafacile">Leggi il progetto <span>→</span></a></div>
+          </div>
+        </article>
+        <article class="pf-card reveal" data-cat="video social">
+          <button class="pf-media pf-video" type="button" data-video="https://www.youtube.com/watch?v=DDkYfgKxAws" data-title="TheBestBlend × Netflix" aria-label="Guarda il video: TheBestBlend × Netflix"><img src="media/lavori/thebestblend-cover.webp" width="1280" height="720" alt="TheBestBlend × Netflix" loading="lazy"><span class="pf-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></button>
+          <div class="pf-body">
+            <span class="pf-tag">Produzione video · Netflix</span>
+            <h3><b>TheBestBlend</b> × Netflix</h3>
+            <p class="pf-meta">Operatore camera</p>
+            <p class="pf-desc">Guida completa al mondo WWE condotta da Maurizio Merluzzo, in vista di Wrestlemania 42: un contenuto Netflix a cui ho preso parte come operatore camera.</p>
+            <div class="pf-actions"><button class="pf-btn pf-btn-main pf-video" type="button" data-video="https://www.youtube.com/watch?v=DDkYfgKxAws" data-title="TheBestBlend × Netflix">Guarda il video <span>▸</span></button><a class="pf-btn" href="index.html#proj-thebestblend">Il progetto <span>→</span></a></div>
+          </div>
+        </article>
+        <article class="pf-card reveal" data-cat="musica video">
+          <button class="pf-media pf-video" type="button" data-video="https://www.youtube.com/watch?v=qsVjkphLR-I" data-title="Kento — Nostra Signora delle Lacrime" aria-label="Guarda il video: Kento — Nostra Signora delle Lacrime"><img src="media/lavori/kento-cover.webp" width="1280" height="720" alt="Kento — Nostra Signora delle Lacrime" loading="lazy"><span class="pf-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></button>
+          <div class="pf-body">
+            <span class="pf-tag">Music video · Reportage</span>
+            <h3><b>Kento</b> — Nostra Signora delle Lacrime</h3>
+            <p class="pf-meta">Videoclip · Ocean Viking</p>
+            <p class="pf-desc">Il videoclip girato a bordo della Ocean Viking di SOS Mediterranee: dall’imbarco ai salvataggi in mare, fino alla jam session finale sul ponte.</p>
+            <div class="pf-actions"><button class="pf-btn pf-btn-main pf-video" type="button" data-video="https://www.youtube.com/watch?v=qsVjkphLR-I" data-title="Kento — Nostra Signora delle Lacrime">Guarda il video <span>▸</span></button><a class="pf-btn" href="index.html#proj-kento">Il progetto <span>→</span></a></div>
+          </div>
+        </article>
+        <article class="pf-card reveal" data-cat="video">
+          <a class="pf-media" href="index.html#proj-rifiuto" aria-label="Il Rifiuto"><img src="media/lavori/rifiuto-cover.webp" width="1280" height="720" alt="Il Rifiuto" loading="lazy"></a>
+          <div class="pf-body">
+            <span class="pf-tag">Cortometraggio · Cinema</span>
+            <h3>Il <b>Rifiuto</b></h3>
+            <p class="pf-meta">Operatore video · Collettivo32</p>
+            <p class="pf-desc">Un cortometraggio dai toni oscuri e disturbanti, con la regia di Marco Pipitone: tre giornate di riprese con Collettivo32.</p>
+            <div class="pf-actions"><a class="pf-btn" href="index.html#proj-rifiuto">Leggi il progetto <span>→</span></a></div>
+          </div>
+        </article>
+        <article class="pf-card reveal" data-cat="eventi social">
+          <a class="pf-media" href="index.html#proj-ciccio" aria-label="Ciccio Merrino Live"><img src="media/lavori/regia-multicamera.webp" width="1206" height="1508" alt="Ciccio Merrino Live" loading="lazy"></a>
+          <div class="pf-body">
+            <span class="pf-tag">Live show · Twitch</span>
+            <h3>Ciccio <b>Merrino</b> Live</h3>
+            <p class="pf-meta">Regia multicamera · team di 50+ persone</p>
+            <p class="pf-desc">Regia multicamera, coordinamento e riprese di un evento live andato in onda su Twitch, con un team di oltre 50 persone.</p>
+            <div class="pf-actions"><a class="pf-btn" href="index.html#proj-ciccio">Leggi il progetto <span>→</span></a></div>
+          </div>
+        </article>
+        <article class="pf-card reveal" data-cat="eventi">
+          <a class="pf-media" href="index.html#proj-teatro" aria-label="Ho Fatto Teatro"><img src="media/lavori/teatro-cover.webp" width="824" height="515" alt="Ho Fatto Teatro" loading="lazy"></a>
+          <div class="pf-body">
+            <span class="pf-tag">Live · Club tour</span>
+            <h3>Ho Fatto <b>Teatro</b></h3>
+            <p class="pf-meta">Multicamera · audio dal mixer</p>
+            <p class="pf-desc">Copertura video completa di uno spettacolo live in tour: riprese multicamera, audio diretto dal mixer, backstage e contenuti social.</p>
+            <div class="pf-actions"><a class="pf-btn" href="index.html#proj-teatro">Leggi il progetto <span>→</span></a></div>
+          </div>
+        </article>
+        <article class="pf-card reveal" data-cat="social video">
+          <button class="pf-media pf-video" type="button" data-video="https://www.youtube.com/watch?v=sc4kQkSc1lI" data-title="Ho ascoltato SABAKU per 420 ore" aria-label="Guarda il video: Ho ascoltato SABAKU per 420 ore"><img src="https://img.youtube.com/vi/sc4kQkSc1lI/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/sc4kQkSc1lI/mqdefault.jpg'" width="480" height="360" alt="Ho ascoltato SABAKU per 420 ore" loading="lazy"><span class="pf-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></button>
+          <div class="pf-body">
+            <span class="pf-tag">Content · YouTube</span>
+            <h3>Ho ascoltato <b>SABAKU</b> per 420 ore</h3>
+            <p class="pf-meta">Scuola di Voce · 2026</p>
+            <p class="pf-desc">Video per il canale YouTube di Scuola di Voce.</p>
+            <div class="pf-actions"><button class="pf-btn pf-btn-main pf-video" type="button" data-video="https://www.youtube.com/watch?v=sc4kQkSc1lI" data-title="Ho ascoltato SABAKU per 420 ore">Guarda il video <span>▸</span></button></div>
+          </div>
+        </article>
+        <article class="pf-card reveal" data-cat="musica social">
+          <button class="pf-media pf-video" type="button" data-video="https://www.youtube.com/watch?v=-8cebsWkk_8" data-title="Sonohra senza filtri" aria-label="Guarda il video: Sonohra senza filtri"><img src="https://img.youtube.com/vi/-8cebsWkk_8/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/-8cebsWkk_8/mqdefault.jpg'" width="480" height="360" alt="Sonohra senza filtri" loading="lazy"><span class="pf-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></button>
+          <div class="pf-body">
+            <span class="pf-tag">Intervista</span>
+            <h3><b>Sonohra</b> senza filtri</h3>
+            <p class="pf-meta">Sanremo e industria musicale · 2026</p>
+            <p class="pf-desc">Intervista ai Sonohra su Sanremo e sull’industria musicale.</p>
+            <div class="pf-actions"><button class="pf-btn pf-btn-main pf-video" type="button" data-video="https://www.youtube.com/watch?v=-8cebsWkk_8" data-title="Sonohra senza filtri">Guarda il video <span>▸</span></button></div>
+          </div>
+        </article>
+        <article class="pf-card reveal" data-cat="video aziende">
+          <button class="pf-media pf-video" type="button" data-video="https://youtu.be/795gYiT1N-Q" data-title="Essenza Han" aria-label="Guarda il video: Essenza Han"><img src="https://img.youtube.com/vi/795gYiT1N-Q/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/795gYiT1N-Q/mqdefault.jpg'" width="480" height="360" alt="Essenza Han" loading="lazy"><span class="pf-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></button>
+          <div class="pf-body">
+            <span class="pf-tag">Spot cinema</span>
+            <h3>Essenza <b>Han</b></h3>
+            <p class="pf-meta">Spot per il cinema · 2026</p>
+            <p class="pf-desc">Spot pubblicitario pensato per la sala cinematografica.</p>
+            <div class="pf-actions"><button class="pf-btn pf-btn-main pf-video" type="button" data-video="https://youtu.be/795gYiT1N-Q" data-title="Essenza Han">Guarda il video <span>▸</span></button></div>
+          </div>
+        </article>
+        <article class="pf-card reveal" data-cat="musica eventi">
+          <button class="pf-media pf-video" type="button" data-video="https://www.youtube.com/watch?v=FAgE18h1RYE" data-title="VAEVA live al Circolo Magnolia" aria-label="Guarda il video: VAEVA live al Circolo Magnolia"><img src="https://img.youtube.com/vi/FAgE18h1RYE/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/FAgE18h1RYE/mqdefault.jpg'" width="480" height="360" alt="VAEVA live al Circolo Magnolia" loading="lazy"><span class="pf-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></button>
+          <div class="pf-body">
+            <span class="pf-tag">Live · Concerto</span>
+            <h3><b>VAEVA</b> live al Circolo Magnolia</h3>
+            <p class="pf-meta">Riprese live · 2026</p>
+            <p class="pf-desc">Il concerto di VAEVA al Circolo Magnolia di Milano, ripreso dal vivo.</p>
+            <div class="pf-actions"><button class="pf-btn pf-btn-main pf-video" type="button" data-video="https://www.youtube.com/watch?v=FAgE18h1RYE" data-title="VAEVA live al Circolo Magnolia">Guarda il video <span>▸</span></button></div>
+          </div>
+        </article>
+        <article class="pf-card reveal" data-cat="foto eventi aziende">
+          <a class="pf-media" href="fotografia.html" aria-label="Aveda Italia Salons Awards"><img src="media/fotografia/eventi-aveda-awards.webp" width="1600" height="1067" alt="Aveda Italia Salons Awards" loading="lazy"></a>
+          <div class="pf-body">
+            <span class="pf-tag">Foto e video · Eventi</span>
+            <h3>Aveda Italia <b>Salons Awards</b></h3>
+            <p class="pf-meta">Milano · 2022</p>
+            <p class="pf-desc">Copertura fotografica e video della cerimonia di premiazione Aveda Italia Salons Awards a Milano.</p>
+            <div class="pf-actions"><a class="pf-btn" href="fotografia.html">Altre foto <span>→</span></a></div>
+          </div>
+        </article>
+        <article class="pf-card reveal" data-cat="aziende video">
+          <a class="pf-media" href="aziende.html" aria-label="DinoBros"><img src="media/aziende/dinobros.webp" width="1280" height="720" alt="DinoBros" loading="lazy"></a>
+          <div class="pf-body">
+            <span class="pf-tag">Gaming · Brand identity</span>
+            <h3><b>DinoBros</b></h3>
+            <p class="pf-meta">Campagne promozionali e lancio brand</p>
+            <p class="pf-desc">Supporto video per le campagne promozionali di alcuni titoli software e game e per il lancio della nuova brand identity dell’azienda.</p>
+            <div class="pf-actions"><a class="pf-btn" href="aziende.html">Video per aziende <span>→</span></a></div>
+          </div>
+        </article>
+        <article class="pf-card reveal" data-cat="matrimoni">
+          <a class="pf-media" href="matrimoni.html" aria-label="Matrimoni"><img src="media/matrimoni/matr-chiesa.webp" width="1800" height="1200" alt="Matrimoni" loading="lazy"></a>
+          <div class="pf-body">
+            <span class="pf-tag">Wedding film</span>
+            <h3>Matrimoni</h3>
+            <p class="pf-meta">Video e fotografia</p>
+            <p class="pf-desc">Wedding film e fotografia di matrimonio con uno stile discreto: storie vere, non in posa.</p>
+            <div class="pf-actions"><a class="pf-btn" href="matrimoni.html">Vedi i matrimoni <span>→</span></a></div>
+          </div>
+        </article>
+      </div>
+      <p class="pf-empty" id="pfEmpty" hidden>Nessun lavoro in questa categoria, per ora.</p>
     </section>
   </div>
 
@@ -866,9 +1012,19 @@
   const modalContent = document.getElementById('modalContent');
   const modalClose = document.getElementById('modalClose');
   function openModal(url, title) {
-    modalContent.innerHTML = url
-      ? '<video src="'+url+'" controls autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>'
-      : '<div class="modal-poster"><div class="mp-play"></div><div class="mp-text">'+(title||'Video')+'</div><div style="font-size:11px;color:var(--navy-light);letter-spacing:1px;">[ collega qui il link al video ]</div></div>';
+    var inner;
+    var yt = url && url.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
+    var ig = url && url.match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\/([\w-]+)/);
+    if (!url) {
+      return; // nessun video collegato: non apro un riquadro vuoto
+    } else if (yt) {
+      inner = '<iframe src="https://www.youtube.com/embed/'+yt[1]+'?autoplay=1&rel=0&playsinline=1" title="'+(title||'Video').replace(/"/g,'')+'" style="width:100%;height:100%;border:0;" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+    } else if (ig) {
+      inner = '<iframe src="https://www.instagram.com/reel/'+ig[1]+'/embed/" title="'+(title||'Video').replace(/"/g,'')+'" style="width:100%;height:100%;border:0;background:#000;" scrolling="no" allowtransparency="true" allowfullscreen></iframe>';
+    } else {
+      inner = '<video src="'+url+'" controls autoplay playsinline style="width:100%;height:100%;object-fit:contain;background:#000;"></video>';
+    }
+    modalContent.innerHTML = inner;
     modal.classList.add('show'); document.body.style.overflow='hidden';
   }
   function closeModal() { modal.classList.remove('show'); document.body.style.overflow=''; setTimeout(()=>{ modalContent.innerHTML=''; },350); }
@@ -929,10 +1085,28 @@
     ]);
   }
   if (typeof THREE !== 'undefined') { init(); }
-  else { var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload=init; document.head.appendChild(s); }
+  else { var s=document.createElement('script'); s.src='js/three.r128.min.js'; s.onload=init; document.head.appendChild(s); }
 })();
 </script>
 
   <script src="/cookie-consent.js" defer></script>
+
+<script>
+/* Portfolio: video in popup */
+document.querySelectorAll('.pf-video').forEach(function(b){ b.addEventListener('click', function(){ if (typeof openModal === 'function') openModal(b.getAttribute('data-video'), b.getAttribute('data-title')); else window.open(b.getAttribute('data-video'), '_blank'); }); });
+/* Portfolio: filtri per categoria */
+(function(){
+  var chips = document.querySelectorAll('.pf-chip'), cards = document.querySelectorAll('.pf-card'), empty = document.getElementById('pfEmpty');
+  function apply(f){
+    var n = 0;
+    cards.forEach(function(c){ var ok = f === 'tutti' || (' ' + c.dataset.cat + ' ').indexOf(' ' + f + ' ') > -1; c.hidden = !ok; if (ok) { n++; c.classList.add('in'); } });
+    chips.forEach(function(ch){ var on = ch.dataset.f === f; ch.classList.toggle('on', on); ch.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    if (empty) empty.hidden = n > 0;
+  }
+  chips.forEach(function(ch){ ch.addEventListener('click', function(){ apply(ch.dataset.f); try { history.replaceState(null, '', ch.dataset.f === 'tutti' ? location.pathname : '#' + ch.dataset.f); } catch(e){} }); });
+  var h = (location.hash || '').slice(1);
+  if (h && document.querySelector('.pf-chip[data-f="' + h + '"]')) apply(h);
+})();
+</script>
 </body>
 </html>

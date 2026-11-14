@@ -876,7 +876,7 @@
   <section class="cta-section" style="background:var(--amber-deep); color:#fff; text-align:center; padding:70px 20px;">
     <h2 style="font-size:clamp(28px,4vw,38px); margin-bottom:18px;">Hai uno scatto in mente?</h2>
     <p style="font-size:16px; margin-bottom:30px; max-width:600px; margin-left:auto; margin-right:auto;">Moda, prodotto o evento: raccontami il progetto e troviamo insieme lo stile giusto.</p>
-    <a href="index.html#contatti" style="display:inline-block; background:#1a1a1a; color:#fff; padding:15px 36px; border-radius:6px; text-decoration:none; font-weight:500; letter-spacing:1px; transition:all .3s;">CONTATTAMI</a>
+    <a href="index.html?tipo=fotografia#contatti" style="display:inline-block; background:#1a1a1a; color:#fff; padding:15px 36px; border-radius:6px; text-decoration:none; font-weight:500; letter-spacing:1px; transition:all .3s;">CONTATTAMI</a>
   </section>
 </main>
 <footer class="footer">
@@ -907,7 +907,7 @@
 </footer>
 
 <!-- STICKY CTA -->
-<a href="index.html#contatti" class="sticky-cta" id="stickyCta">
+<a href="index.html?tipo=fotografia#contatti" class="sticky-cta" id="stickyCta">
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
   Contattami
 </a>
@@ -995,9 +995,19 @@
   const modalContent = document.getElementById('modalContent');
   const modalClose = document.getElementById('modalClose');
   function openModal(url, title) {
-    modalContent.innerHTML = url
-      ? '<video src="'+url+'" controls autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>'
-      : '<div class="modal-poster"><div class="mp-play"></div><div class="mp-text">'+(title||'Video')+'</div><div style="font-size:11px;color:var(--navy-light);letter-spacing:1px;">[ collega qui il link al video ]</div></div>';
+    var inner;
+    var yt = url && url.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([\w-]{11})/);
+    var ig = url && url.match(/instagram\.com\/(?:[\w.]+\/)?(?:p|reel|reels|tv)\/([\w-]+)/);
+    if (!url) {
+      return; // nessun video collegato: non apro un riquadro vuoto
+    } else if (yt) {
+      inner = '<iframe src="https://www.youtube.com/embed/'+yt[1]+'?autoplay=1&rel=0&playsinline=1" title="'+(title||'Video').replace(/"/g,'')+'" style="width:100%;height:100%;border:0;" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+    } else if (ig) {
+      inner = '<iframe src="https://www.instagram.com/reel/'+ig[1]+'/embed/" title="'+(title||'Video').replace(/"/g,'')+'" style="width:100%;height:100%;border:0;background:#000;" scrolling="no" allowtransparency="true" allowfullscreen></iframe>';
+    } else {
+      inner = '<video src="'+url+'" controls autoplay playsinline style="width:100%;height:100%;object-fit:contain;background:#000;"></video>';
+    }
+    modalContent.innerHTML = inner;
     modal.classList.add('show'); document.body.style.overflow='hidden';
   }
   function closeModal() { modal.classList.remove('show'); document.body.style.overflow=''; setTimeout(()=>{ modalContent.innerHTML=''; },350); }
@@ -1105,7 +1115,7 @@
   }
 
   if (typeof THREE !== 'undefined') { init(); }
-  else { var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload=init; document.head.appendChild(s); }
+  else { var s=document.createElement('script'); s.src='js/three.r128.min.js'; s.onload=init; document.head.appendChild(s); }
 })();
 </script>
   <script src="/cookie-consent.js" defer></script>
