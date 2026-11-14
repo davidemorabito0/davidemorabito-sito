@@ -661,11 +661,14 @@
   .bg-white .foto-cat-head p { color:#5a6675; }
 
   /* Masonry-style grid */
-  .foto-grid { columns:3; column-gap:16px; max-width:1180px; margin:0 auto; }
-  @media (max-width:900px){ .foto-grid { columns:2; } }
-  @media (max-width:540px){ .foto-grid { columns:1; } }
-  .foto-item { break-inside:avoid; margin-bottom:16px; border-radius:6px; overflow:hidden; position:relative; background:#111; cursor:pointer; }
-  .foto-item img { width:100%; height:auto; display:block; transition:transform .6s ease, filter .4s ease; filter:saturate(.92); }
+  /* nov 2026: ritagli uniformi — verticali 4:5, eventi 3:2; la foto intera si apre al click */
+  .foto-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; max-width:1180px; margin:0 auto; }
+  @media (max-width:900px){ .foto-grid { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:540px){ .foto-grid { grid-template-columns:1fr; } }
+  .foto-item { border-radius:6px; overflow:hidden; position:relative; background:#111; cursor:zoom-in; aspect-ratio:4/5; }
+  .foto-grid.land .foto-item { aspect-ratio:3/2; }
+  @media (min-width:541px){ .foto-grid:has(> .foto-item:nth-child(2):last-child) { grid-template-columns:repeat(2,minmax(0,380px)); justify-content:center; } }
+  .foto-item img { width:100%; height:100%; object-fit:cover; object-position:center 30%; display:block; transition:transform .6s ease, filter .4s ease; filter:saturate(.92); }
   .foto-item:hover img { transform:scale(1.05); filter:saturate(1.1); }
   .foto-item-ph { aspect-ratio:3/4; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:#4a463f; background:repeating-linear-gradient(45deg,#0e0e0e,#0e0e0e 12px,#121212 12px,#121212 24px); }
   .foto-item-overlay { position:absolute; inset:0; display:flex; align-items:flex-end; padding:18px; opacity:0; background:linear-gradient(transparent 50%, rgba(0,0,0,.7)); transition:opacity .4s; }
@@ -710,6 +713,13 @@
   .foto-hero-tag { font-family:'Jost',sans-serif; font-size:clamp(13px,1.6vw,17px); letter-spacing:4px; text-transform:uppercase; color:#a9a299; margin-top:26px; font-weight:300; }
 
 </style>
+<style>
+  /* SEO: il titolo H1 comprende anche la riga piccola sopra (stesso aspetto di prima) */
+  .foto-hero h1.hero-h1 { display:contents; }
+  .foto-hero h1.hero-h1 .hero-title { display:block; }
+  .foto-hero h1.hero-h1 .foto-hero-eyebrow { display:block; font-weight:400; line-height:1.6; text-shadow:none; white-space:normal; }
+</style>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://davidemorabito.com/"}, {"@type": "ListItem", "position": 2, "name": "Fotografia", "item": "https://davidemorabito.com/fotografia.html"}]}</script>
 </head>
 <body>
 
@@ -745,8 +755,8 @@
 <header class="foto-hero" id="top">
   <canvas class="cam-canvas" id="heroCams" aria-hidden="true"></canvas>
   <div class="foto-hero-inner">
-    <div class="foto-hero-eyebrow">Servizi fotografici · Milano</div>
-    <h1>Foto<b>grafia</b></h1>
+    <h1 class="hero-h1"><span class="foto-hero-eyebrow">Fotografo a Milano</span>
+    <span class="hero-title">Foto<b>grafia</b></span></h1>
     <div class="foto-hero-tag">Prodotto · Eventi · Beauty</div>
   </div>
 </header>
@@ -843,7 +853,7 @@
         <h2>Eventi & Reportage</h2>
         <p>Concerti, presentazioni, momenti dal vivo. Reportage che cattura l'energia e i dettagli che fanno la differenza.</p>
       </div>
-      <div class="foto-grid">
+      <div class="foto-grid land">
         <div class="foto-item reveal"><img width="1067" height="1600" src="media/fotografia/fabrifibra.webp" alt="Fabri Fibra — Festival Tour 2025, palco a cassetta" loading="lazy"><div class="foto-item-overlay"><span>Concerto · Fabri Fibra</span></div></div>
         <div class="foto-item reveal"><img width="1600" height="1067" src="media/fotografia/eventi-aveda-awards.webp" alt="Aveda Italia Salons Awards 2022 — premiazione sul palco" loading="lazy"><div class="foto-item-overlay"><span>Aveda · Salons Awards</span></div></div>
         <div class="foto-item reveal"><img width="1600" height="1067" src="media/fotografia/eventi-aveda-fashion.webp" alt="Aveda — sfilata di moda sul palco" loading="lazy"><div class="foto-item-overlay"><span>Aveda · Fashion Show</span></div></div>
@@ -1119,5 +1129,27 @@
 })();
 </script>
   <script src="/cookie-consent.js" defer></script>
+
+<script>
+/* Fotografia: la foto intera si apre al click */
+(function(){
+  var imgs = Array.prototype.slice.call(document.querySelectorAll('.foto-grid .foto-item img'));
+  if(!imgs.length) return;
+  var lb = document.createElement('div');
+  lb.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(6,9,14,.95);display:none;align-items:center;justify-content:center;cursor:zoom-out;';
+  lb.innerHTML = '<img alt="" style="max-width:94vw;max-height:92vh;border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.6);">'
+    + '<button type="button" aria-label="Chiudi" style="position:absolute;top:18px;right:20px;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:24px;cursor:pointer;line-height:1;">&times;</button>'
+    + '<button type="button" aria-label="Precedente" data-d="-1" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:26px;cursor:pointer;">&#8249;</button>'
+    + '<button type="button" aria-label="Successiva" data-d="1" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:26px;cursor:pointer;">&#8250;</button>';
+  document.body.appendChild(lb);
+  var big = lb.querySelector('img'), cur = 0;
+  function show(i){ cur = (i + imgs.length) % imgs.length; big.src = imgs[cur].currentSrc || imgs[cur].src; big.alt = imgs[cur].alt; }
+  function open(i){ show(i); lb.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  function close(){ lb.style.display = 'none'; document.body.style.overflow = ''; }
+  imgs.forEach(function(im, i){ var it = im.closest('.foto-item'); it.setAttribute('role','button'); it.setAttribute('tabindex','0'); it.addEventListener('click', function(){ open(i); }); it.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(i); } }); });
+  lb.addEventListener('click', function(e){ var d = e.target.getAttribute && e.target.getAttribute('data-d'); if(d){ show(cur + parseInt(d, 10)); } else close(); });
+  document.addEventListener('keydown', function(e){ if(lb.style.display !== 'flex') return; if(e.key === 'Escape') close(); else if(e.key === 'ArrowRight') show(cur + 1); else if(e.key === 'ArrowLeft') show(cur - 1); });
+})();
+</script>
 </body>
 </html>
