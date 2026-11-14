@@ -1,0 +1,6 @@
+carosello-modello.onnx.1 + carosello-modello.onnx.2 — modello di riconoscimento NudeNet v3 (variante 320n), non modificato,
+diviso in due parti e riunito nel browser (equivale a: cat carosello-modello.onnx.1 carosello-modello.onnx.2 > 320n.onnx).
+Progetto originale e codice sorgente: https://github.com/notAI-tech/NudeNet
+Licenza: GNU Affero General Public License v3.0 (testo completo in LICENSE-NudeNet.txt).
+Usato da https://davidemorabito.com/carosello-instagram.html per proporre automaticamente le zone da coprire.
+Il modello gira interamente nel browser di chi usa lo strumento: nessuna immagine viene inviata a server esterni.
