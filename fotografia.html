@@ -33,14 +33,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- ═══════════════ META / SEO ═══════════════ -->
-<title>Fotografo a Milano — Moda, Prodotto ed Eventi · Davide Morabito</title>
-<meta name="description" content="Fotografia professionale a Milano: moda, beauty, still life di prodotto ed eventi. Servizi fotografici curati nello stile e nella luce da Davide Morabito.">
+<title>Fotografo a Milano — Corporate, Eventi, Social, Beauty, Prodotto · Davide Morabito</title>
+<meta name="description" content="Fotografo a Milano: foto corporate, reportage di eventi, contenuti social, beauty e still life di prodotto. Servizi fotografici curati nella luce e nello stile da Davide Morabito.">
 <meta name="author" content="Davide Morabito">
 <meta name="robots" content="index, follow, max-image-preview:large">
 
 <!-- Open Graph (WhatsApp, Facebook, LinkedIn) -->
-<meta property="og:title" content="Fotografia — Moda, Prodotto, Eventi · Davide Morabito">
-<meta property="og:description" content="Servizi fotografici professionali: moda e beauty, still life di prodotto, reportage di eventi. Uno sguardo curato, luce e racconto visivo.">
+<meta property="og:title" content="Fotografia — Corporate, Eventi, Social, Beauty, Prodotto · Davide Morabito">
+<meta property="og:description" content="Servizi fotografici professionali a Milano: corporate, eventi, social, beauty e prodotto. Uno sguardo curato, luce e racconto visivo.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://davidemorabito.com/fotografia.html">
 <meta property="og:image" content="https://davidemorabito.com/media/og-cover.jpg">
@@ -665,7 +665,7 @@
   .foto-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; max-width:1180px; margin:0 auto; }
   @media (max-width:900px){ .foto-grid { grid-template-columns:repeat(2,1fr); } }
   @media (max-width:540px){ .foto-grid { grid-template-columns:1fr; } }
-  .foto-item { border-radius:6px; overflow:hidden; position:relative; background:#111; cursor:zoom-in; aspect-ratio:4/5; }
+  .foto-item { border-radius:6px; overflow:hidden; position:relative; background:#111; cursor:zoom-in; aspect-ratio:var(--ar,4/5); }
   .foto-grid.land .foto-item { aspect-ratio:3/2; }
   @media (min-width:541px){ .foto-grid:has(> .foto-item:nth-child(2):last-child) { grid-template-columns:repeat(2,minmax(0,380px)); justify-content:center; } }
   .foto-item img { width:100%; height:100%; object-fit:cover; object-position:center 30%; display:block; transition:transform .6s ease, filter .4s ease; filter:saturate(.92); }
@@ -676,8 +676,56 @@
   .foto-item-overlay span { font-family:'Jost',sans-serif; font-size:12px; letter-spacing:1.5px; color:#fff; text-transform:uppercase; }
   .bg-white .foto-item-ph { color:#b8b0a4; background:repeating-linear-gradient(45deg,#f0ece4,#f0ece4 12px,#f5f1ea 12px,#f5f1ea 24px); }
 
+  /* GENERI-CSS */
+  .gen-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:16px; max-width:1180px; margin:0 auto; }
+  .gen-tile { grid-column:span 2; position:relative; aspect-ratio:4/5; border-radius:10px; overflow:hidden; background:#101820; border:1px solid rgba(255,255,255,.08); padding:0; cursor:pointer; text-align:left; color:#fff; font:inherit; display:block; }
+  .gen-tile:nth-child(n+4) { grid-column:span 3; aspect-ratio:3/2; }
+  .gen-tile img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 30%; filter:saturate(.9) brightness(.82); transition:transform .7s ease, filter .4s ease; }
+  .gen-tile::after { content:''; position:absolute; inset:0; background:linear-gradient(transparent 40%, rgba(6,9,14,.88)); }
+  .gen-tile:hover img, .gen-tile:focus-visible img { transform:scale(1.06); filter:saturate(1.05) brightness(.95); }
+  .gen-tile:focus-visible { outline:2px solid var(--amber); outline-offset:3px; }
+  .gen-num { position:absolute; top:18px; left:20px; z-index:2; font-family:'Jost',sans-serif; font-size:12px; letter-spacing:3px; color:var(--amber); }
+  .gen-info { position:absolute; left:22px; right:60px; bottom:20px; z-index:2; display:flex; flex-direction:column; gap:4px; }
+  .gen-name { font-family:'Jost',sans-serif; font-size:clamp(26px,3vw,36px); font-weight:300; letter-spacing:.5px; }
+  .gen-count { font-size:12px; letter-spacing:2px; text-transform:uppercase; color:#c9cfd6; }
+  .gen-arrow { position:absolute; right:20px; bottom:22px; z-index:2; width:38px; height:38px; border-radius:50%; border:1px solid rgba(255,255,255,.35); display:flex; align-items:center; justify-content:center; transition:all .3s; }
+  .gen-tile:hover .gen-arrow { background:var(--amber); border-color:var(--amber); color:#1a1a1a; transform:translateX(3px); }
+  .gen-soon { cursor:default; background:repeating-linear-gradient(45deg,#0e141b,#0e141b 14px,#121a23 14px,#121a23 28px); }
+  .gen-soon::after { display:none; }
+  .gen-soon .gen-name { color:#7f8a97; } .gen-soon .gen-count { color:#5d6875; }
+  @media (max-width:900px){ .gen-grid { grid-template-columns:repeat(2,1fr); } .gen-tile, .gen-tile:nth-child(n+4) { grid-column:span 1; aspect-ratio:4/5; } .gen-tile:nth-child(5) { grid-column:span 2; aspect-ratio:3/2; } }
+  @media (max-width:540px){ .gen-grid { gap:10px; } .gen-info { left:14px; right:14px; bottom:14px; } .gen-arrow { display:none; } .gen-name { font-size:22px; } }
+  .gpanel { position:fixed; inset:0; z-index:1500; background:#080d13; display:flex; flex-direction:column; opacity:0; transition:opacity .3s ease; }
+  .gpanel[hidden] { display:none; }
+  .gpanel.show { opacity:1; }
+  .gp-top { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 4vw; border-bottom:1px solid rgba(255,255,255,.08); background:rgba(8,13,19,.96); }
+  .gp-tabs { display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; }
+  .gp-tabs::-webkit-scrollbar { display:none; }
+  .gp-tab { flex:0 0 auto; border:1px solid rgba(255,255,255,.18); background:transparent; color:#c9cfd6; padding:9px 18px; border-radius:30px; font-family:'Jost',sans-serif; font-size:12px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:all .25s; }
+  .gp-tab:hover { color:#fff; border-color:rgba(255,255,255,.5); }
+  .gp-tab.on { background:var(--amber); border-color:var(--amber); color:#1a1a1a; font-weight:600; }
+  .gp-tab.soon { opacity:.4; cursor:default; }
+  .gp-close { flex:0 0 auto; width:44px; height:44px; border-radius:50%; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.08); color:#fff; font-size:26px; line-height:1; cursor:pointer; transition:all .3s; }
+  .gp-close:hover { background:var(--amber); border-color:var(--amber); color:#1a1a1a; }
+  .gp-body { flex:1; overflow-y:auto; padding:clamp(36px,6vw,70px) 4vw 80px; }
+  .gp-body h2 { font-family:'Jost',sans-serif; font-weight:200; font-size:clamp(40px,7vw,84px); color:#fff; text-align:center; margin-bottom:14px; letter-spacing:1px; }
+  .gp-desc { max-width:620px; margin:0 auto 44px; text-align:center; color:#9a9388; font-size:15px; line-height:1.7; }
+  .gp-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; max-width:1280px; margin:0 auto; }
+  .gp-grid figure { margin:0; border-radius:6px; overflow:hidden; position:relative; background:#111; cursor:zoom-in; aspect-ratio:var(--ar,4/5); }
+  
+  .gp-grid img { width:100%; height:100%; object-fit:cover; object-position:center 30%; display:block; transition:transform .6s ease; }
+  .gp-grid figure:hover img { transform:scale(1.05); }
+  .gp-grid figcaption { position:absolute; inset:auto 0 0 0; padding:30px 16px 14px; background:linear-gradient(transparent,rgba(0,0,0,.72)); color:#fff; font-family:'Jost',sans-serif; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; opacity:0; transition:opacity .35s; }
+  .gp-grid figure:hover figcaption, .gp-grid figure:focus-visible figcaption { opacity:1; }
+  .gp-grid figure:focus-visible { outline:2px solid var(--amber); }
+  @media (max-width:640px){ .gp-grid { grid-template-columns:repeat(2,1fr); gap:8px; } .gp-grid figcaption { display:none; } }
+  .gp-cta { text-align:center; margin-top:60px; }
+  .gp-cta a { color:var(--amber); text-decoration:none; font-family:'Jost',sans-serif; letter-spacing:1.5px; border-bottom:1px solid var(--amber); padding-bottom:3px; }
+  body.gp-open { overflow:hidden; }
+  /* /GENERI-CSS */
+
   /* mini camera strip animation in divider */
-  .cam-strip { position:relative; height:120px; overflow:hidden; }
+  .cam-strip { position:relative; height:56px; overflow:hidden; }
   .cam-strip canvas { position:absolute; inset:0; width:100%; height:100%; opacity:.5; }
 
   /* NAV (standard unificata) */
@@ -704,7 +752,7 @@
   .mobile-menu-inner a:hover, .mobile-menu-inner a.active { color:#FFAD01; }
 
   /* ===== HERO UNIFICATO CON FOTOCAMERE (standard tutte le pagine) ===== */
-  .foto-hero { position:relative; min-height:54vh; display:flex; align-items:center; justify-content:center; text-align:center; overflow:hidden; background:radial-gradient(ellipse 70% 60% at 50% 35%, rgba(43,72,104,.35), transparent), #060606; padding-top:70px; }
+  .foto-hero { position:relative; min-height:0; padding-bottom:44px; display:flex; align-items:center; justify-content:center; text-align:center; overflow:hidden; background:radial-gradient(ellipse 70% 60% at 50% 35%, rgba(43,72,104,.35), transparent), #060606; padding-top:70px; }
   .foto-hero .cam-canvas { position:absolute; inset:0; width:100%; height:100%; z-index:0; opacity:.16; pointer-events:none; }
   .foto-hero-inner { position:relative; z-index:2; padding:0 6vw; }
   .foto-hero-eyebrow { font-family:'Jost',sans-serif; font-size:12px; letter-spacing:6px; text-transform:uppercase; color:#FFAD01; margin-bottom:24px; }
@@ -757,7 +805,7 @@
   <div class="foto-hero-inner">
     <h1 class="hero-h1"><span class="foto-hero-eyebrow">Fotografo a Milano</span>
     <span class="hero-title">Foto<b>grafia</b></span></h1>
-    <div class="foto-hero-tag">Prodotto · Eventi · Beauty</div>
+    <div class="foto-hero-tag">Corporate · Evento · Social · Beauty · Prodotto</div>
   </div>
 </header>
 
@@ -765,10 +813,9 @@
 
   <!-- INTRO ELEGANTE (nero) -->
   <div class="bg-black">
-    <section class="section" style="padding-top:90px; padding-bottom:70px;">
+    <section class="section" style="padding-top:44px; padding-bottom:20px;">
       <div class="theater-divider reveal"></div>
-      <p class="theater-quote reveal">La fotografia è il mio <b>secondo linguaggio</b>. Lo stesso occhio che cura l'inquadratura in video lo porto nello scatto: <b>luce, racconto, dettaglio</b>.<br>Dalla moda al prodotto, fino all'energia di un evento dal vivo.</p>
-      <div class="theater-sub reveal">Prodotto · Still life · Reportage · Beauty</div>
+      <p class="theater-quote reveal">La fotografia è il mio <b>secondo linguaggio</b>. Lo stesso occhio che cura l'inquadratura in video lo porto nello scatto: <b>luce, racconto, dettaglio</b>.<br>Dal ritratto aziendale al prodotto, fino all'energia di un evento dal vivo.</p>
     </section>
   </div>
 
@@ -826,66 +873,121 @@
   </div>
   -->
 
-  <!-- camera strip divider -->
+  <!-- GENERI-START (generato da build_foto.py) -->
   <div class="bg-black"><div class="cam-strip reveal"><canvas id="stripCams" aria-hidden="true"></canvas></div></div>
 
-  <!-- PRODOTTO (bianco) -->
-  <div class="bg-white">
-    <section class="section" style="padding-top:90px; padding-bottom:90px;">
-      <div class="foto-cat-head reveal">
-        <div class="fc-num">01</div>
-        <h2 style="color:var(--ink);">Prodotto & Still Life</h2>
-        <p>Still life curato per e-commerce, packaging e campagne. Composizione, luce controllata, dettaglio che fa venire voglia di toccare.</p>
-      </div>
-      <div class="foto-grid">
-        <div class="foto-item reveal"><img width="864" height="1232" src="media/fotografia/oleato.webp" alt="Oleato — Tripstillery Milano, packaging e still life" loading="lazy"><div class="foto-item-overlay"><span>Packaging · Tripstillery</span></div></div>
-        <div class="foto-item reveal"><img width="844" height="1264" src="media/fotografia/padel.webp" alt="Scarpe da padel — still life sportivo su campo" loading="lazy"><div class="foto-item-overlay"><span>Still life · Sport</span></div></div>
-      </div>
-      <p style="text-align:center; color:#8a96a5; font-size:13px; margin-top:30px; font-style:italic;">Altri scatti di prodotto in arrivo</p>
-    </section>
-  </div>
-
-  <!-- EVENTI (nero) -->
   <div class="bg-black">
-    <section class="section" style="padding-top:90px; padding-bottom:90px;">
+    <section class="section" id="generi" style="padding-top:40px; padding-bottom:110px;">
       <div class="foto-cat-head reveal">
-        <div class="fc-num">02</div>
-        <h2>Eventi & Reportage</h2>
-        <p>Concerti, presentazioni, momenti dal vivo. Reportage che cattura l'energia e i dettagli che fanno la differenza.</p>
+        <div class="fc-num">PORTFOLIO FOTOGRAFICO</div>
+        <h2>Scegli un genere</h2>
+        <p>Corporate, evento, social, beauty, prodotto: apri un genere e guarda tutte le foto.</p>
       </div>
-      <div class="foto-grid land">
-        <div class="foto-item reveal"><img width="1067" height="1600" src="media/fotografia/fabrifibra.webp" alt="Fabri Fibra — Festival Tour 2025, palco a cassetta" loading="lazy"><div class="foto-item-overlay"><span>Concerto · Fabri Fibra</span></div></div>
-        <div class="foto-item reveal"><img width="1600" height="1067" src="media/fotografia/eventi-aveda-awards.webp" alt="Aveda Italia Salons Awards 2022 — premiazione sul palco" loading="lazy"><div class="foto-item-overlay"><span>Aveda · Salons Awards</span></div></div>
-        <div class="foto-item reveal"><img width="1600" height="1067" src="media/fotografia/eventi-aveda-fashion.webp" alt="Aveda — sfilata di moda sul palco" loading="lazy"><div class="foto-item-overlay"><span>Aveda · Fashion Show</span></div></div>
-        <div class="foto-item reveal"><img width="1600" height="1067" src="media/fotografia/eventi-aveda-hairshow.webp" alt="Aveda — hair show con performance dal vivo" loading="lazy"><div class="foto-item-overlay"><span>Aveda · Hair Show</span></div></div>
-        <div class="foto-item reveal"><img width="1600" height="900" src="media/fotografia/eventi-mercomedy.webp" alt="Mercomedy — stand-up comedy, Ghe Pensi Mi e Baz" loading="lazy"><div class="foto-item-overlay"><span>Stand-up · Mercomedy</span></div></div>
-        <div class="foto-item reveal"><img width="1600" height="1067" src="media/fotografia/eventi-max-angioni.webp" alt="Max Angioni sul palco durante un evento" loading="lazy"><div class="foto-item-overlay"><span>Comedy · Max Angioni</span></div></div>
-        <div class="foto-item reveal"><img width="634" height="476" src="media/fotografia/eventi-milano-corporate.webp" alt="Evento corporate con vista sullo skyline di Milano" loading="lazy"><div class="foto-item-overlay"><span>Corporate · Milano</span></div></div>
-        <div class="foto-item reveal"><img width="1200" height="1600" src="media/fotografia/eventi-workshop.webp" alt="Talk e workshop con proiezione" loading="lazy"><div class="foto-item-overlay"><span>Talk · Workshop</span></div></div>
+      <div class="gen-grid">
+        <button type="button" class="gen-tile reveal" data-genre="corporate" aria-label="Apri le foto Corporate (11)">
+          <img src="media/fotografia/corporate-01.webp" alt="Fotografia Corporate — copertina" loading="lazy">
+          <span class="gen-num">01</span>
+          <span class="gen-info"><span class="gen-name">Corporate</span><span class="gen-count">11 foto</span></span>
+          <span class="gen-arrow" aria-hidden="true">→</span>
+        </button>
+<button type="button" class="gen-tile reveal" data-genre="evento" aria-label="Apri le foto Evento (12)">
+          <img src="media/fotografia/fabrifibra.webp" alt="Fotografia Evento — copertina" loading="lazy">
+          <span class="gen-num">02</span>
+          <span class="gen-info"><span class="gen-name">Evento</span><span class="gen-count">12 foto</span></span>
+          <span class="gen-arrow" aria-hidden="true">→</span>
+        </button>
+<div class="gen-tile gen-soon reveal" aria-disabled="true">
+          <span class="gen-num">03</span>
+          <span class="gen-info"><span class="gen-name">Social</span><span class="gen-count">In arrivo</span></span>
+        </div>
+<button type="button" class="gen-tile reveal" data-genre="beauty" aria-label="Apri le foto Beauty (3)">
+          <img src="media/fotografia/beauty-seduta.webp" alt="Fotografia Beauty — copertina" loading="lazy">
+          <span class="gen-num">04</span>
+          <span class="gen-info"><span class="gen-name">Beauty</span><span class="gen-count">3 foto</span></span>
+          <span class="gen-arrow" aria-hidden="true">→</span>
+        </button>
+<button type="button" class="gen-tile reveal" data-genre="prodotto" aria-label="Apri le foto Prodotto (14)">
+          <img src="media/fotografia/prodotto-oleato-verticale.webp" alt="Fotografia Prodotto — copertina" loading="lazy">
+          <span class="gen-num">05</span>
+          <span class="gen-info"><span class="gen-name">Prodotto</span><span class="gen-count">14 foto</span></span>
+          <span class="gen-arrow" aria-hidden="true">→</span>
+        </button>
+      </div>
+      <div id="gsets" hidden>
+      <div class="gset" id="gset-corporate" data-title="Corporate" data-desc="Eventi aziendali, conferenze, showroom e ambienti di lavoro: immagini professionali per sito, LinkedIn e comunicazione d&#x27;impresa." data-aspect="3/2" hidden>
+        <figure class="gset-item" data-cap="Incontro · Panel"><img width="1800" height="1351" src="media/fotografia/corporate-01.webp" alt="Incontro aziendale: due relatori seduti a confronto davanti al pubblico" loading="lazy"><figcaption>Incontro · Panel</figcaption></figure>
+        <figure class="gset-item" data-cap="Presentazione · Pubblico"><img width="1800" height="1351" src="media/fotografia/corporate-02.webp" alt="Pubblico in sala durante una presentazione aziendale" loading="lazy"><figcaption>Presentazione · Pubblico</figcaption></figure>
+        <figure class="gset-item" data-cap="Convegno"><img width="1800" height="1351" src="media/fotografia/corporate-03.webp" alt="Convegno in sala con relatori e platea" loading="lazy"><figcaption>Convegno</figcaption></figure>
+        <figure class="gset-item" data-cap="Networking"><img width="1800" height="1351" src="media/fotografia/corporate-04.webp" alt="Networking tra ospiti durante un evento aziendale" loading="lazy"><figcaption>Networking</figcaption></figure>
+        <figure class="gset-item" data-cap="Brindisi"><img width="1800" height="1351" src="media/fotografia/corporate-05.webp" alt="Brindisi con calici tra gli ospiti di un evento" loading="lazy"><figcaption>Brindisi</figcaption></figure>
+        <figure class="gset-item" data-cap="Milano · Skyline"><img width="1800" height="1351" src="media/fotografia/corporate-06.webp" alt="Due persone di spalle davanti alla vista sullo skyline di Milano" loading="lazy"><figcaption>Milano · Skyline</figcaption></figure>
+        <figure class="gset-item" data-cap="Milano · Vetrine"><img width="1800" height="1201" src="media/fotografia/corporate-07.webp" alt="Vetrine illuminate di rosso su un edificio storico a Milano" loading="lazy"><figcaption>Milano · Vetrine</figcaption></figure>
+        <figure class="gset-item" data-cap="Museo · Allestimento"><img width="1800" height="1201" src="media/fotografia/corporate-08.webp" alt="Allestimento museale con teche e ritratto" loading="lazy"><figcaption>Museo · Allestimento</figcaption></figure>
+        <figure class="gset-item" data-cap="Showroom"><img width="1800" height="1201" src="media/fotografia/corporate-09.webp" alt="Showroom con modellini esposti su mensole illuminate" loading="lazy"><figcaption>Showroom</figcaption></figure>
+        <figure class="gset-item" data-cap="Motorsport · Atrio"><img width="1800" height="1201" src="media/fotografia/corporate-10.webp" alt="Monoposto rossa esposta in un atrio, vista dall&#x27;alto" loading="lazy"><figcaption>Motorsport · Atrio</figcaption></figure>
+        <figure class="gset-item" data-cap="Motorsport · Teche"><img width="1201" height="1800" src="media/fotografia/corporate-11.webp" alt="Caschi e volante da corsa in teche espositive" loading="lazy"><figcaption>Motorsport · Teche</figcaption></figure>
+      </div>
+      <div class="gset" id="gset-evento" data-title="Evento" data-desc="Concerti, presentazioni, premiazioni, spettacoli: il reportage che cattura energia e dettagli di una serata dal vivo." data-aspect="3/2" hidden>
+        <figure class="gset-item" data-cap="Concerto · Fabri Fibra"><img width="1067" height="1600" src="media/fotografia/fabrifibra.webp" alt="Fabri Fibra — Festival Tour 2025, palco a cassetta" loading="lazy"><figcaption>Concerto · Fabri Fibra</figcaption></figure>
+        <figure class="gset-item" data-cap="Aveda · Reunion"><img width="1800" height="1201" src="media/fotografia/evento-aveda-reunion.webp" alt="Aveda Italia Reunion — relatrice sul palco davanti al pubblico" loading="lazy"><figcaption>Aveda · Reunion</figcaption></figure>
+        <figure class="gset-item" data-cap="Aveda · Fashion Show"><img width="1800" height="1201" src="media/fotografia/evento-aveda-rosso.webp" alt="Aveda — modella in rosso su palco con schermi luminosi" loading="lazy"><figcaption>Aveda · Fashion Show</figcaption></figure>
+        <figure class="gset-item" data-cap="Aveda · Passerella"><img width="1800" height="1201" src="media/fotografia/evento-aveda-abiti.webp" alt="Aveda — passerella con abiti chiari e luci sceniche" loading="lazy"><figcaption>Aveda · Passerella</figcaption></figure>
+        <figure class="gset-item" data-cap="Aveda · Photobooth"><img width="1800" height="1201" src="media/fotografia/evento-aveda-photobooth.webp" alt="Aveda — area photobooth con ospiti in posa" loading="lazy"><figcaption>Aveda · Photobooth</figcaption></figure>
+        <figure class="gset-item" data-cap="Aveda · Salons Awards"><img width="1600" height="1067" src="media/fotografia/eventi-aveda-awards.webp" alt="Aveda Italia Salons Awards 2022 — premiazione sul palco" loading="lazy"><figcaption>Aveda · Salons Awards</figcaption></figure>
+        <figure class="gset-item" data-cap="Aveda · Sfilata"><img width="1600" height="1067" src="media/fotografia/eventi-aveda-fashion.webp" alt="Aveda — sfilata di moda sul palco" loading="lazy"><figcaption>Aveda · Sfilata</figcaption></figure>
+        <figure class="gset-item" data-cap="Aveda · Hair Show"><img width="1600" height="1067" src="media/fotografia/eventi-aveda-hairshow.webp" alt="Aveda — hair show con performance dal vivo" loading="lazy"><figcaption>Aveda · Hair Show</figcaption></figure>
+        <figure class="gset-item" data-cap="Stand-up · Mercomedy"><img width="1600" height="900" src="media/fotografia/eventi-mercomedy.webp" alt="Mercomedy — stand-up comedy, Ghe Pensi Mi e Baz" loading="lazy"><figcaption>Stand-up · Mercomedy</figcaption></figure>
+        <figure class="gset-item" data-cap="Comedy · Max Angioni"><img width="1600" height="1067" src="media/fotografia/eventi-max-angioni.webp" alt="Max Angioni sul palco durante un evento" loading="lazy"><figcaption>Comedy · Max Angioni</figcaption></figure>
+        <figure class="gset-item" data-cap="Talk · Workshop"><img width="1200" height="1600" src="media/fotografia/eventi-workshop.webp" alt="Talk e workshop con proiezione" loading="lazy"><figcaption>Talk · Workshop</figcaption></figure>
+        <figure class="gset-item" data-cap="Evento · Milano"><img width="634" height="476" src="media/fotografia/eventi-milano-corporate.webp" alt="Evento con vista sullo skyline di Milano" loading="lazy"><figcaption>Evento · Milano</figcaption></figure>
+      </div>
+      <div class="gset" id="gset-beauty" data-title="Beauty" data-desc="Ritratti su pellicola, luce naturale e grana analogica. Scatti che catturano presenza, corpo e carattere." data-aspect="4/5" hidden>
+        <figure class="gset-item" data-cap="Movimento"><img width="1067" height="1600" src="media/fotografia/beauty-ballo.webp" alt="Ritratto femminile in movimento su pellicola B/N" loading="lazy"><figcaption>Movimento</figcaption></figure>
+        <figure class="gset-item" data-cap="Ritratto"><img width="1067" height="1600" src="media/fotografia/beauty-seduta.webp" alt="Ritratto femminile su balcone, pellicola B/N" loading="lazy"><figcaption>Ritratto</figcaption></figure>
+        <figure class="gset-item" data-cap="Black &amp; White"><img width="1067" height="1600" src="media/fotografia/beauty-ritratto.webp" alt="Ritratto maschile su pellicola B/N a Messina" loading="lazy"><figcaption>Black &amp; White</figcaption></figure>
+      </div>
+      <div class="gset" id="gset-prodotto" data-title="Prodotto" data-desc="Still life, packaging e food: composizione, luce controllata e dettaglio per e-commerce, menu e campagne." data-aspect="1/1" hidden>
+        <figure class="gset-item" data-cap="Oleato · Packaging"><img width="1800" height="1201" src="media/fotografia/prodotto-oleato-cassa.webp" alt="Oleato — bottiglia di olio con cassetta in legno, still life" loading="lazy"><figcaption>Oleato · Packaging</figcaption></figure>
+        <figure class="gset-item" data-cap="Oleato · Still life"><img width="1201" height="1800" src="media/fotografia/prodotto-oleato-verticale.webp" alt="Oleato — bottiglia e cassetta in legno aperta su fondo verde" loading="lazy"><figcaption>Oleato · Still life</figcaption></figure>
+        <figure class="gset-item" data-cap="Oleato · Dettaglio"><img width="1800" height="1201" src="media/fotografia/prodotto-oleato-etichetta.webp" alt="Oleato — dettaglio dell&#x27;etichetta della bottiglia" loading="lazy"><figcaption>Oleato · Dettaglio</figcaption></figure>
+        <figure class="gset-item" data-cap="Taber · Profumo"><img width="1012" height="1800" src="media/fotografia/prodotto-taber-piante.webp" alt="Taber — profumo tra le foglie, in mano" loading="lazy"><figcaption>Taber · Profumo</figcaption></figure>
+        <figure class="gset-item" data-cap="Taber · B/N"><img width="1012" height="1800" src="media/fotografia/prodotto-taber-citta.webp" alt="Taber — profumo in bianco e nero in una piazza di città" loading="lazy"><figcaption>Taber · B/N</figcaption></figure>
+        <figure class="gset-item" data-cap="Taber · Lifestyle"><img width="1012" height="1800" src="media/fotografia/prodotto-taber-mani.webp" alt="Taber — confezione di profumo tenuta tra le mani" loading="lazy"><figcaption>Taber · Lifestyle</figcaption></figure>
+        <figure class="gset-item" data-cap="Padel · Scarpe"><img width="1800" height="1201" src="media/fotografia/prodotto-padel-scarpa.webp" alt="Scarpa da padel su campo blu con pallina" loading="lazy"><figcaption>Padel · Scarpe</figcaption></figure>
+        <figure class="gset-item" data-cap="Padel · Suola"><img width="1201" height="1800" src="media/fotografia/prodotto-padel-suola.webp" alt="Scarpa da padel, dettaglio della suola e palline" loading="lazy"><figcaption>Padel · Suola</figcaption></figure>
+        <figure class="gset-item" data-cap="Padel · In campo"><img width="1800" height="1201" src="media/fotografia/prodotto-padel-campo.webp" alt="Scarpe da padel in azione sul campo" loading="lazy"><figcaption>Padel · In campo</figcaption></figure>
+        <figure class="gset-item" data-cap="Padel · Lacci"><img width="1201" height="1800" src="media/fotografia/prodotto-padel-lacci.webp" alt="Atleta che allaccia le scarpe da padel" loading="lazy"><figcaption>Padel · Lacci</figcaption></figure>
+        <figure class="gset-item" data-cap="Food · Tavola"><img width="1800" height="1201" src="media/fotografia/food-tavola.webp" alt="Tavola con hamburger, patatine e cocktail" loading="lazy"><figcaption>Food · Tavola</figcaption></figure>
+        <figure class="gset-item" data-cap="Food · Pasta"><img width="1200" height="1800" src="media/fotografia/food-rigatoni.webp" alt="Rigatoni al pomodoro in padella e spritz" loading="lazy"><figcaption>Food · Pasta</figcaption></figure>
+        <figure class="gset-item" data-cap="Food · Dessert"><img width="1800" height="1201" src="media/fotografia/food-dessert.webp" alt="Coppette di frutta e dessert su tavolo in legno" loading="lazy"><figcaption>Food · Dessert</figcaption></figure>
+        <figure class="gset-item" data-cap="Food · Cocktail"><img width="1201" height="1800" src="media/fotografia/food-cocktail.webp" alt="Brindisi con due cocktail colorati" loading="lazy"><figcaption>Food · Cocktail</figcaption></figure>
+      </div>
       </div>
     </section>
   </div>
 
-  <!-- BEAUTY (bianco) -->
-  <div class="bg-white">
-    <section class="section" style="padding-top:90px; padding-bottom:90px;">
-      <div class="foto-cat-head reveal">
-        <div class="fc-num">03</div>
-        <h2 style="color:var(--ink);">Beauty</h2>
-        <p>Ritratti su pellicola, luce naturale e grana analogica. Scatti che catturano presenza, corpo e carattere.</p>
-      </div>
-      <div class="foto-grid">
-        <div class="foto-item reveal"><img width="1067" height="1600" src="media/fotografia/beauty-ballo.webp" alt="Ritratto femminile in movimento su pellicola B/N" loading="lazy"><div class="foto-item-overlay"><span>Movimento</span></div></div>
-        <div class="foto-item reveal"><img width="1067" height="1600" src="media/fotografia/beauty-seduta.webp" alt="Ritratto femminile su balcone, pellicola B/N" loading="lazy"><div class="foto-item-overlay"><span>Ritratto</span></div></div>
-        <div class="foto-item reveal"><img width="1067" height="1600" src="media/fotografia/beauty-ritratto.webp" alt="Ritratto maschile su pellicola B/N a Messina" loading="lazy"><div class="foto-item-overlay"><span>Black &amp; White</span></div></div>
-      </div>
-    </section>
+  <!-- PANNELLO GENERE -->
+  <div class="gpanel" id="gpanel" role="dialog" aria-modal="true" aria-labelledby="gpTitle" hidden>
+    <div class="gp-top">
+      <nav class="gp-tabs" id="gpTabs" aria-label="Generi"></nav>
+      <button type="button" class="gp-close" id="gpClose" aria-label="Chiudi">&times;</button>
+    </div>
+    <div class="gp-body" id="gpBody">
+      <h2 id="gpTitle"></h2>
+      <p class="gp-desc" id="gpDesc"></p>
+      <div class="gp-grid" id="gpGrid"></div>
+      <div class="gp-cta"><a href="index.html?tipo=fotografia#contatti">Serve un servizio fotografico? Scrivimi</a></div>
+    </div>
   </div>
+  <!-- GENERI-END -->
+
+  
+  
 
   <!-- CTA -->
   <section class="cta-section" style="background:var(--amber-deep); color:#fff; text-align:center; padding:70px 20px;">
     <h2 style="font-size:clamp(28px,4vw,38px); margin-bottom:18px;">Hai uno scatto in mente?</h2>
-    <p style="font-size:16px; margin-bottom:30px; max-width:600px; margin-left:auto; margin-right:auto;">Moda, prodotto o evento: raccontami il progetto e troviamo insieme lo stile giusto.</p>
+    <p style="font-size:16px; margin-bottom:30px; max-width:600px; margin-left:auto; margin-right:auto;">Corporate, evento, social, beauty o prodotto: raccontami il progetto e troviamo insieme lo stile giusto.</p>
     <a href="index.html?tipo=fotografia#contatti" style="display:inline-block; background:#1a1a1a; color:#fff; padding:15px 36px; border-radius:6px; text-decoration:none; font-weight:500; letter-spacing:1px; transition:all .3s;">CONTATTAMI</a>
   </section>
 </main>
@@ -1131,24 +1233,72 @@
   <script src="/cookie-consent.js" defer></script>
 
 <script>
-/* Fotografia: la foto intera si apre al click */
+/* GENERI-JS: pannello unico per genere + lightbox */
 (function(){
-  var imgs = Array.prototype.slice.call(document.querySelectorAll('.foto-grid .foto-item img'));
-  if(!imgs.length) return;
-  var lb = document.createElement('div');
-  lb.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(6,9,14,.95);display:none;align-items:center;justify-content:center;cursor:zoom-out;';
-  lb.innerHTML = '<img alt="" style="max-width:94vw;max-height:92vh;border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.6);">'
-    + '<button type="button" aria-label="Chiudi" style="position:absolute;top:18px;right:20px;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:24px;cursor:pointer;line-height:1;">&times;</button>'
-    + '<button type="button" aria-label="Precedente" data-d="-1" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:26px;cursor:pointer;">&#8249;</button>'
-    + '<button type="button" aria-label="Successiva" data-d="1" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:26px;cursor:pointer;">&#8250;</button>';
+  var panel=document.getElementById('gpanel'); if(!panel) return;
+  var sets=[].slice.call(document.querySelectorAll('.gset')), grid=document.getElementById('gpGrid'),
+      tabs=document.getElementById('gpTabs'), body=document.getElementById('gpBody'), cur=null, lastFocus=null;
+  var all=[{id:'corporate',n:'Corporate'},{id:'evento',n:'Evento'},{id:'social',n:'Social'},{id:'beauty',n:'Beauty'},{id:'prodotto',n:'Prodotto'}];
+  all.forEach(function(g){
+    var has=document.getElementById('gset-'+g.id), b=document.createElement('button');
+    b.type='button'; b.className='gp-tab'+(has?'':' soon'); b.textContent=g.n; b.dataset.g=g.id;
+    if(!has){ b.disabled=true; b.title='In arrivo'; }
+    tabs.appendChild(b);
+  });
+  function fill(id){
+    var set=document.getElementById('gset-'+id); if(!set) return;
+    cur=id;
+    document.getElementById('gpTitle').textContent=set.dataset.title;
+    document.getElementById('gpDesc').textContent=set.dataset.desc;
+    grid.style.setProperty('--ar',set.dataset.aspect);
+    grid.innerHTML='';
+    [].slice.call(set.children).forEach(function(f,i){
+      var c=f.cloneNode(true); c.setAttribute('role','button'); c.tabIndex=0; c.dataset.i=i; grid.appendChild(c);
+    });
+    [].slice.call(tabs.children).forEach(function(t){ t.classList.toggle('on',t.dataset.g===id); });
+    body.scrollTop=0;
+  }
+  function openG(id,push){
+    if(!document.getElementById('gset-'+id)) return;
+    if(panel.hidden){ lastFocus=document.activeElement; panel.hidden=false; document.body.classList.add('gp-open'); requestAnimationFrame(function(){ panel.classList.add('show'); }); }
+    fill(id);
+    if(push!==false){ try{ history.replaceState(null,'','#'+id); }catch(e){} }
+  }
+  function closeG(){
+    panel.classList.remove('show'); document.body.classList.remove('gp-open');
+    setTimeout(function(){ panel.hidden=true; },250);
+    try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+    if(lastFocus&&lastFocus.focus) lastFocus.focus();
+  }
+  document.querySelectorAll('.gen-tile[data-genre]').forEach(function(t){ t.addEventListener('click',function(){ openG(t.dataset.genre); }); });
+  tabs.addEventListener('click',function(e){ var g=e.target.dataset&&e.target.dataset.g; if(g&&!e.target.disabled) openG(g); });
+  document.getElementById('gpClose').addEventListener('click',closeG);
+  if(location.hash && document.getElementById('gset-'+location.hash.slice(1))) openG(location.hash.slice(1),false);
+
+  /* lightbox */
+  var lb=document.createElement('div');
+  lb.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(6,9,14,.96);display:none;align-items:center;justify-content:center;cursor:zoom-out;';
+  var bs='position:absolute;width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:26px;cursor:pointer;';
+  lb.innerHTML='<img alt="" style="max-width:94vw;max-height:88vh;border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.6);">'
+   +'<div style="position:absolute;left:0;right:0;bottom:16px;text-align:center;color:#c9cfd6;font:12px Jost,sans-serif;letter-spacing:2px;text-transform:uppercase;"></div>'
+   +'<button type="button" aria-label="Chiudi" style="'+bs+'top:16px;right:18px;">&times;</button>'
+   +'<button type="button" aria-label="Precedente" data-d="-1" style="'+bs+'left:14px;top:50%;transform:translateY(-50%);">&#8249;</button>'
+   +'<button type="button" aria-label="Successiva" data-d="1" style="'+bs+'right:14px;top:50%;transform:translateY(-50%);">&#8250;</button>';
   document.body.appendChild(lb);
-  var big = lb.querySelector('img'), cur = 0;
-  function show(i){ cur = (i + imgs.length) % imgs.length; big.src = imgs[cur].currentSrc || imgs[cur].src; big.alt = imgs[cur].alt; }
-  function open(i){ show(i); lb.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
-  function close(){ lb.style.display = 'none'; document.body.style.overflow = ''; }
-  imgs.forEach(function(im, i){ var it = im.closest('.foto-item'); it.setAttribute('role','button'); it.setAttribute('tabindex','0'); it.addEventListener('click', function(){ open(i); }); it.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(i); } }); });
-  lb.addEventListener('click', function(e){ var d = e.target.getAttribute && e.target.getAttribute('data-d'); if(d){ show(cur + parseInt(d, 10)); } else close(); });
-  document.addEventListener('keydown', function(e){ if(lb.style.display !== 'flex') return; if(e.key === 'Escape') close(); else if(e.key === 'ArrowRight') show(cur + 1); else if(e.key === 'ArrowLeft') show(cur - 1); });
+  var big=lb.querySelector('img'), cap=lb.querySelector('div'), idx=0;
+  function figs(){ return [].slice.call(grid.children); }
+  function show(i){ var f=figs(); idx=(i+f.length)%f.length; var im=f[idx].querySelector('img'); big.src=im.currentSrc||im.src; big.alt=im.alt; cap.textContent=(idx+1)+' / '+f.length+'  ·  '+(f[idx].dataset.cap||''); }
+  function openL(i){ show(i); lb.style.display='flex'; }
+  function closeL(){ lb.style.display='none'; }
+  grid.addEventListener('click',function(e){ var f=e.target.closest('figure'); if(f) openL(+f.dataset.i); });
+  grid.addEventListener('keydown',function(e){ if((e.key==='Enter'||e.key===' ')&&e.target.matches('figure')){ e.preventDefault(); openL(+e.target.dataset.i); } });
+  lb.addEventListener('click',function(e){ var d=e.target.getAttribute&&e.target.getAttribute('data-d'); if(d) show(idx+parseInt(d,10)); else closeL(); });
+  var tx=null; lb.addEventListener('touchstart',function(e){ tx=e.touches[0].clientX; },{passive:true});
+  lb.addEventListener('touchend',function(e){ if(tx===null) return; var dx=e.changedTouches[0].clientX-tx; tx=null; if(Math.abs(dx)>50) show(idx+(dx<0?1:-1)); });
+  document.addEventListener('keydown',function(e){
+    if(lb.style.display==='flex'){ if(e.key==='Escape') closeL(); else if(e.key==='ArrowRight') show(idx+1); else if(e.key==='ArrowLeft') show(idx-1); return; }
+    if(!panel.hidden && e.key==='Escape') closeG();
+  });
 })();
 </script>
 </body>
