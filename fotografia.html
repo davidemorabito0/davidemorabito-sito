@@ -677,23 +677,22 @@
   .bg-white .foto-item-ph { color:#b8b0a4; background:repeating-linear-gradient(45deg,#f0ece4,#f0ece4 12px,#f5f1ea 12px,#f5f1ea 24px); }
 
   /* GENERI-CSS */
-  .gen-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:16px; max-width:1180px; margin:0 auto; }
-  .gen-tile { grid-column:span 2; position:relative; aspect-ratio:4/5; border-radius:10px; overflow:hidden; background:#101820; border:1px solid rgba(255,255,255,.08); padding:0; cursor:pointer; text-align:left; color:#fff; font:inherit; display:block; }
-  .gen-tile:nth-child(n+4) { grid-column:span 3; aspect-ratio:3/2; }
+  .gen-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; max-width:1280px; margin:0 auto; }
+  .gen-tile { position:relative; aspect-ratio:3/4; border-radius:10px; overflow:hidden; background:#101820; border:1px solid rgba(255,255,255,.08); padding:0; cursor:pointer; text-align:left; color:#fff; font:inherit; display:block; }
   .gen-tile img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 30%; filter:saturate(.9) brightness(.82); transition:transform .7s ease, filter .4s ease; }
   .gen-tile::after { content:''; position:absolute; inset:0; background:linear-gradient(transparent 40%, rgba(6,9,14,.88)); }
   .gen-tile:hover img, .gen-tile:focus-visible img { transform:scale(1.06); filter:saturate(1.05) brightness(.95); }
   .gen-tile:focus-visible { outline:2px solid var(--amber); outline-offset:3px; }
   .gen-num { position:absolute; top:18px; left:20px; z-index:2; font-family:'Jost',sans-serif; font-size:12px; letter-spacing:3px; color:var(--amber); }
   .gen-info { position:absolute; left:22px; right:60px; bottom:20px; z-index:2; display:flex; flex-direction:column; gap:4px; }
-  .gen-name { font-family:'Jost',sans-serif; font-size:clamp(26px,3vw,36px); font-weight:300; letter-spacing:.5px; }
+  .gen-name { font-family:'Jost',sans-serif; font-size:clamp(22px,2.4vw,32px); line-height:1.1; font-weight:300; letter-spacing:.5px; }
   .gen-count { font-size:12px; letter-spacing:2px; text-transform:uppercase; color:#c9cfd6; }
   .gen-arrow { position:absolute; right:20px; bottom:22px; z-index:2; width:38px; height:38px; border-radius:50%; border:1px solid rgba(255,255,255,.35); display:flex; align-items:center; justify-content:center; transition:all .3s; }
   .gen-tile:hover .gen-arrow { background:var(--amber); border-color:var(--amber); color:#1a1a1a; transform:translateX(3px); }
   .gen-soon { cursor:default; background:repeating-linear-gradient(45deg,#0e141b,#0e141b 14px,#121a23 14px,#121a23 28px); }
   .gen-soon::after { display:none; }
   .gen-soon .gen-name { color:#7f8a97; } .gen-soon .gen-count { color:#5d6875; }
-  @media (max-width:900px){ .gen-grid { grid-template-columns:repeat(2,1fr); } .gen-tile, .gen-tile:nth-child(n+4) { grid-column:span 1; aspect-ratio:4/5; } .gen-tile:nth-child(5) { grid-column:span 2; aspect-ratio:3/2; } }
+  @media (max-width:900px){ .gen-grid { grid-template-columns:repeat(2,1fr); } }
   @media (max-width:540px){ .gen-grid { gap:10px; } .gen-info { left:14px; right:14px; bottom:14px; } .gen-arrow { display:none; } .gen-name { font-size:22px; } }
   .gpanel { position:fixed; inset:0; z-index:1500; background:#080d13; display:flex; flex-direction:column; opacity:0; transition:opacity .3s ease; }
   .gpanel[hidden] { display:none; }
@@ -805,19 +804,11 @@
   <div class="foto-hero-inner">
     <h1 class="hero-h1"><span class="foto-hero-eyebrow">Fotografo a Milano</span>
     <span class="hero-title">Foto<b>grafia</b></span></h1>
-    <div class="foto-hero-tag">Corporate · Evento · Social · Beauty · Prodotto</div>
+    <div class="foto-hero-tag">Corporate ed Eventi · Social · Beauty · Prodotto</div>
   </div>
 </header>
 
 <main id="content">
-
-  <!-- INTRO ELEGANTE (nero) -->
-  <div class="bg-black">
-    <section class="section" style="padding-top:44px; padding-bottom:20px;">
-      <div class="theater-divider reveal"></div>
-      <p class="theater-quote reveal">La fotografia è il mio <b>secondo linguaggio</b>. Lo stesso occhio che cura l'inquadratura in video lo porto nello scatto: <b>luce, racconto, dettaglio</b>.<br>Dal ritratto aziendale al prodotto, fino all'energia di un evento dal vivo.</p>
-    </section>
-  </div>
 
   <!-- SLIDESHOW PRINCIPALE — temporaneamente nascosto (foto moda mancanti)
   <div class="bg-black">
@@ -881,40 +872,34 @@
       <div class="foto-cat-head reveal">
         <div class="fc-num">PORTFOLIO FOTOGRAFICO</div>
         <h2>Scegli un genere</h2>
-        <p>Corporate, evento, social, beauty, prodotto: apri un genere e guarda tutte le foto.</p>
+        <p>Apri un genere e guarda tutte le foto.</p>
       </div>
       <div class="gen-grid">
-        <button type="button" class="gen-tile reveal" data-genre="corporate" aria-label="Apri le foto Corporate (11)">
-          <img src="media/fotografia/corporate-01.webp" alt="Fotografia Corporate — copertina" loading="lazy">
+        <button type="button" class="gen-tile reveal" data-genre="corporate" aria-label="Apri le foto Corporate ed Eventi (23)">
+          <img src="media/fotografia/corporate-01.webp" alt="Fotografia Corporate ed Eventi — copertina" loading="lazy">
           <span class="gen-num">01</span>
-          <span class="gen-info"><span class="gen-name">Corporate</span><span class="gen-count">11 foto</span></span>
-          <span class="gen-arrow" aria-hidden="true">→</span>
-        </button>
-<button type="button" class="gen-tile reveal" data-genre="evento" aria-label="Apri le foto Evento (12)">
-          <img src="media/fotografia/fabrifibra.webp" alt="Fotografia Evento — copertina" loading="lazy">
-          <span class="gen-num">02</span>
-          <span class="gen-info"><span class="gen-name">Evento</span><span class="gen-count">12 foto</span></span>
+          <span class="gen-info"><span class="gen-name">Corporate ed Eventi</span><span class="gen-count">23 foto</span></span>
           <span class="gen-arrow" aria-hidden="true">→</span>
         </button>
 <div class="gen-tile gen-soon reveal" aria-disabled="true">
-          <span class="gen-num">03</span>
+          <span class="gen-num">02</span>
           <span class="gen-info"><span class="gen-name">Social</span><span class="gen-count">In arrivo</span></span>
         </div>
 <button type="button" class="gen-tile reveal" data-genre="beauty" aria-label="Apri le foto Beauty (3)">
           <img src="media/fotografia/beauty-seduta.webp" alt="Fotografia Beauty — copertina" loading="lazy">
-          <span class="gen-num">04</span>
+          <span class="gen-num">03</span>
           <span class="gen-info"><span class="gen-name">Beauty</span><span class="gen-count">3 foto</span></span>
           <span class="gen-arrow" aria-hidden="true">→</span>
         </button>
 <button type="button" class="gen-tile reveal" data-genre="prodotto" aria-label="Apri le foto Prodotto (14)">
           <img src="media/fotografia/prodotto-oleato-verticale.webp" alt="Fotografia Prodotto — copertina" loading="lazy">
-          <span class="gen-num">05</span>
+          <span class="gen-num">04</span>
           <span class="gen-info"><span class="gen-name">Prodotto</span><span class="gen-count">14 foto</span></span>
           <span class="gen-arrow" aria-hidden="true">→</span>
         </button>
       </div>
       <div id="gsets" hidden>
-      <div class="gset" id="gset-corporate" data-title="Corporate" data-desc="Eventi aziendali, conferenze, showroom e ambienti di lavoro: immagini professionali per sito, LinkedIn e comunicazione d&#x27;impresa." data-aspect="3/2" hidden>
+      <div class="gset" id="gset-corporate" data-title="Corporate ed Eventi" data-desc="Eventi aziendali, conferenze, showroom, concerti, premiazioni e spettacoli: immagini professionali per comunicazione d&#x27;impresa e reportage dal vivo." data-aspect="3/2" hidden>
         <figure class="gset-item" data-cap="Incontro · Panel"><img width="1800" height="1351" src="media/fotografia/corporate-01.webp" alt="Incontro aziendale: due relatori seduti a confronto davanti al pubblico" loading="lazy"><figcaption>Incontro · Panel</figcaption></figure>
         <figure class="gset-item" data-cap="Presentazione · Pubblico"><img width="1800" height="1351" src="media/fotografia/corporate-02.webp" alt="Pubblico in sala durante una presentazione aziendale" loading="lazy"><figcaption>Presentazione · Pubblico</figcaption></figure>
         <figure class="gset-item" data-cap="Convegno"><img width="1800" height="1351" src="media/fotografia/corporate-03.webp" alt="Convegno in sala con relatori e platea" loading="lazy"><figcaption>Convegno</figcaption></figure>
@@ -926,8 +911,6 @@
         <figure class="gset-item" data-cap="Showroom"><img width="1800" height="1201" src="media/fotografia/corporate-09.webp" alt="Showroom con modellini esposti su mensole illuminate" loading="lazy"><figcaption>Showroom</figcaption></figure>
         <figure class="gset-item" data-cap="Motorsport · Atrio"><img width="1800" height="1201" src="media/fotografia/corporate-10.webp" alt="Monoposto rossa esposta in un atrio, vista dall&#x27;alto" loading="lazy"><figcaption>Motorsport · Atrio</figcaption></figure>
         <figure class="gset-item" data-cap="Motorsport · Teche"><img width="1201" height="1800" src="media/fotografia/corporate-11.webp" alt="Caschi e volante da corsa in teche espositive" loading="lazy"><figcaption>Motorsport · Teche</figcaption></figure>
-      </div>
-      <div class="gset" id="gset-evento" data-title="Evento" data-desc="Concerti, presentazioni, premiazioni, spettacoli: il reportage che cattura energia e dettagli di una serata dal vivo." data-aspect="3/2" hidden>
         <figure class="gset-item" data-cap="Concerto · Fabri Fibra"><img width="1067" height="1600" src="media/fotografia/fabrifibra.webp" alt="Fabri Fibra — Festival Tour 2025, palco a cassetta" loading="lazy"><figcaption>Concerto · Fabri Fibra</figcaption></figure>
         <figure class="gset-item" data-cap="Aveda · Reunion"><img width="1800" height="1201" src="media/fotografia/evento-aveda-reunion.webp" alt="Aveda Italia Reunion — relatrice sul palco davanti al pubblico" loading="lazy"><figcaption>Aveda · Reunion</figcaption></figure>
         <figure class="gset-item" data-cap="Aveda · Fashion Show"><img width="1800" height="1201" src="media/fotografia/evento-aveda-rosso.webp" alt="Aveda — modella in rosso su palco con schermi luminosi" loading="lazy"><figcaption>Aveda · Fashion Show</figcaption></figure>
@@ -984,10 +967,13 @@
   
   
 
+  
+  
+
   <!-- CTA -->
   <section class="cta-section" style="background:var(--amber-deep); color:#fff; text-align:center; padding:70px 20px;">
     <h2 style="font-size:clamp(28px,4vw,38px); margin-bottom:18px;">Hai uno scatto in mente?</h2>
-    <p style="font-size:16px; margin-bottom:30px; max-width:600px; margin-left:auto; margin-right:auto;">Corporate, evento, social, beauty o prodotto: raccontami il progetto e troviamo insieme lo stile giusto.</p>
+    <p style="font-size:16px; margin-bottom:30px; max-width:600px; margin-left:auto; margin-right:auto;">Corporate, eventi, social, beauty o prodotto: raccontami il progetto e troviamo insieme lo stile giusto.</p>
     <a href="index.html?tipo=fotografia#contatti" style="display:inline-block; background:#1a1a1a; color:#fff; padding:15px 36px; border-radius:6px; text-decoration:none; font-weight:500; letter-spacing:1px; transition:all .3s;">CONTATTAMI</a>
   </section>
 </main>
@@ -1238,7 +1224,7 @@
   var panel=document.getElementById('gpanel'); if(!panel) return;
   var sets=[].slice.call(document.querySelectorAll('.gset')), grid=document.getElementById('gpGrid'),
       tabs=document.getElementById('gpTabs'), body=document.getElementById('gpBody'), cur=null, lastFocus=null;
-  var all=[{id:'corporate',n:'Corporate'},{id:'evento',n:'Evento'},{id:'social',n:'Social'},{id:'beauty',n:'Beauty'},{id:'prodotto',n:'Prodotto'}];
+  var all=[{id:'corporate',n:'Corporate ed Eventi'},{id:'social',n:'Social'},{id:'beauty',n:'Beauty'},{id:'prodotto',n:'Prodotto'}];
   all.forEach(function(g){
     var has=document.getElementById('gset-'+g.id), b=document.createElement('button');
     b.type='button'; b.className='gp-tab'+(has?'':' soon'); b.textContent=g.n; b.dataset.g=g.id;
